@@ -43,3 +43,9 @@ Stage only that work; preserve and exclude unfinished changes from other
 workers. CI contracts must use small generated fixtures in a clean checkout;
 production-run archive checks are explicit optional local integration checks.
 See `docs/github-adoption-policy.md` for the publication boundary.
+
+# Reference and local instructions
+
+작업 지침은 비공개 AI-Lecture를 참고했습니다. 강의 내용·요약·프롬프트·첨부 자료는 공개하지 않습니다.
+로컬 작업을 시작할 때 `.local/AGENTS.private.md`가 있으면 먼저 읽습니다. 해당 파일과 참고 자료는 Git에 추가하지 않습니다.
+
