@@ -1,7 +1,7 @@
 # GitHub synchronization
 
 The user requested on 2026-10-09 that this local project remain synchronized
-with https://github.com/jiho6367-design/forest-omok-lab.
+with https://github.com/jiho6367-design/my-omok.
 
 After completing authorized project work, commit and push the finished local
 changes to the corresponding origin branch. Existing authorization covers
@@ -49,3 +49,8 @@ See `docs/github-adoption-policy.md` for the publication boundary.
 작업 지침은 비공개 AI-Lecture를 참고했습니다. 강의 내용·요약·프롬프트·첨부 자료는 공개하지 않습니다.
 로컬 작업을 시작할 때 `.local/AGENTS.private.md`가 있으면 먼저 읽습니다. 해당 파일과 참고 자료는 Git에 추가하지 않습니다.
 
+# Public identity and private appearance
+
+The public repository is `jiho6367-design/my-omok`; public UI uses `my오목` and black/white stones. Do not reintroduce previous character artwork or branding into public UI, documentation, screenshots, or distributable assets.
+
+`dist/index.html` is always the public build. Preserve `.local/appearance.json` and its images on this PC; the ignored `outputs/omok.html` uses that private appearance and its existing browser storage keys. Never stage `.local/` or `outputs/`. Model adoption must deploy the public staged HTML to `dist/index.html` and the local staged HTML to local output paths. Preserve historical model/evaluation identities and original evidence bytes.
