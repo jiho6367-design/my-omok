@@ -32,7 +32,7 @@
     "learning:plan": "node tools/learning/experiment-plan.cjs",
     "test:analysis:ui": "node test/analysis-parallel-ui.cjs && node test/proven-win-ui.cjs && node test/forbidden-trap-ui.cjs && node test/candidate-win-ui.cjs && node test/resistance-timeout-ui.cjs && node test/mandatory-four-ui.cjs",
     "benchmark:parallel": "node tools/performance/parallel-roots.cjs",
-    "test:opening": "node test/opening-connections.cjs && node test/opening-ring.cjs && node test/offcenter-opening.cjs"
+    "test:opening": "node test/opening-connections.cjs && node test/opening-ring.cjs && node test/offcenter-opening.cjs && node test/native-opening-arena.cjs && node test/opening-report.cjs && node tools/strategy/opening-loss-audit.cjs --self-test"
   },
   "engines": {
     "node": ">=22.13"
