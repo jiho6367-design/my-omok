@@ -9,6 +9,22 @@ assert.equal(arena.perimeter.length,16);assert.equal(new Set(arena.perimeter).si
 for(const c of arena.perimeter){const i=arena.ix(c);assert.equal(Math.max(Math.abs(i%15-7),Math.abs(Math.floor(i/15)-7)),2);assert.equal(arena.coord(i),c);}
 assert.equal(arena.ix('F10'),140);assert.equal(arena.coord(0),'A1');assert.equal(arena.ix('H8'),112);
 for(const c of ['A0','P1','H16','f10','F10x'])assert.throws(()=>arena.ix(c));
+assert.deepEqual(arena.openingSettings(),{firstMove:'H8',radii:[2],perimeter:arena.perimeter});
+const k4=arena.openingSettings(arena.parse(['--first-move=K4','--radii=1,2']));
+assert.equal(k4.firstMove,'K4');assert.deepEqual(k4.radii,[1,2]);assert.equal(k4.perimeter.length,24);assert.equal(new Set(k4.perimeter).size,24);
+assert.deepEqual(k4.perimeter.slice(0,8),['J3','K3','L3','J4','L4','J5','K5','L5']);
+assert.deepEqual(k4.perimeter.slice(8),['I2','J2','K2','L2','M2','I3','M3','I4','M4','I5','M5','I6','J6','K6','L6','M6']);
+for(const [n,c]of k4.perimeter.entries()){const i=arena.ix(c),center=arena.ix('K4');assert.equal(Math.max(Math.abs(i%15-center%15),Math.abs(Math.floor(i/15)-Math.floor(center/15))),n<8?1:2);}
+assert.deepEqual(arena.openingSettings({},k4),k4);assert.deepEqual(arena.openingSettings({'first-move':'K4',radii:'2,1'},k4),k4);
+assert.deepEqual(arena.openingSettings({},{perimeter:arena.perimeter}),arena.openingSettings(),'old H8 manifests remain readable without invented new settings');
+for(const value of ['','0','3','1,1','1,,2',true])assert.throws(()=>arena.openingSettings({radii:value}),/radii/);
+assert.throws(()=>arena.openingSettings({'first-move':'P4'}),/coordinate/);
+assert.throws(()=>arena.openingSettings({'first-move':'H8'},k4),/differs from pinned run/);
+assert.throws(()=>arena.openingSettings({radii:'2'},k4),/differs from pinned run/);
+assert.throws(()=>arena.openingSettings({'first-move':'K4'},{perimeter:arena.perimeter}),/differs from pinned run/);
+assert.throws(()=>arena.openingSettings({},{...k4,perimeter:k4.perimeter.slice(1)}),/Pinned perimeter/);
+assert.throws(()=>arena.openingSettings({},{firstMove:'K4',radii:[1,2]}),/Incomplete pinned/);
+assert(!arena.openingPerimeter('A1',[1,2]).includes('A1'));for(const c of arena.openingPerimeter('A1',[1,2]))assert.equal(arena.coord(arena.ix(c)),c,'boundary rings remain on the board');
 const defaults={firstMode:'fast',firstMaximumMs:1000,secondMode:'auto',secondMaximumMs:15000};assert.deepEqual(arena.actorSettings(),defaults);
 const bothAuto=arena.actorSettings(arena.parse(['--first-mode=auto','--second-mode=auto']));assert.deepEqual(bothAuto,{firstMode:'auto',firstMaximumMs:15000,secondMode:'auto',secondMaximumMs:15000});
 assert.deepEqual(arena.actorSettings({},bothAuto),bothAuto,'absent resume flags inherit both pinned AUTO modes');
@@ -17,8 +33,8 @@ for(const actor of ['first','second']){assert.throws(()=>arena.actorSettings({[a
 assert.throws(()=>arena.actorSettings({'first-mode':'auto'},defaults),/differs from pinned run/);assert.throws(()=>arena.modeForPlayer(bothAuto,0),/player/);
 const legacy={schemaVersion:1,runnerHash:'efe8e4a3eeaf860a6c4594c2ef55bfb590ed5c5f3babb51d5b4f4196ea4b0700',settings:defaults};
 assert(!arena.compatibleRunner(legacy,'new-runner'),'old completed records stay readable through report tools, not execution under a changed runner');assert(!arena.compatibleRunner({...legacy,runnerHash:'unknown'},'new-runner'));assert(arena.compatibleRunner({runnerHash:'current'},'current'));
-function makeRows(sequence,{terminalAt=null,winner=null}={}){const board=Array(225).fill(0),rows=[];let prevHash=null;
- for(const [n,c]of sequence.entries()){const p=n%2?2:1,i=arena.ix(c),row={schemaVersion:1,gameId,ply:n+1,p,i,coord:c,boardBefore:board.slice(),sourceHash:manifest.sourceHash,modelId:manifest.model.modelId,
+function makeRows(sequence,{terminalAt=null,winner=null,gameId:rowGameId=gameId}={}){const board=Array(225).fill(0),rows=[];let prevHash=null;
+ for(const [n,c]of sequence.entries()){const p=n%2?2:1,i=arena.ix(c),row={schemaVersion:1,gameId:rowGameId,ply:n+1,p,i,coord:c,boardBefore:board.slice(),sourceHash:manifest.sourceHash,modelId:manifest.model.modelId,
   // A prior proof report does not end the actual game; the opponent may err.
   analysis:n<2?null:{i,lossProven:n===2,proofStatus:n===2?'PROVEN_LOSS':'UNRESOLVED'},
   terminal:{complete:n===terminalAt,winner:n===terminalAt?winner:null,reason:n===terminalAt?'actual-exact-five':null},prevHash};
@@ -27,6 +43,15 @@ function makeRows(sequence,{terminalAt=null,winner=null}={}){const board=Array(2
  return rows;
 }
 function rehash(rows){let prevHash=null;for(const m of rows){delete m.hash;m.prevHash=prevHash;m.hash=hash(m);prevHash=m.hash;}return rows;}
+const k4Manifest={...manifest,settings:{...bothAuto,...k4}};
+for(const second of k4.perimeter){const imposed=makeRows(['K4',second],{gameId:second}),state=arena.replay(imposed,second,k4Manifest);assert.equal(state.board[arena.ix('K4')],1);assert.equal(state.board[arena.ix(second)],2);assert(!state.terminal.complete);}
+const wrongFixed=makeRows(['H8','J3'],{gameId:'J3'});assert.throws(()=>arena.replay(wrongFixed,'J3',k4Manifest),/Fixed opening mismatch/);
+assert.throws(()=>arena.replay(makeRows(['K4','H8'],{gameId:'H8'}),'H8',k4Manifest),/outside pinned opening rings/);
+assert.throws(()=>arena.replay([], 'J3',{...manifest,settings:{...bothAuto,...arena.openingSettings({'first-move':'K4',radii:'2'})}}),/outside pinned opening rings/);
+const k4Win=makeRows(['K4','J3','K5','J2','K6','J1','K7','I1','K8'],{gameId:'J3',terminalAt:8,winner:1});
+for(const m of k4Win.slice(2)){m.mode='auto';m.budget={mode:'auto',requestedMs:8000,externalMs:8000,internalMs:7940};}rehash(k4Win);
+assert.equal(arena.replay(k4Win,'J3',k4Manifest).terminal.winner,1,'generic first move and ring second move survive a full legal exact-five replay');
+assert.throws(()=>arena.replay(k4Win,'J3',{...manifest,settings:bothAuto}),/outside pinned opening rings|Fixed opening mismatch/,'legacy H8 context cannot relabel K4 evidence');
 const rows=makeRows(['H8','F10','H7','F9','H6','F8','H5','F7','H4'],{terminalAt:8,winner:1});
 for(let n=0;n<rows.length;n++){const before=rows[n].boardBefore,R=rules(before);assert(R.legal(rows[n].i,rows[n].p));const b=before.slice();b[rows[n].i]=rows[n].p;assert.equal(R.board.join(''),before.join(''));
  if(n===8)assert(rules(b).exact(rows[n].i,1));else assert(!rules(b).exact(rows[n].i,rows[n].p));}
@@ -62,5 +87,5 @@ async function policyPlumbing(firstMode,secondMode,p){const settings=arena.actor
  const result=await arena.analyze(page,Array(225).fill(0),p,gameId,[],settings);assert.equal(result.mode,expected);assert.equal(result.policy.externalMs,expected==='fast'?1000:8000,'AUTO uses native adaptive request, not a uniform15s override');assert(result.boardUnchanged);assert.equal(result.workersRemaining,0);assert.deepEqual(calls.map(c=>c.type),['settings','budget','spawn']);
 }
 (async()=>{for(const first of ['fast','auto'])for(const second of ['fast','auto'])for(const p of [1,2])await policyPlumbing(first,second,p);
- console.log('PASS native arena generated fixtures:16 perimeter/coordinates, hash/source/model/turn/board replay, actual five/fullboard,33/overline, continued loss-proof play, portable app export, partial-tail recovery, per-player modes/native adaptive policy and conflicting-resume rejection');
+ console.log('PASS native arena generated fixtures: legacy H8/radius2 and K4/radius1+2 24 openings, strict pinned ring/first-move/resume validation, hash/source/model/turn/board replay, actual five/fullboard,33/overline, continued loss-proof play, portable app export, partial-tail recovery and native adaptive actor modes');
 })().catch(error=>{console.error(error.stack||error);process.exitCode=1;});

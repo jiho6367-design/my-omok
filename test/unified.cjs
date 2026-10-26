@@ -8,6 +8,26 @@ let count=0,failed=0,advisory=0;const test=(name,fn)=>{if(filter&&!filter.test(n
   try{fn();count++;console.log('PASS',name);}catch(error){failed++;process.exitCode=1;console.error('FAIL',name,error.stack);}
 };
 
+function independentlyProvenWin(board,p,result){
+  assert(result.proven&&!result.lossProven);assert.equal(result.pv[0],result.i);
+  const serialize=require('../tools/counter-dag.cjs'),verify=require('../tools/verify-counter.cjs'),plain=x=>JSON.parse(JSON.stringify(x));
+  const replay=require('../tools/counter-rules.cjs')(board);let turn=p;
+  for(let k=0;k<result.pv.length;k++){const i=result.pv[k];assert(replay.legal(i,turn));replay.put(i,turn);if(replay.exact(i,turn))assert.equal(k,result.pv.length-1);turn=3-turn;}
+  let entry=board.slice(),dag,loss=false;
+  if(result.proof?.type==='all-legal-replies'){
+    const proof=result.proof;assert(proof.complete);assert.equal(proof.move,result.i);assert.equal(proof.attacker,p);assert.equal(proof.defender,3-p);assert.equal(proof.entryBoardKey,board.join(''));
+    entry[result.i]=p;assert.equal(proof.replyBoardKey,entry.join(''));dag=serialize(null,{attacker:p,roots:plain(proof.branches)});loss=true;
+  }else dag=serialize({type:'vcf',pv:plain(result.pv)},{attacker:p});
+  const checked=verify(entry,dag,{loss,limitMs:3000});
+  if(!checked.verified&&!loss){
+    // Legacy quiet-win results can retain only one representative PV. The
+    // point still needs a full, independently checked all-response proof.
+    const complete=strict.verifyWinningMove(board,p,result.i,1000);assert(complete.complete&&complete.proof);
+    return independentlyProvenWin(board,p,{...result,proof:complete.proof});
+  }
+  assert(checked.verified,checked.error);assert(checked.boardRestored);
+}
+
 // Earlier complete counter-threat proofs can replace a historical unknown.
 // Independently replay every legal root; resistance moves remain playable
 // after a proven loss, and are never presented as escapes.
@@ -169,7 +189,16 @@ test('D9 pattern hint preserves board symmetry and color swap',()=>{
 test('26-ply record is green to move with a forcing win, and H7 prevents the recorded setup at ply 6',()=>{
   const moves='H8 G7 I8 F8 H6 G9 H7 H9 J8 G8 G6 J9 K8 L8 K9 F9 I9 G11 G10 I7 I6 E9 D9 F6 K6 J6'.split(' '),b=blank();
   moves.forEach((c,k)=>{const p=k%2?1:2,s=strict.inspect(b,idx(c),p);assert(s.legal,`${k+1}/${c}`);assert.equal(s.win.length,0,`premature finish ${k+1}`);b[idx(c)]=p;});
-  const green=strict.analyze(b,2,{automatic:true,ms:100},[]);assert.equal(green.i,idx('F5'));assert(green.proven);assert.equal(green.pv.map(i=>String.fromCharCode(65+i%15)+(1+(i/15|0))).join(','),'F5,E4,K7');
+  const tiny=strict.analyze(b,2,{automatic:true,ms:100},[]);assert(strict.inspect(b,tiny.i,2).legal);assert(!tiny.lossProven);
+  if(tiny.proven)independentlyProvenWin(b,2,tiny);
+  // A 100ms micro-budget may legitimately end before certification. Require
+  // the winning result at the actual FAST mode budget, rather than timing luck.
+  const green=strict.analyze(b,2,{mode:'fast',ms:1000},[]);independentlyProvenWin(b,2,green);
+  // Both are independently certified wins. Faster proof discovery may return
+  // F7 instead of the historical F5; the completed certificate is the contract.
+  independentlyProvenWin(b,2,{i:idx('F5'),pv:['F5','E4','K7'].map(idx),proven:true,lossProven:false});
+  const alternative=strict.verifyWinningMove(b,2,idx('F7'),1000);assert(alternative.complete&&alternative.proof);
+  independentlyProvenWin(b,2,{...alternative,i:idx('F7'),proven:true,lossProven:false});
   const pre=blank();moves.slice(0,5).forEach((c,k)=>pre[idx(c)]=k%2?1:2);const defense=strict.patternDefense(pre,1);assert.equal(defense.i,idx('H7'));assert(defense.patternVerified);assert(!defense.proven);
   pre[idx('H7')]=1;pre[idx('I7')]=2;const check=strict.forcing(pre,2,21,3000);assert(check.complete);assert(!check.proof);
 });

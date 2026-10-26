@@ -484,6 +484,8 @@ function createStrategyEngine(N,rules,options={}){
 }
 
 
+// Shared geometry only; each Reader owns its mutable neighbour counts.
+const READER_LEGAL_RAYS=new Map();
 function createReaderEngine(N, board, options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   if(![15,19].includes(N)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid board');
@@ -495,6 +497,15 @@ function createReaderEngine(N, board, options={}) {
   const neuralDirty=neural?new Uint8Array(N*N):null,neuralDirtyIndices=neural?[]:null;
   const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion}):'';
   const inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N, at=(x,y)=>inside(x,y)?b[y*N+x]:3;
+  let legalRays=READER_LEGAL_RAYS.get(N);
+  if(!legalRays){legalRays=Array.from({length:N*N},(_,i)=>{
+    const targets=[];for(let axis=0;axis<4;axis++)for(let d=-3;d<=3;d++){
+      if(!d)continue;const x=i%N+d*dirs[axis][0],y=(i/N|0)+d*dirs[axis][1];
+      if(inside(x,y))targets.push((y*N+x)*4+axis);
+    }return Uint16Array.from(targets);
+  });READER_LEGAL_RAYS.set(N,legalRays);}
+  const nearbyOwn=[null,new Uint8Array(N*N*4),new Uint8Array(N*N*4)];
+  for(let i=0;i<b.length;i++)if(b[i])for(const target of legalRays[i])nearbyOwn[b[i]][target]++;
   const strategyFactory=typeof createStrategyEngine==='function'?createStrategyEngine:typeof require==='function'?require('./strategy-engine.js'):null;
   const forestFactory=typeof createForestEngine==='function'?createForestEngine:typeof require==='function'?require('./search-engine.js'):null;
   const ruleAdapter=options.strategy!==false&&N===15&&strategyFactory&&forestFactory?forestFactory({strategy:false,patternTable:options.patternTable}):null;
@@ -525,7 +536,7 @@ function createReaderEngine(N, board, options={}) {
   windows.forEach(w=>indexWindow(w.id));
   function value(w){const n1=counts1[w.id],n2=counts2[w.id];if(n1&&n2||!n1&&!n2)return 0;let p=n1?1:2,n=n1||n2;if(b[w.pre]===p||b[w.post]===p)return 0;let v=[0,2,25,420,24000,2000000][n];return p===1?v:-v;}
   windows.forEach((w,k)=>{contributions[k]=value(w);total+=contributions[k];});
-  function set(i,p){const before=b[i];for(const id of cellAffected[i]){const old1=counts1[id],old2=counts2[id];counts1[id]+=(p===1)-(before===1);counts2[id]+=(p===2)-(before===2);indexWindow(id,old1,old2);}b[i]=p;if(neuralPosition&&before!==p&&!neuralDirty[i]){neuralDirty[i]=1;neuralDirtyIndices.push(i);}for(let id of affected[i]){const v=value(windows[id]);total+=v-contributions[id];contributions[id]=v;}}
+  function set(i,p){const before=b[i];if(before!==p){const old=nearbyOwn[before],next=nearbyOwn[p];for(const target of legalRays[i]){if(old)old[target]--;if(next)next[target]++;}}for(const id of cellAffected[i]){const old1=counts1[id],old2=counts2[id];counts1[id]+=(p===1)-(before===1);counts2[id]+=(p===2)-(before===2);indexWindow(id,old1,old2);}b[i]=p;if(neuralPosition&&before!==p&&!neuralDirty[i]){neuralDirty[i]=1;neuralDirtyIndices.push(i);}for(let id of affected[i]){const v=value(windows[id]);total+=v-contributions[id];contributions[id]=v;}}
   function tick(){nodes++;if(clockNow()>Math.min(deadline,phaseDeadline))throw Error('timeout');}
   function run(i,p,dx,dy){let x=i%N,y=Math.floor(i/N),len=1;for(let s of [-1,1]){let k=1;while(at(x+s*k*dx,y+s*k*dy)===p){len++;k++;}}return len;}
   function exact(i,p){return dirs.some(([dx,dy])=>run(i,p,dx,dy)===5);}
@@ -543,7 +554,16 @@ function createReaderEngine(N, board, options={}) {
   }if(found&&++count>=2&&!explain)return count;}return explain?details:count;}
   const threes=(i,p)=>openThrees(i,p,false);
   function moveInfo(i,p){if(!Number.isInteger(i)||i<0||i>=b.length||![1,2].includes(p))return {i,legal:false,reason:'invalid',threes:[]};if(b[i])return {i,legal:false,reason:'occupied',threes:[]};b[i]=p;let details,priority;try{priority=exact(i,p);details=openThrees(i,p,true);}finally{b[i]=0;}const ok=priority||details.length<2;return {i,legal:ok,reason:ok?'legal':'double-three',threes:details};}
-  function legal(i,p){if(!Number.isInteger(i)||i<0||i>=b.length||![1,2].includes(p)||b[i])return false;b[i]=p;let ok=(exact(i,p))||threes(i,p)<2;b[i]=0;return ok;}
+  function legal(i,p){
+    if(!Number.isInteger(i)||i<0||i>=b.length||![1,2].includes(p)||b[i])return false;
+    // Each open-three axis needs two other own stones within three cells.
+    // Distinct axes share only this candidate. Fewer than two eligible axes
+    // cannot form double-three; an exact five would also be legal.
+    const near=nearbyOwn[p],offset=i*4;let axes=0;
+    for(let axis=0;axis<4;axis++)if(near[offset+axis]>=2)axes++;
+    if(axes<2)return true;
+    b[i]=p;let ok=(exact(i,p))||threes(i,p)<2;b[i]=0;return ok;
+  }
   function winMove(i,p){if(!legal(i,p))return false;b[i]=p;let yes=exact(i,p);b[i]=0;return yes;}
   function wins(p){const res=new Set(),own=p===1?counts1:counts2,enemy=p===1?counts2:counts1;for(const id of [...fourWindows[p]].sort((a,c)=>a-c)){const w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;const empty=w.cells.find(i=>!b[i]);if(legal(empty,p))res.add(empty);}return [...res];}
   function forcingCandidates(p){const res=new Set(),own=p===1?counts1:counts2,enemy=p===1?counts2:counts1;for(const id of [...forcingWindows[p]].sort((a,c)=>a-c)){const w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;for(const i of w.cells)if(!b[i])res.add(i);}return [...res].filter(i=>legal(i,p));}
@@ -1528,7 +1548,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -1559,9 +1579,12 @@ function createEngine(options={}) {
   }
   function suggestBudget(board,p,remaining=40000) {
     if(urgent(board,p))return {ms:100,automatic:true,reason:'즉시 승리·필수 방어 우선'};
-    const count=board.filter(Boolean).length,base=count<6?2500:8000,tactical=forest.suggestBudget(board,p,remaining);
+    // Sparse does not imply an easy attack-direction choice. One stone per
+    // side receives the full AUTO ceiling; completed stability may stop early.
+    const count=board.filter(Boolean).length,openingChoice=count===2&&board.includes(p)&&board.includes(3-p),
+      base=openingChoice?15000:count<6?2500:8000,tactical=forest.suggestBudget(board,p,remaining);
     const cap=Math.max(base,Math.min(15000,tactical.ms));
-    const reason=cap>8000?`위협이 얽힌 국면 · 심층 방어 최대 ${cap/1000}초`:`최대 ${cap/1000}초 · 후보 안정 시 조기 종료`;
+    const reason=openingChoice?'초반 공격 방향·연결 후보 비교 · 최대 15초':cap>8000?`위협이 얽힌 국면 · 심층 방어 최대 ${cap/1000}초`:`최대 ${cap/1000}초 · 후보 안정 시 조기 종료`;
     return {ms:Math.max(30,Math.min(cap,remaining-3000)),automatic:true,reason};
   }
   function analyzeCore(board,p,budget='auto',lessons=[],progress=()=>{},profile={}) {
@@ -2401,7 +2424,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.7';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.7');
+versionBadge.textContent='통합 v5.18.10';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.10');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -2819,8 +2842,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.7 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.7');
+versionBadge.textContent='통합 v5.18.10 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.10');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

@@ -164,7 +164,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -195,9 +195,12 @@ function createEngine(options={}) {
   }
   function suggestBudget(board,p,remaining=40000) {
     if(urgent(board,p))return {ms:100,automatic:true,reason:'즉시 승리·필수 방어 우선'};
-    const count=board.filter(Boolean).length,base=count<6?2500:8000,tactical=forest.suggestBudget(board,p,remaining);
+    // Sparse does not imply an easy attack-direction choice. One stone per
+    // side receives the full AUTO ceiling; completed stability may stop early.
+    const count=board.filter(Boolean).length,openingChoice=count===2&&board.includes(p)&&board.includes(3-p),
+      base=openingChoice?15000:count<6?2500:8000,tactical=forest.suggestBudget(board,p,remaining);
     const cap=Math.max(base,Math.min(15000,tactical.ms));
-    const reason=cap>8000?`위협이 얽힌 국면 · 심층 방어 최대 ${cap/1000}초`:`최대 ${cap/1000}초 · 후보 안정 시 조기 종료`;
+    const reason=openingChoice?'초반 공격 방향·연결 후보 비교 · 최대 15초':cap>8000?`위협이 얽힌 국면 · 심층 방어 최대 ${cap/1000}초`:`최대 ${cap/1000}초 · 후보 안정 시 조기 종료`;
     return {ms:Math.max(30,Math.min(cap,remaining-3000)),automatic:true,reason};
   }
   function analyzeCore(board,p,budget='auto',lessons=[],progress=()=>{},profile={}) {
