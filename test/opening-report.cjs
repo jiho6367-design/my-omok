@@ -13,6 +13,10 @@ function fixture(){const b=Array(225).fill(0),moves=[];let prevHash=null;
 function prefix(g,n){const moves=g.moves.slice(0,n),state=arena.replay(moves,'F10',manifest);return {...g,moves,board:state.board,terminal:state.terminal,tailHash:state.tail};}
 function rehash(g){let prev=null;for(const m of g.moves){delete m.hash;m.prevHash=prev;m.hash=sha(m);prev=m.hash;}g.tailHash=prev;return g;}
 assert.equal(report.verifyGame(fixture(),manifest).terminal.winner,1);
+const bothAuto=fixture(),autoManifest={...manifest,settings:{firstMode:'auto',firstMaximumMs:15000,secondMode:'auto',secondMaximumMs:15000}};
+for(const m of bothAuto.moves)if(m.ply>2){m.mode='auto';m.budget={mode:'auto',requestedMs:15000,externalMs:15000,internalMs:14100};}rehash(bothAuto);
+assert.equal(report.verifyGame(bothAuto,autoManifest).terminal.winner,1);assert.throws(()=>report.verifyGame(bothAuto,manifest),'a new AUTO-first series cannot be misread as the older FAST-first protocol');
+assert.throws(()=>report.verifyGame(fixture(),autoManifest),'a FAST-first game cannot satisfy the new AUTO-first protocol');
 const incomplete=prefix(fixture(),5);incomplete.moves.at(-1).analysis.proven=true;rehash(incomplete);assert.throws(()=>report.verifyGame(incomplete,manifest),/proof flag/);
 const mode=fixture();mode.moves[3].mode='deep';rehash(mode);assert.throws(()=>report.verifyGame(mode,manifest));
 const budget=fixture();budget.moves[3].budget.externalMs=15001;rehash(budget);assert.throws(()=>report.verifyGame(budget,manifest));

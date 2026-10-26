@@ -375,7 +375,7 @@ function createEngine(N, board, options={}) {
       adjust:strategicAdjust.get(r.i)||0,pressure:r.status==='screened'&&pressureChecks.has(r.i)?420:0,
       tempo:r.status==='screened'&&tempoChecks.has(r.i)?420:0}}));
     const rounds=[];let stopReason='최대 탐색 깊이 도달';
-    for(let d=1;d<=10;d++){
+    for(let d=1;d<=(automatic?16:10);d++){
       const round=[];
       try{for(let r of frontier){tick();set(r.i,p);let child;try{child=search(3-p,d-1,-Infinity,Infinity,1);}finally{set(r.i,0);}
         // One existing static-three unit rewards a forcing continuation that
@@ -415,6 +415,9 @@ function createEngine(N, board, options={}) {
 }
 function autoStable(rounds,depth,elapsed,checks,moves){
   if(elapsed<1000||depth<4||rounds.length<3||!checks.screeningComplete||!checks.forcingChecksComplete||!moves.length||moves[0].status==='unverified')return false;
+  // A stable negative estimate is still an unresolved defensive position.
+  // Spend its remaining adaptive budget instead of treating it as an easy stop.
+  if(moves[0].score<0)return false;
   const tail=rounds.slice(-3),scores=tail.map(r=>r.score);
   // Missing history is not evidence of stability. Compare only completed
   // consecutive depths, including the first three PV plies and top rankings.

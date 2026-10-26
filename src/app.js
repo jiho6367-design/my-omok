@@ -21,7 +21,20 @@ function analyze(budget=+$('budget').value,onDone){stopWorker();if(!g||g.result)
  const immediate=E.urgent(board,p);if(immediate){rec=immediate;$('analysisState').textContent=immediate.lossProven?'방어 불가':immediate.proven?'즉시 승리':'즉시 방어';render();if(onDone)onDone(rec);return;}
  try{let src=$('engineSource').textContent+'\nonmessage=e=>{try{const engine=createEngine({firstPlayer:e.data.firstPlayer});postMessage({ok:true,result:engine.analyze(e.data.b,e.data.p,e.data.ms,e.data.lessons)})}catch(x){postMessage({ok:false,error:String(x)})}}';let url=URL.createObjectURL(new Blob([src],{type:'text/javascript'}));worker=new Worker(url);URL.revokeObjectURL(url);worker.onmessage=e=>{if(token!==job)return;worker.terminate();worker=null;if(!e.data.ok){msg('분석 오류: '+e.data.error);$('analysisState').textContent='분석 실패';return;}rec=e.data.result;$('analysisState').textContent='분석 완료';render();if(onDone)onDone(rec);};worker.onerror=()=>{stopWorker();$('analysisState').textContent='분석 사용 불가';msg('이 브라우저에서 분석 Worker를 실행하지 못했습니다. Chrome 또는 Edge에서 파일을 열어 주세요.');};worker.postMessage({b:board,p,ms:budget,lessons:db.lessons,firstPlayer:g.first});}catch(e){$('analysisState').textContent='분석 사용 불가';msg(String(e));}}
 function move(i){if(!g||paused||reviewing||g.result)return;if(g.timer!==false&&Date.now()>=deadline){commit(null);return;}let s=E.inspect(b,i,turn);if(!s.legal){msg(s.reason+(s.threes?.length?' · '+s.threes.map(a=>['가로','세로','↘ 대각선','↗ 대각선'][a]).join(', '):''));let el=$('board').children[i];el.classList.add('illegal');setTimeout(()=>el.classList.remove('illegal'),1000);return;}commit(i,s);}
-function commit(i,s){stopWorker();remaining=Math.max(0,deadline-Date.now());if(cursor<events.length)events=events.slice(0,cursor);let ev={type:i==null?'timeout':'move',p:turn,i,time:new Date().toISOString(),remaining,rec:rec?JSON.parse(JSON.stringify(rec)):null,legal:true,shape:s?{threes:s.threes,fours:s.fours,fork43:s.fork43}:null};if(s?.fork43)ev.annotation='4-3 공격 생성';events.push(ev);cursor++;rec=null;rebuild();remaining=40000;deadline=Date.now()+40000;if(g.result)paused=true;persist();render();msg(i==null?'40초가 지나 상대에게 턴을 넘겼습니다.':g.result?'게임 종료. 패배 복기에서 중요한 수를 살펴보세요.':`${names[ev.p]} ${E.coord(i)} 착수`);if(!g.result)analyze();}
+function snapshotAnalysisForRecord(result){
+ if(!result)return null;
+ // Only new move records omit the large preparation certificate tree. Live
+ // analysis and existing records keep their evidence; this summary cannot be
+ // replayed as an independently verifiable certificate.
+ return JSON.parse(JSON.stringify(result,(key,value)=>{
+  if(key!=='preparationTrap'||!value?.proof||value.proof.certificateRetained===false)return value;
+  const proof=value.proof;
+  return {...value,proof:{type:proof.type,pv:proof.pv,checkedReplies:proof.checkedReplies,
+   scope:value.scope,entryBoardKey:value.entryBoardKey,attacker:value.attacker,defender:value.defender,
+   certificateRetained:false,independentlyVerifiable:false}};
+ }));
+}
+function commit(i,s){stopWorker();remaining=Math.max(0,deadline-Date.now());if(cursor<events.length)events=events.slice(0,cursor);let ev={type:i==null?'timeout':'move',p:turn,i,time:new Date().toISOString(),remaining,rec:snapshotAnalysisForRecord(rec),legal:true,shape:s?{threes:s.threes,fours:s.fours,fork43:s.fork43}:null};if(s?.fork43)ev.annotation='4-3 공격 생성';events.push(ev);cursor++;rec=null;rebuild();remaining=40000;deadline=Date.now()+40000;if(g.result)paused=true;persist();render();msg(i==null?'40초가 지나 상대에게 턴을 넘겼습니다.':g.result?'게임 종료. 패배 복기에서 중요한 수를 살펴보세요.':`${names[ev.p]} ${E.coord(i)} 착수`);if(!g.result)analyze();}
 function navigate(n){stopWorker();cursor=Math.max(0,Math.min(events.length,n));rec=null;rebuild();remaining=40000;render();if(reviewing){let e=events[cursor];rec=e?.rec||null;render();}else{paused=!!g.result;deadline=Date.now()+40000;persist();analyze();}}
 function enterReview(n=cursor){if(!g)return;freeze();stopWorker();if(!reviewing)analysisBefore={cursor,remaining,result:g.result};reviewing=true;navigate(n);render();}
 function leaveReview(){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';reviewing=false;cursor=analysisBefore?.cursor??events.length;remaining=analysisBefore?.remaining??40000;rebuild();rec=null;paused=true;render();analyze();msg('복기를 마쳤습니다. 재개를 누르면 남은 시간으로 계속합니다.');}

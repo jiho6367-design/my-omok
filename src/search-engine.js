@@ -173,6 +173,25 @@ function createForestEngine(options={}){
   if(!factory)return {complete:false,proof:null,scope:'targeted-forbidden-preparations'};
   return factory(N,board,{strategy:false,optimized:true,counterProofDetails:options.counterProofDetails===true}).forbiddenTrap(3-p,budget,maxPlies,quiet);
  }
+ // The opponent is to move after the defender's candidate. Mixed fours,
+ // compulsory counter-four blocks and two quiet preparations share a single
+ // bounded all-response proof search. A completed negative is not safety.
+ function preparationTrap(board,defender,budget=500,maxPlies=25){
+  if(![1,2].includes(defender)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid preparation-trap position');
+  const start=clockNow(),end=start+Math.max(0,Number.isFinite(budget)?budget:0),attacker=3-defender;
+  maxPlies=Number.isFinite(maxPlies)?Math.max(1,Math.floor(maxPlies)):25;
+  const result=(extra={})=>({scope:'two-preparation-counterattack',entryBoardKey:board.join(''),attacker,defender,quiet:2,maxPlies,complete:false,proof:null,nodes:0,...extra,ms:clockNow()-start});
+  if(clockNow()>=end)return result({reason:'deadline'});
+  const factory=typeof createReaderEngine==='function'?createReaderEngine:typeof require==='function'?require('./reader-engine.js').createEngine:null;
+  if(!factory)return result({reason:'reader-unavailable'});
+  const checker=factory(N,board,{strategy:false,optimized:true,model:null,firstPlayer:options.firstPlayer,patternTable:options.patternTable,counterProofDetails:true});
+  // An actual defender five has already ended the game; do not grant the
+  // opponent a hypothetical extra turn to refute that winning candidate.
+  if(checker.state().winners.includes(defender))return result({complete:true,ownWin:true});
+  const remaining=end-clockNow();if(remaining<=0)return result({reason:'deadline'});
+  const checked=checker.counterCertificate(attacker,remaining,maxPlies,2);
+  return result({complete:checked.complete===true,proof:checked.complete===true?checked.proof:null,nodes:checked.nodes});
+ }
  function assessMove(board,p,i){
   const s=inspect(board,i,p);if(!s.legal||s.win.length)return {mustWarn:false};
   const r=urgent(board,p);
@@ -417,6 +436,6 @@ function createForestEngine(options={}){
   let loss=s.win.length?{proof:null,complete:true}:forcing(after,3-p,11,Math.floor(budget*.3));
   return {...r,actual:i,actualLossProof:loss.proof,reviewLabel:r.lossProven?'이미 강제 패배 상태 · 이 수만의 실수 아님':loss.proof?'이 착수 뒤 상대 연속 4 강제승 확인':r.i!==i?'대안 후보 비교 (추정)':'추천 수와 일치'};
  }
- return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,reviewMove,canonical,transformed,untransform,coord,winning};
+ return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
 }
 if(typeof module!=='undefined')module.exports=createForestEngine;

@@ -34,12 +34,15 @@ The prescribed-tree verifier now accepts `firstPlayer`, `moves` containing `PASS
 
 `native-opening-arena.cjs` uses a frozen public HTML and its adopted model. H8 is the fixed first move; the second move is each of the 16 cells at Chebyshev distance two, on the F6–J10 perimeter. Array index 0 is A1; descending display reverses CSS order only. The opening two stones are user-imposed, not claimed engine choices. Subsequent first-player turns use FAST with a 1,000 ms cap, and second-player turns use the real app's adaptive AUTO policy capped at 15,000 ms, including its Worker reserve and early completion. There is no pondering, input delay or turn clock. The verified CPU pattern-table path is used with navigator concurrency fixed at eight, and at most two games run together.
 
+The default actor modes remain FAST/AUTO. To compare AUTO/AUTO, explicitly add `--first-mode=auto --second-mode=auto` and use a **new** output directory. Each side then uses the same native adaptive AUTO policy with a 15,000 ms maximum. The manifest pins each actor's mode and cap, and both durable replay and the viewer check the recorded move budgets against that policy. An explicit conflicting mode on resume is rejected. A runner update also requires a new execution series; preserved completed series remain readable through the report and audit tools without rewriting their evidence.
+
 From PowerShell, after building the desired public version:
 
 ```powershell
 $engineSourceHash = node -p "require('./tools/learning/state.cjs').sourceIdentity().sourceHash"
 node tools/strategy/native-opening-arena.cjs --html=dist/index.html --out=work/perimeter-check "--source-hash=$engineSourceHash" --concurrency=2
 node tools/strategy/opening-report.cjs --runs=work/perimeter-check --out=work/perimeter-check/replay.html
+node tools/strategy/native-opening-arena.cjs --html=dist/index.html --out=work/perimeter-auto-auto "--source-hash=$engineSourceHash" --first-mode=auto --second-mode=auto --concurrency=2
 ```
 
 The first command pins source, copied HTML, full model and weight hashes, runner, verifier and execution runtime. Each move retains the full analysis, completed pool rounds, budget and board in an fsynced hash-chained JSONL. Atomic game checkpoints and `app-game.json` allow inspection and import. Only actual legal exact five or a full board completes a game. A score, engine proof or interrupted request is never a played win or draw. No artificial ply limit is used. `--positions=F10` restricts the requested cells without representing a full sixteen-game result.
@@ -49,3 +52,5 @@ To pause this local series, create `stop.flag` in its output directory; active r
 `opening-report.cjs` independently checks the durable move prefix, turns, modes, caps, PV legality and actual terminal before rendering a plain black/white replay. It also supports multiple comma-separated run directories for comparing preserved versions. Raw game data, models and generated HTML stay local under `work/`.
 
 For a completed loss, `opening-loss-audit.cjs --input=<game.json> --out=<new audit.json>` reads the pinned HTML by default. It scans every second-player turn and makes at most six bounded position checks, capped at ten seconds total. A selected move losing, every legal move already losing, and a verified missed winning alternative are separate findings. One absent saved-PV reply does not establish pruning omission; one blocked line does not establish safety. Existing evidence is never overwritten. Generated fixture checks, including an actual missed mandatory defense, run through `npm run test:opening` without opening browsers or playing full games.
+
+The v5.18.7 finalist guard also checks mixed four attacks with two quiet preparations. Only completed all-response counter-certificates reject a candidate; incomplete checks and a bounded search without a proof are not safety evidence. AUTO comparison can complete depths through 16 within its original time limit, and unresolved negative positions do not use easy-position stability to stop early. Completed comparisons survive interrupted rounds. The [2026-10-26 AUTO/AUTO report](../../docs/auto-auto-defense-20261026.md) records the verified tactical changes and the full sixteen-game result, including the absence of a demonstrated second-player win-rate improvement.
