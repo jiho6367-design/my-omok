@@ -4,7 +4,7 @@
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-2';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -12,12 +12,53 @@ function createStrategyEngine(N,rules,options={}){
   const [dx,dy]=D[axis];if(!inside(x+4*dx,y+4*dy))continue;
   windows.push({axis,cells:Array.from({length:5},(_,k)=>(y+k*dy)*N+x+k*dx),pre:inside(x-dx,y-dy)?(y-dy)*N+x-dx:-1,post:inside(x+5*dx,y+5*dy)?(y+5*dy)*N+x+5*dx:-1});
  }geometry.set(N,windows);}
- const structures=new Map(),features=new Map();
+ if(!windows.byPoint){windows.byPoint=Array.from({length:N*N},()=>[]);for(const w of windows)for(const i of w.cells)windows.byPoint[i].push(w);}
+ const structures=new Map(),features=new Map(),connections=new Map();
  let workLimit=Infinity,workMs=0,skipped=0;
- const empty=i=>({i,legal:true,attack:0,cut:0,dual:0,score:0,axes:[],anchors:[],legalExtensions:[],invalidExtensions:[],invalidThreeAxes:[],usableThreeAxes:[],forcing:false,tentative:true,incomplete:true});
+ const noConnection=()=>({connection:0,pairAxes:[],pairExtensions:[],pairAnchors:[],pairEvidence:[]});
+ const empty=i=>({i,legal:true,attack:0,cut:0,dual:0,score:0,axes:[],anchors:[],legalExtensions:[],invalidExtensions:[],invalidThreeAxes:[],usableThreeAxes:[],...noConnection(),forcing:false,tentative:true,incomplete:true});
  const lightProfile=(board,p)=>{const ownWins=rules.winning(board,p),enemyWins=rules.winning(board,3-p);return {initiative:ownWins.length?'own':enemyWins.length?'opponent':'unknown',firstPlayer,strategyVersion,complete:false,evidence:{ownWins,enemyWins,replyCoverage:'not-checked'}};};
  const measured=(fn,fallback)=>(...args)=>{if(workMs>=workLimit){skipped++;return fallback(...args);}const start=now();try{return fn(...args);}finally{workMs+=now()-start;}};
  const keep=(cache,key,value)=>{if(cache.size>=512)cache.delete(cache.keys().next().value);cache.set(key,value);return value;};
+ const distance=(i,j)=>Math.max(Math.abs(i%N-j%N),Math.abs((i/N|0)-(j/N|0)));
+ const connectionValue=anchors=>Math.max(1,Math.min(32,32-4*anchors.reduce((n,a)=>n+distance(a.i,a.anchor)-1,0)));
+ // An opening junction can join two separate single-stone axes even though
+ // no existing two-stone window contains the candidate. Keep this hint apart
+ // from attack/cut scores and forcing thresholds. Dense middle-game ordering
+ // retains its existing policy; 12 stones matches the ordinary early window.
+ function connectionHints(board,p){
+  const key=board.join('')+'|'+p,cached=connections.get(key);if(cached)return cached;
+  const count=board.reduce((n,v)=>n+!!v,0);if(count>12||board.filter(v=>v===p).length<2){const empty=new Map();if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,empty);return empty;}
+  const points=new Map();
+  for(const w of windows){if(board[w.pre]===p||board[w.post]===p)continue;let anchor=-1,blocked=false;
+   for(const j of w.cells){if(board[j]===3-p){blocked=true;break;}if(board[j]===p){if(anchor!==-1){blocked=true;break;}anchor=j;}}
+   if(blocked||anchor===-1)continue;
+   for(const i of w.cells)if(!board[i]){let point=points.get(i);if(!point){point={i,anchors:new Map()};points.set(i,point);}const previous=point.anchors.get(w.axis);if(previous===undefined||distance(i,anchor)<distance(i,previous))point.anchors.set(w.axis,anchor);}
+  }
+  for(const [i,point]of points){if(point.anchors.size<2){points.delete(i);continue;}point.pairAxes=[...point.anchors.keys()];point.connection=connectionValue([...point.anchors.values()].map(anchor=>({i,anchor})));}
+  if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,points);return points;
+ }
+ function connectionFeature(board,i,p,hint){
+  if(!hint)return noConnection();const pairEvidence=[];board[i]=p;
+  try{for(const axis of hint.pairAxes){
+    const choices=[];for(const w of windows.byPoint[i]){if(w.axis!==axis||board[w.pre]===p||board[w.post]===p||w.cells.some(j=>board[j]===3-p))continue;
+     const stones=w.cells.filter(j=>board[j]===p);if(stones.length===2)choices.push({w,anchor:stones.find(j=>j!==i)});}
+    choices.sort((a,b)=>distance(i,a.anchor)-distance(i,b.anchor));let evidence=null;
+    for(const {w,anchor}of choices){for(const prepare of w.cells.filter(j=>!board[j]).sort((a,b)=>distance(i,a)-distance(i,b))){
+      const prepared=rules.inspect(board,prepare,p);if(!prepared.legal||prepared.win?.length)continue;board[prepare]=p;
+      try{for(const four of w.cells.filter(j=>!board[j]).sort((a,b)=>distance(i,a)-distance(i,b))){const shape=rules.inspect(board,four,p),ends=shape.details?.find(d=>d.axis===axis)?.four||[];
+        if(shape.legal&&!shape.win?.length&&shape.fours?.includes(axis)&&ends.length){evidence={axis,anchor,prepare,four,ends:ends.slice()};break;}}
+      }finally{board[prepare]=0;}
+      if(evidence)break;
+     }if(evidence)break;}
+    if(evidence)pairEvidence.push(evidence);
+   }}finally{board[i]=0;}
+  if(pairEvidence.length<2)return noConnection();
+  // Consecutive own additions describe preparation potential only. They are
+  // never a legal alternating PV, an immediate attack or a winning proof.
+  return {connection:connectionValue(pairEvidence.map(e=>({i,anchor:e.anchor}))),pairAxes:pairEvidence.map(e=>e.axis),
+   pairExtensions:[...new Set(pairEvidence.map(e=>e.prepare))],pairAnchors:[...new Set(pairEvidence.map(e=>e.anchor))],pairEvidence};
+ }
  function rawPoints(board){
   const position=board.join(''),keys=[1,2].map(p=>position+'|'+p+'|false|true'),maps=[new Map(),new Map()];
   // Interior search needs only window support. Build both colours in one
@@ -68,9 +109,9 @@ function createStrategyEngine(N,rules,options={}){
  }
  function move(board,i,p,shape,pointData){
   const key=board.join('')+'|'+p+'|'+i,cached=features.get(key);if(cached)return cached;
-  if(!Number.isInteger(i)||board[i]!==0)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[]};
+  if(!Number.isInteger(i)||board[i]!==0)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
   shape=shape||rules.inspect(board,i,p);
-  if(!shape.legal)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[]};
+  if(!shape.legal)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
   // The candidate itself is legal; its per-axis window support is cheap to
   // gather. The actual open-three extensions below are separately validated.
   const own=(pointData?.own||structure(board,p,false).points).get(i),enemy=rules.legal(board,i,3-p)?(pointData?.enemy||structure(board,3-p,false).points).get(i):null;
@@ -81,12 +122,13 @@ function createStrategyEngine(N,rules,options={}){
    }}finally{board[i]=0;}
   const axes=[...new Set([...(own?.axes||[]),...(shape.fours||[]),...usableThreeAxes])];
   const attack=(own?.score||0)+(shape.fours?.length||0)*900+usableThreeAxes.length*180+Math.max(0,axes.length-1)*45;
-  const cut=enemy?.score||0,dual=attack&&cut?Math.min(attack,cut):0;
+  const cut=enemy?.score||0,dual=attack&&cut?Math.min(attack,cut):0,
+    connection=shape.win?.length||shape.fours?.length?noConnection():connectionFeature(board,i,p,connectionHints(board,p).get(i));
   // Opening order only breaks quiet strategic preferences. It never fixes a
   // colour to permanent defence and never participates in the position value.
   const early=board.reduce((n,v)=>n+!!v,0)<8,opening=early&&firstPlayer!=null?(firstPlayer===p?Math.min(20,attack*.08):Math.min(20,(cut+dual)*.08)):0;
   const score=Math.min(600,attack*.55+cut*.3+dual*.45+opening);
-  return keep(features,key,{i,legal:true,attack,cut,dual,score,axes,anchors:own?.axes.length>1?[i]:[],legalExtensions:[...legalExtensions],invalidExtensions:[...invalidExtensions],invalidThreeAxes:(shape.threes||[]).filter(a=>!usableThreeAxes.includes(a)),usableThreeAxes,forcing:!!shape.win?.length||!!shape.fours?.length});
+  return keep(features,key,{i,legal:true,attack,cut,dual,score,axes,anchors:own?.axes.length>1?[i]:[],legalExtensions:[...legalExtensions],invalidExtensions:[...invalidExtensions],invalidThreeAxes:(shape.threes||[]).filter(a=>!usableThreeAxes.includes(a)),usableThreeAxes,...connection,forcing:!!shape.win?.length||!!shape.fours?.length});
  }
  function profile(board,p){
   const ownWins=rules.winning(board,p),enemyWins=rules.winning(board,3-p),own=structure(board,p),enemy=structure(board,3-p);
@@ -98,6 +140,13 @@ function createStrategyEngine(N,rules,options={}){
  function makeHint(i,own,enemy){const attack=own?.score||0,cut=enemy?.score||0;return {i,attack,cut,dual:attack&&cut?Math.min(attack,cut):0,score:0,axes:own?.axes||[],legalExtensions:[],usableThreeAxes:[],forcing:false,tentative:true};}
  function hint(board,i,p){return makeHint(i,structure(board,p,false).points.get(i),structure(board,3-p,false).points.get(i));}
  function points(board,p){return [...new Set([...structure(board,p,false).points.keys(),...structure(board,3-p,false).points.keys()])];}
+ function appendConnections(board,p,rows,out,seen,capacity,pointData){
+  if(capacity<12||out.length>=capacity)return;const hints=connectionHints(board,p);let added=0,attempts=0;
+  for(const m of rows.filter(m=>hints.has(m.i)).slice().sort((a,b)=>hints.get(b.i).connection-hints.get(a.i).connection||hints.get(b.i).pairAxes.length-hints.get(a.i).pairAxes.length||(b.score??b.s??0)-(a.score??a.s??0))){
+   if(added>=2||out.length>=capacity||attempts>=8)break;if(seen.has(m.i))continue;attempts++;
+   const feature=move(board,m.i,p,m.a,pointData);if(feature.legal&&feature.connection>0&&feature.pairAxes.length>=2){seen.add(m.i);out.push({...m,strategy:feature});added++;}
+  }
+ }
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -108,6 +157,7 @@ function createStrategyEngine(N,rules,options={}){
   const capacity=Math.max(width,out.length),room=Math.max(0,capacity-out.length),q=Math.min(reserve,room),state=['own','opponent','unknown'].includes(pointData?.state)?pointData.state:(rules.winning(board,p).length?'own':rules.winning(board,3-p).length?'opponent':'unknown');
   const quota=state==='own'?[Math.ceil(q/2),Math.floor(q/6),q-Math.ceil(q/2)-Math.floor(q/6)]:state==='opponent'?[Math.floor(q/6),Math.ceil(q/2),q-Math.ceil(q/2)-Math.floor(q/6)]:[Math.ceil(q/3),Math.floor(q/3),q-Math.ceil(q/3)-Math.floor(q/3)];
   for(const [category,n] of ['attack','cut','dual'].map((category,k)=>[category,quota[k]])){let used=0,attempts=0;for(const m of rows.slice().sort((a,b)=>b.strategy[category]-a.strategy[category]||(b.score??b.s??0)-(a.score??a.s??0))){if(used>=n||out.length>=capacity||attempts>=Math.max(4,n*4))break;if(m.strategy[category]>0&&!seen.has(m.i)){attempts++;if(m.strategy.tentative)m.strategy=move(board,m.i,p,m.a,pointData);if(m.strategy.legal&&m.strategy[category]>0){add(m);used++;}}}}
+  appendConnections(board,p,rows,out,seen,capacity,pointData);
   for(const m of rows){if(out.length>=capacity)break;add(m);}return out;
  }
  function evaluate(board,p){return structure(board,p).score-structure(board,3-p).score;}
@@ -194,7 +244,7 @@ function createStrategyEngine(N,rules,options={}){
   result.evidence={...result.evidence,replyCoverage:'bounded',checkedRoots:checks.filter(c=>c.complete).length,continues:best?.continues||0,forcingReplies:best?.forcingReplies||0};
   return {...result,checks,complete,ms:now()-start};
  }
- const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
+ const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));appendConnections(board,p,rows,forced,seen,Math.max(width,forced.length));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
  return {context,strategyVersion,structure,move:measured(move,(board,i)=>empty(i)),hint,
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless

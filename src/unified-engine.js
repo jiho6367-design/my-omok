@@ -4,7 +4,7 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
-  const strategyVersion='initiative-2';
+  const strategyVersion='initiative-3';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
@@ -179,7 +179,7 @@ function createEngine(options={}) {
       pv:validPV(board,p,first?.pv),proven:['win','forced'].includes(r.kind),lossProven:r.kind==='lost',forcedLoss:r.kind==='lost',
       threats:r.danger||[],shape:i==null?null:inspect(board,i,p),urgent:r.kind==='win'||!!r.mandatoryDefense||(r.kind==='lost'&&!!r.danger?.length),
       forbiddenDefense,
-      defenseChecked:first?.status==='screened',fallback:!!r.fallback,kind:r.kind,
+      defenseChecked:first?.status==='screened',fallback:!!r.fallback,kind:r.kind,mandatoryDefense:!!r.mandatoryDefense,
       autoReason:r.autoReason,automatic:r.automatic,screeningComplete:r.screeningComplete,
       forcingChecksComplete:r.forcingChecksComplete,counterProof:r.counterProof,lossCoverage:r.lossCoverage,counterChecks:r.counterChecks,strategy:r.strategy,comparisonSource:'reader',comparison:r.comparison,rootWork:r.rootWork,
       candidates:(r.moves||[]).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,comparisonSource:'reader',
@@ -535,7 +535,7 @@ function createEngine(options={}) {
       if(r.depth>0&&r.candidates?.length>1)compared=r.candidates.slice();
       progress(describe(r));
     },{deep:true});
-    if(best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);
+    if(best.urgent||best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);
     progress(describe(best));
     const rejected=[...(best.rejected||[])],bad=new Set(rejected.filter(refutation).map(m=>m.i));
     const seeds=[{i:best.i,score:best.score,pv:best.pv,depth:best.depth,

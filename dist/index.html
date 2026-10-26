@@ -105,8 +105,8 @@ OmokNeural.setDefaultModel({"schemaVersion":1,"kind":"forest-value-mlp","rulesId
  * only records published before cancellation survive in the page session. */
 const OmokSearchMemory=(()=>{
  const VERSION=1,DEFAULT_ENTRIES=4096,DEFAULT_BYTES=6*1024*1024;
-  const scope=(engine,N,o={})=>[engine,'node-v3',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
-  o.strategy!==false?'initiative-2':'no-strategy',o.optimized?1:0,!!o.patternTable,
+  const scope=(engine,N,o={})=>[engine,'node-v4',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
+  o.strategy!==false?'initiative-3':'no-strategy',o.optimized?1:0,!!o.patternTable,
   o.vcfPrefilter!==false,!!o.counterProofDetails,o.modelVersion||'baseline'].join('|');
  const toStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?ply:-ply):v;
  const fromStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?-ply:ply):v;
@@ -230,7 +230,7 @@ const OmokGPU = (() => {
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-2';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -238,12 +238,53 @@ function createStrategyEngine(N,rules,options={}){
   const [dx,dy]=D[axis];if(!inside(x+4*dx,y+4*dy))continue;
   windows.push({axis,cells:Array.from({length:5},(_,k)=>(y+k*dy)*N+x+k*dx),pre:inside(x-dx,y-dy)?(y-dy)*N+x-dx:-1,post:inside(x+5*dx,y+5*dy)?(y+5*dy)*N+x+5*dx:-1});
  }geometry.set(N,windows);}
- const structures=new Map(),features=new Map();
+ if(!windows.byPoint){windows.byPoint=Array.from({length:N*N},()=>[]);for(const w of windows)for(const i of w.cells)windows.byPoint[i].push(w);}
+ const structures=new Map(),features=new Map(),connections=new Map();
  let workLimit=Infinity,workMs=0,skipped=0;
- const empty=i=>({i,legal:true,attack:0,cut:0,dual:0,score:0,axes:[],anchors:[],legalExtensions:[],invalidExtensions:[],invalidThreeAxes:[],usableThreeAxes:[],forcing:false,tentative:true,incomplete:true});
+ const noConnection=()=>({connection:0,pairAxes:[],pairExtensions:[],pairAnchors:[],pairEvidence:[]});
+ const empty=i=>({i,legal:true,attack:0,cut:0,dual:0,score:0,axes:[],anchors:[],legalExtensions:[],invalidExtensions:[],invalidThreeAxes:[],usableThreeAxes:[],...noConnection(),forcing:false,tentative:true,incomplete:true});
  const lightProfile=(board,p)=>{const ownWins=rules.winning(board,p),enemyWins=rules.winning(board,3-p);return {initiative:ownWins.length?'own':enemyWins.length?'opponent':'unknown',firstPlayer,strategyVersion,complete:false,evidence:{ownWins,enemyWins,replyCoverage:'not-checked'}};};
  const measured=(fn,fallback)=>(...args)=>{if(workMs>=workLimit){skipped++;return fallback(...args);}const start=now();try{return fn(...args);}finally{workMs+=now()-start;}};
  const keep=(cache,key,value)=>{if(cache.size>=512)cache.delete(cache.keys().next().value);cache.set(key,value);return value;};
+ const distance=(i,j)=>Math.max(Math.abs(i%N-j%N),Math.abs((i/N|0)-(j/N|0)));
+ const connectionValue=anchors=>Math.max(1,Math.min(32,32-4*anchors.reduce((n,a)=>n+distance(a.i,a.anchor)-1,0)));
+ // An opening junction can join two separate single-stone axes even though
+ // no existing two-stone window contains the candidate. Keep this hint apart
+ // from attack/cut scores and forcing thresholds. Dense middle-game ordering
+ // retains its existing policy; 12 stones matches the ordinary early window.
+ function connectionHints(board,p){
+  const key=board.join('')+'|'+p,cached=connections.get(key);if(cached)return cached;
+  const count=board.reduce((n,v)=>n+!!v,0);if(count>12||board.filter(v=>v===p).length<2){const empty=new Map();if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,empty);return empty;}
+  const points=new Map();
+  for(const w of windows){if(board[w.pre]===p||board[w.post]===p)continue;let anchor=-1,blocked=false;
+   for(const j of w.cells){if(board[j]===3-p){blocked=true;break;}if(board[j]===p){if(anchor!==-1){blocked=true;break;}anchor=j;}}
+   if(blocked||anchor===-1)continue;
+   for(const i of w.cells)if(!board[i]){let point=points.get(i);if(!point){point={i,anchors:new Map()};points.set(i,point);}const previous=point.anchors.get(w.axis);if(previous===undefined||distance(i,anchor)<distance(i,previous))point.anchors.set(w.axis,anchor);}
+  }
+  for(const [i,point]of points){if(point.anchors.size<2){points.delete(i);continue;}point.pairAxes=[...point.anchors.keys()];point.connection=connectionValue([...point.anchors.values()].map(anchor=>({i,anchor})));}
+  if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,points);return points;
+ }
+ function connectionFeature(board,i,p,hint){
+  if(!hint)return noConnection();const pairEvidence=[];board[i]=p;
+  try{for(const axis of hint.pairAxes){
+    const choices=[];for(const w of windows.byPoint[i]){if(w.axis!==axis||board[w.pre]===p||board[w.post]===p||w.cells.some(j=>board[j]===3-p))continue;
+     const stones=w.cells.filter(j=>board[j]===p);if(stones.length===2)choices.push({w,anchor:stones.find(j=>j!==i)});}
+    choices.sort((a,b)=>distance(i,a.anchor)-distance(i,b.anchor));let evidence=null;
+    for(const {w,anchor}of choices){for(const prepare of w.cells.filter(j=>!board[j]).sort((a,b)=>distance(i,a)-distance(i,b))){
+      const prepared=rules.inspect(board,prepare,p);if(!prepared.legal||prepared.win?.length)continue;board[prepare]=p;
+      try{for(const four of w.cells.filter(j=>!board[j]).sort((a,b)=>distance(i,a)-distance(i,b))){const shape=rules.inspect(board,four,p),ends=shape.details?.find(d=>d.axis===axis)?.four||[];
+        if(shape.legal&&!shape.win?.length&&shape.fours?.includes(axis)&&ends.length){evidence={axis,anchor,prepare,four,ends:ends.slice()};break;}}
+      }finally{board[prepare]=0;}
+      if(evidence)break;
+     }if(evidence)break;}
+    if(evidence)pairEvidence.push(evidence);
+   }}finally{board[i]=0;}
+  if(pairEvidence.length<2)return noConnection();
+  // Consecutive own additions describe preparation potential only. They are
+  // never a legal alternating PV, an immediate attack or a winning proof.
+  return {connection:connectionValue(pairEvidence.map(e=>({i,anchor:e.anchor}))),pairAxes:pairEvidence.map(e=>e.axis),
+   pairExtensions:[...new Set(pairEvidence.map(e=>e.prepare))],pairAnchors:[...new Set(pairEvidence.map(e=>e.anchor))],pairEvidence};
+ }
  function rawPoints(board){
   const position=board.join(''),keys=[1,2].map(p=>position+'|'+p+'|false|true'),maps=[new Map(),new Map()];
   // Interior search needs only window support. Build both colours in one
@@ -294,9 +335,9 @@ function createStrategyEngine(N,rules,options={}){
  }
  function move(board,i,p,shape,pointData){
   const key=board.join('')+'|'+p+'|'+i,cached=features.get(key);if(cached)return cached;
-  if(!Number.isInteger(i)||board[i]!==0)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[]};
+  if(!Number.isInteger(i)||board[i]!==0)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
   shape=shape||rules.inspect(board,i,p);
-  if(!shape.legal)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[]};
+  if(!shape.legal)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
   // The candidate itself is legal; its per-axis window support is cheap to
   // gather. The actual open-three extensions below are separately validated.
   const own=(pointData?.own||structure(board,p,false).points).get(i),enemy=rules.legal(board,i,3-p)?(pointData?.enemy||structure(board,3-p,false).points).get(i):null;
@@ -307,12 +348,13 @@ function createStrategyEngine(N,rules,options={}){
    }}finally{board[i]=0;}
   const axes=[...new Set([...(own?.axes||[]),...(shape.fours||[]),...usableThreeAxes])];
   const attack=(own?.score||0)+(shape.fours?.length||0)*900+usableThreeAxes.length*180+Math.max(0,axes.length-1)*45;
-  const cut=enemy?.score||0,dual=attack&&cut?Math.min(attack,cut):0;
+  const cut=enemy?.score||0,dual=attack&&cut?Math.min(attack,cut):0,
+    connection=shape.win?.length||shape.fours?.length?noConnection():connectionFeature(board,i,p,connectionHints(board,p).get(i));
   // Opening order only breaks quiet strategic preferences. It never fixes a
   // colour to permanent defence and never participates in the position value.
   const early=board.reduce((n,v)=>n+!!v,0)<8,opening=early&&firstPlayer!=null?(firstPlayer===p?Math.min(20,attack*.08):Math.min(20,(cut+dual)*.08)):0;
   const score=Math.min(600,attack*.55+cut*.3+dual*.45+opening);
-  return keep(features,key,{i,legal:true,attack,cut,dual,score,axes,anchors:own?.axes.length>1?[i]:[],legalExtensions:[...legalExtensions],invalidExtensions:[...invalidExtensions],invalidThreeAxes:(shape.threes||[]).filter(a=>!usableThreeAxes.includes(a)),usableThreeAxes,forcing:!!shape.win?.length||!!shape.fours?.length});
+  return keep(features,key,{i,legal:true,attack,cut,dual,score,axes,anchors:own?.axes.length>1?[i]:[],legalExtensions:[...legalExtensions],invalidExtensions:[...invalidExtensions],invalidThreeAxes:(shape.threes||[]).filter(a=>!usableThreeAxes.includes(a)),usableThreeAxes,...connection,forcing:!!shape.win?.length||!!shape.fours?.length});
  }
  function profile(board,p){
   const ownWins=rules.winning(board,p),enemyWins=rules.winning(board,3-p),own=structure(board,p),enemy=structure(board,3-p);
@@ -324,6 +366,13 @@ function createStrategyEngine(N,rules,options={}){
  function makeHint(i,own,enemy){const attack=own?.score||0,cut=enemy?.score||0;return {i,attack,cut,dual:attack&&cut?Math.min(attack,cut):0,score:0,axes:own?.axes||[],legalExtensions:[],usableThreeAxes:[],forcing:false,tentative:true};}
  function hint(board,i,p){return makeHint(i,structure(board,p,false).points.get(i),structure(board,3-p,false).points.get(i));}
  function points(board,p){return [...new Set([...structure(board,p,false).points.keys(),...structure(board,3-p,false).points.keys()])];}
+ function appendConnections(board,p,rows,out,seen,capacity,pointData){
+  if(capacity<12||out.length>=capacity)return;const hints=connectionHints(board,p);let added=0,attempts=0;
+  for(const m of rows.filter(m=>hints.has(m.i)).slice().sort((a,b)=>hints.get(b.i).connection-hints.get(a.i).connection||hints.get(b.i).pairAxes.length-hints.get(a.i).pairAxes.length||(b.score??b.s??0)-(a.score??a.s??0))){
+   if(added>=2||out.length>=capacity||attempts>=8)break;if(seen.has(m.i))continue;attempts++;
+   const feature=move(board,m.i,p,m.a,pointData);if(feature.legal&&feature.connection>0&&feature.pairAxes.length>=2){seen.add(m.i);out.push({...m,strategy:feature});added++;}
+  }
+ }
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -334,6 +383,7 @@ function createStrategyEngine(N,rules,options={}){
   const capacity=Math.max(width,out.length),room=Math.max(0,capacity-out.length),q=Math.min(reserve,room),state=['own','opponent','unknown'].includes(pointData?.state)?pointData.state:(rules.winning(board,p).length?'own':rules.winning(board,3-p).length?'opponent':'unknown');
   const quota=state==='own'?[Math.ceil(q/2),Math.floor(q/6),q-Math.ceil(q/2)-Math.floor(q/6)]:state==='opponent'?[Math.floor(q/6),Math.ceil(q/2),q-Math.ceil(q/2)-Math.floor(q/6)]:[Math.ceil(q/3),Math.floor(q/3),q-Math.ceil(q/3)-Math.floor(q/3)];
   for(const [category,n] of ['attack','cut','dual'].map((category,k)=>[category,quota[k]])){let used=0,attempts=0;for(const m of rows.slice().sort((a,b)=>b.strategy[category]-a.strategy[category]||(b.score??b.s??0)-(a.score??a.s??0))){if(used>=n||out.length>=capacity||attempts>=Math.max(4,n*4))break;if(m.strategy[category]>0&&!seen.has(m.i)){attempts++;if(m.strategy.tentative)m.strategy=move(board,m.i,p,m.a,pointData);if(m.strategy.legal&&m.strategy[category]>0){add(m);used++;}}}}
+  appendConnections(board,p,rows,out,seen,capacity,pointData);
   for(const m of rows){if(out.length>=capacity)break;add(m);}return out;
  }
  function evaluate(board,p){return structure(board,p).score-structure(board,3-p).score;}
@@ -420,7 +470,7 @@ function createStrategyEngine(N,rules,options={}){
   result.evidence={...result.evidence,replyCoverage:'bounded',checkedRoots:checks.filter(c=>c.complete).length,continues:best?.continues||0,forcingReplies:best?.forcingReplies||0};
   return {...result,checks,complete,ms:now()-start};
  }
- const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
+ const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));appendConnections(board,p,rows,forced,seen,Math.max(width,forced.length));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
  return {context,strategyVersion,structure,move:measured(move,(board,i)=>empty(i)),hint,
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
@@ -1296,7 +1346,7 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
-  const strategyVersion='initiative-2';
+  const strategyVersion='initiative-3';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
@@ -1471,7 +1521,7 @@ function createEngine(options={}) {
       pv:validPV(board,p,first?.pv),proven:['win','forced'].includes(r.kind),lossProven:r.kind==='lost',forcedLoss:r.kind==='lost',
       threats:r.danger||[],shape:i==null?null:inspect(board,i,p),urgent:r.kind==='win'||!!r.mandatoryDefense||(r.kind==='lost'&&!!r.danger?.length),
       forbiddenDefense,
-      defenseChecked:first?.status==='screened',fallback:!!r.fallback,kind:r.kind,
+      defenseChecked:first?.status==='screened',fallback:!!r.fallback,kind:r.kind,mandatoryDefense:!!r.mandatoryDefense,
       autoReason:r.autoReason,automatic:r.automatic,screeningComplete:r.screeningComplete,
       forcingChecksComplete:r.forcingChecksComplete,counterProof:r.counterProof,lossCoverage:r.lossCoverage,counterChecks:r.counterChecks,strategy:r.strategy,comparisonSource:'reader',comparison:r.comparison,rootWork:r.rootWork,
       candidates:(r.moves||[]).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,comparisonSource:'reader',
@@ -1827,7 +1877,7 @@ function createEngine(options={}) {
       if(r.depth>0&&r.candidates?.length>1)compared=r.candidates.slice();
       progress(describe(r));
     },{deep:true});
-    if(best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);
+    if(best.urgent||best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);
     progress(describe(best));
     const rejected=[...(best.rejected||[])],bad=new Set(rejected.filter(refutation).map(m=>m.i));
     const seeds=[{i:best.i,score:best.score,pv:best.pv,depth:best.depth,
@@ -2304,7 +2354,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.4';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.4');
+versionBadge.textContent='통합 v5.18.5';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.5');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -2446,9 +2496,17 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     candidates:(r.candidates||[]).filter(m=>r.lossProven||!latestRefuted.has(m.i))}:r;
   const available=()=>lastVerified||E.fallbackResult?.(board,p,{...(lastLegal||{}),depth:0,fallback:true,comparison:{complete:false,selected:lastLegal?.i??null,depth:0,source:lastLegal?.comparisonSource,rootsCompared:0},rejected:[...latestRefutations.values()],reason:'완료 비교 없음 · 국면의 합법 저항 후보'})||E.urgent?.(board,p)||(lastLegal?{...lastLegal,depth:0,comparison:{complete:false,selected:lastLegal.i,depth:0,source:lastLegal.comparisonSource,rootsCompared:0},unverifiedDefense:true,analysisIncomplete:true}:null)||{
     i:null,depth:0,nodes:0,pv:[],unverifiedDefense:true,analysisIncomplete:true,candidates:[]};
+  const mandatoryBlock=r=>{
+    if(r?.kind!=='block'||!r.urgent||r.proven||r.lossProven||latestRefuted.has(r.i)||lastVerified?.lossProven)return null;
+    const current=E.urgent?.(board,p);
+    return current?.kind==='block'&&current.urgent&&current.i===r.i?current:null;
+  };
   const finish=(result,error)=>{if(finished)return;rememberRefutations(result);
     if(rejectedSnapshot(result)){result=available();error=error||'반증된 이전 추천 제외 · 대안 검사 미완료';}
-    if(result&&!result.proven&&!result.lossProven&&result.kind!=='terminal'){
+    const block=mandatoryBlock(result);
+    if(block)result={...result,...block,immediateDefense:true,analysisIncomplete:false,
+      analysisWork:{...result.analysisWork,stopReason:'mandatory-defense'}};
+    if(result&&!result.proven&&!result.lossProven&&result.kind!=='terminal'&&!block){
       if(lastVerified?.lossProven)result=lastVerified;
       else if(completedComparison(result))rememberComparison(result);
       else if(lastVerified){result={...lastVerified,analysisIncomplete:true,reason:'미완료 비교 제외 · 마지막 완료 비교 유지'};}
@@ -2476,6 +2534,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
       // restore a refuted move after cancellation or timeout.
       rememberRefutations(r);if(parallel&&!e.data.parallel)parallel.observe(r);
       if(rejectedSnapshot(r))return;
+      if(mandatoryBlock(r)){finish(r);return;}
       // One certified winning move is enough. Do not leave it provisional
       // while another Worker compares alternatives. Loss evidence still follows
       // the ordinary defense/resistance analysis and final-result path.
@@ -2490,7 +2549,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
       const legal=r?.i!=null&&E.inspect(board,r.i,p).legal;
       if(legal)lastLegal=r;
       if(r?.lossProven)lastVerified=r;else if(legal)rememberComparison(r);onProgress(retainEvidence(r));}
-    else if(parallel&&e.data.result&&!e.data.result.proven&&!e.data.result.lossProven&&e.data.result.kind!=='terminal'){
+    else if(parallel&&e.data.result&&!e.data.result.proven&&!e.data.result.lossProven&&e.data.result.kind!=='terminal'&&!mandatoryBlock(e.data.result)){
       serialFinished=e.data.result;w.onmessage({data:{progress:true,result:serialFinished}});
     }else finish(e.data.result);};
   w.onerror=e=>finish(lastVerified,e.message||'Worker 오류');
@@ -2512,6 +2571,7 @@ function acceptResult(result,partial=false){
     `상대의 ${E.coord(result.forbiddenDefense)} 5목을 막는 수가 3×3 금수입니다. 표시된 합법 수는 승리 수가 아닙니다.`:
     '강제패배가 확인되었습니다. 표시된 합법 수는 승리 수가 아닙니다.','warning');
   else if(result.i==null)setAnalysisStatus('분석 완료 · 추천 없음','검사한 후보가 배제되었고 안전한 대안을 확인하지 못했습니다. 더 이른 수에서 복기하세요.','warning');
+  else if(result.kind==='block'&&result.urgent)setAnalysisStatus('분석 완료 · 즉시 차단','상대의 다음 5목을 막는 필수 방어입니다. 이후 국면의 승패까지 확인한 것은 아닙니다.','urgent');
   else if(result.assessmentStatus==='BOUNDED_FAVORABLE')setAnalysisStatus('분석 완료 · 제한 비교 추천','완료된 깊이에서 공격·방어를 비교한 추천입니다. 강제승이나 이후 안전의 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BLOCKING_UNCHECKED')setAnalysisStatus('분석 완료 · 차단 후보','상대 위협이나 연결을 차단하는 후보입니다. 그 뒤의 안전과 승리는 확인되지 않았습니다.','warning');
   else if(result.assessmentStatus==='INCOMPLETE')setAnalysisStatus('분석 완료 · 판단 미완료',result.timedOut?'시간 상한에 도달했습니다. 마지막 완료 깊이와 합법 후보를 보존했으며 이후 안전은 미확인입니다.':'응수 비교가 충분히 완료되지 않았습니다. 합법 후보이며 승리·안전은 미확인입니다.','warning');
@@ -2531,7 +2591,7 @@ function prepareReply(){
   predictionNote.textContent=`상대 ${E.coord(opponent)} 1초 예측 · 내 응수 ${settingsPolicy.label(analysisSettings)}으로 사전 계산`;
   const current=()=>ponder===task&&g&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
   const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;};
-  const immediate=E.urgent(board,p);if(immediate&&(budget?.automatic===true||immediate.proven||immediate.lossProven||immediate.kind==='terminal')){finish(immediate);return;}
+  const immediate=E.urgent(board,p);if(immediate){finish(immediate);return;}
   try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){task.partial={...r,analysisPolicy:task.policy};if(task.promoted)acceptResult(task.partial,true);}},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){cancelPonder();}
 }
 analyze=function(explicit,onDone){
@@ -2545,7 +2605,7 @@ analyze=function(explicit,onDone){
     else setAnalysisStatus('분석 중','상대 예상 수가 일치했습니다. 앞서 시작한 계산을 이어서 완료합니다.','thinking');return;
   }
   stopWorker();lastProgress=null;rec=null;render();const token=job,board=b.slice(),p=turn,budget=selectedBudget(board,p);
-  const immediate=E.urgent(board,p);if(immediate){acceptResult(immediate);if(budget?.automatic===true||immediate.proven||immediate.lossProven||immediate.kind==='terminal'){onDone?.(immediate);prepareReply();return;}}
+  const immediate=E.urgent(board,p);if(immediate){acceptResult(immediate);onDone?.(immediate);prepareReply();return;}
   setAnalysisStatus('분석 중','임시 후보를 먼저 찾고, 공격·방어를 계속 비교하고 있습니다.','thinking');
   const failed=error=>{if(token!==job)return;worker=null;if(lastProgress){setAnalysisStatus('분석 중단 · 후보 유지','완료된 비교 결과가 없어 현재의 합법 후보를 유지합니다.','stopped');}else{const r=E.analyze(board,p,30);acceptResult(r);}msg('분석 오류: '+error+' · 다시 분석할 수 있습니다.');};
   try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job)acceptResult(r,true);},r=>{if(token!==job)return;worker=null;acceptResult(r);onDone?.(r);prepareReply();},failed);}catch(e){failed(e.message);}
@@ -2712,8 +2772,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.4 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.4');
+versionBadge.textContent='통합 v5.18.5 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.5');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

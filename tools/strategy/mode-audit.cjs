@@ -30,7 +30,7 @@ function run({directory=root,model,selected=['fast','auto','deep'],ids,checkpoin
   scope:'Fixed positions and bounded actual response sequences; not a strength/adoption test. Same frozen weights; fresh engine and cache per request.',rows};
  for(const c of cases().filter(c=>!ids||ids.includes(c.id)))for(const mode of selected){
   const e=engine.create({firstPlayer:c.first,optimized:true}),plan=policy.resolve({...policy.defaults(),mode},c.board,c.p,40000,e.suggestBudget),budget=plan.internalMs;
-  const start=performance.now(),progress=[],request=e.strategyVersion==='initiative-2'?{mode,automatic:mode==='auto',ms:budget}:mode==='auto'?{automatic:true,ms:budget}:budget;
+  const start=performance.now(),progress=[],request=/^initiative-(?:[2-9]|\d{2,})$/.test(e.strategyVersion||'')?{mode,automatic:mode==='auto',ms:budget}:mode==='auto'?{automatic:true,ms:budget}:budget;
   const r=e.analyze(c.board,c.p,request,[],v=>progress.push({ms:Math.round(performance.now()-start),move:v.i,depth:v.depth,source:v.comparisonSource}));
   if(r.i!=null&&!e.inspect(c.board,r.i,c.p).legal)throw Error('Illegal recommendation '+c.id+'/'+mode);
   const pv=e.validPV?Array.from(e.validPV(c.board,c.p,r.pv)):r.pv;

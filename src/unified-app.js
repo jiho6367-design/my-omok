@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.4';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.4');
+versionBadge.textContent='통합 v5.18.5';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.5');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -156,9 +156,17 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     candidates:(r.candidates||[]).filter(m=>r.lossProven||!latestRefuted.has(m.i))}:r;
   const available=()=>lastVerified||E.fallbackResult?.(board,p,{...(lastLegal||{}),depth:0,fallback:true,comparison:{complete:false,selected:lastLegal?.i??null,depth:0,source:lastLegal?.comparisonSource,rootsCompared:0},rejected:[...latestRefutations.values()],reason:'완료 비교 없음 · 국면의 합법 저항 후보'})||E.urgent?.(board,p)||(lastLegal?{...lastLegal,depth:0,comparison:{complete:false,selected:lastLegal.i,depth:0,source:lastLegal.comparisonSource,rootsCompared:0},unverifiedDefense:true,analysisIncomplete:true}:null)||{
     i:null,depth:0,nodes:0,pv:[],unverifiedDefense:true,analysisIncomplete:true,candidates:[]};
+  const mandatoryBlock=r=>{
+    if(r?.kind!=='block'||!r.urgent||r.proven||r.lossProven||latestRefuted.has(r.i)||lastVerified?.lossProven)return null;
+    const current=E.urgent?.(board,p);
+    return current?.kind==='block'&&current.urgent&&current.i===r.i?current:null;
+  };
   const finish=(result,error)=>{if(finished)return;rememberRefutations(result);
     if(rejectedSnapshot(result)){result=available();error=error||'반증된 이전 추천 제외 · 대안 검사 미완료';}
-    if(result&&!result.proven&&!result.lossProven&&result.kind!=='terminal'){
+    const block=mandatoryBlock(result);
+    if(block)result={...result,...block,immediateDefense:true,analysisIncomplete:false,
+      analysisWork:{...result.analysisWork,stopReason:'mandatory-defense'}};
+    if(result&&!result.proven&&!result.lossProven&&result.kind!=='terminal'&&!block){
       if(lastVerified?.lossProven)result=lastVerified;
       else if(completedComparison(result))rememberComparison(result);
       else if(lastVerified){result={...lastVerified,analysisIncomplete:true,reason:'미완료 비교 제외 · 마지막 완료 비교 유지'};}
@@ -186,6 +194,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
       // restore a refuted move after cancellation or timeout.
       rememberRefutations(r);if(parallel&&!e.data.parallel)parallel.observe(r);
       if(rejectedSnapshot(r))return;
+      if(mandatoryBlock(r)){finish(r);return;}
       // One certified winning move is enough. Do not leave it provisional
       // while another Worker compares alternatives. Loss evidence still follows
       // the ordinary defense/resistance analysis and final-result path.
@@ -200,7 +209,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
       const legal=r?.i!=null&&E.inspect(board,r.i,p).legal;
       if(legal)lastLegal=r;
       if(r?.lossProven)lastVerified=r;else if(legal)rememberComparison(r);onProgress(retainEvidence(r));}
-    else if(parallel&&e.data.result&&!e.data.result.proven&&!e.data.result.lossProven&&e.data.result.kind!=='terminal'){
+    else if(parallel&&e.data.result&&!e.data.result.proven&&!e.data.result.lossProven&&e.data.result.kind!=='terminal'&&!mandatoryBlock(e.data.result)){
       serialFinished=e.data.result;w.onmessage({data:{progress:true,result:serialFinished}});
     }else finish(e.data.result);};
   w.onerror=e=>finish(lastVerified,e.message||'Worker 오류');
@@ -222,6 +231,7 @@ function acceptResult(result,partial=false){
     `상대의 ${E.coord(result.forbiddenDefense)} 5목을 막는 수가 3×3 금수입니다. 표시된 합법 수는 승리 수가 아닙니다.`:
     '강제패배가 확인되었습니다. 표시된 합법 수는 승리 수가 아닙니다.','warning');
   else if(result.i==null)setAnalysisStatus('분석 완료 · 추천 없음','검사한 후보가 배제되었고 안전한 대안을 확인하지 못했습니다. 더 이른 수에서 복기하세요.','warning');
+  else if(result.kind==='block'&&result.urgent)setAnalysisStatus('분석 완료 · 즉시 차단','상대의 다음 5목을 막는 필수 방어입니다. 이후 국면의 승패까지 확인한 것은 아닙니다.','urgent');
   else if(result.assessmentStatus==='BOUNDED_FAVORABLE')setAnalysisStatus('분석 완료 · 제한 비교 추천','완료된 깊이에서 공격·방어를 비교한 추천입니다. 강제승이나 이후 안전의 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BLOCKING_UNCHECKED')setAnalysisStatus('분석 완료 · 차단 후보','상대 위협이나 연결을 차단하는 후보입니다. 그 뒤의 안전과 승리는 확인되지 않았습니다.','warning');
   else if(result.assessmentStatus==='INCOMPLETE')setAnalysisStatus('분석 완료 · 판단 미완료',result.timedOut?'시간 상한에 도달했습니다. 마지막 완료 깊이와 합법 후보를 보존했으며 이후 안전은 미확인입니다.':'응수 비교가 충분히 완료되지 않았습니다. 합법 후보이며 승리·안전은 미확인입니다.','warning');
@@ -241,7 +251,7 @@ function prepareReply(){
   predictionNote.textContent=`상대 ${E.coord(opponent)} 1초 예측 · 내 응수 ${settingsPolicy.label(analysisSettings)}으로 사전 계산`;
   const current=()=>ponder===task&&g&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
   const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;};
-  const immediate=E.urgent(board,p);if(immediate&&(budget?.automatic===true||immediate.proven||immediate.lossProven||immediate.kind==='terminal')){finish(immediate);return;}
+  const immediate=E.urgent(board,p);if(immediate){finish(immediate);return;}
   try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){task.partial={...r,analysisPolicy:task.policy};if(task.promoted)acceptResult(task.partial,true);}},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){cancelPonder();}
 }
 analyze=function(explicit,onDone){
@@ -255,7 +265,7 @@ analyze=function(explicit,onDone){
     else setAnalysisStatus('분석 중','상대 예상 수가 일치했습니다. 앞서 시작한 계산을 이어서 완료합니다.','thinking');return;
   }
   stopWorker();lastProgress=null;rec=null;render();const token=job,board=b.slice(),p=turn,budget=selectedBudget(board,p);
-  const immediate=E.urgent(board,p);if(immediate){acceptResult(immediate);if(budget?.automatic===true||immediate.proven||immediate.lossProven||immediate.kind==='terminal'){onDone?.(immediate);prepareReply();return;}}
+  const immediate=E.urgent(board,p);if(immediate){acceptResult(immediate);onDone?.(immediate);prepareReply();return;}
   setAnalysisStatus('분석 중','임시 후보를 먼저 찾고, 공격·방어를 계속 비교하고 있습니다.','thinking');
   const failed=error=>{if(token!==job)return;worker=null;if(lastProgress){setAnalysisStatus('분석 중단 · 후보 유지','완료된 비교 결과가 없어 현재의 합법 후보를 유지합니다.','stopped');}else{const r=E.analyze(board,p,30);acceptResult(r);}msg('분석 오류: '+error+' · 다시 분석할 수 있습니다.');};
   try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job)acceptResult(r,true);},r=>{if(token!==job)return;worker=null;acceptResult(r);onDone?.(r);prepareReply();},failed);}catch(e){failed(e.message);}
