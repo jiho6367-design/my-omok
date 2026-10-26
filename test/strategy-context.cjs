@@ -47,7 +47,9 @@ const workerContext={performance:{now:()=>0},Worker,Blob:class{},URL:{createObje
 vm.createContext(workerContext);vm.runInContext(spawn,workerContext);
 const w=workerContext.spawnAnalysis(blank(),1,900,()=>{},r=>{done=r;},e=>{throw Error(e);});
 assert.equal(w.data.firstPlayer,2);assert.equal(w.data.p,1);assert.equal(w.data.ms,840);assert(w.data.optimized);
-w.onmessage({data:{progress:true,result:{i:112,kind:'search',depth:4,score:10,pv:[112],nodes:13}}});
+w.onmessage({data:{progress:true,result:{i:112,kind:'search',depth:4,score:10,pv:[112],nodes:13,comparisonSource:'reader',
+ comparison:{complete:true,selected:112,depth:4,source:'reader',rootsCompared:2},
+ candidates:[{i:112,score:10,pv:[112],depth:4,comparisonComplete:true,comparisonSource:'reader'}]}}});
 [...timers.values()][0]();
 assert.equal(done.depth,4);assert.equal(done.nodes,13);assert(done.timedOut);assert(done.analysisIncomplete);
 assert.equal(done.assessmentStatus,'INCOMPLETE');assert.equal(done.proofStatus,'UNRESOLVED');

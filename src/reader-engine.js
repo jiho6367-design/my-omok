@@ -13,6 +13,7 @@ function createEngine(N, board, options={}) {
   const forestFactory=typeof createForestEngine==='function'?createForestEngine:typeof require==='function'?require('./search-engine.js'):null;
   const ruleAdapter=options.strategy!==false&&N===15&&strategyFactory&&forestFactory?forestFactory({strategy:false,patternTable:options.patternTable}):null;
   const strategy=ruleAdapter?strategyFactory(N,{inspect:ruleAdapter.inspect,legal:(board,i,p)=>ruleAdapter.inspect(board,i,p).legal,winning:ruleAdapter.winning},options):null;
+  let resistanceAdapter=ruleAdapter;
 
  const patternIndices=options.patternTable?Array.from({length:N*N},(_,i)=>dirs.map(([dx,dy])=>Array.from({length:11},(_,k)=>{const x=i%N+(k-5)*dx,y=(i/N|0)+(k-5)*dy;return x>=0&&y>=0&&x<N&&y<N?y*N+x:-1;}))):null;
  function patternCode(board,indices,p){let code=0,mul=1;for(let k=0;k<11;k++)if(k!==5){const j=indices[k],v=j<0?2:board[j]===p?1:board[j]===0?0:2;code+=v*mul;mul*=3;}return code;}
@@ -282,10 +283,15 @@ function createEngine(N, board, options={}) {
       if(!moves.length&&['lost','incomplete'].includes(kind)){
         const rejected=new Map((extra.rejectedMoves||[]).map(r=>[r.i,r.reason]));
         const legalBlocks=danger.filter(i=>legal(i,p));
-        const options=rank(p,legalBlocks.length?legalBlocks:b.flatMap((v,i)=>v?[]:[i])).map(r=>({...r,
-          practical:r.s+(danger.includes(r.i)?M:0)-(rejected.get(r.i)==='immediate'?M:0)}));
-        options.sort((a,c)=>c.practical-a.practical);
-        moves=options.slice(0,3).map(r=>({i:r.i,score:kind==='lost'?-M:0,pv:[r.i],status:'fallback'}));
+        const pool=legalBlocks.length?legalBlocks:b.flatMap((v,i)=>v?[]:[i]);
+        if(kind==='lost'&&N===15&&forestFactory){
+          resistanceAdapter??=forestFactory({strategy:false,patternTable:options.patternTable});
+          moves=resistanceAdapter.resistanceMoves(b,p,pool).slice(0,3).map(r=>({...r,score:-M,status:'fallback'}));
+        }else{
+          const options=rank(p,pool).map(r=>({...r,practical:r.s+(danger.includes(r.i)?M:0)-(rejected.get(r.i)==='immediate'?M:0)}));
+          options.sort((a,c)=>c.practical-a.practical);
+          moves=options.slice(0,3).map(r=>({i:r.i,score:kind==='lost'?-M:0,pv:[r.i],status:'fallback'}));
+        }
         fallback=!!moves.length;
       }
       // A completed loss covers every legal root, including nonblocking moves
@@ -306,7 +312,8 @@ function createEngine(N, board, options={}) {
       const summary=strategy?(strategicSummary||(strategicSummary=(own.length||danger.length)?{initiative:own.length?'own':'opponent',firstPlayer:strategy.context.firstPlayer,strategyVersion:strategy.strategyVersion,evidence:{ownWins:own,enemyWins:danger,replyCoverage:'not-checked'}}:strategy.profile(b,p))):null;
       const selectedCheck=summary?.checks?.find(c=>c.i===moves[0]?.i&&c.complete),bounded=summary?.evidence?.replyCoverage==='bounded';
       const initiative=['win','forced'].includes(kind)?'own':bounded?(selectedCheck?.replies>0&&selectedCheck.continues===selectedCheck.replies?(selectedCheck.forcingReplies?'contested':'own'):selectedCheck?.forcingReplies&&selectedCheck.score<0?'opponent':'unknown'):summary?.initiative;
-      return {kind,moves,depth,nodes,danger,immediateThreats,...extra,rootWork:{generated:rootCount,compared:comparedRootCount,screened:extra.screened||0},...(options.exportRootFrontier&&parallelFrontier?{rootFrontier:parallelFrontier}:{}),...(summary?{strategy:{...summary,work:strategy.statistics(),initiative,selectedCheck:selectedCheck||null}}:{}),fallback,mandatoryDefense:!own.length&&danger.length===1&&legal(danger[0],p),automatic,autoReason:automatic?(extra.autoReason||(['win','forced'].includes(kind)?'승리 경로 확인':kind==='lost'?'강제 위협 확인':'복잡한 판 · 추가 비교 중')):null};
+      const comparison={complete:!fallback&&depth>0&&moves[0]?.comparisonComplete===true,selected:moves[0]?.i??null,depth,source:'reader',rootsCompared:comparedRootCount};
+      return {kind,moves,depth,nodes,danger,immediateThreats,...extra,comparison,rootWork:{generated:rootCount,compared:comparedRootCount,screened:extra.screened||0},...(options.exportRootFrontier&&parallelFrontier?{rootFrontier:parallelFrontier}:{}),...(summary?{strategy:{...summary,work:strategy.statistics(),initiative,selectedCheck:selectedCheck||null}}:{}),fallback,mandatoryDefense:!own.length&&danger.length===1&&legal(danger[0],p),automatic,autoReason:automatic?(extra.autoReason||(['win','forced'].includes(kind)?'승리 경로 확인':kind==='lost'?'강제 위협 확인':'복잡한 판 · 추가 비교 중')):null};
     };
     if(own.length)return output('win',own.map(i=>({i,score:M,pv:[i],status:'win'})),1);
     if(danger.length>1||danger.length===1&&!legal(danger[0],p))return output('lost',[],1,{lossReason:danger.length===1?'forbidden-defense':'immediate',forbiddenDefenses:danger.filter(i=>!legal(i,p)).map(i=>moveInfo(i,p))});

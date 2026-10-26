@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.3';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.3');
+versionBadge.textContent='통합 v5.18.4';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.4');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -105,7 +105,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   const limit=typeof budget==='object'?budget.ms:Number(budget);
   const reserve=Math.min(1500,Math.max(60,limit*.06)),searchLimit=Math.max(30,limit-reserve);
   const searchBudget=typeof budget==='object'?{...budget,ms:searchLimit}:searchLimit;
-  let finished=false,lastVerified=null,lastLegal=null,latestRefuted=new Set(),latestRefutations=new Map(),parallel=null,serialFinished=null;
+  let finished=false,lastVerified=null,lastLegal=null,latestRefuted=new Set(),latestRefutations=new Map(),parallel=null,serialFinished=null;const completedSnapshots=[];
   const health=spawnAnalysis.health||(spawnAnalysis.health={blockedUntil:0,healthySince:0,lastLag:0});
   let tickAt=performance.now(),timer;
   const heartbeat=setInterval(()=>{
@@ -116,33 +116,65 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   },100);
   const terminate=w.terminate.bind(w);
   w.terminate=()=>{finished=true;parallel?.terminate();clearTimeout(timer);clearInterval(heartbeat);terminate();};
-  const rejectedSnapshot=r=>!!r&&!r.lossProven&&r.i!=null&&latestRefuted.has(r.i);
+  const intendedResistance=r=>!!r&&!r.proven&&!r.lossProven&&r.resistanceFallback?.scope==='local-resistance'&&r.resistanceFallback.knownRefuted===true&&
+    r.resistanceFallback.boardKey===board.join('')&&r.resistanceFallback.p===p&&r.resistanceFallback.i===r.i;
+  const rejectedSnapshot=r=>!!r&&!r.lossProven&&!intendedResistance(r)&&r.i!=null&&latestRefuted.has(r.i);
+  const completedComparison=r=>{
+    if(!r||r.i==null||!Number.isInteger(r.depth)||r.depth<=0||r.pv?.[0]!==r.i||!Number.isFinite(r.score)||!E.inspect(board,r.i,p).legal||rejectedSnapshot(r))return false;
+    if(r.comparison!==undefined){const c=r.comparison;
+      return c?.complete===true&&c.selected===r.i&&c.depth===r.depth&&['reader','forest'].includes(c.source)&&c.source===r.comparisonSource&&Number.isInteger(c.rootsCompared)&&c.rootsCompared>0;
+    }
+    const row=r.candidates?.find(m=>m.i===r.i);
+    return !r.fallback&&row?.comparisonComplete===true&&row.depth===r.depth&&row.pv?.[0]===r.i&&
+      ['reader','forest'].includes(row.comparisonSource)&&(!r.comparisonSource||row.comparisonSource===r.comparisonSource)&&Number.isFinite(row.score)&&row.score===r.score;
+  };
+  const rememberComparison=r=>{
+    if(!completedComparison(r))return;
+    const snapshot={...r,pv:r.pv?.slice(),comparison:r.comparison?{...r.comparison}:undefined,
+      candidates:(r.candidates||[]).map(m=>({...m,pv:m.pv?.slice()}))};
+    completedSnapshots.push(snapshot);if(completedSnapshots.length>16)completedSnapshots.shift();
+    if(!lastVerified?.lossProven)lastVerified=snapshot;
+  };
+  const survivingComparison=()=>{
+    for(let k=completedSnapshots.length-1;k>=0;k--){const r=completedSnapshots[k];if(completedComparison(r))return r;
+      for(const m of r.candidates||[]){if(m.comparisonComplete!==true||m.depth!==r.depth||m.i==null||latestRefuted.has(m.i)||
+          !E.inspect(board,m.i,p).legal||m.pv?.[0]!==m.i||!Number.isFinite(m.score)||r.comparisonSource&&m.comparisonSource!==r.comparisonSource)continue;
+        const alternative={...r,i:m.i,pv:m.pv.slice(),score:m.score,depth:m.depth,comparison:r.comparison?{...r.comparison,selected:m.i}:undefined,
+          proven:false,proof:null,counterVerification:null,finalGuard:null,defenseChecked:false,unverifiedDefense:true,analysisIncomplete:true,
+          strategy:undefined,reason:'반증된 추천 제외 · 마지막 완료 비교의 대안 유지'};
+        if(completedComparison(alternative))return alternative;
+      }
+    }
+    return null;
+  };
   const rememberRefutations=r=>{
-    for(const m of r?.rejected||[])if(m.pv?.length||m.line?.length||m.replyTrap||m.verifiedRefutation){latestRefuted.add(m.i);latestRefutations.set(m.i,m);}
-    if(lastVerified&&rejectedSnapshot(lastVerified))lastVerified=null;
+    for(const m of r?.rejected||[])if(!m.riskOnly&&(m.pv?.length||m.line?.length||m.replyTrap||m.verifiedRefutation)){latestRefuted.add(m.i);latestRefutations.set(m.i,m);}
+    if(lastVerified&&rejectedSnapshot(lastVerified))lastVerified=survivingComparison();
     if(lastLegal&&rejectedSnapshot(lastLegal))lastLegal=null;
   };
   const retainEvidence=r=>r?{...r,rejected:[...new Map([...(r.rejected||[]).map(m=>[m.i,m]),...latestRefutations]).values()],
     candidates:(r.candidates||[]).filter(m=>r.lossProven||!latestRefuted.has(m.i))}:r;
-  const available=()=>lastVerified||(lastLegal?{...lastLegal,depth:0,unverifiedDefense:true}:null)||E.urgent(board,p)||{
-    i:Array.from({length:225},(_,i)=>i).find(i=>!latestRefuted.has(i)&&E.inspect(board,i,p).legal)??Array.from({length:225},(_,i)=>i).find(i=>E.inspect(board,i,p).legal)??null,
-    depth:0,nodes:0,pv:[],unverifiedDefense:true,candidates:[]};
+  const available=()=>lastVerified||E.fallbackResult?.(board,p,{...(lastLegal||{}),depth:0,fallback:true,comparison:{complete:false,selected:lastLegal?.i??null,depth:0,source:lastLegal?.comparisonSource,rootsCompared:0},rejected:[...latestRefutations.values()],reason:'완료 비교 없음 · 국면의 합법 저항 후보'})||E.urgent?.(board,p)||(lastLegal?{...lastLegal,depth:0,comparison:{complete:false,selected:lastLegal.i,depth:0,source:lastLegal.comparisonSource,rootsCompared:0},unverifiedDefense:true,analysisIncomplete:true}:null)||{
+    i:null,depth:0,nodes:0,pv:[],unverifiedDefense:true,analysisIncomplete:true,candidates:[]};
   const finish=(result,error)=>{if(finished)return;rememberRefutations(result);
     if(rejectedSnapshot(result)){result=available();error=error||'반증된 이전 추천 제외 · 대안 검사 미완료';}
+    if(result&&!result.proven&&!result.lossProven&&result.kind!=='terminal'){
+      if(lastVerified?.lossProven)result=lastVerified;
+      else if(completedComparison(result))rememberComparison(result);
+      else if(lastVerified){result={...lastVerified,analysisIncomplete:true,reason:'미완료 비교 제외 · 마지막 완료 비교 유지'};}
+      else{if(result.i!=null&&E.inspect(board,result.i,p).legal&&!rejectedSnapshot(result))lastLegal=result;result=available();}
+    }
     finished=true;clearTimeout(timer);w.terminate();if(result){result=retainEvidence(result);
-    const timedOut=error==='시간 상한 도달'||!!result.timedOut;
-    const output={...result,ms:Math.round(performance.now()-started),timedOut,
+    const timedOut=error==='시간 상한 도달'||!!result.timedOut,elapsedMs=Math.round(performance.now()-started);
+    const output={...result,ms:elapsedMs,timedOut,
+      analysisWork:result.analysisWork?{...result.analysisWork,elapsedMs,...(timedOut?{stopReason:'time-limit'}:{})}:result.analysisWork,
       analysisIncomplete:!!error||!!result.analysisIncomplete,workerError:error||result.workerError||null,externalBudgetMs:limit,internalBudgetMs:searchLimit};
     onDone(E.finalizeResult?E.finalizeResult(board,p,output):output);
   }else onError(error||'Worker 오류');};
   // A terminated Worker cannot finish an incomplete depth. Only retain a
   // completed progress report; the initial provisional candidate is excluded.
   timer=setTimeout(()=>{
-    const fallback=lastVerified||(lastLegal?{...lastLegal,depth:0,
-      reason:'시간 상한 도달 · 임시 합법 후보 (깊이 검증 미완료)',unverifiedDefense:true}:null)||E.urgent(board,p)||{
-      i:Array.from({length:225},(_,i)=>i).find(i=>!latestRefuted.has(i)&&E.inspect(board,i,p).legal)??Array.from({length:225},(_,i)=>i).find(i=>E.inspect(board,i,p).legal)??null,
-      depth:0,nodes:0,pv:[],reason:'시간 상한 도달 · 합법 후보 (심층 검증 미완료)',
-      unverifiedDefense:true,candidates:[]};
+    const fallback=available();
     finish(fallback,'시간 상한 도달');
   },Math.max(0,limit-(performance.now()-started)));
   w.onmessage=e=>{if(finished)return;
@@ -167,7 +199,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
       if(parallel&&!e.data.parallel&&parallel.latest&&!r.proven&&!r.lossProven)return;
       const legal=r?.i!=null&&E.inspect(board,r.i,p).legal;
       if(legal)lastLegal=r;
-      if(r?.lossProven||legal&&(r?.depth>0||r?.proven))lastVerified=r;onProgress(retainEvidence(r));}
+      if(r?.lossProven)lastVerified=r;else if(legal)rememberComparison(r);onProgress(retainEvidence(r));}
     else if(parallel&&e.data.result&&!e.data.result.proven&&!e.data.result.lossProven&&e.data.result.kind!=='terminal'){
       serialFinished=e.data.result;w.onmessage({data:{progress:true,result:serialFinished}});
     }else finish(e.data.result);};

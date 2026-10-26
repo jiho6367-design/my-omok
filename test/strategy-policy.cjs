@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const create=require('../src/node-engine.cjs'),idx=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65;
-const blank=()=>Array(225).fill(0),candidate=(c,score,depth=4)=>({i:idx(c),score,pv:[idx(c)],depth,comparisonComplete:true});
+const blank=()=>Array(225).fill(0),candidate=(c,score,depth=4)=>({i:idx(c),score,pv:[idx(c)],depth,comparisonComplete:true,comparisonSource:'reader'});
 function controlled(wrapForest=f=>f,wrapReader=r=>r){
  const c={Date,console};vm.createContext(c);
  const read=f=>fs.readFileSync('src/'+f,'utf8');
@@ -43,7 +43,7 @@ const replaced=e.finalizeResult(board,2,{i:idx('J4'),kind:'forced',proven:true,p
  counterVerification:{i:idx('J4'),kind:'lost'},depth:4,pv:[idx('J4')],
  rejected:[{i:idx('J4'),line:[idx('J4'),idx('E8')]}],candidates:[candidate('G8',40)]});
 assert.equal(replaced.i,idx('G8'));assert.equal(replaced.proof,null);assert.equal(replaced.counterVerification,null);
-assert(!replaced.proven);assert.equal(replaced.kind,'incomplete');assert.equal(replaced.pv[0],replaced.i);
+assert(!replaced.proven);assert(!['win','forced'].includes(replaced.kind));assert.equal(replaced.pv[0],replaced.i);
 const lostFallback=e.finalizeResult(board,2,{i:idx('J4'),kind:'lost',lossProven:true,
  depth:4,pv:[idx('J4')],rejected:[{i:idx('J4'),line:[idx('J4'),idx('E8')]}],candidates:[candidate('J4',40)]});
 assert.notEqual(lostFallback.i,idx('J4'));assert(lostFallback.lossProven);

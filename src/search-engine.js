@@ -13,6 +13,7 @@ function createForestEngine(options={}){
  for(let y=0;y<N;y++)for(let x=0;x<N;x++)for(const [dx,dy]of D)if(inside(x+4*dx,y+4*dy)){
   forcingWindows.push(Array.from({length:5},(_,k)=>(y+k*dy)*N+x+k*dx));
  }
+ const resistanceWindows=Array.from({length:225},()=>[]);for(const cells of forcingWindows)for(const i of cells)resistanceWindows[i].push(cells);
  // Necessary, not sufficient: a first four/instant five needs at least three
  // existing friendly stones in an opponent-free five-cell window. Overlines
  // and forbidden moves are deliberately left to the unchanged rule checker.
@@ -66,6 +67,43 @@ function createForestEngine(options={}){
  function value(s){return s.win.length?1e8:s.fours.length>=2?7e5:s.fork43?4e5:s.fours.length?5e4:s.threes.length?2500:0;}
  function ranked(b,p,rich=false,search=false){const pool=strategy?[...new Set([...candidates(b),...(search?strategy.searchPoints(b,p):strategy.points(b,p))])]:candidates(b);return pool.map(i=>{let a=inspect(b,i,p),o=inspect(b,i,3-p),feature=rich&&a.legal?strategy?.move(b,i,p,a):null;const ownValue=feature&&a.threes.length&&!a.fours.length&&!feature.usableThreeAxes.length?0:value(a);return {i,a,o,score:ownValue+(o.legal?value(o)*1.1:0)+positional(b,i,p)+(strategy&&!o.legal?0:positional(b,i,3-p)*.9)+(feature?.score||0),...(feature?{strategy:feature}:{})};}).filter(m=>m.a.legal).sort((a,b)=>b.score-a.score||a.i-b.i);}
  function findWinning(b,p){let r=[];for(let i of candidates(b)){b[i]=p;if(win(b,i,p).length)r.push(i);b[i]=0;}return r;}
+ // Practical ordering after a proved loss (also usable by a last-resort UI
+ // fallback). These local threat counts are not a win or safety certificate.
+ function resistanceMoves(board,p,indices=null){
+  if(![1,2].includes(p)||board.length!==225)return [];
+  const b=board.slice(),enemy=3-p,near=new Set(candidates(b));
+  const exactEnds=(q,lines=forcingWindows)=>{const found=new Set();for(const cells of lines){let own=0,empty=-1,blocked=false;for(const j of cells){if(b[j]===q)own++;else if(!b[j]){if(empty!==-1){blocked=true;break;}empty=j;}else{blocked=true;break;}}if(!blocked&&own===4&&empty!==-1&&!found.has(empty)){b[empty]=q;try{if(win(b,empty,q).length)found.add(empty);}finally{b[empty]=0;}}}return [...found];};
+  const ownWins=exactEnds(p),enemyWins=exactEnds(enemy),setups=new Set();
+  // Include geometrical nominations that are currently forbidden: blocking a
+  // different axis can make such an opponent four legal after our move.
+  for(const cells of forcingWindows){const own=cells.filter(j=>b[j]===enemy).length;if(own===3&&cells.every(j=>!b[j]||b[j]===enemy))for(const j of cells)if(!b[j])setups.add(j);}
+  const pressure=()=>{let forks=0,fours=0,endpoints=0;for(const j of setups){if(b[j]||!inspect(b,j,enemy).legal)continue;b[j]=enemy;try{const ends=exactEnds(enemy,enemyWins.length?forcingWindows:resistanceWindows[j]);if(ends.length){fours++;endpoints+=ends.length;if(ends.length>1||!inspect(b,ends[0],p).legal)forks++;}}finally{b[j]=0;}}return {forks,fours,endpoints};};
+  const forcingAfterBlock=block=>{
+   b[block]=enemy;
+   try{
+    // It is our actual next turn after this compulsory reply. A counter-four
+    // is useful only if it also removes every immediate enemy winning point.
+    const counter=exactEnds(enemy),nominated=new Set(),continuations=[];
+    for(const cells of forcingWindows)if(cells.filter(j=>b[j]===p).length===3&&cells.every(j=>!b[j]||b[j]===p))for(const j of cells)if(!b[j])nominated.add(j);
+    for(const j of nominated){if(counter.some(k=>k!==j)||!inspect(b,j,p).legal)continue;b[j]=p;try{const ends=exactEnds(p,resistanceWindows[j]);if(ends.length)continuations.push({i:j,ends});}finally{b[j]=0;}}
+    return continuations;
+   }finally{b[block]=0;}
+  };
+  const before=pressure(),rows=[];
+  for(const i of new Set(indices==null?b.flatMap((v,j)=>v?[]:[j]):indices)){
+   const a=inspect(b,i,p);if(!a.legal)continue;const o=inspect(b,i,enemy);
+   const score=value(a)+(o.legal?value(o)*1.1:0)+positional(b,i,p)+(o.legal?positional(b,i,enemy)*.9:0);
+   b[i]=p;let forcingEnds,counterWins,after,forcingTerminal=false,forcingContinuations=[];try{forcingEnds=exactEnds(p,ownWins.length?forcingWindows:resistanceWindows[i]);counterWins=enemyWins.filter(j=>{if(b[j])return false;b[j]=enemy;try{return win(b,j,enemy).length>0;}finally{b[j]=0;}});after=pressure();
+    if(forcingEnds.length&&!counterWins.length&&!ownWins.includes(i)){forcingTerminal=forcingEnds.length>1||!inspect(b,forcingEnds[0],enemy).legal;if(!forcingTerminal)forcingContinuations=forcingAfterBlock(forcingEnds[0]);}
+   }finally{b[i]=0;}
+   // A quiet extension that only changes our future forbidden-block geometry
+   // does not displace a move directly occupying the enemy three's line.
+   const improves=setups.has(i)&&(after.forks<before.forks||after.forks===before.forks&&(after.fours<before.fours||after.fours===before.fours&&after.endpoints<before.endpoints));
+   const tier=ownWins.includes(i)?5:enemyWins.includes(i)?4:forcingEnds.length&&!counterWins.length?3:improves?2:1;
+   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false}});
+  }
+  return rows.sort((a,c)=>c.resistance.tier-a.resistance.tier||(a.resistance.tier===3?(Number(c.resistance.forcingTerminal)-Number(a.resistance.forcingTerminal)||c.resistance.forcingContinuations.length-a.resistance.forcingContinuations.length):0)||a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i);
+ }
  const coord=i=>String.fromCharCode(65+i%15)+(1+(i/15|0));
  function transformed(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++)[x,y]=[14-y,x];return y*15+x;}
  function canonical(b,p){let best=null,tr=0;for(let t=0;t<8;t++){let a=Array(225).fill('0');for(let i=0;i<225;i++)a[transformed(i,t)]=b[i]?(b[i]===p?'1':'2'):'0';let s=a.join('');if(best===null||s<best){best=s;tr=t;}}return {key:best,t:tr};}
@@ -240,7 +278,7 @@ function createForestEngine(options={}){
   let roots=ranked(b,p,true).filter(m=>!verifiedBadSet.has(m.i)),can=canonical(b,p),memory=lessons.filter(l=>l.key===can.key),bad=memory.map(l=>untransform(l.bad,can.t)),good=memory.map(l=>untransform(l.good,can.t));
   let comparedRootCount=0,screenedRootCount=0;
   const verifiedRejected=verifiedBad.map(m=>({i:m.i,reason:m.reason,verifiedRefutation:true}));
-  function finish(m,reason,extra={}){return {i:m?.i??null,reason,depth,score:m?.score||0,pv:m?[m.i]:[],ms:clockNow()-start,nodes,rootWork:{generated:roots.length,compared:comparedRootCount,screened:screenedRootCount},proven:false,forcedLoss:false,threats:[],memory:memory.length,bad,shape:m?.a,limits,engineVersion:'3.0-cached-search',candidates:lastCandidates.length?lastCandidates:m?[{i:m.i,score:m.score,pv:[m.i],depth:0,strategy:m.strategy,comparisonComplete:false}]:[],...(strategy?{strategy:{...(strategicSummary||strategy.profile(board,p)),work:strategy.statistics()}}:{}),...extra};}
+  function finish(m,reason,extra={}){const selectedDepth=extra.depth??depth,compared=lastComparison.find(row=>row.i===m?.i&&row.comparisonComplete&&row.depth===selectedDepth);return {i:m?.i??null,reason,depth,score:m?.score||0,pv:m?[m.i]:[],ms:clockNow()-start,nodes,rootWork:{generated:roots.length,compared:comparedRootCount,screened:screenedRootCount},proven:false,forcedLoss:false,threats:[],memory:memory.length,bad,shape:m?.a,limits,engineVersion:'3.0-cached-search',...(m?.resistance?{resistance:m.resistance}:{}),candidates:lastCandidates.length?lastCandidates:m?[{i:m.i,score:m.score,pv:[m.i],depth:0,strategy:m.strategy,comparisonComplete:false,...(m.resistance?{resistance:m.resistance}:{})}]:[],...(strategy?{strategy:{...(strategicSummary||strategy.profile(board,p)),work:strategy.statistics()}}:{}),...extra,comparison:{complete:!!compared&&selectedDepth>0,selected:m?.i??null,depth:selectedDepth,source:'forest',rootsCompared:comparedRootCount}};}
   if(!roots.length)return finish(null,'합법적인 후보 없음');
   let w=roots.find(m=>m.a.win.length);if(w)return finish(w,'정확한 5목으로 즉시 승리',{proven:true,depth:1,score:MATE});
   let enemyWins=winning(b,3-p),blocking=roots.filter(m=>enemyWins.includes(m.i));
@@ -273,6 +311,7 @@ function createForestEngine(options={}){
   let options=safe.length||undecided.length?[...safe,...undecided]:risky.length?risky:losing;
   let lossProven=!safe.length&&!undecided.length&&!risky.length&&losing.length===roots.length;
   options.sort((a,c)=>(c.score-(bad.includes(c.i)?12000:0))-(a.score-(bad.includes(a.i)?12000:0)));
+  if(lossProven){const practical=new Map(resistanceMoves(b,p,options.map(m=>m.i)).map((m,k)=>[m.i,{...m.resistance,order:k}]));for(const m of options)m.resistance=practical.get(m.i);options.sort((a,c)=>a.resistance.order-c.resistance.order);}
   let rootOptions=strategy?strategy.select(b,p,options,limits.root,6,new Set(options.filter(m=>m.a?.fours.length).map(m=>m.i))):options.slice(0,limits.root);
   // An uncompleted root needs a final check even below the ordinary 12s gate.
   // Reserve inside the existing total budget, without adding to its reserve.
@@ -378,6 +417,6 @@ function createForestEngine(options={}){
   let loss=s.win.length?{proof:null,complete:true}:forcing(after,3-p,11,Math.floor(budget*.3));
   return {...r,actual:i,actualLossProof:loss.proof,reviewLabel:r.lossProven?'이미 강제 패배 상태 · 이 수만의 실수 아님':loss.proof?'이 착수 뒤 상대 연속 4 강제승 확인':r.i!==i?'대안 후보 비교 (추정)':'추천 수와 일치'};
  }
- return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,reviewMove,canonical,transformed,untransform,coord,winning};
+ return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,reviewMove,canonical,transformed,untransform,coord,winning};
 }
 if(typeof module!=='undefined')module.exports=createForestEngine;

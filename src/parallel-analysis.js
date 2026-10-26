@@ -60,7 +60,7 @@ const OmokParallel=(()=>{
   let stopped=false,guarding=false,guardReason=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
   const close=()=>{if(stopped)return;stopped=true;clearTimeout(timer);for(const w of workers)w.terminate();};
   const fail=error=>{if(stopped)return;close();onError(error,serial);};
-  const finish=reason=>{if(stopped)return;const rows=lastRows.filter(r=>!bad.has(r.i)),first=rows[0],result=latest&&first?{...latest,i:first.i,score:first.score,pv:first.pv,nodes:latest.nodes+[...checks,...winChecks].reduce((n,c)=>n+(c.nodes||0),0),candidates:rows.slice(0,3),candidateChecks:checks,candidateWinChecks:winChecks,rejected:[...(seed?.rejectedMoves||[]),...checks.filter(c=>c.rejection).map(c=>c.rejection)]}:null;close();if(result)onDone({...result,parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:reason},analysisWork:{...result.analysisWork,elapsedMs:Math.round(performance.now()-started),nodes:result.nodes,checkedCandidates:checks.filter(c=>c.complete).length,stopReason:reason},analysisIncomplete:reason==='time-limit'||reason==='incomplete-round'||reason==='guard-time-limit'||!checks.some(c=>c.i===result.i&&c.complete)});else onError('병렬 비교 깊이 미완료',serial);};
+  const finish=reason=>{if(stopped)return;const rows=lastRows.filter(r=>!bad.has(r.i)),first=rows[0],result=latest&&first?{...latest,i:first.i,score:first.score,pv:first.pv,comparison:{...latest.comparison,selected:first.i},nodes:latest.nodes+[...checks,...winChecks].reduce((n,c)=>n+(c.nodes||0),0),candidates:rows.slice(0,3),candidateChecks:checks,candidateWinChecks:winChecks,rejected:[...(seed?.rejectedMoves||[]),...checks.filter(c=>c.rejection).map(c=>c.rejection)]}:null;close();if(result)onDone({...result,parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:reason},analysisWork:{...result.analysisWork,elapsedMs:Math.round(performance.now()-started),nodes:result.nodes,checkedCandidates:checks.filter(c=>c.complete).length,stopReason:reason},analysisIncomplete:reason==='time-limit'||reason==='incomplete-round'||reason==='guard-time-limit'||!checks.some(c=>c.i===result.i&&c.complete)});else onError('병렬 비교 깊이 미완료',serial);};
   const done=reason=>{if(stopped||guarding)return;guarding=true;guardReason=reason;clearTimeout(timer);for(const w of workers)w.terminate();
    const finalDeadline=Math.min(guardDeadline,performance.now()+1200),remaining=finalDeadline-performance.now()-30,candidates=lastRows.filter(r=>!bad.has(r.i)).slice(0,3);if(!candidates.length||remaining<=0){finish(reason);return;}
    try{const url=URL.createObjectURL(new Blob([source+'\n'+workerCode],{type:'text/javascript'}));let w;try{w=new Worker(url);workers.push(w);}finally{URL.revokeObjectURL(url);}w.onmessage=e=>receive(-1,e.data);w.onerror=e=>{if(!stopped)finish('guard-time-limit');};timer=setTimeout(()=>finish('guard-time-limit'),Math.max(1,finalDeadline-performance.now()));w.postMessage({type:'guard',base,roots:candidates,ms:remaining});}catch{finish('guard-time-limit');}
@@ -102,10 +102,12 @@ const OmokParallel=(()=>{
    }
    if(data.round!==round||parts[k])return;parts[k]=data.result;
    if(parts.some(p=>!p))return;
-   const compared=mergeRound(roots,parts,depth,bad);if(!compared){done('incomplete-round');return;}
+   const roundRows=mergeRound(roots,parts,depth,bad);if(!roundRows){done('incomplete-round');return;}
+   const compared=roundRows.map(r=>({...r,comparisonSource:'reader'}));
    lastRows=compared;const best=compared[0],info=base.modelInfo||{};
    latest={i:best.i,score:best.score,depth,nodes:parts.reduce((n,p)=>n+p.nodes,0),pv:best.pv,
     kind:'search',comparisonSource:'reader',candidates:compared.slice(0,3),rejected:[],proven:false,lossProven:false,automatic:mode==='auto',
+    comparison:{complete:true,selected:best.i,depth,source:'reader',rootsCompared:roots.length},
     modelVersion:info.modelVersion,learnedEvaluation:!!info.active,
     reason:'CPU 병렬 후보 비교 · 완료 깊이 '+depth,screeningComplete:seed.screeningComplete,forcingChecksComplete:seed.forcingChecksComplete,
     rootWork:{generated:seed.rootWork?.generated||roots.length,compared:roots.length,screened:seed.rootWork?.screened||0},

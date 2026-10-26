@@ -89,7 +89,7 @@ test('finite negative proof values survive positive selected resistance heuristi
 });
 test('missing, zero, positive and nonfinite claimed-loss scalars use the existing negative Reader mate convention',()=>{
  const E=factories.unified({model:null,strategy:false}),b=fixture(['H8']);
- for(const score of [undefined,0,17,NaN,Infinity,-Infinity]){const r=E.finalizeResult(b,2,{kind:'lost',i:0,score,depth:0,lossProven:true,pv:[0],candidates:[{i:0,score:99,pv:[0],depth:0}]});assert.equal(r.score,-10000000);assert(r.lossProven);assert.equal(r.candidates[0].score,99);}
+ for(const score of [undefined,0,17,NaN,Infinity,-Infinity]){const r=E.finalizeResult(b,2,{kind:'lost',i:0,score,depth:0,lossProven:true,pv:[0],candidates:[{i:0,score:99,pv:[0],depth:0}]});assert.equal(r.score,-10000000);assert(r.lossProven);assert(Number.isFinite(r.candidates[0].score));assert(r.candidates[0].resistance);assert(E.inspect(b,r.i,2).legal);assert.equal(r.candidates[0].i,r.i);assert(!r.comparison.complete);}
 });
 test('new whole-position loss promotion also gets negative position value while unresolved fallback remains ordinary',()=>{
  const E=factories.unified({model:null,strategy:false}),b=fixture(['H8']),legal=Array.from({length:225},(_,i)=>i).filter(i=>E.inspect(b,i,2).legal);

@@ -30,11 +30,15 @@ const compute=data=>new Promise((resolve,reject)=>{const w=new Worker(workerSour
  assert.equal(workers[0].job.type,'win-check','verify the actual candidate before another comparison round');
  workers[0].onmessage({data:{type:'win-check',round:workers[0].job.round,i:1,check:{complete:true,proof:null,ms:5,nodes:7}}});
  assert.equal(workers[0].job.type,'compare','an unresolved candidate must continue comparing');
- workers[0].onmessage({data:result(0,9999)});pool.observe({rejected:[{i:1,line:[1,4]}]});
+ workers[1].onmessage({data:result(1,99999)});assert.equal(events.length,1,'a high-scoring B from one unfinished next-depth part cannot publish over completed A');
+ assert.equal(pool.latest.i,1);assert.equal(pool.latest.depth,1);assert.equal(pool.latest.comparison.complete,true);assert.equal(pool.latest.comparison.selected,1);
+ pool.observe({rejected:[{i:1,line:[1,4]}]});
  [...timers.values()][0]();assert.equal(finished,null,'reserve final checks for actual parallel shortlist');const guard=workers.at(-1);assert.equal(guard.job.type,'guard');assert(guard.job.ms>0);
  guard.onmessage({data:{type:'guard-progress',check:{i:2,complete:true,refuted:true,rejection:{i:2,pv:[3,4],verifiedRefutation:true}}}});
  guard.onmessage({data:{type:'guard-progress',check:{i:3,complete:false,refuted:false}}});guard.onmessage({data:{type:'guard'}});
  assert.equal(finished.i,3);assert.equal(finished.depth,1);assert(finished.analysisIncomplete);assert(finished.rejected.some(r=>r.i===2));assert(workers.every(w=>w.stopped));assert.equal(finished.candidateWinChecks.length,1);assert.equal(finished.nodes,10);
+ assert.equal(finished.score,10);assert.equal(finished.comparison.complete,true);assert.equal(finished.comparison.selected,3);assert.equal(finished.comparison.depth,1);assert.equal(finished.comparison.rootsCompared,3);
+ assert(finished.candidates.every(m=>m.comparisonSource==='reader'&&m.comparisonComplete&&m.depth===1));
  assert(events.at(-1).rejected.some(r=>r.i===2),'new guard proof reaches the main watchdog even if no pool finalist survives');const delivered=events.length;
  workers[2].onmessage({data:result(2,99999)});assert.equal(events.length,delivered);assert.equal(finished.i,3);
  console.log('PASS browser scheduler: complete equal-depth rounds, final guard rejects actual pool finalist, retain proof at deadline and ignore late messages');

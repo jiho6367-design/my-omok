@@ -21,7 +21,9 @@ function run(change={},budget={automatic:true,ms:15000}){
    forcedReplyTrap:()=>({complete:true,proof:null,nodes:1}),analyze:()=>deep};};
  context.createReaderEngine=(...args)=>{const e=reader(...args);return {...e,analyze:(p,ms,progress)=>{
    const result={kind:'search',depth:8,moves:[{i:A,score:100,pv:[A],depth:8,comparisonComplete:true},r,
-     {i:C,score:-100,pv:[C],depth:2,comparisonComplete:true}]};progress?.(result);return result;}};};
+     {i:C,score:-100,pv:[C],depth:2,comparisonComplete:true}]};
+   if(change.completeRound){result.depth=2;result.moves=result.moves.map(m=>({...m,depth:2}));result.comparison={complete:true,selected:A,depth:2,source:'reader',rootsCompared:3};}
+   progress?.(result);return result;}};};
  vm.runInContext(read('unified-engine.js'),context);
  const e=context.createEngine({firstPlayer:2}),input=board.slice(),updates=[];
  const result=e.analyze(input,2,budget,[],r=>updates.push(r));assert.deepEqual(input,board);
@@ -63,7 +65,9 @@ assert.equal(manual.result.counterVerification,null);assert(!manual.result.prove
 const forestRetained=run({deep:{depth:3,score:456,retainedComparison:{i:B,source:'forest',depth:3,sameMoveOnly:true,finalDefenseUnchecked:true}}}).result;
 assert.equal(forestRetained.depth,3);assert.equal(forestRetained.score,456);assert.equal(forestRetained.comparisonSource,'forest');
 assert.equal(forestRetained.assessmentStatus,'BLOCKING_UNCHECKED');assert(!forestRetained.defenseChecked);
-const stagedRejected=run({stagedRefute:true},25000).result;
+// Promoting a different move requires a genuine same-depth completed round;
+// the mixed-depth legacy rows above establish same-move retention only.
+const stagedRejected=run({stagedRefute:true,completeRound:true},25000).result;
 assert.equal(stagedRejected.i,C);assert.equal(stagedRejected.score,-100);assert.equal(stagedRejected.depth,2);
 assert.equal(stagedRejected.comparisonSource,'reader');assert(!stagedRejected.retainedComparison);
 assert(stagedRejected.candidates.every(m=>m.i!==B&&m.comparisonSource==='reader'));assert(stagedRejected.rejected.some(m=>m.i===B));
