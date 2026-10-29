@@ -37,6 +37,8 @@
 
 일반 `npm test`와 `npm run test:learning`은 깨끗한 GitHub 체크아웃에서 작동한다. 과거 실행기 테스트는 추적된 코드와 작은 역사 실행기 fixture로 immutable archive를 자체 생성한다. 로컬 실험 파일이나 `work/runtime-archives`를 CI 입력으로 요구하지 않는다. 보존·동시 실행·초기 잠금·오류·identity 검증은 유지한다.
 
+공개 유지보수 커밋은 `node test/public-boundary.cjs`와 `node tools/check-public-boundary.cjs --staged`로 게시할 인덱스를 확인한다. 비공개 경로·개인 외형이 포함되거나 README·package·공개 HTML의 버전이 다르면 실패한다. GitHub의 별도 `Verify public publication boundary` 검사는 깨끗한 체크아웃에서 같은 경계를 확인한다. 이 검사는 채택 근거 검증을 대신하지 않으며, 임의로 바꾼 파일명의 비공개 내용을 모두 판별하는 검사도 아니다. 게시 전 diff 검토와 로컬 참고 자료 제외를 함께 유지한다.
+
 실제 로컬 아카이브의 추가 통합 검증은 명시적으로 실행한다:
 
 `node test/learning-archived-retention.cjs --local-archive=<보존 archive JSON 절대 경로>`

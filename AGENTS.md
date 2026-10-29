@@ -54,3 +54,16 @@ See `docs/github-adoption-policy.md` for the publication boundary.
 The public repository is `jiho6367-design/my-omok`; public UI uses `my오목` and black/white stones. Do not reintroduce previous character artwork or branding into public UI, documentation, screenshots, or distributable assets.
 
 `dist/index.html` is always the public build. Preserve `.local/appearance.json` and its images on this PC; the ignored `outputs/omok.html` uses that private appearance and its existing browser storage keys. Never stage `.local/` or `outputs/`. Model adoption must deploy the public staged HTML to `dist/index.html` and the local staged HTML to local output paths. Preserve historical model/evaluation identities and original evidence bytes.
+
+# Publication review
+
+Public documentation and version labels must describe the released engine. Keep
+unaccepted engine experiments, their generated HTML, and incomplete work local;
+a higher working-tree version alone is not a release. Review the exact staged
+files before committing. Never stage private references or appearance assets.
+For a documentation-only update, preserve existing source/build changes and do
+not regenerate the user's local application. Scheduled adoption-only publication
+remains separate from explicitly requested maintenance.
+Run `node test/public-boundary.cjs` and
+`node tools/check-public-boundary.cjs --staged` before publishing maintenance.
+The latter checks the index, so unfinished working files stay excluded.
