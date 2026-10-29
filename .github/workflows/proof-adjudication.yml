@@ -1,0 +1,16 @@
+name: Verify final-status match adjudication
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  generated-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check tools/strategy/native-proof-opening-arena.cjs
+      - run: node test/final-proof-adjudication.cjs
