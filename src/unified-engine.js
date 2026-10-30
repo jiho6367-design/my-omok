@@ -4,7 +4,7 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
-  const strategyVersion='initiative-3';
+  const strategyVersion='initiative-3-opening-junction-1';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,

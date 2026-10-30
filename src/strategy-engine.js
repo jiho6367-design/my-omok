@@ -4,7 +4,7 @@
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-opening-junction-1';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -147,6 +147,47 @@ function createStrategyEngine(N,rules,options={}){
    const feature=move(board,m.i,p,m.a,pointData);if(feature.legal&&feature.connection>0&&feature.pairAxes.length>=2){seen.add(m.i);out.push({...m,strategy:feature});added++;}
   }
  }
+ // A close three-axis pair can prepare open fours in several directions.
+ // These consecutive own additions are potential, never a forcing proof.
+ function openPairAxes(board,i,p,hint){
+  const evidence=[];board[i]=p;
+  try{for(const axis of hint.pairAxes){let found=null;
+    for(const w of windows.byPoint[i]){
+     if(w.axis!==axis||board[w.pre]===p||board[w.post]===p||w.cells.some(j=>board[j]===3-p)||w.cells.filter(j=>board[j]===p).length!==2)continue;
+     for(const prepare of w.cells.filter(j=>!board[j])){
+      const prepared=rules.inspect(board,prepare,p);if(!prepared.legal||prepared.win?.length)continue;board[prepare]=p;
+      try{for(const four of w.cells.filter(j=>!board[j])){
+        const shape=rules.inspect(board,four,p),ends=shape.details?.find(d=>d.axis===axis)?.four||[];
+        if(!shape.legal||shape.win?.length||ends.length<2)continue;board[four]=p;
+        try{const exact=ends.filter(end=>{const win=rules.inspect(board,end,p);return win.legal&&[i,prepare,four].every(j=>win.win?.includes(j));});
+         if(exact.length>=2)found={axis,prepare,four,ends:exact};
+        }finally{board[four]=0;}if(found)break;
+      }}finally{board[prepare]=0;}if(found)break;
+     }if(found)break;
+    }if(found)evidence.push(found);
+   }}finally{board[i]=0;}return evidence;
+ }
+ function immediateCounter(board,p){
+  if(rules.winning(board,p).length)return true;
+  for(const point of structure(board,p,false,true).points.values()){
+   if(!point.axisScores.some(n=>n>=120))continue;const s=rules.inspect(board,point.i,p);
+   if(!s.legal||!s.fours?.length)continue;board[point.i]=p;
+   try{if(!rules.winning(board,3-p).length&&rules.winning(board,p).length>=2)return true;}finally{board[point.i]=0;}
+  }return false;
+ }
+ const junctionRisks=new Map();
+ function junctionRisk(board,p){
+  const key=board.join('')+'|'+p;if(junctionRisks.has(key))return junctionRisks.get(key);
+  const none={penalty:0,reply:null,axes:[],evidence:[],proven:false};
+  if(board.reduce((n,v)=>n+!!v,0)>12||rules.winning(board,p).length)return keep(junctionRisks,key,none);
+  const q=3-p,hints=connectionHints(board,q);let attempts=0;
+  for(const hint of [...hints.values()].filter(h=>h.pairAxes.length>=3&&h.connection>=28).sort((a,b)=>b.connection-a.connection||a.i-b.i)){
+   if(attempts++>=8)break;if(!rules.legal(board,hint.i,q))continue;
+   const evidence=openPairAxes(board,hint.i,q,hint);if(evidence.length<3)continue;
+   board[hint.i]=q;let counter;try{counter=immediateCounter(board,p);}finally{board[hint.i]=0;}
+   if(!counter)return keep(junctionRisks,key,{penalty:180,reply:hint.i,player:q,axes:evidence.map(e=>e.axis),evidence,proven:false});
+  }return keep(junctionRisks,key,none);
+ }
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -245,7 +286,7 @@ function createStrategyEngine(N,rules,options={}){
   return {...result,checks,complete,ms:now()-start};
  }
  const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));appendConnections(board,p,rows,forced,seen,Math.max(width,forced.length));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
- return {context,strategyVersion,structure,move:measured(move,(board,i)=>empty(i)),hint,
+ return {context,strategyVersion,structure,junctionRisk,move:measured(move,(board,i)=>empty(i)),hint,
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.

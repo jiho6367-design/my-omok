@@ -105,8 +105,8 @@ OmokNeural.setDefaultModel({"schemaVersion":1,"kind":"forest-value-mlp","rulesId
  * only records published before cancellation survive in the page session. */
 const OmokSearchMemory=(()=>{
  const VERSION=1,DEFAULT_ENTRIES=4096,DEFAULT_BYTES=6*1024*1024;
-  const scope=(engine,N,o={})=>[engine,'node-v4',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
-  o.strategy!==false?'initiative-3':'no-strategy',o.optimized?1:0,!!o.patternTable,
+  const scope=(engine,N,o={})=>[engine,'node-v4-opening-junction-1',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
+  o.strategy!==false?'initiative-3-opening-junction-1':'no-strategy',o.optimized?1:0,!!o.patternTable,
   o.vcfPrefilter!==false,!!o.counterProofDetails,o.modelVersion||'baseline'].join('|');
  const toStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?ply:-ply):v;
  const fromStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?-ply:ply):v;
@@ -230,7 +230,7 @@ const OmokGPU = (() => {
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-opening-junction-1';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -373,6 +373,47 @@ function createStrategyEngine(N,rules,options={}){
    const feature=move(board,m.i,p,m.a,pointData);if(feature.legal&&feature.connection>0&&feature.pairAxes.length>=2){seen.add(m.i);out.push({...m,strategy:feature});added++;}
   }
  }
+ // A close three-axis pair can prepare open fours in several directions.
+ // These consecutive own additions are potential, never a forcing proof.
+ function openPairAxes(board,i,p,hint){
+  const evidence=[];board[i]=p;
+  try{for(const axis of hint.pairAxes){let found=null;
+    for(const w of windows.byPoint[i]){
+     if(w.axis!==axis||board[w.pre]===p||board[w.post]===p||w.cells.some(j=>board[j]===3-p)||w.cells.filter(j=>board[j]===p).length!==2)continue;
+     for(const prepare of w.cells.filter(j=>!board[j])){
+      const prepared=rules.inspect(board,prepare,p);if(!prepared.legal||prepared.win?.length)continue;board[prepare]=p;
+      try{for(const four of w.cells.filter(j=>!board[j])){
+        const shape=rules.inspect(board,four,p),ends=shape.details?.find(d=>d.axis===axis)?.four||[];
+        if(!shape.legal||shape.win?.length||ends.length<2)continue;board[four]=p;
+        try{const exact=ends.filter(end=>{const win=rules.inspect(board,end,p);return win.legal&&[i,prepare,four].every(j=>win.win?.includes(j));});
+         if(exact.length>=2)found={axis,prepare,four,ends:exact};
+        }finally{board[four]=0;}if(found)break;
+      }}finally{board[prepare]=0;}if(found)break;
+     }if(found)break;
+    }if(found)evidence.push(found);
+   }}finally{board[i]=0;}return evidence;
+ }
+ function immediateCounter(board,p){
+  if(rules.winning(board,p).length)return true;
+  for(const point of structure(board,p,false,true).points.values()){
+   if(!point.axisScores.some(n=>n>=120))continue;const s=rules.inspect(board,point.i,p);
+   if(!s.legal||!s.fours?.length)continue;board[point.i]=p;
+   try{if(!rules.winning(board,3-p).length&&rules.winning(board,p).length>=2)return true;}finally{board[point.i]=0;}
+  }return false;
+ }
+ const junctionRisks=new Map();
+ function junctionRisk(board,p){
+  const key=board.join('')+'|'+p;if(junctionRisks.has(key))return junctionRisks.get(key);
+  const none={penalty:0,reply:null,axes:[],evidence:[],proven:false};
+  if(board.reduce((n,v)=>n+!!v,0)>12||rules.winning(board,p).length)return keep(junctionRisks,key,none);
+  const q=3-p,hints=connectionHints(board,q);let attempts=0;
+  for(const hint of [...hints.values()].filter(h=>h.pairAxes.length>=3&&h.connection>=28).sort((a,b)=>b.connection-a.connection||a.i-b.i)){
+   if(attempts++>=8)break;if(!rules.legal(board,hint.i,q))continue;
+   const evidence=openPairAxes(board,hint.i,q,hint);if(evidence.length<3)continue;
+   board[hint.i]=q;let counter;try{counter=immediateCounter(board,p);}finally{board[hint.i]=0;}
+   if(!counter)return keep(junctionRisks,key,{penalty:180,reply:hint.i,player:q,axes:evidence.map(e=>e.axis),evidence,proven:false});
+  }return keep(junctionRisks,key,none);
+ }
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -471,7 +512,7 @@ function createStrategyEngine(N,rules,options={}){
   return {...result,checks,complete,ms:now()-start};
  }
  const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));appendConnections(board,p,rows,forced,seen,Math.max(width,forced.length));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
- return {context,strategyVersion,structure,move:measured(move,(board,i)=>empty(i)),hint,
+ return {context,strategyVersion,structure,junctionRisk,move:measured(move,(board,i)=>empty(i)),hint,
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.
@@ -875,10 +916,19 @@ function createReaderEngine(N, board, options={}) {
     const kind=danger.length?'block':'search',extra={screeningComplete,forcingChecksComplete,screened:screened.length+counterRejected.length,rejected,rejectedMoves};
     onProgress(output(kind,best,depth,extra));
     const forceSet=new Set(forcingCandidates(p));let frontier=strategy?strategy.searchSelect(b,p,safe,Number.isInteger(options.rootWidth)&&options.rootWidth>=24&&options.rootWidth<=48?options.rootWidth:24,6,forceSet,own.length?'own':danger.length?'opponent':'unknown'):safe.filter((r,k)=>k<24||forceSet.has(r.i));
+    const openingRisks=new Map();
+    // Complete the same structural comparison for every root, or apply none.
+    // The opponent reply and its legal future endpoints are ordering evidence.
+    if(strategy&&b.reduce((n,v)=>n+!!v,0)<=11){
+      let complete=true;const oldPhase=phaseDeadline;phaseDeadline=Math.min(deadline,clockNow()+300);
+      try{for(const r of frontier){tick();set(r.i,p);try{openingRisks.set(r.i,strategy.junctionRisk(b,p));}finally{set(r.i,0);}tick();}}
+      catch(e){if(e.message!=='timeout')throw e;complete=false;}finally{phaseDeadline=oldPhase;}
+      if(!complete)openingRisks.clear();
+    }
     const strategicAdjust=new Map(),pressureChecks=new Map(),tempoChecks=new Map();
     if(strategy&&clockNow()<deadline){strategicSummary=strategy.probe(b,p,frontier,Math.min(strategy.remaining(),Math.max(0,deadline-clockNow())));for(const c of strategicSummary.checks)if(c.complete){strategicAdjust.set(c.i,Math.max(-250,Math.min(250,c.score*.04)));if(strategicSummary.complete&&c.replies>=2){if(c.continues===c.replies)pressureChecks.set(c.i,c);if(Number.isInteger(c.tempoLosses)&&c.tempoLosses>0&&c.tempoLosses<=c.replies-c.continues&&Array.isArray(c.tempoLossReplies)&&c.tempoLossReplies.length===c.tempoLosses&&new Set(c.tempoLossReplies.map(x=>x.i)).size===c.tempoLosses&&c.tempoLossReplies.every(x=>Number.isInteger(x.i)&&x.i>=0&&x.i<b.length&&Number.isInteger(x.follow)&&x.follow>=0&&x.follow<b.length&&x.i!==c.i&&x.follow!==c.i&&x.follow!==x.i&&x.replyAttack>=120&&x.replyCut>=120))tempoChecks.set(c.i,c);}}}
     if(options.exportRootFrontier)parallelFrontier=frontier.map(r=>({...r,rootPolicy:{
-      adjust:strategicAdjust.get(r.i)||0,pressure:r.status==='screened'&&pressureChecks.has(r.i)?420:0,
+      openingRisk:openingRisks.get(r.i)||null,adjust:strategicAdjust.get(r.i)||0,pressure:r.status==='screened'&&pressureChecks.has(r.i)?420:0,
       tempo:r.status==='screened'&&tempoChecks.has(r.i)?420:0}}));
     const rounds=[];let stopReason='최대 탐색 깊이 도달';
     for(let d=1;d<=(automatic?16:10);d++){
@@ -889,7 +939,8 @@ function createReaderEngine(N, board, options={}) {
         // This is a soft ordering preference, never a safety or win proof.
         const positional=Math.abs(child.score)<M/2,check=positional&&r.status==='screened'?pressureChecks.get(r.i):null,pressureBonus=check?420:0,probeAdjust=positional?(strategicAdjust.get(r.i)||0):0,baseSearchScore=-child.score;
         const tempo=positional&&r.status==='screened'?tempoChecks.get(r.i):null,tempoPenalty=tempo?420:0;
-        const score=baseSearchScore+probeAdjust+pressureBonus-tempoPenalty;round.push({...r,score,pv:[r.i,...child.pv],depth:d,comparisonComplete:true,baseSearchScore,probeAdjust,pressureBonus,tempoPenalty,tempoEvidence:tempo?{replyCoverage:'bounded',replies:tempo.replies,tempoLosses:tempo.tempoLosses,counterBlocks:tempo.tempoLossReplies,probeComplete:strategicSummary.complete,proven:false}:null,pressureEvidence:check?{replyCoverage:'bounded',replies:check.replies,continues:check.continues,pv:check.pv.slice(),probeComplete:strategicSummary.complete,proven:false}:null});}
+        const openingRisk=openingRisks.get(r.i)||null,openingPenalty=positional?openingRisk?.penalty||0:0;
+        const score=baseSearchScore+probeAdjust+pressureBonus-tempoPenalty-openingPenalty;round.push({...r,score,pv:[r.i,...child.pv],depth:d,comparisonComplete:true,baseSearchScore,probeAdjust,openingPenalty,openingRisk,pressureBonus,tempoPenalty,tempoEvidence:tempo?{replyCoverage:'bounded',replies:tempo.replies,tempoLosses:tempo.tempoLosses,counterBlocks:tempo.tempoLossReplies,probeComplete:strategicSummary.complete,proven:false}:null,pressureEvidence:check?{replyCoverage:'bounded',replies:check.replies,continues:check.continues,pv:check.pv.slice(),probeComplete:strategicSummary.complete,proven:false}:null});}
         round.sort((a,c)=>c.score-a.score);best=round.slice(0,3);depth=d;frontier=round;comparedRootCount=round.length;
         onProgress(output(kind,best,depth,extra));
         rounds.push({i:best[0].i,score:best[0].score,depth,
@@ -912,8 +963,8 @@ function createReaderEngine(N, board, options={}) {
     const oldDeadline=deadline,oldPhase=phaseDeadline,start=clockNow(),rows=[];nodes=0;deadline=start+Math.max(1,ms);phaseDeadline=Infinity;strategy?.setBudget(Infinity);
     try{for(const r of roots){tick();set(r.i,p);let child;try{child=search(3-p,depth-1,-Infinity,Infinity,1);}finally{set(r.i,0);}
       const positional=Math.abs(child.score)<M/2,policy=r.rootPolicy||{},probeAdjust=positional?policy.adjust||0:0,
-        pressureBonus=positional?policy.pressure||0:0,tempoPenalty=positional?policy.tempo||0:0,baseSearchScore=-child.score;
-      rows.push({...r,score:baseSearchScore+probeAdjust+pressureBonus-tempoPenalty,baseSearchScore,probeAdjust,pressureBonus,tempoPenalty,pv:[r.i,...child.pv],depth,comparisonComplete:true});
+        pressureBonus=positional?policy.pressure||0:0,tempoPenalty=positional?policy.tempo||0:0,baseSearchScore=-child.score,openingPenalty=positional?policy.openingRisk?.penalty||0:0;
+      rows.push({...r,score:baseSearchScore+probeAdjust+pressureBonus-tempoPenalty-openingPenalty,baseSearchScore,probeAdjust,openingPenalty,openingRisk:policy.openingRisk||null,pressureBonus,tempoPenalty,pv:[r.i,...child.pv],depth,comparisonComplete:true});
     }}catch(error){if(error.message!=='timeout')throw error;}finally{deadline=oldDeadline;phaseDeadline=oldPhase;}
     return {complete:rows.length===roots.length,rows,nodes,depth,ms:clockNow()-start};
   }
@@ -1388,7 +1439,7 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
-  const strategyVersion='initiative-3';
+  const strategyVersion='initiative-3-opening-junction-1';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
@@ -2424,7 +2475,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.10';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.10');
+versionBadge.textContent='통합 v5.18.11';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.11');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -2842,8 +2893,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.10 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.10');
+versionBadge.textContent='통합 v5.18.11 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.11');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){
