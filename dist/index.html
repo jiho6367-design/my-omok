@@ -1729,7 +1729,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2';
     return r;
   }
   function convert(board,p,r,started) {
@@ -2040,7 +2040,7 @@ function createEngine(options={}) {
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
       automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
-      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
+      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
     let spent=0,preparationSpent=0,extraNodes=0,winner=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
       analysisWork:r.analysisWork?{...r.analysisWork,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
@@ -2613,7 +2613,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.13';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.13');
+versionBadge.textContent='통합 v5.18.14';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.14');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -3110,8 +3110,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.13 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.13');
+versionBadge.textContent='통합 v5.18.14 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.14');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

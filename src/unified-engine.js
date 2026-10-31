@@ -185,7 +185,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2';
     return r;
   }
   function convert(board,p,r,started) {
@@ -496,7 +496,7 @@ function createEngine(options={}) {
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
       automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
-      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
+      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
     let spent=0,preparationSpent=0,extraNodes=0,winner=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
       analysisWork:r.analysisWork?{...r.analysisWork,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
