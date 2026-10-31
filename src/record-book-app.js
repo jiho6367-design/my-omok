@@ -4,7 +4,7 @@
  const seeds=/*LOCAL_RECORD_BOOK*/[];
  const copy=value=>JSON.parse(JSON.stringify(value));
  db.recordBook=Array.isArray(db.recordBook)?db.recordBook.slice(0,128):[];
- db.recordBookEnabled=db.recordBookEnabled!==false;
+ db.recordBookEnabled=db.recordBookEnabled===true;
  const valid=records=>OmokRecordBook.create(records,{inspect:E.inspect}).records;
  db.recordBook=copy(valid(db.recordBook));
  let changed=false;
@@ -15,6 +15,8 @@
    result:{winner:record.winner},source:record.title,events:record.moves.map((i,k)=>({type:'move',i,p:k%2?record.winner:record.firstPlayer,time:null,remaining:null,legal:true}))};
  }
  db.appliedUpdates=Array.isArray(db.appliedUpdates)?db.appliedUpdates:[];
+ if(!db.appliedUpdates.includes('record-book-manual-opt-in-v2')){db.recordBookEnabled=false;db.appliedUpdates.push('record-book-manual-opt-in-v2');changed=true;}
+ db.recordBookModeVersion=2;
  for(const record of valid(seeds)){
   const marker='record-book-seed:'+record.id;if(db.appliedUpdates.includes(marker))continue;
   if(db.recordBook.length<128&&!db.recordBook.some(r=>r.id===record.id))db.recordBook.push(copy(record));
@@ -23,7 +25,7 @@
  }
  const row=document.createElement('div');row.className='row';row.id='recordBookControls';
  const label=document.createElement('label'),toggle=document.createElement('input');toggle.type='checkbox';toggle.id='useRecordBook';toggle.checked=db.recordBookEnabled;
- const count=document.createElement('span');count.id='recordBookCount';label.append(toggle,document.createTextNode(' 후공 승리 기보 활용 '),count);row.append(label);learningCard.prepend(row);
+ const count=document.createElement('span');count.id='recordBookCount';label.append(toggle,document.createTextNode(' 기보 그대로 따라두기 (선택) '),count);row.append(label);learningCard.prepend(row);
  function sync(){E.setRecordBook(db.recordBookEnabled?db.recordBook:[]);count.textContent=`(${db.recordBook.length}개)`;}
  function saveAndAnalyze(){stopWorker();sync();persist();rec=null;lastProgress=null;analyze();}
  toggle.onchange=()=>{db.recordBookEnabled=toggle.checked;saveAndAnalyze();};
@@ -38,7 +40,7 @@
    for(const record of checked.records)if(!records.some(r=>r.id===record.id))records.push(copy(record));
    if(games.length>300||lessons.length>2000||records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
    db.games=games;db.lessons=lessons;db.recordBook=records;
-   if(typeof incoming.recordBookEnabled==='boolean')db.recordBookEnabled=incoming.recordBookEnabled;
+   if(incoming.recordBookModeVersion===2&&typeof incoming.recordBookEnabled==='boolean')db.recordBookEnabled=incoming.recordBookEnabled;
    toggle.checked=db.recordBookEnabled;saveAndAnalyze();msg('기보·학습 기록·후공 승리 수순을 가져왔습니다. 기존 기록은 유지했습니다.');
   }catch(error){msg('가져오기 실패: '+error.message);}finally{$('file').value='';}
  };

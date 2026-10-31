@@ -185,7 +185,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -496,21 +496,28 @@ function createEngine(options={}) {
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
       automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
-      reserve=limit>=3000?320:limit>=300?80:0,attempted=new Set(),checks=[],stop={};
-    let spent=0,extraNodes=0,winner=null;
+      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
+    let spent=0,preparationSpent=0,extraNodes=0,winner=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
       analysisWork:r.analysisWork?{...r.analysisWork,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
     const forward=r=>{
-      const stage=r.score>=5e6?'mate':'shape',key=r.i+'|'+stage,shape=r.shape;
-      if(reserve&&checks.length<4&&!r.proven&&!r.lossProven&&r.i!=null&&!attempted.has(key)&&
-        (stage==='mate'||shape?.threes?.length||shape?.fours?.length)&&!r.rejected?.some(m=>m.i===r.i&&refutation(m))){
-        const ms=Math.min(160,reserve-spent,start+limit-clockNow()-30);
-        if(ms>=10){attempted.add(key);const check=verifyWinningMove(board,p,r.i,ms);spent+=check.ms;extraNodes+=check.nodes||0;
-          checks.push({i:r.i,stage,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0});
+      const shape=r.shape,tactical=r.score>=5e6||shape?.threes?.length||shape?.fours?.length,
+        eligible=checks.length<4&&!r.proven&&!r.lossProven&&r.i!=null&&!r.rejected?.some(m=>m.i===r.i&&refutation(m)),
+        preparation=eligible&&!tactical&&preparationReserve>preparationSpent&&!attempted.has(r.i+'|preparation')?forest.strategicPreparation?.(board,r.i,p):null,
+        stage=r.score>=5e6?'mate':tactical?'shape':preparation?.eligible?'preparation':null,key=r.i+'|'+stage;
+      if(eligible&&stage&&!attempted.has(key)){
+        // Closed/broken threes can switch to another live axis after actual
+        // forced blocks. Nomination changes no score: only a full all-reply
+        // certificate may promote this candidate to a proven win.
+        const available=stage==='preparation'?preparationReserve-preparationSpent:Math.min(160,reserve-spent),
+          ms=Math.min(available,start+limit-clockNow()-30);
+        if(ms>=10){attempted.add(key);const check=verifyWinningMove(board,p,r.i,ms);if(stage==='preparation')preparationSpent+=check.ms;else spent+=check.ms;extraNodes+=check.nodes||0;
+          checks.push({i:r.i,stage,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,
+            ...(stage==='preparation'?{preparation:{axes:preparation.axes,threeAxes:preparation.threeAxes,evidence:preparation.evidence}}:{})});
           if(check.proof){
             winner=finalizeResult(board,p,{...r,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,pv:check.pv,proof:check.proof,
               score:1e8,depth:Math.max(r.depth||0,check.pv.length),analysisIncomplete:false,timedOut:false,
-              reason:'후보 착수 뒤 상대의 모든 합법 응수에서 강제승 확인'});
+              reason:stage==='preparation'?'닫힌 공격 준비 뒤 상대의 모든 합법 응수에서 강제승 확인':'후보 착수 뒤 상대의 모든 합법 응수에서 강제승 확인'});
             if(winner.proven){progress({...decorate(winner),analysisWork:{...r.analysisWork,completedDepth:winner.depth,nodes:(r.nodes||0)+extraNodes,
               elapsedMs:Math.round(clockNow()-start),stopReason:'verified-win'}});throw stop;}
           }

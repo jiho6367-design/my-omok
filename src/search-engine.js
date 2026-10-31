@@ -202,6 +202,7 @@ function createForestEngine(options={}){
  for(let y=0;y<15;y++)for(let x=0;x<15;x++)for(let [axis,[dx,dy]]of D.entries()){if(!inside(x+4*dx,y+4*dy))continue;windows.push({axis,cells:Array.from({length:5},(_,k)=>(y+k*dy)*15+x+k*dx),before:inside(x-dx,y-dy)?(y-dy)*15+x-dx:-1,after:inside(x+5*dx,y+5*dy)?(y+5*dy)*15+x+5*dx:-1});}
  const strategyFactory=typeof createStrategyEngine==='function'?createStrategyEngine:typeof require==='function'?require('./strategy-engine.js'):null;
  const strategy=options.strategy!==false&&strategyFactory?strategyFactory(15,{inspect,legal:(b,i,p)=>inspect(b,i,p).legal,winning},options):null;
+ const strategicPreparation=(b,i,p)=>strategy?.preparation(b,i,p)||null;
  const strategicMove=(b,i,p)=>strategy?.move(b,i,p)||null,strategicScore=(b,i,p)=>strategy?.move(b,i,p).score||0,strategicProfile=(b,p)=>strategy?.profile(b,p)||null;
  function evaluateUncached(b,p){
   let score=0,weights=[0,2,18,160,3500,0],early=b.filter(Boolean).length<=12;
@@ -436,6 +437,6 @@ function createForestEngine(options={}){
   let loss=s.win.length?{proof:null,complete:true}:forcing(after,3-p,11,Math.floor(budget*.3));
   return {...r,actual:i,actualLossProof:loss.proof,reviewLabel:r.lossProven?'이미 강제 패배 상태 · 이 수만의 실수 아님':loss.proof?'이 착수 뒤 상대 연속 4 강제승 확인':r.i!==i?'대안 후보 비교 (추정)':'추천 수와 일치'};
  }
- return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
+ return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicPreparation,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
 }
 if(typeof module!=='undefined')module.exports=createForestEngine;

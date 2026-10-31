@@ -188,6 +188,54 @@ function createStrategyEngine(N,rules,options={}){
    if(!counter)return keep(junctionRisks,key,{penalty:180,reply:hint.i,player:q,axes:evidence.map(e=>e.axis),evidence,proven:false});
   }return keep(junctionRisks,key,none);
  }
+ const preparations=new Map();
+ function preparation(board,i,p){
+  const none=legal=>({eligible:false,legal,axes:[],threeAxes:[],evidence:[]});
+  if(![1,2].includes(p)||!Number.isInteger(i)||i<0||i>=N*N||board[i]!==0)return none(false);
+  const key=board.join('')+'|'+p+'|'+i,cached=preparations.get(key);if(cached)return cached;
+  const shape=rules.inspect(board,i,p);if(!shape.legal)return keep(preparations,key,none(false));
+  if(shape.win?.length||shape.fours?.length)return keep(preparations,key,none(true));
+  const choices=[],byAxis=new Map();board[i]=p;
+  try{
+   for(const w of windows.byPoint[i]){
+    if(board[w.pre]===p||board[w.post]===p||w.cells.some(j=>board[j]===3-p))continue;
+    const stones=w.cells.filter(j=>board[j]===p).length;
+    if(stones===2||stones===3)choices.push({w,stones});
+   }
+   // Validate the whole same-window path. A future double-three, unrelated
+   // exact five or six-stone line cannot stand in for a usable four.
+   const fourWitness=w=>{
+    for(const four of w.cells)if(!board[four]){
+     const next=rules.inspect(board,four,p);if(!next.legal||next.win?.length||!next.fours?.includes(w.axis))continue;
+     board[four]=p;
+     try{
+      const ends=[];
+      for(const end of w.cells)if(!board[end]){
+       const finish=rules.inspect(board,end,p);if(!finish.legal||!finish.win?.length)continue;
+       board[end]=p;
+       try{if(w.cells.every(j=>board[j]===p)&&board[w.pre]!==p&&board[w.post]!==p)ends.push(end);}
+       finally{board[end]=0;}
+      }
+      if(ends.length)return {four,ends};
+     }finally{board[four]=0;}
+    }return null;
+   };
+   for(const {w,stones}of choices.sort((a,b)=>b.stones-a.stones)){
+    if(byAxis.has(w.axis))continue;let witness=null,prepare=null;
+    if(stones===3)witness=fourWitness(w);
+    else for(const j of w.cells)if(!board[j]){
+     const next=rules.inspect(board,j,p);if(!next.legal||next.win?.length)continue;board[j]=p;
+     try{witness=fourWitness(w);}finally{board[j]=0;}
+     if(witness){prepare=j;break;}
+    }
+    if(witness)byAxis.set(w.axis,{axis:w.axis,stones,prepare,...witness});
+   }
+  }finally{board[i]=0;}
+  const evidence=[...byAxis.values()].sort((a,b)=>a.axis-b.axis),axes=evidence.map(e=>e.axis),threeAxes=evidence.filter(e=>e.stones===3).map(e=>e.axis);
+  // These consecutive own additions only schedule an alternating proof
+  // search. They add no score, forcing flag or winning claim.
+  return keep(preparations,key,{eligible:axes.length>=2&&threeAxes.length>0,legal:true,axes,threeAxes,evidence});
+ }
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -286,7 +334,7 @@ function createStrategyEngine(N,rules,options={}){
   return {...result,checks,complete,ms:now()-start};
  }
  const fallbackSelect=(board,p,rows,width,reserve,forcing=new Set())=>{const forced=rows.filter(m=>forcing.has(m.i)||m.a?.fours.length),seen=new Set(forced.map(m=>m.i));appendConnections(board,p,rows,forced,seen,Math.max(width,forced.length));return [...forced,...rows.filter(m=>!seen.has(m.i)).slice(0,Math.max(0,width-forced.length))].map(m=>({...m,strategy:m.strategy||empty(m.i)}));};
- return {context,strategyVersion,structure,junctionRisk,move:measured(move,(board,i)=>empty(i)),hint,
+ return {context,strategyVersion,structure,junctionRisk,preparation,move:measured(move,(board,i)=>empty(i)),hint,
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.

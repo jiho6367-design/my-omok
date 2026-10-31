@@ -9,6 +9,11 @@ const complete={id:'record-book-ui-generated-win',date:'2026-11-01',first:2,me:1
 const prefix={...complete,id:'record-book-ui-generated-prefix',events:complete.events.slice(0,1),cursor:1,result:null};
 const report={test:'record-book-ui',scope:'Fresh native Edge context, generated complete ten-ply game, actual UI registration/import/persistence and real engine preflight. Worker construction failures test only fallback transport; no engine result is fabricated.',steps:[]};let browser,context;
 async function waitRecord(page){await page.waitForFunction(()=>rec?.assessmentStatus==='RECORDED_LINE'&&!worker,undefined,{timeout:8000});}
+async function ready(page){
+ await page.waitForFunction(()=>globalThis.omokComputeReady===true,undefined,{timeout:12000});await page.locator('#recordBookControls').waitFor();
+ await page.evaluate(()=>new Promise(resolve=>{const dialog=$('setup');if(!dialog.open){resolve();return;}dialog.addEventListener('close',resolve,{once:true});dialog.close();}));
+ await page.locator('#useRecordBook').evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});
+}
 async function observation(page){return page.evaluate(()=>({result:rec,status:$('analysisState').textContent,metrics:$('metrics').textContent,sequence:$('sequence').textContent,plan:analysisPlan.textContent,enabled:db.recordBookEnabled,count:db.recordBook.length,checked:$('useRecordBook').checked,workerStarts:__recordWorkerStarts,first:g.first,me:g.me,turn,axis:g.axis}));}
 function checkRecord(value){assert.equal(value.result.i,ix('I9'));assert.equal(value.result.kind,'record');assert.equal(value.result.assessmentStatus,'RECORDED_LINE');assert(!value.result.proven&&!value.result.lossProven);assert.equal(value.result.depth,0);assert.equal(value.result.comparison.complete,false);assert.equal(value.result.recordEvidence.transform,0);assert.match(value.status,/기보 활용/);assert.match(value.metrics,/기보 활용/);assert.doesNotMatch(value.metrics,/완료 깊이|노드|수 탐색/);assert.doesNotMatch(value.plan,/완료 깊이|내부 탐색/);assert.match(value.sequence,/I9/);}
 async function importJSON(page,value,name='generated-record-book-backup.json'){
@@ -24,19 +29,31 @@ async function importJSON(page,value,name='generated-record-book-backup.json'){
   window.__recordWorkerMode='native';window.__recordWorkerStarts=0;const NativeWorker=Worker;
   window.Worker=class extends NativeWorker{constructor(...args){__recordWorkerStarts++;if(__recordWorkerMode==='throw')throw Error('generated-worker-construction-failure');super(...args);}};
  });
- await page.goto(pathToFileURL(html).href);await page.waitForFunction(()=>globalThis.omokComputeReady===true,undefined,{timeout:12000});await page.locator('#recordBookControls').waitFor();
- await page.evaluate(()=>new Promise(resolve=>{const dialog=$('setup');if(!dialog.open){resolve();return;}dialog.addEventListener('close',resolve,{once:true});dialog.close();}));
+ await page.goto(pathToFileURL(html).href);await ready(page);assert.equal(await page.evaluate(()=>db.recordBookEnabled),false);assert.equal(await page.locator('#useRecordBook').isChecked(),false);
  await page.evaluate(game=>{stopWorker();cancelPonder();E.configure({model:null});if(db.recordBook.length)throw Error('This generated test requires an empty public seed list');loadGame(game);},complete);
  await page.locator('#saveRecordBook').evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});
- await page.locator('#saveRecordBook').click();await page.waitForFunction(()=>db.recordBook.length===1);assert(await page.locator('#useRecordBook').isChecked());assert.match(await page.locator('#recordBookCount').textContent(),/1개/);
+ await page.locator('#saveRecordBook').click();await page.waitForFunction(()=>db.recordBook.length===1);assert.equal(await page.evaluate(()=>db.recordBookEnabled),false);assert.equal(await page.locator('#useRecordBook').isChecked(),false);assert.match(await page.locator('#recordBookCount').textContent(),/1개/);
+ assert.equal(await page.evaluate(i=>{const board=Array(225).fill(0);board[i]=2;return E.recordedReply(board,1);},ix('H8')),null,'registration alone does not enable record replay');
+ report.steps.push({step:'fresh-and-registered-book-remain-disabled-until-manual-opt-in',records:1});
+ // A legacy v5.18.12 store enabled replay automatically. Exercise startup
+ // migration through real local storage and reload, preserving its records.
+ const legacy=await page.evaluate(()=>{persist();return JSON.parse(localStorage.getItem(STORAGE_KEY));});legacy.recordBookEnabled=true;delete legacy.recordBookModeVersion;legacy.appliedUpdates=legacy.appliedUpdates.filter(id=>id!=='record-book-manual-opt-in-v2');
+ await page.evaluate(value=>{stopWorker();cancelPonder();db=JSON.parse(value);localStorage.setItem(STORAGE_KEY,value);},JSON.stringify(legacy));await page.reload();await ready(page);
+ const migrated=await page.evaluate(i=>{const board=Array(225).fill(0);board[i]=2;return {enabled:db.recordBookEnabled,version:db.recordBookModeVersion,markers:db.appliedUpdates.filter(id=>id==='record-book-manual-opt-in-v2').length,records:db.recordBook,reply:E.recordedReply(board,1)};},ix('H8'));
+ assert.equal(migrated.enabled,false);assert.equal(migrated.version,2);assert.equal(migrated.markers,1);assert.equal(migrated.reply,null);assert.equal(await page.locator('#useRecordBook').isChecked(),false);assert.deepEqual(migrated.records,legacy.recordBook);
+ await page.locator('#useRecordBook').check();assert.equal(await page.evaluate(()=>db.recordBookEnabled),true);await page.evaluate(()=>{persist();stopWorker();cancelPonder();});await page.reload();await ready(page);
+ assert.equal(await page.evaluate(()=>db.recordBookEnabled),true);assert(await page.locator('#useRecordBook').isChecked());assert.equal(await page.evaluate(()=>db.appliedUpdates.filter(id=>id==='record-book-manual-opt-in-v2').length),1);assert.deepEqual(await page.evaluate(()=>db.recordBook),legacy.recordBook);
+ report.steps.push({step:'legacy-enabled-store-migrates-off-once-with-records-retained-and-manual-reenable-survives-reload',records:1});
  await page.evaluate(game=>{__recordWorkerMode='throw';loadGame(game);},prefix);await waitRecord(page);const own=await observation(page);checkRecord(own);assert.equal(own.first,2);assert.equal(own.me,1);assert.equal(own.turn,1);assert.equal(own.axis,'descending');
  const ownStarts=own.workerStarts;await page.evaluate(()=>analyze());await waitRecord(page);assert.equal((await observation(page)).workerStarts,ownStarts,'own matching book starts no Worker');
- const backup=await page.evaluate(()=>{persist();return localStorage.getItem(STORAGE_KEY);});assert.equal(JSON.parse(backup).recordBook.length,1);assert.equal(JSON.parse(backup).recordBookEnabled,true);
+ const backup=await page.evaluate(()=>{persist();return localStorage.getItem(STORAGE_KEY);});assert.equal(JSON.parse(backup).recordBook.length,1);assert.equal(JSON.parse(backup).recordBookEnabled,true);assert.equal(JSON.parse(backup).recordBookModeVersion,2);
  report.steps.push({step:'register-own-second-prefix-original-direction-without-worker',move:'I9',status:own.status,comparisonComplete:false});
  // Remove via the real controls while a finished game avoids unnecessary
  // background analysis, then restore the exported book through the file input.
  await page.evaluate(game=>loadGame(game),complete);await page.locator('#showRecordBook').click();await page.locator('#modal').getByRole('button',{name:'수순 삭제',exact:true}).click();await page.waitForFunction(()=>db.recordBook.length===0);await page.locator('#modal').evaluate(dialog=>dialog.close());await page.locator('#useRecordBook').uncheck();
  assert.equal(await page.evaluate(()=>db.recordBookEnabled),false);assert.equal(await page.evaluate(i=>{const board=Array(225).fill(0);board[i]=2;return E.recordedReply(board,1);},ix('H8')),null);
+ await importJSON(page,legacy,'generated-legacy-record-book-backup.json');assert.match(await page.locator('#message').textContent(),/가져왔습니다/);assert.equal(await page.evaluate(()=>db.recordBookEnabled),false);assert.equal(await page.locator('#useRecordBook').isChecked(),false);assert.deepEqual(await page.evaluate(()=>db.recordBook),legacy.recordBook);assert.equal(await page.evaluate(i=>{const board=Array(225).fill(0);board[i]=2;return E.recordedReply(board,1);},ix('H8')),null,'an enabled legacy JSON cannot opt the user into replay');
+ report.steps.push({step:'legacy-enabled-json-import-retains-records-without-enabling-replay',records:1});
  await importJSON(page,backup);assert.match(await page.locator('#message').textContent(),/가져왔습니다/);assert(await page.locator('#useRecordBook').isChecked());assert.equal(await page.evaluate(()=>db.recordBook.length),1);await page.evaluate(game=>loadGame(game),prefix);await waitRecord(page);checkRecord(await observation(page));
  const counts=await page.evaluate(()=>({games:db.games.length,lessons:db.lessons.length,records:db.recordBook.length}));await importJSON(page,backup);await waitRecord(page);assert.deepEqual(await page.evaluate(()=>({games:db.games.length,lessons:db.lessons.length,records:db.recordBook.length})),counts);assert.equal(await page.evaluate(()=>new Set(db.recordBook.map(r=>r.id)).size),1);
  report.steps.push({step:'json-book-enabled-state-restored-and-duplicate-import-deduplicated',records:1});
