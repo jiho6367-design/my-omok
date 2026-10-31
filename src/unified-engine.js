@@ -14,6 +14,18 @@ function createEngine(options={}) {
   let forest=createForestEngine(rules);
   const fast=b=>createReaderEngine(15,b,rules);
   const inspect=(b,i,p)=>![1,2].includes(p)?{legal:false,reason:'돌 색 오류',threes:[],fours:[],win:[]}:forest.inspect(b,i,p);
+  const recordFactory=typeof OmokRecordBook!=='undefined'?OmokRecordBook:null;
+  let recordBook=recordFactory?recordFactory.create(options.recordBook||[],{inspect}):null;
+  function setRecordBook(records=[]){recordBook=recordFactory?recordFactory.create(records,{inspect}):null;return {records:recordBook?.records.length||0,errors:recordBook?.errors.length||0};}
+  function recordedReply(board,p){
+    const hit=recordBook?.lookup(board,p,rules.firstPlayer);if(!hit)return null;
+    const immediate=urgent(board,p);if(immediate)return immediate;
+    if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return null;
+    return finalizeResult(board,p,{i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'record',recordedLine:true,
+      recordEvidence:hit,proven:false,lossProven:false,proof:null,defenseChecked:false,analysisIncomplete:false,
+      comparison:{complete:false,selected:hit.i,depth:0,source:'record-book',rootsCompared:0},comparisonSource:'record-book',
+      reason:`내 후공 승리 기보 · ${hit.ply}수 ${forest.coord(hit.i)} · 상대가 다르게 두면 다시 분석`});
+  }
   function configure(next={}) {
     rules.fivePriority=true;
     if(Object.prototype.hasOwnProperty.call(next,'model')){
@@ -71,13 +83,20 @@ function createEngine(options={}) {
   function finalizeResult(board,p,result){
     if(!result)return result;
     let r={...result,modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model},rejected=[...(r.rejected||[])];
+    const bookHit=r.kind==='record'?recordBook?.lookup(board,p,rules.firstPlayer):null,recorded=!!bookHit&&bookHit.i===r.i&&bookHit.recordId===r.recordEvidence?.recordId;
+    if(r.kind==='record'&&!recorded)return fallbackResult(board,p,{reason:'기보와 현재 국면이 달라 일반 분석이 필요합니다.'});
+    if(recorded){r={...r,proven:false,lossProven:false,forcedLoss:false,proof:null,counterVerification:null,finalGuard:null,counterProof:null,lossCoverage:null,
+      depth:0,score:0,nodes:0,ms:0,pv:[bookHit.i],fallback:false,analysisIncomplete:false,timedOut:false,recordedLine:true,recordEvidence:bookHit,
+      comparison:{complete:false,selected:bookHit.i,depth:0,source:'record-book',rootsCompared:0},comparisonSource:'record-book',
+      candidates:[{i:bookHit.i,score:0,pv:[bookHit.i],depth:0,comparisonComplete:false,comparisonSource:'record-book'}],
+      analysisWork:{mode:'record',completedDepth:0,nodes:0,elapsedMs:0,source:'record-book',stopReason:'record-match'}};}
     for(const m of forest.knownRefutations(board,p))if(!rejected.some(x=>x.i===m.i&&refutation(x)))
       rejected.push({...m,verifiedRefutation:true});
     // A resistance move may have a positive ordering heuristic in a lost
     // position. Preserve the proved position value separately from candidates.
     const lossScore=r.lossProven&&Number.isFinite(r.score)&&r.score<0?r.score:-10000000;
     const bad=new Set(rejected.filter(refutation).map(m=>m.i)),near=new Set(forest.candidates(board)),remoteChecked=new Set(),
-      remoteGuard=!r.proven&&!r.lossProven&&r.kind!=='terminal'&&(bad.has(r.i)||!near.has(r.i));
+      remoteGuard=!recorded&&!r.proven&&!r.lossProven&&r.kind!=='terminal'&&(bad.has(r.i)||!near.has(r.i));
     // Completing a comparison does not complete its tactical screening. A
     // remote survivor can be left over after all local moves were refuted.
     // Refute the actual move, never its distance, within one shared 25ms slice.
@@ -102,7 +121,7 @@ function createEngine(options={}) {
       (!bad.has(m.i)||r.lossProven)).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,
         comparisonComplete:m.comparisonComplete===true&&pv.length===(m.pv||[]).length&&pv[0]===m.i};});
     const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete,
-      distant=!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
+      distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
       explicitFallback=r.fallback&&!complete&&!r.proven;
     if(r.kind!=='terminal'&&(r.i==null||!inspect(board,r.i,p).legal||bad.has(r.i)||!r.proven&&(r.lossProven||distant||explicitFallback))){
       let chosen=!r.lossProven&&!explicitFallback?candidates.find(m=>comparisonFor(r,m.i,candidates).complete&&
@@ -157,9 +176,11 @@ function createEngine(options={}) {
     if(!r.proven&&!r.lossProven&&(profile.complete===false||r.analysisIncomplete||r.timedOut)&&
       !profile.evidence?.ownWins?.length&&!profile.evidence?.enemyWins?.length)r.strategy.initiative='unknown';
     r.strategy.selected=feature||null;
+    if(!recorded||r.kind!=='record'||r.i!==bookHit.i){delete r.recordedLine;delete r.recordEvidence;if(r.analysisWork?.source==='record-book')delete r.analysisWork;}
     r.proofStatus=r.kind==='terminal'?'TERMINAL':r.proven?'PROVEN_WIN':r.lossProven?'PROVEN_LOSS':'UNRESOLVED';
     r.unverifiedDefense=r.kind!=='terminal'&&!r.proven&&!r.lossProven;
     r.assessmentStatus=r.proofStatus!=='UNRESOLVED'?r.proofStatus:
+      recorded&&r.kind==='record'&&r.i===bookHit.i?'RECORDED_LINE':
       r.timedOut||r.analysisIncomplete||r.kind==='incomplete'?'INCOMPLETE':
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
@@ -470,6 +491,7 @@ function createEngine(options={}) {
       checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced');
   }
   function analyze(board,p,budget='auto',lessons=[],progress=()=>{}){
+    const recorded=recordedReply(board,p);if(recorded)return recorded;
     const start=clockNow(),requested=budget&&typeof budget==='object'?Number(budget.ms):Number(budget),
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
       automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
@@ -638,7 +660,7 @@ function createEngine(options={}) {
   // configure can rebuild context-sensitive evaluation caches. Forward public
   // Forest methods to the current instance rather than retaining stale closures.
   const api={...forest};for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=(...args)=>forest[name](...args);
-  return {...api,configure,getContext,strategyVersion,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
+  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
     getModel:()=>rules.model,
     getModelInfo:()=>({active:!!rules.model,modelVersion:rules.modelVersion,featureVersion:rules.model?.featureVersion||null,scale:rules.model?.scale||0}),
     getSearchMemoryStats:()=>searchMemory?.stats()||null,
