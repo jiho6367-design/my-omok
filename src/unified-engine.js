@@ -26,6 +26,14 @@ function createEngine(options={}) {
       comparison:{complete:false,selected:hit.i,depth:0,source:'record-book',rootsCompared:0},comparisonSource:'record-book',
       reason:`내 후공 승리 기보 · ${hit.ply}수 ${forest.coord(hit.i)} · 상대가 다르게 두면 다시 분석`});
   }
+  const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
+  const openingBook=options.openingBook===false||!openingFactory?null:openingFactory.create({inspect});
+  function openingReply(board,p){
+    const hit=openingBook?.lookup(board,p,rules.firstPlayer);if(!hit)return null;
+    const immediate=urgent(board,p);if(immediate)return immediate;
+    if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return null;
+    return finalizeResult(board,p,{kind:'opening',i:hit.i,openingEvidence:hit});
+  }
   function configure(next={}) {
     rules.fivePriority=true;
     if(Object.prototype.hasOwnProperty.call(next,'model')){
@@ -82,6 +90,21 @@ function createEngine(options={}) {
   // Scores from Reader and Forest are never mixed to rank a merged shortlist.
   function finalizeResult(board,p,result){
     if(!result)return result;
+    if(result.kind==='opening'){
+      const hit=openingBook?.lookup(board,p,rules.firstPlayer);
+      if(!hit||hit.i!==result.i||hit.id!==result.openingEvidence?.id)return fallbackResult(board,p,{reason:'초반 정석과 현재 국면이 달라 일반 분석이 필요합니다.'});
+      const immediate=urgent(board,p);if(immediate)return immediate;
+      if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 정석 후보를 제외하고 일반 분석이 필요합니다.'});
+      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening',openingEvidence:hit,
+        proven:false,lossProven:false,forcedLoss:false,proof:null,proofStatus:'UNRESOLVED',assessmentStatus:'OPENING_REFERENCE',
+        fallback:false,analysisIncomplete:false,timedOut:false,defenseChecked:false,unverifiedDefense:true,
+        modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model,shape:inspect(board,hit.i,p),
+        comparison:{complete:false,selected:hit.i,depth:0,source:'opening-book',rootsCompared:0},comparisonSource:'opening-book',
+        candidates:[{i:hit.i,pv:[hit.i],score:0,depth:0,comparisonComplete:false,comparisonSource:'opening-book'}],rejected:[],
+        analysisWork:{mode:'opening',completedDepth:0,nodes:0,elapsedMs:0,source:'opening-book',stopReason:'opening-match'},
+        engineVersion:'opening-reference-1',reason:`${hit.title} 초반 정석 · ${hit.ply}수 · 자료의 변화 밖에서는 기존 엔진 분석`};
+    }
+
     let r={...result,modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model},rejected=[...(r.rejected||[])];
     const bookHit=r.kind==='record'?recordBook?.lookup(board,p,rules.firstPlayer):null,recorded=!!bookHit&&bookHit.i===r.i&&bookHit.recordId===r.recordEvidence?.recordId;
     if(r.kind==='record'&&!recorded)return fallbackResult(board,p,{reason:'기보와 현재 국면이 달라 일반 분석이 필요합니다.'});
@@ -491,6 +514,7 @@ function createEngine(options={}) {
       checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced');
   }
   function analyze(board,p,budget='auto',lessons=[],progress=()=>{}){
+    const opening=openingReply(board,p);if(opening)return opening;
     const recorded=recordedReply(board,p);if(recorded)return recorded;
     const start=clockNow(),requested=budget&&typeof budget==='object'?Number(budget.ms):Number(budget),
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
@@ -667,7 +691,7 @@ function createEngine(options={}) {
   // configure can rebuild context-sensitive evaluation caches. Forward public
   // Forest methods to the current instance rather than retaining stale closures.
   const api={...forest};for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=(...args)=>forest[name](...args);
-  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
+  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,openingReply,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
     getModel:()=>rules.model,
     getModelInfo:()=>({active:!!rules.model,modelVersion:rules.modelVersion,featureVersion:rules.model?.featureVersion||null,scale:rules.model?.scale||0}),
     getSearchMemoryStats:()=>searchMemory?.stats()||null,
