@@ -23,6 +23,19 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
   const value=await page.evaluate(()=>({r:rec,status:$('analysisState').textContent,metrics:$('metrics').textContent,sequence:$('sequence').textContent,plan:analysisPlan.textContent,workers:__openingWorkers,enabled:db.recordBookEnabled,first:g.first,me:g.me,turn})),ms=Date.now()-start;
   assert(ms<1000,'reference must reach the UI in under one second');report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);assert.equal(value.r.i,coords[ply]);assert.equal(value.workers,0);assert.equal(value.enabled,false);assert.equal(value.first,first);assert.equal(value.me,first);assert.equal(value.turn,first);assert.equal(value.r.kind,'opening');assert(!value.r.proven&&!value.r.lossProven);assert.equal(value.r.depth,0);assert.equal(value.r.comparison.complete,false);assert.match(value.status,/무적수 정석/);assert.match(value.metrics,/자료 조회/);assert.doesNotMatch(value.metrics,/노드|완료 깊이/);assert.match(value.plan,/10수/);if(ply)assert.equal(value.r.openingEvidence.title,title);report.references++;
  }
+ // The actual opponent second move determines the preferred third, in all
+ // eight adjacent directions and in either stone colour.
+ for(const first of[1,2])for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){
+  const value=game([ix('H8'),(7+dy)*15+7+dx],first),expected=dx&&dy?'포월':'화월',start=Date.now();
+  await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},value);await page.waitForFunction(()=>rec?.kind==='opening'&&!worker,undefined,{timeout:1000});
+  const observed=await page.evaluate(()=>({title:rec.openingEvidence.title,workers:__openingWorkers,checked:$('useRecordBook').checked}));assert.equal(observed.title,expected);assert.equal(observed.workers,0);assert.equal(observed.checked,false);assert(Date.now()-start<1000);report.preferredThirds=(report.preferredThirds||0)+1;
+ }
+ const favorable=await page.evaluate(()=>OmokOpeningData.catalog.map(c=>{const line=OmokOpeningData.lines.find(l=>l.familyId===c.id&&l.moves.length===5&&(()=>{const x=Array(225).fill(0);l.moves.slice(0,-1).forEach((i,k)=>x[i]=k%2?1:2);return E.openingReply(x,2)?.kind==='opening';})());if(!line)throw Error('missing live favorable family '+c.id);return {id:c.id,moves:line.moves.slice(0,-1)};}));assert.equal(favorable.length,21);
+ for(const sample of favorable)for(const first of[1,2]){
+  const start=Date.now();await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(sample.moves,first));await page.waitForFunction(()=>rec?.kind==='opening'&&!worker,undefined,{timeout:1000});
+  const observed=await page.evaluate(()=>({legal:E.inspect(b,rec.i,turn).legal,workers:__openingWorkers,proven:rec.proven,checked:$('useRecordBook').checked}));assert(observed.legal);assert.equal(observed.workers,0);assert.equal(observed.proven,false);assert.equal(observed.checked,false);const ms=Date.now()-start;assert(ms<1000);report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);report.favorableReferences=(report.favorableReferences||0)+1;
+ }
+ report.steps.push('21 favorable source families in both colours; adjacent opponent second move selects D4/I7 without a checkbox or Worker');
  const cancel=await page.evaluate(async()=>{stopWorker();cancelPonder();let count=0;const task=spawnAnalysis(b.slice(),turn,{mode:'auto',ms:15000},()=>count++,()=>count++,()=>count++);task.terminate();await Promise.resolve();return count;});assert.equal(cancel,0);
  report.steps.push('both colours; central start and D4/I7 through own ninth ply; no checkbox, Worker or proof; cancellable completion');
  const deviation=game(['H8','A1'].map(ix),1),horizon=game((lines[0][1]+' A1').split(' ').map(ix),1);
