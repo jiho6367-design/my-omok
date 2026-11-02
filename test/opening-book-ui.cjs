@@ -38,6 +38,21 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
  report.steps.push('21 favorable source families in both colours; adjacent opponent second move selects D4/I7 without a checkbox or Worker');
  const cancel=await page.evaluate(async()=>{stopWorker();cancelPonder();let count=0;const task=spawnAnalysis(b.slice(),turn,{mode:'auto',ms:15000},()=>count++,()=>count++,()=>count++);task.terminate();await Promise.resolve();return count;});assert.equal(cancel,0);
  report.steps.push('both colours; central start and D4/I7 through own ninth ply; no checkbox, Worker or proof; cancellable completion');
+ // Reproduce the reported board through actual commit(), so the chosen fifth
+ // and its recorded evidence feed the live seventh and ninth requests.
+ for(const first of[1,2]){
+  await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game('H8 G7 G9 I7'.split(' ').map(ix),first));
+  for(const [own,opponent]of[['F8','H7'],['F7','F9'],['G8',null]]){
+   await page.waitForFunction(()=>rec?.kind==='opening'&&!worker,undefined,{timeout:1000});assert.equal(await page.evaluate(()=>E.coord(rec.i)),own);
+   assert.equal(await page.evaluate(()=>__openingWorkers),0);
+   if(opponent){await page.evaluate(({own,opponent})=>{const at=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65;commit(at(own),E.inspect(b,at(own),turn));stopWorker();cancelPonder();__openingWorkers=0;commit(at(opponent),E.inspect(b,at(opponent),turn));},{own,opponent});}
+  }
+  report.connectedPaths=(report.connectedPaths||0)+1;
+ }
+ await page.evaluate(value=>{stopWorker();cancelPonder();loadGame(value);},game('H8 G7 G9 I7'.split(' ').map(ix),2));await page.waitForFunction(()=>rec?.kind==='opening'&&!worker);
+ await page.evaluate(()=>{commit(rec.i,E.inspect(b,rec.i,turn));stopWorker();cancelPonder();__openingWorkers=0;const i=82;commit(i,E.inspect(b,i,turn));});
+ await page.waitForFunction(()=>__openingWorkers>0);const missing=await page.evaluate(()=>{const result={hit:E.openingReply(b,turn),plan:analysisPlan.textContent};stopWorker();cancelPonder();return result;});assert.equal(missing.hit,null);assert.match(missing.plan,/등록 변화 밖/);
+ report.steps.push('reported position chooses F8 and actually plays connected seventh/ninth; unlisted H6 reply visibly resumes real engine analysis');
  const deviation=game(['H8','A1'].map(ix),1),horizon=game((lines[0][1]+' A1').split(' ').map(ix),1);
  for(const value of[deviation,horizon]){
   await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},value);await page.waitForFunction(()=>__openingWorkers>0);const check=await page.evaluate(()=>{const hit=E.openingReply(b,turn);stopWorker();cancelPonder();return {hit,workers:__openingWorkers};});assert.equal(check.hit,null);assert(check.workers>0);
