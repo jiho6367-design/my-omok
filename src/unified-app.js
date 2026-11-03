@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.21';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.21');
+versionBadge.textContent='통합 v5.18.22';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.22');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -88,7 +88,7 @@ function selectedBudget(board,p){
   activePlan=own.label;analysisPlan.textContent=activePlan;return own.budget;
 }
 function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
-  const recorded=p===g?.me?(E.openingReply?.(board,p)||E.recordedReply?.(board,p)):null;
+  const recorded=p===g?.me?(E.openingReply?.(board,p,{budget})||E.recordedReply?.(board,p)):null;
   if(recorded){let cancelled=false;const task={terminate(){cancelled=true;}};queueMicrotask(()=>{if(!cancelled)onDone(recorded);});return task;}
   const started=performance.now();
   // Main-page session memory survives normal completion and hard cancellation.
@@ -235,6 +235,7 @@ function acceptResult(result,partial=false){
   else if(result.i==null)setAnalysisStatus('분석 완료 · 추천 없음','검사한 후보가 배제되었고 안전한 대안을 확인하지 못했습니다. 더 이른 수에서 복기하세요.','warning');
   else if(result.kind==='block'&&result.urgent)setAnalysisStatus('분석 완료 · 즉시 차단','상대의 다음 5목을 막는 필수 방어입니다. 이후 국면의 승패까지 확인한 것은 아닙니다.','urgent');
   else if(result.assessmentStatus==='OPENING_REFERENCE')setAnalysisStatus('무적수 정석 · '+result.openingEvidence.title,'출처가 있는 초반 정석을 추천합니다. 정석 범위 밖에서는 기존 엔진으로 전환합니다.','complete');
+  else if(result.assessmentStatus==='ENGINE_PRECOMPUTED')setAnalysisStatus('엔진 사전분석 대응 · 포월','현재 6수 배치에서 엔진이 미리 비교한 7수 대응입니다. 심층 모드에서는 현재 판을 새로 분석합니다.','complete');
   else if(result.assessmentStatus==='RECORDED_LINE')setAnalysisStatus('기보 활용 · 후공 승리 수순','저장한 승리 기보와 같은 배치·차례입니다. 과거에 이긴 수순이며 현재의 강제승 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BOUNDED_FAVORABLE')setAnalysisStatus('분석 완료 · 제한 비교 추천','완료된 깊이에서 공격·방어를 비교한 추천입니다. 강제승이나 이후 안전의 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BLOCKING_UNCHECKED')setAnalysisStatus('분석 완료 · 차단 후보','상대 위협이나 연결을 차단하는 후보입니다. 그 뒤의 안전과 승리는 확인되지 않았습니다.','warning');

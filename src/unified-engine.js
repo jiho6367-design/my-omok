@@ -28,6 +28,8 @@ function createEngine(options={}) {
   }
   const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
   let openingBook=null;
+  const openingAnalysisFactory=typeof OmokOpeningAnalysis!=='undefined'?OmokOpeningAnalysis:null;
+  let openingAnalysis=null,openingAnalysisFailed=false;
   function getOpeningBook(board,p){
     // Ordinary analysis, inspection-only engines and opponent prediction need
     // no source compilation. The first eligible request validates the book.
@@ -38,11 +40,26 @@ function createEngine(options={}) {
     if(own!==other||own+other>=openingFactory.MAX_PLIES)return null;
     return openingBook||(openingBook=openingFactory.create({inspect}));
   }
-  function openingReply(board,p){
-    const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);if(!hit)return null;
+  function openingReply(board,p,{budget,allowComputed=true}={}){
+    const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
+    let analyzed=hit||!allowComputed?null:getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
+    if(analyzed){
+      const mode=budget&&typeof budget==='object'?budget.mode:null,requested=Number(budget&&typeof budget==='object'?budget.ms:budget);
+      // A stored limited search must not prevent an explicitly deeper one.
+      if(mode==='deep'||(mode==='custom'||typeof budget==='number')&&requested>analyzed.offline.budgetMs)analyzed=null;
+    }
+    if(!hit&&!analyzed)return null;
     const immediate=urgent(board,p);if(immediate)return immediate;
-    if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return null;
-    return finalizeResult(board,p,{kind:'opening',i:hit.i,openingEvidence:hit});
+    if(forest.knownRefutations(board,p).some(m=>m.i===(hit||analyzed).i))return null;
+    return hit?finalizeResult(board,p,{kind:'opening',i:hit.i,openingEvidence:hit}):
+      finalizeResult(board,p,{kind:'opening-analysis',i:analyzed.i,analysisEvidence:analyzed});
+  }
+  function getOpeningAnalysis(board,p){
+    if(options.openingBook===false||options.openingAnalysis===false||!openingAnalysisFactory||openingAnalysisFailed||!rules.firstPlayer||p!==rules.firstPlayer||!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
+    let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
+    if(own!==3||other!==3)return null;
+    if(!openingAnalysis)try{openingAnalysis=openingAnalysisFactory.create({inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData})});}catch{openingAnalysisFailed=true;return null;}
+    return openingAnalysis;
   }
   function configure(next={}) {
     rules.fivePriority=true;
@@ -100,6 +117,22 @@ function createEngine(options={}) {
   // Scores from Reader and Forest are never mixed to rank a merged shortlist.
   function finalizeResult(board,p,result){
     if(!result)return result;
+    if(result.kind==='opening-analysis'){
+      const source=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
+      if(source)return openingReply(board,p)||fallbackResult(board,p,{reason:'기존 정석의 반증을 확인해 일반 분석이 필요합니다.'});
+      const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
+      if(!hit||hit.i!==result.i||hit.id!==result.analysisEvidence?.id)return fallbackResult(board,p,{reason:'엔진 사전분석과 현재 국면이 달라 일반 분석이 필요합니다.'});
+      const immediate=urgent(board,p);if(immediate)return immediate;
+      if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 사전분석 후보를 제외하고 일반 분석이 필요합니다.'});
+      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening-analysis',analysisEvidence:hit,
+        proven:false,lossProven:false,forcedLoss:false,proof:null,proofStatus:'UNRESOLVED',assessmentStatus:'ENGINE_PRECOMPUTED',
+        fallback:false,analysisIncomplete:false,timedOut:false,defenseChecked:false,unverifiedDefense:true,
+        modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model,shape:inspect(board,hit.i,p),
+        comparison:{complete:false,selected:hit.i,depth:0,source:'engine-precomputed',rootsCompared:0},comparisonSource:'engine-precomputed',
+        candidates:[{i:hit.i,pv:[hit.i],score:0,depth:0,comparisonComplete:false,comparisonSource:'engine-precomputed'}],rejected:[],
+        analysisWork:{mode:'precomputed',completedDepth:0,nodes:0,elapsedMs:0,source:'engine-precomputed',stopReason:'precomputed-match'},
+        engineVersion:'opening-analysis-1',reason:`포월 엔진 사전분석 대응 · 7수 · 이후 국면은 기존 엔진으로 분석`};
+    }
     if(result.kind==='opening'){
       const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
       if(!hit||hit.i!==result.i||hit.id!==result.openingEvidence?.id)return fallbackResult(board,p,{reason:'초반 정석과 현재 국면이 달라 일반 분석이 필요합니다.'});
@@ -560,7 +593,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
  }catch(error){if(error!==stop)throw error;return{complete:false,inspected,groups:groups.size,rows:[]};}
 }
   function analyze(board,p,budget='auto',lessons=[],progress=()=>{}){
-    const opening=openingReply(board,p);if(opening)return opening;
+    const opening=openingReply(board,p,{budget});if(opening)return opening;
     const recorded=recordedReply(board,p);if(recorded)return recorded;
     const start=clockNow(),requested=budget&&typeof budget==='object'?Number(budget.ms):Number(budget),
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,

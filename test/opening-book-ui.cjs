@@ -16,11 +16,11 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
  await page.goto(pathToFileURL(html).href);await page.waitForFunction(()=>globalThis.omokComputeReady===true&&$('useRecordBook'));
  await page.evaluate(()=>new Promise(resolve=>{const d=$('setup');if(!d.open)return resolve();d.addEventListener('close',resolve,{once:true});d.close();}));
  assert.equal(await page.locator('#useRecordBook').isChecked(),false);
- assert.match(await page.evaluate(()=>versionBadge.textContent),/5\.18\.21/);
+ assert.match(await page.evaluate(()=>versionBadge.textContent),/5\.18\.22/);
  for(const text of['H8 I9 I7 G9 G8 F8 H10','H8 I7 I9 G7 J7 H6 J8','H8 H9 I10 I9 F9 I8 F10','H8 H9 I10 G10 I8 I9 K8 J8 J9 L7 K10'])for(const first of[1,2]){
   const m=text.split(' ').map(ix),start=Date.now();await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(m.slice(0,-1),first));await page.waitForFunction(()=>rec?.kind==='opening'&&!worker,undefined,{timeout:1000});const q=await page.evaluate(()=>({i:rec.i,workers:__openingWorkers,checked:$('useRecordBook').checked,proven:rec.proven}));assert.equal(q.i,m.at(-1));assert.equal(q.workers,0);assert.equal(q.checked,false);assert.equal(q.proven,false);const ms=Date.now()-start;assert(ms<1000);report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);report.supplementalConditionalCases=(report.supplementalConditionalCases||0)+1;
  }
- report.steps.push('released5.18.21 and four new conditional source positions in both colors, record option off, no Worker and under one second');
+ report.steps.push('released5.18.22 and four new conditional source positions in both colors, record option off, no Worker and under one second');
  for(const [title,text]of lines)for(const first of[1,2])for(const ply of[0,2,4,6,8]){
   const coords=text.split(' ').map(ix),history=game(coords.slice(0,ply),first),start=Date.now();
   await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},history);
@@ -56,8 +56,8 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
  }
  await page.evaluate(value=>{stopWorker();cancelPonder();loadGame(value);},game('H8 G7 G9 I7'.split(' ').map(ix),2));await page.waitForFunction(()=>rec?.kind==='opening'&&!worker);
  await page.evaluate(()=>{commit(rec.i,E.inspect(b,rec.i,turn));stopWorker();cancelPonder();__openingWorkers=0;const i=0;commit(i,E.inspect(b,i,turn));});
- await page.waitForFunction(()=>__openingWorkers>0);const missing=await page.evaluate(()=>{const result={hit:E.openingReply(b,turn),plan:analysisPlan.textContent};stopWorker();cancelPonder();return result;});assert.equal(missing.hit,null);assert.match(missing.plan,/등록 변화 밖/);
- report.steps.push('reported position chooses F8 and actually plays connected seventh/ninth; unlisted A1 reply visibly resumes real engine analysis');
+ await page.waitForFunction(()=>rec?.assessmentStatus==='ENGINE_PRECOMPUTED'&&!worker,undefined,{timeout:1000});const missing=await page.evaluate(()=>({hit:E.openingReply(b,turn),plan:analysisPlan.textContent,workers:__openingWorkers}));assert.equal(missing.hit.kind,'opening-analysis');assert.equal(missing.workers,0);assert.match(missing.plan,/사전 분석 예산/);
+ report.steps.push('reported position chooses F8 and actually plays connected seventh/ninth; formerly unlisted A1 sixth now gets the separately labelled computed response');
  // Put each actual selected move and its documented opponent response. The
  // longer source line includes forced blocks, which must retain priority.
  const extended=[
