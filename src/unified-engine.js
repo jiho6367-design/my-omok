@@ -28,6 +28,19 @@ function createEngine(options={}) {
   }
   const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
   let openingBook=null;
+  function openingChoices(board,p){
+    if(options.openingBook===false||!openingFactory?.choices||!rules.firstPlayer||p!==rules.firstPlayer)return [];
+    if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
+    let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
+    if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
+    const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect});
+    let rows=third.length?third:getOpeningBook(board,p)?.choices?.(board,p,rules.firstPlayer)||[];
+    if(!rows.length){const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);if(hit)rows=[{i:hit.i,familyId:'I7',title:'포월',families:[{id:'I7',title:'포월'}],ply:7,source:'engine-precomputed',reference:false,proven:false}];}
+    if(!rows.length)return rows;
+    const rejected=new Set(forest.knownRefutations(board,p).map(row=>row.i));rows=rows.filter(row=>!rejected.has(row.i));
+    if(board.reduce((n,stone)=>n+(stone!==0),0)>=8){const immediate=urgent(board,p);if(immediate?.proven)rows=rows.filter(row=>inspect(board,row.i,p).win.length>0);else if(immediate?.urgent)rows=rows.filter(row=>row.i===immediate.i);}
+    return rows;
+  }
   const openingAnalysisFactory=typeof OmokOpeningAnalysis!=='undefined'?OmokOpeningAnalysis:null;
   let openingAnalysis=null,openingAnalysisFailed=false;
   function getOpeningBook(board,p){
@@ -785,7 +798,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
   // configure can rebuild context-sensitive evaluation caches. Forward public
   // Forest methods to the current instance rather than retaining stale closures.
   const api={...forest};for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=(...args)=>forest[name](...args);
-  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,openingReply,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
+  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,openingReply,openingChoices,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
     getModel:()=>rules.model,
     getModelInfo:()=>({active:!!rules.model,modelVersion:rules.modelVersion,featureVersion:rules.model?.featureVersion||null,scale:rules.model?.scale||0}),
     getSearchMemoryStats:()=>searchMemory?.stats()||null,

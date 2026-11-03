@@ -40,10 +40,34 @@ const OmokOpeningBook=(()=>{
   if(typeof require==='function')try{return require('./opening-data.js').lines;}catch(error){if(error.code!=='MODULE_NOT_FOUND')throw error;}
   return [];
  }
+ function defaultCatalog(){
+  if(typeof OmokOpeningData!=='undefined')return OmokOpeningData.catalog||[];
+  if(typeof require==='function')try{return require('./opening-data.js').catalog||[];}catch(error){if(error.code!=='MODULE_NOT_FOUND')throw error;}
+  return [];
+ }
+ // Display choices from eligible opening families without changing the
+ // source-preferred recommendation or compiling the continuation book.
+ function choices(board,p,firstPlayer,{inspect,catalog=defaultCatalog()}={}){
+  if(!player(p)||p!==firstPlayer||typeof inspect!=='function'||!Array.isArray(catalog)||!board||board.length!==SIZE||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
+  let own=0,other=0,second=-1;
+  for(let i=0;i<SIZE;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p){other++;second=i;}else if(stone!==0)return [];}
+  if(own!==1||other!==1||board[CENTER]!==p)return [];
+  const grouped=new Map();
+  for(const family of catalog){
+   if(!family||typeof family.id!=='string'||!family.id.trim()||family.id.length>160||typeof family.title!=='string'||!family.title.trim()||family.title.length>160||!Array.isArray(family.moves)||family.moves.length!==3||family.moves[0]!==CENTER)continue;
+   const moves=family.moves;if(moves.some(i=>!Number.isInteger(i)||i<0||i>=SIZE)||new Set(moves).size!==3)continue;
+   for(let t=0;t<8;t++){
+    if(transformed(moves[1],t)!==second)continue;const i=transformed(moves[2],t);if(board[i])continue;
+    try{if(inspect(Array.from(board),i,p)?.legal!==true)continue;}catch{continue;}
+    if(!grouped.has(i))grouped.set(i,new Map());const aliases=grouped.get(i);if(!aliases.has(family.id))aliases.set(family.id,{id:family.id,title:family.title});
+   }
+  }
+  return [...grouped].sort(([a],[b])=>a-b).map(([i,aliases])=>{const families=[...aliases.values()];return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,source:'opening-family-choice',reference:true,proven:false};});
+ }
  function create({inspect,lines=defaultLines()}={}){
   if(typeof inspect!=='function')throw Error('Opening inspection callback is required');
   if(!Array.isArray(lines)||lines.length>MAX_LINES)throw Error('Opening book must contain at most '+MAX_LINES+' lines');
-  const valid=[],errors=[],ids=new Set(),index=new Map(),checkedPrefixes=new Map();
+  const valid=[],errors=[],ids=new Set(),index=new Map(),choiceIndex=new Map(),checkedPrefixes=new Map();
   // The only built-in fact is the board's geometric center. Additional
   // opening knowledge must be supplied explicitly with its own provenance.
   index.set('0'.repeat(SIZE),{i:CENTER,id:'center-start',title:'중앙 시작',sourceId:'board-center',ply:1,transform:0,ambiguous:false});
@@ -51,6 +75,7 @@ const OmokOpeningBook=(()=>{
    let line;try{line=validate(lines[n],inspect,checkedPrefixes);if(ids.has(line.id))throw Error('Duplicate opening id');}
    catch(error){errors.push(Object.freeze({index:n,id:typeof lines[n]?.id==='string'?lines[n].id.slice(0,120):null,message:String(error?.message||error)}));continue;}
    ids.add(line.id);valid.push(line);
+   const familyId=typeof lines[n].familyId==='string'&&lines[n].familyId.trim()&&lines[n].familyId.length<=160?lines[n].familyId:line.title;
    for(let t=0;t<8;t++){
     const board=Array(SIZE).fill(0);
     for(let k=0;k<line.moves.length;k++){
@@ -59,6 +84,9 @@ const OmokOpeningBook=(()=>{
      // without nominating its third move over a shared two-stone position.
      if(k%2===0&&k+1>=line.fromPly){
       const key=board.join(''),prior=index.get(key);
+      // Preserve every registered alternative independently of the single
+      // preferred lookup. Earlier prefixes before fromPly nominate nothing.
+      if(k>=2){let options=choiceIndex.get(key);if(!options)choiceIndex.set(key,options=[]);if(!options.some(row=>row.i===i&&row.familyId===familyId))options.push({i,familyId,title:line.title,sourceId:line.sourceId,id:line.id,ply:k+1});}
       // A separately reviewed source preference can resolve one exact turn
       // while preserving the original alternatives and their provenance. It
       // supplies no evaluation, proof, or preference for an earlier prefix.
@@ -87,8 +115,20 @@ const OmokOpeningBook=(()=>{
    try{if(inspect(Array.from(board),match.i,p)?.legal!==true)return null;}catch{return null;}
    const {ambiguous,preferred,...reference}=match;return {...reference,pv:[match.i],source:'opening-reference',reference:true,proven:false};
   }
-  return Object.freeze({lines:Object.freeze(valid),errors:Object.freeze(errors),conflicts:[...index.values()].filter(v=>v.ambiguous).length,lookup});
+  function choices(board,p,firstPlayer){
+   if(!player(firstPlayer)||p!==firstPlayer||!board||board.length!==SIZE||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
+   const relative=Array.from(board);let first=0,second=0;
+   for(let i=0;i<SIZE;i++){const v=relative[i];if(v!==0&&v!==1&&v!==2)return [];if(v===firstPlayer){first++;relative[i]=1;}else if(v){second++;relative[i]=2;}}
+   if(first<1||first!==second||first+second>=MAX_PLIES||relative.some((v,i)=>v&&exact(relative,i,v)))return [];
+   const grouped=new Map();
+   for(const row of choiceIndex.get(relative.join(''))||[]){
+    if(board[row.i])continue;try{if(inspect(Array.from(board),row.i,p)?.legal!==true)continue;}catch{continue;}
+    if(!grouped.has(row.i))grouped.set(row.i,new Map());const aliases=grouped.get(row.i);if(!aliases.has(row.familyId))aliases.set(row.familyId,{id:row.familyId,title:row.title});
+   }
+   return [...grouped].sort(([a],[b])=>a-b).map(([i,aliases])=>{const families=[...aliases.values()];return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,ply:first+second+1,source:'opening-reference',reference:true,proven:false};});
+  }
+  return Object.freeze({lines:Object.freeze(valid),errors:Object.freeze(errors),conflicts:[...index.values()].filter(v=>v.ambiguous).length,lookup,choices});
  }
- return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create});
+ return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create,choices});
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=OmokOpeningBook;
