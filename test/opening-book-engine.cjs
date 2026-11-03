@@ -22,11 +22,21 @@ for(const first of[1,2])for(let t=0;t<8;t++){
  for(const budget of[{mode:'fast',ms:1000},{mode:'auto',automatic:true,ms:15000},{mode:'deep',ms:25000}]){const prior=ctx.readerSearchCalls,start=performance.now(),result=engine.analyze(b,first,budget);reference(result,hit.i,generated.id);assert.equal(ctx.readerSearchCalls,prior,'a quiet reference hit runs no Reader search');assert(performance.now()-start<1000,'the direct reference path completes within one second');}
  const forged={...hit,proven:true,lossProven:true,forcedLoss:true,proof:{type:'forged'},score:1e8,depth:99,nodes:999,timedOut:true,candidateWinChecks:[{proven:true}],comparison:{complete:true,selected:hit.i,depth:99,source:'forest',rootsCompared:3},openingEvidence:{...hit.openingEvidence,title:'Forged title'}};const sanitized=engine.finalizeResult(b,first,forged);reference(sanitized,hit.i,generated.id);assert.equal(sanitized.openingEvidence.title,generated.title);assert(!sanitized.candidateWinChecks);assert.deepEqual(b,before);cases++;
 }
+
+// A real engine lookup must remain available after the old ten-stone cutoff
+// without promoting a reference to completed search or proof evidence.
+const extended=line('quiet-extended','H8 I9 F8 J10 H6 K7 F6 L10 G5 M7 C3 A15 D3 C15 C5 E15 D5 G15 A5 I15 K3 K15'),deepContext=load([extended]);let deepCases=0;
+for(const first of[1,2])for(let t=0;t<8;t++){
+ const engine=deepContext.createEngine({firstPlayer:first,model:null,searchMemory:false,recordBook:[]});
+ for(let n=10;n<22;n+=2){const board=prefix(extended,n,first,t),before=deepContext.readerSearchCalls,hit=engine.openingReply(board,first);reference(hit,hit.i,extended.id);const result=engine.analyze(board,first,{mode:'auto',automatic:true,ms:15000});reference(result,hit.i,extended.id);assert.equal(deepContext.readerSearchCalls,before);assert.equal(result.openingEvidence.ply,n+1);deepCases++;}
+ const beyond=prefix(extended,22,first,t);assert.equal(engine.openingReply(beyond,first),null);
+}
+
 const e=ctx.createEngine({firstPlayer:1,model:null,searchMemory:false}),b=prefix(generated,2),hit=e.openingReply(b,1);reference(hit,ix('F8'),generated.id);
 const deviated=b.slice();deviated[ix('I9')]=0;deviated[ix('A1')]=2;
 for(const [board,p,options,label]of[
  [deviated,1,{firstPlayer:1},'opponent deviation'],
- [prefix(generated,10),1,{firstPlayer:1},'ten-ply horizon'],
+ [prefix(generated,10),1,{firstPlayer:1},'unregistered eleventh move'],
  [prefix(generated,1),2,{firstPlayer:1},'second role'],
  [Array(225).fill(0),1,{firstPlayer:null},'unknown first role'],
  [b,1,{firstPlayer:1,openingBook:false},'explicit opening ablation']
@@ -45,7 +55,7 @@ const denied=load([generated],{reject:{board:b,p:1,i:hit.i,attack:ix('G8')}}),gu
 const optional=load([generated],{omit:true}),without=optional.createEngine({firstPlayer:1,model:null,searchMemory:false});assert.equal(without.openingReply(b,1),null,'direct VM consumers may omit the optional reference module');assert.notEqual(without.analyze(b,1,30).kind,'opening');assert.deepEqual(b,prefix(generated,2));
 // A small released data artifact is also checked as data, independently of
 // its source's strength labels. The behavioural fixtures above stay generated.
-const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,797);assert.equal(defaultBook.lines.length,797);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,232);
+const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,1528);assert.equal(defaultBook.lines.length,1528);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,232);
 const node=require('../src/node-engine.cjs'),defaultEngine=node({firstPlayer:1,model:null,searchMemory:false,recordBook:[]}),real=defaultEngine.openingReply(prefix(data.lines[0],2),1);assert.equal(real.kind,'opening');assert.equal(real.openingEvidence.sourceId,data.lines[0].sourceId);assert.equal(real.proven,false);assert.equal(real.depth,0);
 // The source-preferred third move depends on the actual second stone:
 // orthogonal replies use D4, diagonal replies use I7. This selects a source
@@ -65,4 +75,4 @@ for(const context of[actualDefaults,withDeferred])for(const first of[1,2]){
 for(const first of[1,2])for(const opponent of['A1','O15','H12']){
  const board=Array(225).fill(0);board[ix('H8')]=first;board[ix(opponent)]=3-first;const engine=actualDefaults.createEngine({firstPlayer:first,model:null,searchMemory:false}),beforeSearch=actualDefaults.readerSearchCalls;assert.equal(engine.openingReply(board,first),null,'a far second stone has no prescribed preferred third move');const result=engine.analyze(board,first,30);assert.notEqual(result.assessmentStatus,'OPENING_REFERENCE');assert(actualDefaults.readerSearchCalls>beforeSearch,'a far second stone resumes the real existing engine');assert(result.i==null||engine.inspect(board,result.i,first).legal);
 }
-console.log(JSON.stringify({test:'opening-book-engine',passed:true,cases,adjacentCases,deferredCases,defaultFacts:defaultBook.lines.length,scope:'Generated facts injected into actual source VM; D4/first-role colours and all modes under one second without Reader search; record-option independence; exact-state/role/horizon/ablation fallback to real search; stale/forged sanitization; own-five, mandatory-block and controlled known-exclusion priority; optional-module compatibility; released factual artifact legality and Node default wiring; all eight adjacent second stones select the corresponding D4/I7 source preference in both colours, deferred family facts cannot poison third moves, and far second stones use normal analysis. No strongest-move or winning proof follows from a source preference.'}));
+console.log(JSON.stringify({test:'opening-book-engine',passed:true,deepCases,cases,adjacentCases,deferredCases,defaultFacts:defaultBook.lines.length,scope:'Generated facts injected into actual source VM; D4/first-role colours and all modes under one second without Reader search; record-option independence; exact-state/role/horizon/ablation fallback to real search; stale/forged sanitization; own-five, mandatory-block and controlled known-exclusion priority; optional-module compatibility; released factual artifact legality and Node default wiring; all eight adjacent second stones select the corresponding D4/I7 source preference in both colours, deferred family facts cannot poison third moves, and far second stones use normal analysis. No strongest-move or winning proof follows from a source preference.'}));

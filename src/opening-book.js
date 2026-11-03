@@ -1,7 +1,7 @@
 /* Exact-position first-role opening references. A reference is a curated
  * suggestion under the current house rules, never a winning certificate. */
 const OmokOpeningBook=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=10,MAX_LINES=4096;
+ const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=22,MAX_LINES=4096;
  const directions=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const player=p=>p===1||p===2;
  function transformed(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const old=x;x=N-1-y;y=old;}return y*N+x;}
@@ -67,9 +67,10 @@ const OmokOpeningBook=(()=>{
     const v=relative[i];if(v!==0&&v!==1&&v!==2)return null;
     if(v===firstPlayer){first++;relative[i]=1;}else if(v){second++;relative[i]=2;}
    }
-   // First-role replies are plies 1/3/5/7/9. At most four stones of either
-   // role can precede them, so a terminal exact five cannot be a lookup hit.
+   // Longer references can contain five or more stones of either role.
+   // Reject a finished board even if a caller loads it in a different order.
    if(first!==second||first+second>=MAX_PLIES)return null;
+   if(relative.some((v,i)=>v&&exact(relative,i,v)))return null;
    const match=index.get(relative.join(''));if(!match||match.ambiguous||board[match.i])return null;
    try{if(inspect(Array.from(board),match.i,p)?.legal!==true)return null;}catch{return null;}
    const {ambiguous,...reference}=match;return {...reference,pv:[match.i],source:'opening-reference',reference:true,proven:false};
