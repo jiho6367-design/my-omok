@@ -6,15 +6,16 @@ const ix=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65,coords=s=>s.split(' ').map(ix)
 function transform(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const old=x;x=14-y;y=old;}return y*15+x;}
 function put(b,i,p){assert(R(b).legal(i,p));b[i]=p;}
 function board(moves,first=1,t=0){const b=Array(225).fill(0);moves.forEach((i,k)=>put(b,transform(i,t),k%2?3-first:first));return b;}
-const book=Book.create({inspect});assert.deepEqual(book.errors,[]);assert.equal(data.maxPly,22);assert.equal(data.lines.length,30558);assert.equal(book.conflicts,232);assert.equal(data.expansion.addedFacts,731);
+const book=Book.create({inspect});assert.deepEqual(book.errors,[]);assert.equal(data.maxPly,40);assert.equal(data.lines.length,31755);assert.equal(book.conflicts,224);assert.equal(data.expansion.addedFacts,731);
 const taiwan=data.sources.find(s=>s.id==='taiwan-i7-2');assert.equal(taiwan.fileSha256,'f0e64bb0c864c0dc02941730a25d41baa8f465149d21ed03a67e55ae0bb310ce');
 const newFacts=data.lines.filter(l=>l.id.startsWith('taiwan-')||l.id.startsWith('lj-')||l.id.startsWith('extended-'));assert.equal(newFacts.length,731);
 let sourceChecks=0;
 for(const fact of newFacts)for(const first of[1,2])for(let t=0;t<8;t++){
  const b=board(fact.moves.slice(0,-1),first,t),saved=b.slice(),hit=book.lookup(b,first,first);assert(hit,fact.id);assert.equal(hit.i,transform(fact.moves.at(-1),t),fact.id);assert.equal(hit.proven,false);assert.equal(hit.ply,fact.fromPly);assert.equal(book.lookup(b,3-first,first),null);assert.deepEqual(b,saved);sourceChecks++;
 }
+const conditionalHistoricalPaths=new Set();
 for(const fact of newFacts){
- const b=board(fact.moves.slice(0,4));for(let k=4;k<fact.moves.length;k++){if(k%2===0){const hit=book.lookup(b,1,1);assert(hit,fact.id+' has a causal prefix');assert.equal(hit.i,fact.moves[k],fact.id+' keeps prior selected own moves');}put(b,fact.moves[k],k%2?2:1);}
+ const b=board(fact.moves.slice(0,4));for(let k=4;k<fact.moves.length;k++){if(k%2===0){const hit=book.lookup(b,1,1);assert(hit,fact.id+' has a causal prefix');if(hit.i!==fact.moves[k]){assert.equal(k,6);assert.equal(hit.id,'lecture-preferred-powol-seventh');assert.deepEqual(fact.moves.slice(0,7),coords('H8 I9 I7 G9 J8 K9 J6'));assert.equal(hit.i,ix('H9'));conditionalHistoricalPaths.add(fact.id);}else assert.equal(hit.i,fact.moves[k]);}put(b,fact.moves[k],k%2?2:1);}
  if(fact.sourceMoves){assert.deepEqual(board(fact.moves.slice(0,-1)),board(fact.sourceMoves.slice(0,-1),1,fact.sourceTransform||0));assert.equal(fact.moves.at(-1),transform(fact.sourceMoves.at(-1),fact.sourceTransform||0));}
 }
 // The source orders the same two opponent stones differently. Both full
@@ -48,4 +49,4 @@ for(const first of[1,2])for(let t=0;t<8;t++){
  assert.equal(legal,220);assert.equal(covered,46);coverageChecks++;
  const missing=b.slice();put(missing,transform(ix('A1'),t),3-first);assert.equal(book.lookup(missing,first,first),null,'unsupported replies remain ordinary analysis');
 }
-console.log(JSON.stringify({test:'opening-expansion',passed:true,addedFacts:731,sourceChecks,connectedOwnMoves,urgentOverrides,coverageChecks,coveredSixths:46,legalSixths:220,maxOwnPly:21,scope:'Published factual fixtures only; all new references in both colours/eight symmetries; causal default choices through15/21; source/target colored-board equivalence; exact current-rule priority; no claim that every reply is covered or that references prove a win.'}));
+console.log(JSON.stringify({test:'opening-expansion',passed:true,addedFacts:731,conditionalHistoricalPaths:conditionalHistoricalPaths.size,sourceChecks,connectedOwnMoves,urgentOverrides,coverageChecks,coveredSixths:46,legalSixths:220,maxOwnPly:21,scope:'Published factual fixtures only; all new references in both colours/eight symmetries; causal live fixture choices through15/21; explicitly conditional historical J6 prefixes after the curated K9 reply; source/target colored-board equivalence; exact current-rule priority; no claim that every reply is covered or that references prove a win.'}));

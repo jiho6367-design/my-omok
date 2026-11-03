@@ -1,7 +1,7 @@
 'use strict';
 // Native browser integration: real bundled opening lookup, generated histories,
 // real Worker fallthrough and separately forced transport failure. No fake win.
-const assert=require('node:assert/strict'),path=require('node:path'),{pathToFileURL}=require('node:url');
+const R=require('../tools/counter-rules.cjs'),assert=require('node:assert/strict'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {chromium}=require(process.env.OMOK_PLAYWRIGHT||(process.platform==='win32'?'C:/Users/jiho/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright':'playwright'));
 const html=path.resolve(process.env.OMOK_OPENING_HTML||'dist/index.html'),ix=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65;
 const lines=[['화월','H8 H9 I9 G10 G7 J10 I7 I10 F10'],['포월','H8 I9 I7 H7 G9 F10 J6 K5 H6']];
@@ -21,7 +21,7 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
   await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},history);
   await page.waitForFunction(()=>rec?.assessmentStatus==='OPENING_REFERENCE'&&!worker,undefined,{timeout:1000});
   const value=await page.evaluate(()=>({r:rec,status:$('analysisState').textContent,metrics:$('metrics').textContent,sequence:$('sequence').textContent,plan:analysisPlan.textContent,workers:__openingWorkers,enabled:db.recordBookEnabled,first:g.first,me:g.me,turn})),ms=Date.now()-start;
-  assert(ms<1000,'reference must reach the UI in under one second');report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);assert.equal(value.r.i,coords[ply]);assert.equal(value.workers,0);assert.equal(value.enabled,false);assert.equal(value.first,first);assert.equal(value.me,first);assert.equal(value.turn,first);assert.equal(value.r.kind,'opening');assert(!value.r.proven&&!value.r.lossProven);assert.equal(value.r.depth,0);assert.equal(value.r.comparison.complete,false);assert.match(value.status,/무적수 정석/);assert.match(value.metrics,/자료 조회/);assert.doesNotMatch(value.metrics,/노드|완료 깊이/);assert.match(value.plan,/21수/);if(ply)assert.equal(value.r.openingEvidence.title,title);report.references++;
+  assert(ms<1000,'reference must reach the UI in under one second');report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);assert.equal(value.r.i,coords[ply]);assert.equal(value.workers,0);assert.equal(value.enabled,false);assert.equal(value.first,first);assert.equal(value.me,first);assert.equal(value.turn,first);assert.equal(value.r.kind,'opening');assert(!value.r.proven&&!value.r.lossProven);assert.equal(value.r.depth,0);assert.equal(value.r.comparison.complete,false);assert.match(value.status,/무적수 정석/);assert.match(value.metrics,/자료 조회/);assert.doesNotMatch(value.metrics,/노드|완료 깊이/);assert.match(value.plan,/39수/);if(ply)assert.equal(value.r.openingEvidence.title,title);report.references++;
  }
  // The actual opponent second move determines the preferred third, in all
  // eight adjacent directions and in either stone colour.
@@ -81,11 +81,21 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
   report.newFamilyPaths=(report.newFamilyPaths||0)+1;
  }
  report.steps.push('new source continuations of all21 eligible families are actually played with both colours and the saved-record option off');
- const deviation=game(['H8','A1'].map(ix),1),horizon=game('H8 I9 F8 J10 H6 K7 F6 L10 G5 M7 C3 A15 D3 C15 C5 E15 D5 G15 A5 I15 K3 K15'.split(' ').map(ix),1);
+ // Released lecture choices, actual selected long path and conditional39th
+ // reply are exercised in the same bundled app, with the record option off.
+ for(const first of[1,2]){
+  for(const text of['H8 H9 I9 G7 J10','H8 I9 I7 G9 J8 K9 H9']){const m=text.split(' ').map(ix),start=Date.now();await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(m.slice(0,-1),first));await page.waitForFunction(()=>rec&&!worker,undefined,{timeout:1000});const q=await page.evaluate(()=>({i:rec.i,id:rec.openingEvidence?.id,workers:__openingWorkers,checked:$('useRecordBook').checked}));assert.equal(q.i,m.at(-1));assert(q.id.startsWith('lecture-preferred-'));assert.equal(q.workers,0);assert.equal(q.checked,false);assert(Date.now()-start<1000);}
+  const m=await page.evaluate(()=>OmokOpeningData.lines.find(f=>f.id==='jinwook-d12-c2-620-p35').moves);await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(m.slice(0,4),first));
+  for(let k=4;k<m.length;k+=2){await page.waitForFunction(()=>rec&&!worker,undefined,{timeout:1000});const q=await page.evaluate(()=>({i:rec.i,workers:__openingWorkers,kind:rec.kind,urgent:rec.urgent,checked:$('useRecordBook').checked}));assert.equal(q.i,m[k]);assert.equal(q.workers,0);assert.equal(q.checked,false);if(q.kind!=='opening')assert(q.urgent);if(k+1<m.length)await page.evaluate(({own,other})=>{commit(own,E.inspect(b,own,turn));stopWorker();cancelPonder();__openingWorkers=0;commit(other,E.inspect(b,other,turn));},{own:m[k],other:m[k+1]});}
+  const long=await page.evaluate(()=>OmokOpeningData.lines.find(f=>f.moves.length===39).moves),start=Date.now();await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(long.slice(0,38),first));await page.waitForFunction(()=>rec&&!worker,undefined,{timeout:1000});const q=await page.evaluate(()=>({i:rec.i,proven:rec.proven,workers:__openingWorkers,kind:rec.kind,urgent:rec.urgent,plan:analysisPlan.textContent}));assert.equal(q.workers,0);if(q.kind==='opening')assert.match(q.plan,/39수/);else{const b=Array(225).fill(0);long.slice(0,38).forEach((i,k)=>b[i]=k%2?3-first:first);assert(q.urgent);const own=R(b).wins(first),enemy=R(b).wins(3-first);if(own.length){assert(q.proven);assert(own.includes(q.i));}else{assert(!q.proven);assert.equal(enemy.length,1);assert.equal(q.i,enemy[0],'the required exact5 block overrides a late reference');}}assert(Date.now()-start<1000);
+ }
+ report.steps.push('two exact lecture preferences, actual selected35-ply source path and conditional39th reference in both colors with record replay off');
+ const own='H8 A1 C1 E1 G1 I1 K1 M1 O1 A3 C3 E3 G3 I3 K3 M3 O3 A5 C5 E5'.split(' ').map(ix),other='B2 D2 F2 H2 J2 L2 N2 B4 D4 F4 H4 J4 L4 N4 B6 D6 F6 H6 J6 L6'.split(' ').map(ix);
+ const deviation=game(['H8','A1'].map(ix),1),horizon=game(own.flatMap((i,k)=>[i,other[k]]),1);
  for(const value of[deviation,horizon]){
   await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},value);await page.waitForFunction(()=>__openingWorkers>0);const check=await page.evaluate(()=>{const hit=E.openingReply(b,turn);stopWorker();cancelPonder();return {hit,workers:__openingWorkers};});assert.equal(check.hit,null);assert(check.workers>0);
  }
- report.steps.push('unlisted opponent reply and twenty-two-stone horizon start ordinary native analysis');
+ report.steps.push('unlisted opponent reply and forty-stone horizon start ordinary native analysis');
  await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;__openingWorkerThrow=true;loadGame(value);},game([],1,2));
  await page.waitForFunction(()=>rec&&!worker);const opponent=await page.evaluate(()=>({r:rec,workers:__openingWorkers,status:$('analysisState').textContent}));assert(opponent.workers>0);assert.notEqual(opponent.r.kind,'opening');assert.doesNotMatch(opponent.status,/무적수 정석/);
  report.steps.push('opponent first-role prediction stays book-free even on Worker failure');

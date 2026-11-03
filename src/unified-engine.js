@@ -218,7 +218,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -523,17 +523,53 @@ function createEngine(options={}) {
     return finish(true,{type:'all-legal-replies',move:i,attacker:p,defender:3-p,entryBoardKey:board.join(''),replyBoardKey:after.join(''),complete:true,
       checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced');
   }
+// Proof work nomination only. No evaluation value or safety claim is returned.
+function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performance.now()){
+ const N=15,D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N,stop={},groups=new Map();let inspected=0;
+ const tick=()=>{if(now()>=deadline)throw stop;},distance=i=>Math.abs(i%N-7)+Math.abs((i/N|0)-7);
+ try{for(let i=0;i<board.length;i++){
+  tick();if(board[i])continue;const shape=inspect(board,i,p);inspected++;
+  if(!shape.legal||shape.win?.length||shape.fours?.length||!shape.threes?.length)continue;
+  const byAnchors=new Map();board[i]=p;
+  try{for(const detail of shape.details||[]){
+   if(!shape.threes.includes(detail.axis))continue;const [dx,dy]=D[detail.axis];
+   for(const prepare of detail.three||[]){
+    tick();if(board[prepare])continue;const future=inspect(board,prepare,p);if(!future.legal||future.win?.length)continue;board[prepare]=p;
+    try{
+     const line=[i];for(const sign of[-1,1])for(let n=1;;n++){const x=i%N+sign*n*dx,y=(i/N|0)+sign*n*dy;if(!inside(x,y)||board[y*N+x]!==p)break;line.push(y*N+x);}
+     if(line.length!==4||!line.includes(prepare))continue;
+     line.sort((a,b)=>((a%N-i%N)*dx+((a/N|0)-(i/N|0))*dy)-((b%N-i%N)*dx+((b/N|0)-(i/N|0))*dy));
+     const a=line[0],b=line.at(-1),ax=a%N-dx,ay=(a/N|0)-dy,bx=b%N+dx,by=(b/N|0)+dy;if(!inside(ax,ay)||!inside(bx,by))continue;
+     const ends=[ay*N+ax,by*N+bx];let valid=true;
+     for(const end of ends){tick();if(board[end]){valid=false;break;}const finish=inspect(board,end,p);if(!finish.legal||!finish.win?.length){valid=false;break;}let length=1;for(const sign of[-1,1])for(let k=1;;k++){const x=end%N+sign*k*dx,y=(end/N|0)+sign*k*dy;if(!inside(x,y)||board[y*N+x]!==p)break;length++;}if(length!==5){valid=false;break;}}
+     if(!valid)continue;const anchors=line.filter(j=>j!==i&&j!==prepare).sort((a,b)=>a-b);if(anchors.length!==2||anchors.some(j=>board[j]!==p))continue;
+     const key=anchors.join(','),own=line.filter(j=>j!==prepare),positions=own.map(j=>(j%N-i%N)*dx+((j/N|0)-(i/N|0))*dy).sort((a,b)=>a-b),contiguous=positions.at(-1)-positions[0]===2*(dx*dx+dy*dy);
+     if(!byAnchors.has(key))byAnchors.set(key,{i,axis:detail.axis,anchors,contiguous,evidence:[],legal:true,proven:false,lossProven:false});
+     byAnchors.get(key).evidence.push({axis:detail.axis,anchors,prepare,ends});
+    }finally{board[prepare]=0;}
+   }
+  }}finally{board[i]=0;}
+  for(const [key,row]of byAnchors){row.extensions=[...new Set(row.evidence.map(e=>e.prepare))];if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);}
+ }
+ // Compare distinct existing two-stone supports before checking several
+ // alternative extensions of the same support. Straight, narrow threats
+ // provide a smaller first proof obligation; this is not a strength score.
+ const order=(a,b)=>Number(b.contiguous)-Number(a.contiguous)||a.extensions.length-b.extensions.length||distance(a.i)-distance(b.i)||a.i-b.i;
+ const representatives=[...groups.values()].map(rows=>rows.sort(order)[0]).sort(order),seen=new Set(),rows=representatives.filter(r=>{if(seen.has(r.i))return false;seen.add(r.i);return true;});
+ return{complete:true,inspected,groups:groups.size,rows};
+ }catch(error){if(error!==stop)throw error;return{complete:false,inspected,groups:groups.size,rows:[]};}
+}
   function analyze(board,p,budget='auto',lessons=[],progress=()=>{}){
     const opening=openingReply(board,p);if(opening)return opening;
     const recorded=recordedReply(board,p);if(recorded)return recorded;
     const start=clockNow(),requested=budget&&typeof budget==='object'?Number(budget.ms):Number(budget),
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
-      automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
+      automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,proofNomination=automatic||mode==='deep',cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
       reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
     let spent=0,preparationSpent=0,extraNodes=0,winner=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
-      analysisWork:r.analysisWork?{...r.analysisWork,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
+      analysisWork:r.analysisWork?{...r.analysisWork,budgetMs:limit,guardBudgetMs:(r.analysisWork.guardBudgetMs||0)+Math.max(0,limit-(r.analysisWork.budgetMs??limit)),nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
     const forward=r=>{
       const shape=r.shape,tactical=r.score>=5e6||shape?.threes?.length||shape?.fours?.length,
         eligible=checks.length<4&&!r.proven&&!r.lossProven&&r.i!=null&&!r.rejected?.some(m=>m.i===r.i&&refutation(m)),
@@ -559,7 +595,22 @@ function createEngine(options={}) {
       }
       progress(decorate(r));
     };
-    try{return decorate(analyzeSearch(board,p,budget,lessons,forward));}
+    if(proofNomination){const immediate=urgent(board,p);if(immediate)return decorate(immediate);}
+    const threeBudget=proofNomination?Math.min(1200,limit*.08):0,threeStart=clockNow();
+    if(threeBudget>=20){
+      const nominees=nominateLegalThrees(board,p,inspect,Math.min(start+limit-30,threeStart+Math.min(40,threeBudget*.15)),clockNow);
+      const seed=nominees.complete?nominees.rows[0]:null,ms=Math.min(threeBudget-(clockNow()-threeStart),start+limit-clockNow()-30);
+      if(seed&&ms>=10){
+        const check=verifyWinningMove(board,p,seed.i,ms);extraNodes+=check.nodes||0;attempted.add(seed.i+'|shape');
+        checks.push({i:seed.i,stage:'open-three',complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,nomination:seed});
+        if(check.complete&&check.proof){
+          const result=finalizeResult(board,p,{i:seed.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,score:1e8,depth:check.pv.length,nodes:0,analysisIncomplete:false,timedOut:false,comparison:{complete:false,selected:seed.i,depth:0,source:'open-three-proof',rootsCompared:0},reason:'열린 셋 후보 뒤 상대의 모든 합법 응수에서 강제승 확인',analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:check.pv.length,source:'open-three-proof',stopReason:'verified-win'}});
+          if(result.proven){const done=decorate(result);progress(done);return{...done,ms:clockNow()-start};}
+        }
+      }
+    }
+    const remaining=Math.max(30,start+limit-clockNow()),applied=proofNomination?(budget&&typeof budget==='object'?{...budget,ms:remaining}:{mode:'auto',automatic:true,ms:remaining}):budget;
+    try{return decorate(analyzeSearch(board,p,applied,lessons,forward));}
     catch(error){if(error!==stop)throw error;const result=decorate(winner);return {...result,ms:clockNow()-start,
       analysisWork:{...result.analysisWork,nodes:result.nodes,completedDepth:result.depth,elapsedMs:Math.round(clockNow()-start),stopReason:'verified-win'}};}
   }
