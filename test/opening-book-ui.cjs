@@ -71,6 +71,16 @@ let browser;const report={test:'opening-book-ui',steps:[],references:0,maxDelive
   report.extendedPaths=(report.extendedPaths||0)+1;
  }
  report.steps.push('new I7 branches and the reported H6 transposition are played causally; connected source through15/21 and D4 through11 in both colours, preserving urgent blocks');
+ const newFamilies=require('./fixtures/opening-coverage.json');
+ for(const sample of newFamilies.families)for(const first of[1,2]){
+  const moves=sample.moves;await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},game(moves.slice(0,4).map(ix),first));
+  for(let k=4;k<moves.length;k+=2){const own=moves[k],opponent=moves[k+1],start=Date.now();await page.waitForFunction(()=>rec&&!worker,undefined,{timeout:1000});
+   const value=await page.evaluate(()=>({coord:E.coord(rec.i),kind:rec.kind,urgent:rec.urgent,proven:rec.proven,depth:rec.depth,workers:__openingWorkers,checked:$('useRecordBook').checked}));assert.equal(value.coord,own,sample.familyId+' source continuation');assert.equal(value.workers,0);assert.equal(value.checked,false);if(value.kind==='opening'){assert.equal(value.proven,false);assert.equal(value.depth,0);}else assert(value.urgent);const elapsed=Date.now()-start;assert(elapsed<1000);report.maxDeliveryMs=Math.max(report.maxDeliveryMs,elapsed);
+   if(opponent)await page.evaluate(({own,opponent})=>{const at=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65;commit(at(own),E.inspect(b,at(own),turn));stopWorker();cancelPonder();__openingWorkers=0;commit(at(opponent),E.inspect(b,at(opponent),turn));},{own,opponent});
+  }
+  report.newFamilyPaths=(report.newFamilyPaths||0)+1;
+ }
+ report.steps.push('new source continuations of all21 eligible families are actually played with both colours and the saved-record option off');
  const deviation=game(['H8','A1'].map(ix),1),horizon=game('H8 I9 F8 J10 H6 K7 F6 L10 G5 M7 C3 A15 D3 C15 C5 E15 D5 G15 A5 I15 K3 K15'.split(' ').map(ix),1);
  for(const value of[deviation,horizon]){
   await page.evaluate(value=>{stopWorker();cancelPonder();__openingWorkers=0;loadGame(value);},value);await page.waitForFunction(()=>__openingWorkers>0);const check=await page.evaluate(()=>{const hit=E.openingReply(b,turn);stopWorker();cancelPonder();return {hit,workers:__openingWorkers};});assert.equal(check.hit,null);assert(check.workers>0);

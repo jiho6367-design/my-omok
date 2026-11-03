@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "scope": "Independent source-coordinate fixtures for actual selected continuations in all21 eligible families; references only, never a win proof.",
+  "families": [
+    {
+      "familyId": "D1",
+      "title": "한성",
+      "moves": [
+        "H8",
+        "H9",
+        "H10",
+        "I8",
+        "G9",
+        "F10",
+        "F8",
+        "I11",
+        "G7",
+        "G10",
+        "F11"
+      ],
+      "sourceId": "allrenju",
+      "sourceOffset": 3692,
+      "sourceSha256": "6605a147c27fdea4fb2e61e43312718f85be4f24096d4f5ee48d139f52f1eac8"
+    },
+    {
+      "familyId": "D2",
+      "title": "계월",
+      "moves": [
+        "H8",
+        "H9",
+        "I10",
+        "G10",
+        "I8",
+        "G8",
+        "I9"
+      ],
+      "sourceId": "D2I2-2",
+      "sourceOffset": 3390996,
+      "sourceSha256": "a5caf9efca24e40a5643b9ae812c9a0418a0ba02bbf07ee525d68e64032843f6"
+    },
+    {
+      "familyId": "D4",
+      "title": "화월",
+      "moves": [
+        "H8",
+        "H9",
+        "I9",
+        "I8",
+        "J7",
+        "F11",
+        "G7"
+      ],
+      "sourceId": "D4-2",
+      "sourceOffset": 455750,
+      "sourceSha256": "ebaf48a38e4a18fa32b2dc840c0ebb9a6d3276bca4cf3bf802d1b32923fac2c2"
+    },
+    {
+      "familyId": "D5",
+      "title": "잔월",
+      "moves": [
+        "H8",
+        "H9",
+        "J9",
+        "I8",
+        "J7",
+        "F6",
+        "J8"
+      ],
+      "sourceId": "D5-1",
+      "sourceOffset": 200068,
+      "sourceSha256": "7eb92595ff1a8f0461d141c3f340fec8eae74f146c72dcf3491478eb02d29c0b"
+    },
+    {
+      "familyId": "D6",
+      "title": "우월",
+      "moves": [
+        "H8",
+        "H9",
+        "G8",
+        "I9",
+        "G9",
+        "I8",
+        "I7"
+      ],
+      "sourceId": "D6I6-2",
+      "sourceOffset": 920398,
+      "sourceSha256": "1b3a5d926cfda58336326a5fc33ef0355e4b379e9970bc2688eb210c70c5d02c"
+    },
+    {
+      "familyId": "D7",
+      "title": "금성",
+      "moves": [
+        "H8",
+        "H9",
+        "J8",
+        "G8",
+        "I10",
+        "H7",
+        "I9"
+      ],
+      "sourceId": "D7-2",
+      "sourceOffset": 19272150,
+      "sourceSha256": "9338f4316879118975af3786aba609d6c01667061db77049d601eaf69c783707"
+    },
+    {
+      "familyId": "D8",
+      "title": "송월",
+      "moves": [
+        "H8",
+        "H9",
+        "H7",
+        "J9",
+        "G9",
+        "E11",
+        "G7"
+      ],
+      "sourceId": "D8-1",
+      "sourceOffset": 139238,
+      "sourceSha256": "0bf88dbbcb7fe398ab6e02f620bb663f766bf20f6adb95297039721cff27bc2c"
+    },
+    {
+      "familyId": "D10",
+      "title": "신월",
+      "moves": [
+        "H8",
+        "H9",
+        "J7",
+        "G8",
+        "I10",
+        "F11",
+        "I7"
+      ],
+      "sourceId": "D10-1",
+      "sourceOffset": 32,
+      "sourceSha256": "98590207a967dde223c7daba212a18865931387befe905db01759a8bf633b6dc"
+    },
+    {
+      "familyId": "D11",
+      "title": "서성",
+      "moves": [
+        "H8",
+        "H9",
+        "H6",
+        "I10",
+        "I7",
+        "G12",
+        "J6"
+      ],
+      "sourceId": "D11-1",
+      "sourceOffset": 1794,
+      "sourceSha256": "20cd7ef267b7ef9ad78f0729a08d0c5329f6627356501d9613589dd8650ab25d"
+    },
+    {
+      "familyId": "D12",
+      "title": "산월",
+      "moves": [
+        "H8",
+        "H9",
+        "G6",
+        "J7",
+        "I8",
+        "G8",
+        "F7"
+      ],
+      "sourceId": "D12-1",
+      "sourceOffset": 32,
+      "sourceSha256": "7ca0e00c4ec915906a2aff34e83f92ddd1787c79158a543496c6bf86e5cbfb06"
+    },
+    {
+      "familyId": "I2",
+      "title": "협월",
+      "moves": [
+        "H8",
+        "I9",
+        "J9",
+        "H10",
+        "J8",
+        "J10",
+        "I8"
+      ],
+      "sourceId": "D2I2-2",
+      "sourceOffset": 21831170,
+      "sourceSha256": "a5caf9efca24e40a5643b9ae812c9a0418a0ba02bbf07ee525d68e64032843f6"
+    },
+    {
+      "familyId": "I3",
+      "title": "항성",
+      "moves": [
+        "H8",
+        "I9",
+        "J8",
+        "H7",
+        "I7",
+        "E11",
+        "J6"
+      ],
+      "sourceId": "D1I3-2",
+      "sourceOffset": 55996,
+      "sourceSha256": "97f5b7c139fa6027a65f981619626800e4704f953a0f4c7554efeba62d4b6f33"
+    },
+    {
+      "familyId": "I4",
+      "title": "수월",
+      "moves": [
+        "H8",
+        "I7",
+        "J9",
+        "H7",
+        "J7",
+        "G9",
+        "J8"
+      ],
+      "sourceId": "I4-2",
+      "sourceOffset": 18414852,
+      "sourceSha256": "8ed48f913444947bec77ccd0d0f3c91a2cfa7e4f58825489b70fb20c674046b7"
+    },
+    {
+      "familyId": "I6",
+      "title": "운월",
+      "moves": [
+        "H8",
+        "I9",
+        "I8",
+        "H10",
+        "J8",
+        "G8",
+        "J7"
+      ],
+      "sourceId": "D6I6-2",
+      "sourceOffset": 23490364,
+      "sourceSha256": "1b3a5d926cfda58336326a5fc33ef0355e4b379e9970bc2688eb210c70c5d02c"
+    },
+    {
+      "familyId": "I8",
+      "title": "람월",
+      "moves": [
+        "H8",
+        "I9",
+        "I6",
+        "H9",
+        "G9",
+        "I7",
+        "G8"
+      ],
+      "sourceId": "I8-2",
+      "sourceOffset": 2853708,
+      "sourceSha256": "d6cafe72c83ff3579c3403470219222cdbd7f994bd0e7f12f8fa3cebeb8eee6c"
+    },
+    {
+      "familyId": "I9",
+      "title": "은월",
+      "moves": [
+        "H8",
+        "I9",
+        "H7",
+        "G10",
+        "G8",
+        "E12",
+        "I8"
+      ],
+      "sourceId": "I9-1",
+      "sourceOffset": 120354,
+      "sourceSha256": "e99ad4a82cbaa9f7c3c597daf8d59627014023201c17f96af2707b30c4161141"
+    },
+    {
+      "familyId": "I10",
+      "title": "명성",
+      "moves": [
+        "H8",
+        "I9",
+        "H6",
+        "H9",
+        "G9",
+        "D12",
+        "I7"
+      ],
+      "sourceId": "I10-2",
+      "sourceOffset": 34,
+      "sourceSha256": "b28b67633a63a40d429c0c4a9f235db0be644a59e89d400e82d2951eaa4d56e3"
+    },
+    {
+      "familyId": "I11",
+      "title": "사월",
+      "moves": [
+        "H8",
+        "I9",
+        "G7",
+        "H9",
+        "J9",
+        "I10",
+        "I8"
+      ],
+      "sourceId": "allrenju",
+      "sourceOffset": 51032,
+      "sourceSha256": "6605a147c27fdea4fb2e61e43312718f85be4f24096d4f5ee48d139f52f1eac8"
+    },
+    {
+      "familyId": "I12",
+      "title": "명월",
+      "moves": [
+        "H8",
+        "I9",
+        "G6",
+        "G9",
+        "F7",
+        "E11",
+        "E8"
+      ],
+      "sourceId": "I12-1",
+      "sourceOffset": 798250,
+      "sourceSha256": "d889dac59c655cfe93cf5f69ea589dd886ebe149e0334162afbc47bf196787d8"
+    },
+    {
+      "familyId": "I7",
+      "title": "포월",
+      "moves": [
+        "H8",
+        "I9",
+        "I7",
+        "G9",
+        "J8",
+        "I8",
+        "J7",
+        "I5",
+        "K7"
+      ],
+      "sourceId": "taiwan-i4-2",
+      "sourceOffset": 22873840,
+      "sourceSha256": "8ed48f913444947bec77ccd0d0f3c91a2cfa7e4f58825489b70fb20c674046b7"
+    },
+    {
+      "familyId": "D9",
+      "title": "구월",
+      "moves": [
+        "H8",
+        "H9",
+        "I7",
+        "G8",
+        "G9",
+        "J6",
+        "I10"
+      ],
+      "sourceId": "taiwan-d4-2",
+      "sourceOffset": 276028,
+      "sourceSha256": "ebaf48a38e4a18fa32b2dc840c0ebb9a6d3276bca4cf3bf802d1b32923fac2c2"
+    }
+  ],
+  "atlasFifth": [
+    112,
+    126,
+    98,
+    127,
+    125
+  ],
+  "videoTrace": [
+    "H8",
+    "I9",
+    "I7",
+    "G9",
+    "J8",
+    "H6",
+    "J9",
+    "K8",
+    "K10",
+    "J10",
+    "L11",
+    "I8",
+    "M11",
+    "K9",
+    "K11",
+    "N11",
+    "M12",
+    "N13",
+    "M10",
+    "M13",
+    "K12"
+  ]
+}

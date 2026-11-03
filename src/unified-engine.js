@@ -27,9 +27,19 @@ function createEngine(options={}) {
       reason:`내 후공 승리 기보 · ${hit.ply}수 ${forest.coord(hit.i)} · 상대가 다르게 두면 다시 분석`});
   }
   const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
-  const openingBook=options.openingBook===false||!openingFactory?null:openingFactory.create({inspect});
+  let openingBook=null;
+  function getOpeningBook(board,p){
+    // Ordinary analysis, inspection-only engines and opponent prediction need
+    // no source compilation. The first eligible request validates the book.
+    if(options.openingBook===false||!openingFactory||!rules.firstPlayer||p!==rules.firstPlayer)return null;
+    if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
+    let own=0,other=0;
+    for(let i=0;i<225;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
+    if(own!==other||own+other>=openingFactory.MAX_PLIES)return null;
+    return openingBook||(openingBook=openingFactory.create({inspect}));
+  }
   function openingReply(board,p){
-    const hit=openingBook?.lookup(board,p,rules.firstPlayer);if(!hit)return null;
+    const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);if(!hit)return null;
     const immediate=urgent(board,p);if(immediate)return immediate;
     if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return null;
     return finalizeResult(board,p,{kind:'opening',i:hit.i,openingEvidence:hit});
@@ -91,7 +101,7 @@ function createEngine(options={}) {
   function finalizeResult(board,p,result){
     if(!result)return result;
     if(result.kind==='opening'){
-      const hit=openingBook?.lookup(board,p,rules.firstPlayer);
+      const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
       if(!hit||hit.i!==result.i||hit.id!==result.openingEvidence?.id)return fallbackResult(board,p,{reason:'초반 정석과 현재 국면이 달라 일반 분석이 필요합니다.'});
       const immediate=urgent(board,p);if(immediate)return immediate;
       if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 정석 후보를 제외하고 일반 분석이 필요합니다.'});

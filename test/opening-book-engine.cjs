@@ -4,10 +4,10 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),{performance}=require('node:perf_hooks');
 const ix=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65,coords=s=>s.split(' ').map(ix),plain=x=>JSON.parse(JSON.stringify(x)),R=require('../tools/counter-rules.cjs');
 const line=(id,moves)=>({id,title:'Generated '+id,sourceId:'generated-engine-test',moves:coords(moves)}),generated=line('quiet-reference','H8 I9 F8 J10 H6 K7 F6 L10 G5 M7');
-function load(lines,{reject=null,omit=false}={}){
+function load(lines,{reject=null,omit=false,countCompiles=false}={}){
  const context={Date,performance,console,OmokOpeningData:{lines},readerSearchCalls:0};vm.createContext(context);
  const names=['neural-evaluator.js','record-book.js',...(!omit?['opening-book.js']:[]),'search-memory.js','gpu-patterns.js','strategy-engine.js','reader-engine.js','search-engine.js','unified-engine.js'];
- vm.runInContext(names.map(name=>{const source=fs.readFileSync(path.join(__dirname,'../src',name),'utf8');return name==='reader-engine.js'?source.replace('function createEngine(','function createReaderEngine('):source;}).join('\n'),context);
+ vm.runInContext(names.map(name=>{let source=fs.readFileSync(path.join(__dirname,'../src',name),'utf8');if(name==='opening-book.js'&&countCompiles)source=source.replace('function create({inspect,lines=defaultLines()}={}){','function create({inspect,lines=defaultLines()}={}){globalThis.bookCompiles=(globalThis.bookCompiles||0)+1;');return name==='reader-engine.js'?source.replace('function createEngine(','function createReaderEngine('):source;}).join('\n'),context);
  const realReader=context.createReaderEngine;context.createReaderEngine=(...args)=>{const reader=realReader(...args),analyze=reader.analyze;reader.analyze=(...args)=>{context.readerSearchCalls++;return analyze(...args);};return reader;};
  if(reject){const realForest=context.createForestEngine;context.createForestEngine=(...args)=>{const engine=realForest(...args),known=engine.knownRefutations;engine.knownRefutations=(b,p)=>[...known(b,p),...(p===reject.p&&b.join('')===reject.board.join('')?[{i:reject.i,attack:reject.attack,reason:'Generated verified exclusion'}]:[])];return engine;};}
  return context;
@@ -32,6 +32,11 @@ for(const first of[1,2])for(let t=0;t<8;t++){
  const beyond=prefix(extended,22,first,t);assert.equal(engine.openingReply(beyond,first),null);
 }
 
+// Source validation is deferred for inspection-only/ordinary engines, then
+// runs once when role configuration makes the reference relevant.
+const lazyContext=load([generated],{countCompiles:true});lazyContext.bookCompiles=0;
+const lazyEngine=lazyContext.createEngine({model:null,searchMemory:false});assert.equal(lazyContext.bookCompiles,0);assert.equal(lazyEngine.openingReply(prefix(generated,4),1),null);assert.equal(lazyContext.bookCompiles,0);lazyEngine.configure({firstPlayer:1});assert.equal(lazyEngine.openingReply(prefix(extended,22),1),null);assert.equal(lazyEngine.openingReply(prefix(generated,4),2),null);assert.equal(lazyContext.bookCompiles,0);reference(lazyEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(lazyContext.bookCompiles,1);reference(lazyEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(lazyContext.bookCompiles,1);
+
 const e=ctx.createEngine({firstPlayer:1,model:null,searchMemory:false}),b=prefix(generated,2),hit=e.openingReply(b,1);reference(hit,ix('F8'),generated.id);
 const deviated=b.slice();deviated[ix('I9')]=0;deviated[ix('A1')]=2;
 for(const [board,p,options,label]of[
@@ -55,7 +60,7 @@ const denied=load([generated],{reject:{board:b,p:1,i:hit.i,attack:ix('G8')}}),gu
 const optional=load([generated],{omit:true}),without=optional.createEngine({firstPlayer:1,model:null,searchMemory:false});assert.equal(without.openingReply(b,1),null,'direct VM consumers may omit the optional reference module');assert.notEqual(without.analyze(b,1,30).kind,'opening');assert.deepEqual(b,prefix(generated,2));
 // A small released data artifact is also checked as data, independently of
 // its source's strength labels. The behavioural fixtures above stay generated.
-const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,1528);assert.equal(defaultBook.lines.length,1528);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,232);
+const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,30558);assert.equal(defaultBook.lines.length,30558);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,232);
 const node=require('../src/node-engine.cjs'),defaultEngine=node({firstPlayer:1,model:null,searchMemory:false,recordBook:[]}),real=defaultEngine.openingReply(prefix(data.lines[0],2),1);assert.equal(real.kind,'opening');assert.equal(real.openingEvidence.sourceId,data.lines[0].sourceId);assert.equal(real.proven,false);assert.equal(real.depth,0);
 // The source-preferred third move depends on the actual second stone:
 // orthogonal replies use D4, diagonal replies use I7. This selects a source

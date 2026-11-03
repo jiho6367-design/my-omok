@@ -1,24 +1,32 @@
 /* Exact-position first-role opening references. A reference is a curated
  * suggestion under the current house rules, never a winning certificate. */
 const OmokOpeningBook=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=22,MAX_LINES=4096;
+ const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=22,MAX_LINES=32768;
  const directions=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const player=p=>p===1||p===2;
  function transformed(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const old=x;x=N-1-y;y=old;}return y*N+x;}
  function exact(board,i,p){return directions.some(([dx,dy])=>{let n=1;for(const sign of[-1,1])for(let k=1;;k++){const x=i%N+sign*k*dx,y=(i/N|0)+sign*k*dy;if(!inside(x,y)||board[y*N+x]!==p)break;n++;}return n===5;});}
  function text(value,name,max){if(typeof value!=='string'||!value.trim()||value.length>max)throw Error('Invalid opening '+name);return value;}
- function validate(line,inspect){
+ function validate(line,inspect,checkedPrefixes){
   if(!line||typeof line!=='object'||Array.isArray(line))throw Error('Invalid opening line');
   const id=text(line.id,'id',120),title=text(line.title,'title',160),sourceId=text(line.sourceId,'sourceId',160);
   if(!Array.isArray(line.moves)||!line.moves.length||line.moves.length>MAX_PLIES)throw Error('Invalid opening moves');
   const moves=line.moves.slice(),fromPly=line.fromPly===undefined?1:line.fromPly,board=Array(SIZE).fill(0);
   if(!Number.isInteger(fromPly)||fromPly<1||fromPly>moves.length||fromPly%2!==1)throw Error('Invalid opening fromPly');
   if(moves[0]!==CENTER)throw Error('Opening must start at the board center');
+  let prefix='';
   for(let k=0;k<moves.length;k++){
    const i=moves[k],p=k%2?2:1;
    if(!Number.isInteger(i)||i<0||i>=SIZE||board[i])throw Error('Invalid or occupied opening move '+(k+1));
-   if(inspect(board.slice(),i,p)?.legal!==true)throw Error('Illegal opening move '+(k+1));
-   board[i]=p;if(exact(board,i,p)&&k!==moves.length-1)throw Error('Opening continues after terminal move '+(k+1));
+   // Source rows share long histories. Reuse only an identical alternating
+   // history checked by this same rules callback during this compilation.
+   // Runtime lookup still inspects its move on the actual board afresh.
+   prefix+=i+',';let terminal=checkedPrefixes.get(prefix);
+   if(terminal===undefined){
+    if(inspect(board.slice(),i,p)?.legal!==true)throw Error('Illegal opening move '+(k+1));
+    board[i]=p;terminal=exact(board,i,p);checkedPrefixes.set(prefix,terminal);
+   }else board[i]=p;
+   if(terminal&&k!==moves.length-1)throw Error('Opening continues after terminal move '+(k+1));
   }
   return Object.freeze({id,title,sourceId,fromPly,moves:Object.freeze(moves)});
  }
@@ -34,12 +42,12 @@ const OmokOpeningBook=(()=>{
  function create({inspect,lines=defaultLines()}={}){
   if(typeof inspect!=='function')throw Error('Opening inspection callback is required');
   if(!Array.isArray(lines)||lines.length>MAX_LINES)throw Error('Opening book must contain at most '+MAX_LINES+' lines');
-  const valid=[],errors=[],ids=new Set(),index=new Map();
+  const valid=[],errors=[],ids=new Set(),index=new Map(),checkedPrefixes=new Map();
   // The only built-in fact is the board's geometric center. Additional
   // opening knowledge must be supplied explicitly with its own provenance.
   index.set('0'.repeat(SIZE),{i:CENTER,id:'center-start',title:'중앙 시작',sourceId:'board-center',ply:1,transform:0,ambiguous:false});
   for(let n=0;n<lines.length;n++){
-   let line;try{line=validate(lines[n],inspect);if(ids.has(line.id))throw Error('Duplicate opening id');}
+   let line;try{line=validate(lines[n],inspect,checkedPrefixes);if(ids.has(line.id))throw Error('Duplicate opening id');}
    catch(error){errors.push(Object.freeze({index:n,id:typeof lines[n]?.id==='string'?lines[n].id.slice(0,120):null,message:String(error?.message||error)}));continue;}
    ids.add(line.id);valid.push(line);
    for(let t=0;t<8;t++){
