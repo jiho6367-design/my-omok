@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),crypto=require('node:crypto'),D=require('../src/opening-data.js'),B=require('../src/opening-book.js'),R=require('../tools/counter-rules.cjs'),create=require('../src/node-engine.cjs');
+const old=D.lines.slice(0,31755),fresh=D.lines.slice(31755),at=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65,coords=s=>s.split(' ').map(at);
+assert.equal(crypto.createHash('sha256').update(JSON.stringify(old)).digest('hex'),'952606841e100bb0c4443eab94fb27d175f14a225d7800720aed624b7c0d4371');assert.equal(fresh.length,220);assert.equal(D.lines.length,31975);assert.equal(D.supplementalExpansion.addedFacts,220);assert.equal(D.supplementalExpansion.reviewedReal5mokCore,8);assert.equal(D.supplementalExpansion.reviewedReal5mokRelated,11);assert.deepEqual(D.supplementalExpansion.byPublisher,{'오목기사임진욱':120,'리얼오목[Real5mok]':100});
+const book=B.create({lines:D.lines,inspect:(b,i,p)=>({legal:R(b).legal(i,p)})});assert.deepEqual(book.errors,[]);assert.equal(book.conflicts,224);assert.equal(D.lines.filter(f=>f.preferred).length,2);
+function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;}
+function pos(m,p,t=0){const b=Array(225).fill(0);for(let k=0;k<m.length;k++){const i=tr(m[k],t),q=k%2?3-p:p;assert(R(b).legal(i,q));b[i]=q;if(k<m.length-1)assert(!R(b).exact(i,q));}return b;}
+let lookups=0;for(const f of fresh){assert.equal(f.fromPly,f.moves.length);assert.match(f.sourceFrameSha256,/^[a-f0-9]{64}$/);assert(D.sources.some(s=>s.id===f.sourceId&&/^https:\/\/www.youtube.com\/watch\?v=/.test(s.url)));for(const p of[1,2])for(let t=0;t<8;t++){const b=pos(f.moves.slice(0,-1),p,t),hit=book.lookup(b,p,p);assert(hit?.reference&&!hit.proven,f.id);assert.equal(hit.ply,f.fromPly);assert(Array.from({length:8},(_,q)=>q).some(q=>tr(tr(f.moves.at(-1),t),q)===hit.i&&b.every((v,i)=>b[tr(i,q)]===v)));lookups++;}}
+// Different fifths remain independent. These verified source states are
+// reached manually; they do not override the released default fifth J8.
+let live=0;for(const p of[1,2]){const E=create({firstPlayer:p,model:null,searchMemory:false,recordBook:[]});for(let t=0;t<8;t++){
+ for(const text of['H8 I9 I7 G9 G8 F8 H10','H8 I7 I9 G7 J7 H6 J8','H8 H9 I10 I9 F9 I8 F10','H8 H9 I10 G10 I8 I9 K8 J8 J9 L7 K10']){const m=coords(text),b=pos(m.slice(0,-1),p,t),h=E.openingReply(b,p);assert(h?.kind==='opening',text);assert.equal(h.i,tr(m.at(-1),t));assert(!h.proven&&!h.lossProven);live++;}
+ const start=pos(coords('H8 I9 I7 G9'),p,t);assert.equal(E.openingReply(start,p).i,tr(at('J8'),t));const fifth=pos(coords('H8 I9 I7 G9 J8'),p,t);let legal=0,covered=0;for(let i=0;i<225;i++)if(R(fifth).legal(i,3-p)){legal++;const b=fifth.slice();b[i]=3-p;if(book.lookup(b,p,p))covered++;}assert.equal(legal,220);assert.equal(covered,46);
+ }}
+console.log(JSON.stringify({test:'opening-supplemental',passed:true,newFacts:fresh.length,sourceLookups:lookups,liveConditionalCases:live,priorFactsPreserved:31755,defaultI7:{covered:46,remaining:174},scope:'Exact conditional references, unchanged default and proof boundary, all source coordinates on both colors/eight symmetries'}));
