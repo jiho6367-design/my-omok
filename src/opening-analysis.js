@@ -1,8 +1,8 @@
 /* Exact registered positions with offline engine responses. Stored search
  * metadata never establishes a current search result or a winning proof. */
 const OmokOpeningAnalysis=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=4096,MAX_PLIES=40;
- const FAMILIES={D1:{title:'한성',moves:[112,127,142]},D9:{title:'구월',moves:[112,127,98]},I3:{title:'항성',moves:[112,128,114]},I11:{title:'사월',moves:[112,128,96]}};
+ const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=8192,MAX_PLIES=40;
+ const FAMILIES={D1:{title:'한성',moves:[112,127,142]},D9:{title:'구월',moves:[112,127,98]},I3:{title:'항성',moves:[112,128,114]},I11:{title:'사월',moves:[112,128,96]},D8:{title:'송월',moves:[112,127,97]},I4:{title:'수월',moves:[112,128,99]},I12:{title:'명월',moves:[112,128,81]}};
  const player=p=>p===1||p===2,index=i=>Number.isInteger(i)&&i>=0&&i<SIZE;
  function tr(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const a=x;x=N-1-y;y=a;}return y*N+x;}
  function exact(b,i,p){return [[1,0],[0,1],[1,1],[1,-1]].some(([dx,dy])=>{let n=1;for(const s of[-1,1])for(let k=1;;k++){const x=i%N+s*k*dx,y=(i/N|0)+s*k*dy;if(x<0||y<0||x>=N||y>=N||b[y*N+x]!==p)break;n++;}return n===5;});}

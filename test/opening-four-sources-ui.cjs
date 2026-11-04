@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),path=require('node:path'),{pathToFileURL}=require('node:url');
 const {chromium}=require(process.env.OMOK_PLAYWRIGHT||(process.platform==='win32'?'C:/Users/jiho/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright':'playwright'));
-const html=path.resolve(process.env.OMOK_OPENING_HTML||'dist/index.html'),expectedVersion=process.env.OMOK_EXPECTED_VERSION||'5.18.25';
+const html=path.resolve(process.env.OMOK_OPENING_HTML||'dist/index.html'),expectedVersion=process.env.OMOK_EXPECTED_VERSION||'5.18.26';
 const at=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65;
 function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;}
 const fixtures=[

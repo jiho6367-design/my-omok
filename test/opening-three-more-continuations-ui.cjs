@@ -1,0 +1,37 @@
+'use strict';
+const assert=require('node:assert/strict'),path=require('node:path'),{pathToFileURL}=require('node:url'),D=require('../src/opening-continuation-data.js');
+const {chromium}=require(process.env.OMOK_PLAYWRIGHT||(process.platform==='win32'?'C:/Users/jiho/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright':'playwright'));
+const html=path.resolve(process.env.OMOK_OPENING_HTML||'dist/index.html'),expected=process.env.OMOK_EXPECTED_VERSION||require('../package.json').version;
+const tr=(i,t)=>{let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;};
+const game=(moves,first)=>({id:'three-more-continuations-ui-generated',first,me:first,timer:false,rules:{fivePriority:true},axis:'ascending',cursor:moves.length,result:null,remaining:40000,events:moves.map((i,k)=>({type:'move',i,p:k%2?3-first:first,legal:true,time:null,remaining:null}))});
+const families=['D8','I4','I12'];let browser;
+const report={test:'opening-three-more-continuations-ui',cases:0,maxDeliveryMs:0,selectedBranches:[]};
+(async()=>{
+ assert(families.every(id=>D.entries.some(row=>row.familyId===id)),'Each new family needs actual stored engine responses');
+ browser=await chromium.launch({executablePath:process.env.OMOK_BROWSER||(process.platform==='win32'?'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe':undefined),headless:true});
+ const page=await browser.newPage({viewport:{width:1280,height:980}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{value:4});localStorage.setItem('omok-compute-mode','optimized');localStorage.setItem('omok-analysis-settings',JSON.stringify({version:1,mode:'auto',manualMs:1000}));window.__threeMoreWorkers=0;const Native=Worker;window.Worker=class extends Native{constructor(...args){__threeMoreWorkers++;super(...args);}};});
+ await page.goto(pathToFileURL(html).href);await page.waitForFunction(()=>globalThis.omokComputeReady===true&&$('useRecordBook'));
+ await page.evaluate(()=>new Promise(resolve=>{const dialog=$('setup');if(!dialog.open)return resolve();dialog.addEventListener('close',resolve,{once:true});dialog.close();}));
+ assert.equal(await page.locator('#useRecordBook').isChecked(),false);assert((await page.evaluate(()=>versionBadge.textContent)).includes(expected));
+ // Select only asymmetric, directly named examples whose actual preferred
+ // response is stable across all orientations. Full dataset tests separately
+ // accept equivalent moves and transposed family aliases.
+ const selected=await page.evaluate(({entries,families})=>{const out=[],engine=createEngine({firstPlayer:1,model:null,recordBook:[],searchMemory:false});const tr=(i,t)=>{let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;};for(const family of families)for(const count of[4,6,8]){const row=entries.find(row=>{if(row.familyId!==family||row.moves.length!==count)return false;for(let t=0;t<8;t++){const b=Array(225).fill(0);row.moves.forEach((i,k)=>b[tr(i,t)]=k%2?2:1);const hit=engine.openingReply(b,1);if(hit?.kind!=='opening-analysis'||hit.i!==tr(row.move,t)||hit.analysisEvidence.id!==row.id||hit.analysisEvidence.familyId!==family||hit.analysisEvidence.offline.resultSha256!==row.resultSha256)return false;}return true;});if(row)out.push(row);}return out;},{entries:D.entries,families});
+ for(const family of families)for(const count of[4,6])assert(selected.some(row=>row.familyId===family&&row.moves.length===count),family+' must expose computed '+(count+1)+'th continuation');
+ report.selectedBranches=selected.map(row=>({family:row.familyId,ply:row.moves.length+1,id:row.id}));
+ for(const first of[1,2])for(let t=0;t<8;t++)for(const row of selected){
+  const start=Date.now();await page.evaluate(value=>{stopWorker();cancelPonder();__threeMoreWorkers=0;loadGame(value);},game(row.moves.map(i=>tr(i,t)),first));
+  await page.waitForFunction(()=>rec?.assessmentStatus==='ENGINE_PRECOMPUTED'&&!worker,undefined,{timeout:1000});
+  const result=await page.evaluate(()=>({i:rec.i,kind:rec.kind,proven:rec.proven,proof:rec.proof,loss:rec.lossProven,depth:rec.depth,workers:__threeMoreWorkers,record:$('useRecordBook').checked,evidence:rec.analysisEvidence,state:$('analysisState').textContent,metrics:$('metrics').textContent,sequence:$('sequence').textContent,plan:analysisPlan.textContent,ghosts:[...$('board').querySelectorAll('[data-opening-choice]')].map(el=>({i:Number(el.dataset.openingChoice),family:el.dataset.openingFamily,title:el.title})),choices:[...$('openingChoiceList').children].map(el=>el.textContent)}));
+  assert.equal(result.i,tr(row.move,t));assert.equal(result.kind,'opening-analysis');assert.equal(result.proven,false);assert.equal(result.proof,null);assert.equal(result.loss,false);assert.equal(result.depth,0);assert.equal(result.workers,0);assert.equal(result.record,false);
+  assert.equal(result.evidence.offline.resultSha256,row.resultSha256);assert.equal(result.evidence.title,row.title);assert.equal(result.evidence.ply,row.moves.length+1);assert.match(result.state,/엔진 사전분석 대응/);assert.match(result.metrics,new RegExp(row.title+' 엔진 사전분석'));assert.doesNotMatch(result.metrics,/무적수 초반 정석|강제승/);assert(result.sequence.startsWith((row.moves.length+1)+'수:'));
+  assert(result.ghosts.some(g=>g.i===result.i&&g.family.split(' ').includes(row.familyId)&&g.title.includes(row.title)));assert(result.choices.some(s=>s.includes(row.title)));assert.match(result.plan,new RegExp(row.winningMoveVerified?'검증 수순 깊이':'완료 깊이'));
+  const ms=Date.now()-start;assert(ms<1000,'Stored response must display under one second');report.maxDeliveryMs=Math.max(report.maxDeliveryMs,ms);report.cases++;
+ }
+ const row=selected.find(row=>row.moves.length===6);await page.evaluate(value=>{stopWorker();cancelPonder();loadGame(value);},game(row.moves,1));await page.waitForFunction(()=>rec?.assessmentStatus==='ENGINE_PRECOMPUTED'&&!worker);
+ assert(await page.locator('#openingChoiceList button').first().isDisabled());await page.locator('#pause').click();await page.locator('#openingChoiceList button').first().click();assert.equal(await page.evaluate(i=>b[i],row.move),1);await page.locator('#undo').click();await page.waitForFunction(()=>rec?.assessmentStatus==='ENGINE_PRECOMPUTED'&&!worker);report.branchClickAndUndo=true;
+ const deep=await page.evaluate(()=>new Promise(resolve=>{stopWorker();cancelPonder();__threeMoreWorkers=0;spawnAnalysis(b.slice(),turn,{mode:'deep',ms:300},()=>{},result=>resolve({kind:result.kind,workers:__threeMoreWorkers}),error=>resolve({error:String(error),workers:__threeMoreWorkers}));}));assert(deep.workers>0);assert.notEqual(deep.kind,'opening-analysis');report.explicitDeepStartsFreshWorker=true;
+ await page.setViewportSize({width:390,height:1000});await page.evaluate(value=>{stopWorker();cancelPonder();loadGame(value);},game(row.moves,1));await page.waitForFunction(()=>rec?.assessmentStatus==='ENGINE_PRECOMPUTED'&&!worker);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);report.mobileWidth=390;
+ await page.evaluate(()=>{stopWorker();cancelPonder();});assert.deepEqual(errors,[]);report.pageErrors=errors;report.status='passed';console.log(JSON.stringify(report));
+})().catch(error=>{console.error(JSON.stringify({...report,status:'failed',error:error.stack}));process.exitCode=1;}).finally(async()=>{await browser?.close();});
