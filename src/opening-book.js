@@ -1,9 +1,14 @@
 /* Exact-position first-role opening references. A reference is a curated
  * suggestion under the current house rules, never a winning certificate. */
 const OmokOpeningBook=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=40,MAX_LINES=32768;
+ const RULES_ID='15x15-exact5-both33-v1',N=15,SIZE=N*N,CENTER=112,MAX_PLIES=40,MAX_LINES=65536;
  const directions=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const player=p=>p===1||p===2;
+ // A token contains both the occupied coordinate and its relative role.
+ // Sorted, delimited tokens represent the entire board exactly; no hash or
+ // positional approximation may merge two different source positions.
+ function positionKey(board){const occupied=[];for(let i=0;i<SIZE;i++)if(board[i])occupied.push(i*2+board[i]-1);return occupied.join(',');}
+ function insertToken(occupied,token){let lo=0,hi=occupied.length;while(lo<hi){const mid=(lo+hi)>>1;if(occupied[mid]<token)lo=mid+1;else hi=mid;}occupied.splice(lo,0,token);}
  function transformed(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const old=x;x=N-1-y;y=old;}return y*N+x;}
  function exact(board,i,p){return directions.some(([dx,dy])=>{let n=1;for(const sign of[-1,1])for(let k=1;;k++){const x=i%N+sign*k*dx,y=(i/N|0)+sign*k*dy;if(!inside(x,y)||board[y*N+x]!==p)break;n++;}return n===5;});}
  function text(value,name,max){if(typeof value!=='string'||!value.trim()||value.length>max)throw Error('Invalid opening '+name);return value;}
@@ -70,20 +75,20 @@ const OmokOpeningBook=(()=>{
   const valid=[],errors=[],ids=new Set(),index=new Map(),choiceIndex=new Map(),checkedPrefixes=new Map();
   // The only built-in fact is the board's geometric center. Additional
   // opening knowledge must be supplied explicitly with its own provenance.
-  index.set('0'.repeat(SIZE),{i:CENTER,id:'center-start',title:'중앙 시작',sourceId:'board-center',ply:1,transform:0,ambiguous:false});
+  index.set('',{i:CENTER,id:'center-start',title:'중앙 시작',sourceId:'board-center',ply:1,transform:0,ambiguous:false});
   for(let n=0;n<lines.length;n++){
    let line;try{line=validate(lines[n],inspect,checkedPrefixes);if(ids.has(line.id))throw Error('Duplicate opening id');}
    catch(error){errors.push(Object.freeze({index:n,id:typeof lines[n]?.id==='string'?lines[n].id.slice(0,120):null,message:String(error?.message||error)}));continue;}
    ids.add(line.id);valid.push(line);
    const familyId=typeof lines[n].familyId==='string'&&lines[n].familyId.trim()&&lines[n].familyId.length<=160?lines[n].familyId:line.title;
    for(let t=0;t<8;t++){
-    const board=Array(SIZE).fill(0);
+    const board=Array(SIZE).fill(0),occupied=[];
     for(let k=0;k<line.moves.length;k++){
      const i=transformed(line.moves[k],t);
      // A family-specific continuation can describe its complete legal prefix
      // without nominating its third move over a shared two-stone position.
      if(k%2===0&&k+1>=line.fromPly){
-      const key=board.join(''),prior=index.get(key);
+      const key=occupied.join(','),prior=index.get(key);
       // Preserve every registered alternative independently of the single
       // preferred lookup. Earlier prefixes before fromPly nominate nothing.
       if(k>=2){let options=choiceIndex.get(key);if(!options)choiceIndex.set(key,options=[]);if(!options.some(row=>row.i===i&&row.familyId===familyId))options.push({i,familyId,title:line.title,sourceId:line.sourceId,id:line.id,ply:k+1});}
@@ -96,7 +101,7 @@ const OmokOpeningBook=(()=>{
       // insertion order is not evidence that the first source move is best.
       else if(!!prior.preferred===line.preferred&&prior.id!==line.id&&prior.i!==i&&!equivalent(board,prior.i,i))prior.ambiguous=true;
      }
-     board[i]=k%2?2:1;
+     board[i]=k%2?2:1;insertToken(occupied,i*2+(k%2));
     }
    }
   }
@@ -111,7 +116,7 @@ const OmokOpeningBook=(()=>{
    // Reject a finished board even if a caller loads it in a different order.
    if(first!==second||first+second>=MAX_PLIES)return null;
    if(relative.some((v,i)=>v&&exact(relative,i,v)))return null;
-   const match=index.get(relative.join(''));if(!match||match.ambiguous||board[match.i])return null;
+   const match=index.get(positionKey(relative));if(!match||match.ambiguous||board[match.i])return null;
    try{if(inspect(Array.from(board),match.i,p)?.legal!==true)return null;}catch{return null;}
    const {ambiguous,preferred,...reference}=match;return {...reference,pv:[match.i],source:'opening-reference',reference:true,proven:false};
   }
@@ -121,7 +126,7 @@ const OmokOpeningBook=(()=>{
    for(let i=0;i<SIZE;i++){const v=relative[i];if(v!==0&&v!==1&&v!==2)return [];if(v===firstPlayer){first++;relative[i]=1;}else if(v){second++;relative[i]=2;}}
    if(first<1||first!==second||first+second>=MAX_PLIES||relative.some((v,i)=>v&&exact(relative,i,v)))return [];
    const grouped=new Map();
-   for(const row of choiceIndex.get(relative.join(''))||[]){
+   for(const row of choiceIndex.get(positionKey(relative))||[]){
     if(board[row.i])continue;try{if(inspect(Array.from(board),row.i,p)?.legal!==true)continue;}catch{continue;}
     if(!grouped.has(row.i))grouped.set(row.i,new Map());const aliases=grouped.get(row.i);if(!aliases.has(row.familyId))aliases.set(row.familyId,{id:row.familyId,title:row.title});
    }
@@ -129,6 +134,37 @@ const OmokOpeningBook=(()=>{
   }
   return Object.freeze({lines:Object.freeze(valid),errors:Object.freeze(errors),conflicts:[...index.values()].filter(v=>v.ambiguous).length,lookup,choices});
  }
- return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create,choices});
+ function relativePosition(board,p,firstPlayer){
+  if(!player(firstPlayer)||p!==firstPlayer||!board||board.length!==SIZE||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
+  const relative=Array.from(board);let own=0,other=0;for(let i=0;i<SIZE;i++){const v=relative[i];if(v!==0&&v!==1&&v!==2)return null;if(v===firstPlayer){own++;relative[i]=1;}else if(v){other++;relative[i]=2;}}
+  if(own!==other||own+other>=MAX_PLIES||relative.some((v,i)=>v&&exact(relative,i,v)))return null;
+  return {relative,count:own+other,key:positionKey(relative)};
+ }
+ // Runtime queries need only source rows that can nominate this exact board.
+ // Every selected row still passes the complete validator, including all of
+ // its later moves. This selection never publishes a partly checked prefix.
+ function createForPosition({inspect,board,p,firstPlayer,lines=defaultLines()}={}){
+  if(typeof inspect!=='function')throw Error('Opening inspection callback is required');
+  if(!Array.isArray(lines)||lines.length>MAX_LINES)throw Error('Opening book must contain at most '+MAX_LINES+' lines');
+  const current=relativePosition(board,p,firstPlayer),selected=[],ids=new Set();let duplicateId=false;
+  if(current)for(const line of lines){
+   if(typeof line?.id==='string'){if(ids.has(line.id))duplicateId=true;ids.add(line.id);}
+   const moves=line?.moves,from=line?.fromPly===undefined?1:line.fromPly;
+   // Only an explicit, fully validated center preference can replace the
+   // built-in geometric first move; ordinary later rows cannot affect it.
+   if(!current.count){if(line?.preferred===true&&from===1&&Array.isArray(moves)&&moves.length===1)selected.push(line);continue;}
+   if(!Array.isArray(moves)||moves.length<=current.count||moves.length>MAX_PLIES||!Number.isInteger(from)||from<1||from%2!==1||from>current.count+1)continue;
+   let matches=false;for(let t=0;t<8&&!matches;t++){matches=true;for(let k=0;k<current.count;k++){const i=moves[k];if(!Number.isInteger(i)||i<0||i>=SIZE||current.relative[transformed(i,t)]!==(k%2?2:1)){matches=false;break;}}}
+   if(matches)selected.push(line);
+  }
+  // The full compiler defines first-valid-row handling for duplicate IDs.
+  // Keep that behavior even for malformed caller-supplied catalogues.
+  const compiled=create({inspect,lines:duplicateId?lines:selected});
+  const matches=(b,q,first)=>{const next=relativePosition(b,q,first);return !!current&&next?.key===current.key;};
+  // A selected subset must not serve a different future position whose other
+  // source preferences or conflicts were outside this request's selection.
+  return Object.freeze({...compiled,lookup:(b,q,first)=>matches(b,q,first)?compiled.lookup(b,q,first):null,choices:(b,q,first)=>matches(b,q,first)?compiled.choices(b,q,first):[]});
+ }
+ return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create,createForPosition,choices});
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=OmokOpeningBook;

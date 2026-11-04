@@ -52,10 +52,10 @@
   renderOpeningChoices();
   if(rec?.assessmentStatus==='ENGINE_PRECOMPUTED'){
    const offline=rec.analysisEvidence.offline;
-   $('metrics').textContent='포월 엔진 사전분석 대응 · 즉시 조회';
-   $('sequence').textContent=`7수: ${E.coord(rec.i)}`;
-   analysisPlan.textContent=`사전 분석 예산 ${(offline.budgetMs/1000).toFixed(0)}초 · 완료 깊이 ${offline.depth} · 이후 국면은 기존 엔진 분석`;
-   strategyNote.textContent='엔진이 미리 비교한 대응 수 · 강제승·무패는 미증명 · 더 깊은 비교는 심층 모드에서 다시 분석';
+   $('metrics').textContent=rec.analysisEvidence.title+' 엔진 사전분석 대응 · 즉시 조회';
+   $('sequence').textContent=`${rec.analysisEvidence.ply}수: ${E.coord(rec.i)}`;
+   analysisPlan.textContent=`사전 분석 예산 ${(offline.budgetMs/1000).toFixed(0)}초 · ${offline.winningMoveVerified?'검증 수순 깊이':'완료 깊이'} ${offline.depth} · 이후 국면은 기존 엔진 분석`;
+   strategyNote.textContent='엔진이 미리 분석한 대응 수 · 이 조회에는 강제승 판정을 부여하지 않습니다 · 심층 모드에서 다시 분석';
    return;
   }
   if(rec?.assessmentStatus!=='OPENING_REFERENCE'){explainMissingContinuation();return;}

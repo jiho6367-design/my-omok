@@ -42,8 +42,9 @@ const lazyContext=load([generated],{countCompiles:true});lazyContext.bookCompile
 const lazyEngine=lazyContext.createEngine({model:null,searchMemory:false});assert.equal(lazyContext.bookCompiles,0);assert.equal(lazyEngine.openingReply(prefix(generated,4),1),null);assert.equal(lazyContext.bookCompiles,0);lazyEngine.configure({firstPlayer:1});assert.equal(lazyEngine.openingReply(prefix(forty,40),1),null);assert.equal(lazyEngine.openingReply(prefix(generated,4),2),null);assert.equal(lazyContext.bookCompiles,0);reference(lazyEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(lazyContext.bookCompiles,1);reference(lazyEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(lazyContext.bookCompiles,1);
 
 // Twenty-two stones are now within the global horizon. A missing source
-// there performs the single lazy compilation before reporting a miss.
-const withinContext=load([generated],{countCompiles:true});withinContext.bookCompiles=0;const withinEngine=withinContext.createEngine({firstPlayer:1,model:null,searchMemory:false});assert.equal(withinContext.bookCompiles,0);assert.equal(withinEngine.openingReply(prefix(extended,22),1),null);assert.equal(withinContext.bookCompiles,1);reference(withinEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(withinContext.bookCompiles,1);
+// there prepares that exact position. A changed position gets a fresh scoped
+// book, while repeated requests for the current position reuse it.
+const withinContext=load([generated],{countCompiles:true});withinContext.bookCompiles=0;const withinEngine=withinContext.createEngine({firstPlayer:1,model:null,searchMemory:false});assert.equal(withinContext.bookCompiles,0);assert.equal(withinEngine.openingReply(prefix(extended,22),1),null);assert.equal(withinContext.bookCompiles,1);reference(withinEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(withinContext.bookCompiles,2);reference(withinEngine.openingReply(prefix(generated,4),1),ix('H6'),generated.id);assert.equal(withinContext.bookCompiles,2);
 
 const e=ctx.createEngine({firstPlayer:1,model:null,searchMemory:false}),b=prefix(generated,2),hit=e.openingReply(b,1);reference(hit,ix('F8'),generated.id);
 const deviated=b.slice();deviated[ix('I9')]=0;deviated[ix('A1')]=2;
@@ -68,7 +69,7 @@ const denied=load([generated],{reject:{board:b,p:1,i:hit.i,attack:ix('G8')}}),gu
 const optional=load([generated],{omit:true}),without=optional.createEngine({firstPlayer:1,model:null,searchMemory:false});assert.equal(without.openingReply(b,1),null,'direct VM consumers may omit the optional reference module');assert.notEqual(without.analyze(b,1,30).kind,'opening');assert.deepEqual(b,prefix(generated,2));
 // A small released data artifact is also checked as data, independently of
 // its source's strength labels. The behavioural fixtures above stay generated.
-const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,31975);assert.equal(defaultBook.lines.length,31975);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,224);
+const data=require('../src/opening-data.js'),Book=require('../src/opening-book.js'),defaultBook=Book.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)}),lines:data.lines});assert.equal(data.lines.length,34749);assert.equal(defaultBook.lines.length,34749);assert.deepEqual(defaultBook.errors,[]);assert.equal(defaultBook.conflicts,224);
 const node=require('../src/node-engine.cjs'),defaultEngine=node({firstPlayer:1,model:null,searchMemory:false,recordBook:[]}),real=defaultEngine.openingReply(prefix(data.lines[0],2),1);assert.equal(real.kind,'opening');assert.equal(real.openingEvidence.sourceId,data.lines[0].sourceId);assert.equal(real.proven,false);assert.equal(real.depth,0);
 // The source-preferred third move depends on the actual second stone:
 // orthogonal replies use D4, diagonal replies use I7. This selects a source

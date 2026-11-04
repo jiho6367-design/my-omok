@@ -8,7 +8,7 @@ function put(b,i,p){assert(R(b).legal(i,p));b[i]=p;}
 function position(moves,first=1,t=0){const b=Array(225).fill(0);for(let k=0;k<moves.length;k++){const i=tr(moves[k],t),p=k%2?3-first:first;put(b,i,p);if(k<moves.length-1)assert(!R(b).exact(i,p),'source does not continue a completed five');}return b;}
 function stabilizer(b,expected,actual){for(let t=0;t<8;t++)if(tr(expected,t)===actual&&b.every((v,i)=>!v||b[tr(i,t)]===v))return t;return -1;}
 const book=B.create({inspect:(b,i,p)=>({legal:R(b).legal(i,p)})}),fresh=D.lines.filter(n=>n.id.startsWith('coverage-'));
-assert.deepEqual(book.errors,[]);assert.equal(D.lines.length,31975);assert.equal(fresh.length,29030);assert.equal(book.conflicts,224);assert.equal(D.coverageExpansion.priorFacts,1528);assert.equal(D.coverageExpansion.addedFacts,fresh.length);assert.equal(B.MAX_PLIES,40);assert.equal(B.MAX_LINES,32768);
+assert.deepEqual(book.errors,[]);assert.equal(D.lines.length,34749);assert.equal(fresh.length,29030);assert.equal(book.conflicts,224);assert.equal(D.coverageExpansion.priorFacts,1528);assert.equal(D.coverageExpansion.addedFacts,fresh.length);assert.equal(B.MAX_PLIES,40);assert.equal(B.MAX_LINES,65536);
 const allowed=D.catalog.map(f=>f.id);assert.equal(allowed.length,21);assert.deepEqual(fixtures.families.map(f=>f.familyId).sort(),allowed.slice().sort());assert(allowed.every(id=>fresh.some(n=>n.familyId===id)));
 let fullPaths=0,transpositions=0;
 for(const fact of fresh){

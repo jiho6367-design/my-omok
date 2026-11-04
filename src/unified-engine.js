@@ -27,7 +27,7 @@ function createEngine(options={}) {
       reason:`내 후공 승리 기보 · ${hit.ply}수 ${forest.coord(hit.i)} · 상대가 다르게 두면 다시 분석`});
   }
   const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
-  let openingBook=null;
+  let openingBook=null,openingBookKey=null;
   function openingChoices(board,p){
     if(options.openingBook===false||!openingFactory?.choices||!rules.firstPlayer||p!==rules.firstPlayer)return [];
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
@@ -35,7 +35,7 @@ function createEngine(options={}) {
     if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
     const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect});
     let rows=third.length?third:getOpeningBook(board,p)?.choices?.(board,p,rules.firstPlayer)||[];
-    if(!rows.length){const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);if(hit)rows=[{i:hit.i,familyId:'I7',title:'포월',families:[{id:'I7',title:'포월'}],ply:7,source:'engine-precomputed',reference:false,proven:false}];}
+    if(!rows.length){const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);if(hit)rows=[{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-precomputed',reference:false,proven:false}];}
     if(!rows.length)return rows;
     const rejected=new Set(forest.knownRefutations(board,p).map(row=>row.i));rows=rows.filter(row=>!rejected.has(row.i));
     if(board.reduce((n,stone)=>n+(stone!==0),0)>=8){const immediate=urgent(board,p);if(immediate?.proven)rows=rows.filter(row=>inspect(board,row.i,p).win.length>0);else if(immediate?.urgent)rows=rows.filter(row=>row.i===immediate.i);}
@@ -45,13 +45,14 @@ function createEngine(options={}) {
   let openingAnalysis=null,openingAnalysisFailed=false;
   function getOpeningBook(board,p){
     // Ordinary analysis, inspection-only engines and opponent prediction need
-    // no source compilation. The first eligible request validates the book.
+    // no source compilation. Eligible requests validate complete matching rows.
     if(options.openingBook===false||!openingFactory||!rules.firstPlayer||p!==rules.firstPlayer)return null;
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
     let own=0,other=0;
     for(let i=0;i<225;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
     if(own!==other||own+other>=openingFactory.MAX_PLIES)return null;
-    return openingBook||(openingBook=openingFactory.create({inspect}));
+    if(!openingFactory.createForPosition)return openingBook||(openingBook=openingFactory.create({inspect}));
+    const key=p+'|'+board.join('');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer});openingBookKey=key;}return openingBook;
   }
   function openingReply(board,p,{budget,allowComputed=true}={}){
     const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
@@ -70,8 +71,8 @@ function createEngine(options={}) {
   function getOpeningAnalysis(board,p){
     if(options.openingBook===false||options.openingAnalysis===false||!openingAnalysisFactory||openingAnalysisFailed||!rules.firstPlayer||p!==rules.firstPlayer||!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
-    if(own!==3||other!==3)return null;
-    if(!openingAnalysis)try{openingAnalysis=openingAnalysisFactory.create({inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData})});}catch{openingAnalysisFailed=true;return null;}
+    if(own<2||own!==other||own+other>=openingAnalysisFactory.MAX_PLIES)return null;
+    if(!openingAnalysis)try{openingAnalysis=openingAnalysisFactory.create({inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData}),...(options.openingContinuationData===undefined?{}:{continuationData:options.openingContinuationData})});}catch{openingAnalysisFailed=true;return null;}
     return openingAnalysis;
   }
   function configure(next={}) {
@@ -144,7 +145,7 @@ function createEngine(options={}) {
         comparison:{complete:false,selected:hit.i,depth:0,source:'engine-precomputed',rootsCompared:0},comparisonSource:'engine-precomputed',
         candidates:[{i:hit.i,pv:[hit.i],score:0,depth:0,comparisonComplete:false,comparisonSource:'engine-precomputed'}],rejected:[],
         analysisWork:{mode:'precomputed',completedDepth:0,nodes:0,elapsedMs:0,source:'engine-precomputed',stopReason:'precomputed-match'},
-        engineVersion:'opening-analysis-1',reason:`포월 엔진 사전분석 대응 · 7수 · 이후 국면은 기존 엔진으로 분석`};
+        engineVersion:'opening-analysis-1',reason:`${hit.title} 엔진 사전분석 대응 · ${hit.ply}수 · 등록 후속 밖에서는 기존 엔진으로 분석`};
     }
     if(result.kind==='opening'){
       const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
