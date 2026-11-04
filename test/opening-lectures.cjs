@@ -5,7 +5,7 @@ function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const
 function position(m,p=1,t=0){const b=Array(225).fill(0);for(let k=0;k<m.length;k++){const i=tr(m[k],t),q=k%2?3-p:p;assert(R(b).legal(i,q));b[i]=q;if(k<m.length-1)assert(!R(b).exact(i,q));}return b;}
 function equivalent(b,a,c){for(let t=0;t<8;t++)if(tr(a,t)===c&&b.every((v,i)=>b[tr(i,t)]===v))return true;return false;}
 const fresh=D.lines.slice(30558,31975),book=B.create({lines:D.lines,inspect:(b,i,p)=>({legal:R(b).legal(i,p)})});
-assert.equal(D.version,9);assert.equal(D.maxPly,40);assert.equal(B.MAX_PLIES,40);assert.equal(D.lines.length,40855);assert.equal(fresh.length,1417);assert.equal(D.lectureExpansion.addedFacts,fresh.length);assert.equal(book.conflicts,224);assert.deepEqual(book.errors,[]);
+assert.equal(D.version,10);assert.equal(D.maxPly,40);assert.equal(B.MAX_PLIES,40);assert.equal(D.lines.length,49583);assert.equal(fresh.length,1417);assert.equal(D.lectureExpansion.addedFacts,fresh.length);assert.equal(book.conflicts,224);assert.deepEqual(book.errors,[]);
 // Historical source identities, coordinates, transforms and evidence remain
 // byte-for-byte equivalent as JSON, including superseded exact-turn choices.
 assert.equal(crypto.createHash('sha256').update(JSON.stringify(D.lines.slice(0,30558))).digest('hex'),'c2c13313ffddf80568cf2c11f4cb26994d2248ffd0947a78c7bedf9f355e38ed');

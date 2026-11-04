@@ -34,15 +34,23 @@ function createEngine(options={}) {
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
     if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
     const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect});
-    let rows=third.length?third:getOpeningBook(board,p)?.choices?.(board,p,rules.firstPlayer)||[];
-    if(!rows.length){const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);if(hit)rows=[{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-precomputed',reference:false,proven:false}];}
+    const book=third.length?null:getOpeningBook(board,p);
+    let rows=third.length?third:book?.choices?.(board,p,rules.firstPlayer)||[];
+    if(!third.length&&!book?.lookup(board,p,rules.firstPlayer)){
+      const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
+      if(hit){
+        const prior=rows.find(row=>row.i===hit.i);
+        if(prior){const families=[...new Map([...(prior.families||[{id:prior.familyId,title:prior.title}]),...hit.families].map(f=>[f.id,f])).values()];rows=rows.map(row=>row===prior?{...row,title:families.map(f=>f.title).join(' / '),families}:row);}
+        else rows=[...rows,{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-precomputed',reference:false,proven:false}];
+      }
+    }
     if(!rows.length)return rows;
     const rejected=new Set(forest.knownRefutations(board,p).map(row=>row.i));rows=rows.filter(row=>!rejected.has(row.i));
     if(board.reduce((n,stone)=>n+(stone!==0),0)>=8){const immediate=urgent(board,p);if(immediate?.proven)rows=rows.filter(row=>inspect(board,row.i,p).win.length>0);else if(immediate?.urgent)rows=rows.filter(row=>row.i===immediate.i);}
     return rows;
   }
   const openingAnalysisFactory=typeof OmokOpeningAnalysis!=='undefined'?OmokOpeningAnalysis:null;
-  let openingAnalysis=null,openingAnalysisFailed=false;
+  let openingAnalysis=null,openingAnalysisKey=null,openingAnalysisFailed=false;
   function getOpeningBook(board,p){
     // Ordinary analysis, inspection-only engines and opponent prediction need
     // no source compilation. Eligible requests validate complete matching rows.
@@ -72,7 +80,11 @@ function createEngine(options={}) {
     if(options.openingBook===false||options.openingAnalysis===false||!openingAnalysisFactory||openingAnalysisFailed||!rules.firstPlayer||p!==rules.firstPlayer||!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
     if(own<2||own!==other||own+other>=openingAnalysisFactory.MAX_PLIES)return null;
-    if(!openingAnalysis)try{openingAnalysis=openingAnalysisFactory.create({inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData}),...(options.openingContinuationData===undefined?{}:{continuationData:options.openingContinuationData})});}catch{openingAnalysisFailed=true;return null;}
+    const key=openingAnalysisFactory.createForPosition?p+'|'+board.join(''):'all';
+    if(!openingAnalysis||key!==openingAnalysisKey)try{
+      const settings={inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData}),...(options.openingContinuationData===undefined?{}:{continuationData:options.openingContinuationData})};
+      openingAnalysis=openingAnalysisFactory.createForPosition?openingAnalysisFactory.createForPosition({...settings,board,p,firstPlayer:rules.firstPlayer}):openingAnalysisFactory.create(settings);openingAnalysisKey=key;
+    }catch{openingAnalysisFailed=true;return null;}
     return openingAnalysis;
   }
   function configure(next={}) {

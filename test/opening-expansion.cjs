@@ -6,7 +6,7 @@ const ix=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65,coords=s=>s.split(' ').map(ix)
 function transform(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const old=x;x=14-y;y=old;}return y*15+x;}
 function put(b,i,p){assert(R(b).legal(i,p));b[i]=p;}
 function board(moves,first=1,t=0){const b=Array(225).fill(0);moves.forEach((i,k)=>put(b,transform(i,t),k%2?3-first:first));return b;}
-const book=Book.create({inspect});assert.deepEqual(book.errors,[]);assert.equal(data.maxPly,40);assert.equal(data.lines.length,40855);assert.equal(book.conflicts,224);assert.equal(data.expansion.addedFacts,731);
+const book=Book.create({inspect});assert.deepEqual(book.errors,[]);assert.equal(data.maxPly,40);assert.equal(data.lines.length,49583);assert.equal(book.conflicts,224);assert.equal(data.expansion.addedFacts,731);
 const taiwan=data.sources.find(s=>s.id==='taiwan-i7-2');assert.equal(taiwan.fileSha256,'f0e64bb0c864c0dc02941730a25d41baa8f465149d21ed03a67e55ae0bb310ce');
 const newFacts=data.lines.filter(l=>l.id.startsWith('taiwan-')||l.id.startsWith('lj-')||l.id.startsWith('extended-'));assert.equal(newFacts.length,731);
 let sourceChecks=0;
