@@ -1,7 +1,7 @@
 /* Exact registered positions with offline engine responses. Stored search
  * metadata never establishes a current search result or a winning proof. */
 const OmokOpeningAnalysis=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=16384,MAX_PLIES=40;
+ const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=32768,MAX_PLIES=40;
  const FAMILIES={D1:{title:'한성',moves:[112,127,142]},D2:{title:'계월',moves:[112,127,143]},D4:{title:'화월',moves:[112,127,128]},D5:{title:'잔월',moves:[112,127,129]},D6:{title:'우월',moves:[112,127,113]},D7:{title:'금성',moves:[112,127,114]},D8:{title:'송월',moves:[112,127,97]},D9:{title:'구월',moves:[112,127,98]},D10:{title:'신월',moves:[112,127,99]},D11:{title:'서성',moves:[112,127,82]},D12:{title:'산월',moves:[112,127,83]},I2:{title:'협월',moves:[112,128,129]},I3:{title:'항성',moves:[112,128,114]},I4:{title:'수월',moves:[112,128,99]},I6:{title:'운월',moves:[112,128,113]},I7:{title:'포월',moves:[112,128,98]},I8:{title:'람월',moves:[112,128,83]},I9:{title:'은월',moves:[112,128,97]},I10:{title:'명성',moves:[112,128,82]},I11:{title:'사월',moves:[112,128,96]},I12:{title:'명월',moves:[112,128,81]}};
  const player=p=>p===1||p===2,index=i=>Number.isInteger(i)&&i>=0&&i<SIZE;
  function tr(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const a=x;x=N-1-y;y=a;}return y*N+x;}

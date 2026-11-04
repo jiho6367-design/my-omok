@@ -25,7 +25,7 @@ function inspect(files,read){
 }
 function main(){
  const staged=process.argv.includes('--staged');
- const git=(...args)=>cp.execFileSync('git',args,{encoding:'utf8',maxBuffer:32*1024*1024});
+ const git=(...args)=>cp.execFileSync('git',args,{encoding:'utf8',maxBuffer:64*1024*1024});
  const files=git('ls-files','-z').split('\0').filter(Boolean);
  const read=staged?file=>git('show',':'+file):file=>require('node:fs').readFileSync(file,'utf8');
  const errors=inspect(files,read);

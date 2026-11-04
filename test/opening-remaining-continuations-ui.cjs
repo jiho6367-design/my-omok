@@ -7,8 +7,8 @@ const tr=(i,t)=>{let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const
 const game=(moves,first)=>({id:'remaining-continuations-ui-generated',first,me:first,timer:false,rules:{fivePriority:true},axis:'ascending',cursor:moves.length,result:null,remaining:40000,events:moves.map((i,k)=>({type:'move',i,p:k%2?3-first:first,legal:true,time:null,remaining:null}))});
 const report={test:'opening-remaining-continuations-ui',cases:0,maxDeliveryMs:0,selectedBranches:[],boardClicks:0};let browser;
 (async()=>{
- const extension=D.extensions?.at(-1);assert.equal(extension?.priorEntries,5217,'Test the new extension, preserving the released5217 entries');
- const entries=D.entries.slice(extension.priorEntries);assert.equal(entries.length,extension.addedEntries);assert.equal(D.entries.length,extension.totalEntries);
+ const extension=D.extensions?.find(row=>row.priorEntries===5217&&row.addedEntries===10024);assert(extension,'Keep testing the released remaining-family extension after later additions');
+ const entries=D.entries.slice(extension.priorEntries,extension.totalEntries);assert.equal(entries.length,extension.addedEntries);assert(D.entries.length>=extension.totalEntries);
  assert.deepEqual([...new Set(entries.map(row=>row.familyId))].sort(),families.slice().sort(),'All14 remaining families must have new engine responses');
  browser=await chromium.launch({executablePath:process.env.OMOK_BROWSER||(process.platform==='win32'?'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe':undefined),headless:true});
  const page=await browser.newPage({viewport:{width:1280,height:980}}),errors=[];page.on('pageerror',e=>errors.push(e.message));

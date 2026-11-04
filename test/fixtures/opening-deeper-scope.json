@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "rulesId": "15x15-exact5-both33-v1",
+  "scope": "Every legal opponent tenth after one connected, currently recommended ninth per favorable family; later continuations are selected branches, not all future replies.",
+  "families": [
+    {
+      "familyId": "D1",
+      "title": "한성",
+      "moves": [
+        112,
+        127,
+        142,
+        111,
+        128,
+        144,
+        114,
+        100,
+        98
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D2",
+      "title": "계월",
+      "moves": [
+        112,
+        127,
+        143,
+        113,
+        141,
+        64,
+        142,
+        140,
+        126
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D4",
+      "title": "화월",
+      "moves": [
+        112,
+        127,
+        128,
+        113,
+        99,
+        100,
+        144,
+        160,
+        84
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D5",
+      "title": "잔월",
+      "moves": [
+        112,
+        127,
+        129,
+        113,
+        99,
+        96,
+        115,
+        111,
+        131
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D6",
+      "title": "우월",
+      "moves": [
+        112,
+        127,
+        113,
+        111,
+        143,
+        97,
+        129,
+        98,
+        115
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D7",
+      "title": "금성",
+      "moves": [
+        112,
+        127,
+        114,
+        143,
+        98,
+        111,
+        95,
+        159,
+        175
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D8",
+      "title": "송월",
+      "moves": [
+        112,
+        127,
+        97,
+        129,
+        126,
+        96,
+        140,
+        98,
+        139
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D9",
+      "title": "구월",
+      "moves": [
+        112,
+        127,
+        98,
+        111,
+        126,
+        84,
+        143,
+        56,
+        158
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D10",
+      "title": "신월",
+      "moves": [
+        112,
+        127,
+        99,
+        96,
+        83,
+        97,
+        115,
+        67,
+        131
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D11",
+      "title": "서성",
+      "moves": [
+        112,
+        127,
+        82,
+        128,
+        126,
+        98,
+        83,
+        81,
+        110
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "D12",
+      "title": "산월",
+      "moves": [
+        112,
+        127,
+        83,
+        95,
+        111,
+        125,
+        110,
+        113,
+        96
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I2",
+      "title": "협월",
+      "moves": [
+        112,
+        128,
+        129,
+        83,
+        142,
+        96,
+        157,
+        97,
+        127
+      ],
+      "legalTenthReplies": 215
+    },
+    {
+      "familyId": "I3",
+      "title": "항성",
+      "moves": [
+        112,
+        128,
+        114,
+        97,
+        98,
+        130,
+        84,
+        70,
+        82
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I4",
+      "title": "수월",
+      "moves": [
+        112,
+        128,
+        99,
+        142,
+        83,
+        114,
+        100,
+        96,
+        115
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I6",
+      "title": "운월",
+      "moves": [
+        112,
+        128,
+        113,
+        111,
+        97,
+        127,
+        129,
+        81,
+        115
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I7",
+      "title": "포월",
+      "moves": [
+        112,
+        128,
+        98,
+        126,
+        114,
+        125,
+        129,
+        127,
+        124
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I8",
+      "title": "람월",
+      "moves": [
+        112,
+        128,
+        83,
+        126,
+        99,
+        157,
+        129,
+        125,
+        84
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I9",
+      "title": "은월",
+      "moves": [
+        112,
+        128,
+        97,
+        141,
+        111,
+        114,
+        98,
+        127,
+        126
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I10",
+      "title": "명성",
+      "moves": [
+        112,
+        128,
+        82,
+        126,
+        129,
+        99,
+        97,
+        127,
+        113
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I11",
+      "title": "사월",
+      "moves": [
+        112,
+        128,
+        96,
+        129,
+        126,
+        98,
+        81,
+        111,
+        82
+      ],
+      "legalTenthReplies": 216
+    },
+    {
+      "familyId": "I12",
+      "title": "명월",
+      "moves": [
+        112,
+        128,
+        81,
+        127,
+        126,
+        140,
+        111,
+        96,
+        110
+      ],
+      "legalTenthReplies": 216
+    }
+  ]
+}
