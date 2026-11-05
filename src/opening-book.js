@@ -50,6 +50,97 @@ const OmokOpeningBook=(()=>{
   if(typeof require==='function')try{return require('./opening-data.js').catalog||[];}catch(error){if(error.code!=='MODULE_NOT_FOUND')throw error;}
   return [];
  }
+ const outerSecond=i=>Number.isInteger(i)&&i>=0&&i<SIZE&&Math.max(Math.abs(i%N-7),Math.abs((i/N|0)-7))===2;
+ // Exchange only the two first-role stones. The resulting colored triple is
+ // exact; it does not omit the remote opponent stone or establish a win.
+ function reductionFamilies(catalog){
+  if(!Array.isArray(catalog)||catalog.length>128)return null;
+  const ids=new Set(),out=[];
+  for(let n=0;n<catalog.length;n++){
+   const f=catalog[n],moves=Array.isArray(f?.moves)?Array.from(f.moves):null;
+   if(!f||typeof f!=='object'||Array.isArray(f)||typeof f.id!=='string'||!f.id.trim()||f.id.length>160||ids.has(f.id)||typeof f.title!=='string'||!f.title.trim()||f.title.length>150||!Array.isArray(moves)||moves.length!==3||moves[0]!==CENTER||new Set(moves).size!==3||moves.some(i=>!Number.isInteger(i)||i<0||i>=SIZE)||Math.max(Math.abs(moves[1]%N-7),Math.abs((moves[1]/N|0)-7))!==1||Math.max(Math.abs(moves[2]%N-7),Math.abs((moves[2]/N|0)-7))>2)return null;
+   ids.add(f.id);out.push({id:f.id,title:f.title,moves:moves.slice(),catalogIndex:n});
+  }
+  return out;
+ }
+ function mapReduction(i,frame,sourceTransform=0){
+  if(!Number.isInteger(i)||i<0||i>=SIZE)return null;
+  const v=transformed(transformed(i,sourceTransform),frame.transform),x=v%N+frame.translation.dx,y=(v/N|0)+frame.translation.dy;
+  return inside(x,y)?y*N+x:null;
+ }
+ const copyReductionEvidence=value=>JSON.parse(JSON.stringify(value));
+ function reductionFrames(catalog,second,third){
+  if(!outerSecond(second))return [];
+  const families=reductionFamilies(catalog);if(!families)return [];
+  const frames=[];
+  for(const f of families)for(let t=0;t<8;t++){
+   const anchor=transformed(f.moves[2],t),frame={kind:'outer-second-source-reduction',familyId:f.id,baseTitle:f.title,title:f.title+' 환원',catalogIndex:f.catalogIndex,sourceCatalogMoves:f.moves.slice(),transform:t,translation:{dx:7-anchor%N,dy:7-(anchor/N|0)},blackOrderExchanged:true};
+   const initial=[CENTER,mapReduction(f.moves[1],frame),mapReduction(f.moves[0],frame)];
+   if(initial[1]===second&&initial[2]!==null&&(third===undefined||initial[2]===third)){frame.initialMoves=Object.freeze(initial);Object.freeze(frame.translation);Object.freeze(frame.sourceCatalogMoves);frames.push(Object.freeze(frame));}
+  }
+  return frames;
+ }
+ function reductionChoices(board,p,second,inspect,catalog){
+  const grouped=new Map();
+  for(const frame of reductionFrames(catalog,second)){
+   const i=frame.initialMoves[2];if(board[i])continue;
+   try{if(inspect(Array.from(board),i,p)?.legal!==true)continue;}catch{continue;}
+   if(!grouped.has(i))grouped.set(i,[]);grouped.get(i).push(frame);
+  }
+  return [...grouped].sort(([a],[b])=>a-b).map(([i,frames])=>{
+   const aliases=new Map();for(const f of frames)if(!aliases.has(f.familyId))aliases.set(f.familyId,{id:f.familyId,title:f.title,baseTitle:f.baseTitle});
+   const families=[...aliases.values()].sort((a,b)=>a.id.localeCompare(b.id));
+   return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,source:'opening-family-reduction',reference:true,proven:false,reduction:copyReductionEvidence(frames[0]),reductions:frames.map(copyReductionEvidence)};
+  });
+ }
+ function reductionHistory(openingHistory,current,board,firstPlayer,inspect,catalog){
+  if(!current||current.count<4||!Array.isArray(openingHistory)||openingHistory.length!==current.count||openingHistory[0]!==CENTER||!outerSecond(openingHistory[1]))return null;
+  const history=openingHistory.slice(),copy=Array(SIZE).fill(0);
+  try{for(let k=0;k<history.length;k++){
+   const i=history[k],p=k%2?3-firstPlayer:firstPlayer;
+   if(!Number.isInteger(i)||i<0||i>=SIZE||copy[i]||inspect(copy.slice(),i,p)?.legal!==true)return null;
+   copy[i]=p;if(exact(copy,i,p))return null;
+  }}catch{return null;}
+  if(copy.some((v,i)=>v!==board[i]))return null;
+  const frames=reductionFrames(catalog,history[1],history[2]);return frames.length?{history,frames}:null;
+ }
+ function reducedSource({inspect,current,lines,historyContext,limit=MAX_LINES}){
+  const valid=[],errors=[],evidence=new Map(),originalPrefixes=new Map(),actualPrefixes=new Map(),seen=new Set(),options=[];let prior=null,overflow=false;
+  for(let n=0;n<lines.length&&!overflow;n++){
+   const input=lines[n],moves=input?.moves,from=input?.fromPly===undefined?1:input.fromPly;
+   if(!Array.isArray(moves)||moves.length<=current.count||moves.length>MAX_PLIES||!Number.isInteger(from)||from<1||from%2!==1||from>current.count+1)continue;
+   let original=null,invalidOriginal=false;
+   for(const frame of historyContext.frames)for(let s=0;s<8;s++){
+    if(invalidOriginal)break;
+    if(input.familyId!==undefined&&input.familyId!==frame.familyId)continue;
+    if(!frame.sourceCatalogMoves.every((i,k)=>Number.isInteger(moves[k])&&moves[k]>=0&&moves[k]<SIZE&&transformed(moves[k],s)===i))continue;
+    const project=i=>mapReduction(i,frame,s),prefix=moves.slice(0,current.count).map(project);
+    [prefix[0],prefix[2]]=[prefix[2],prefix[0]];
+    if(prefix.some((i,k)=>i===null||current.relative[i]!== (k%2?2:1))||new Set(prefix).size!==prefix.length)continue;
+    try{
+     // Translation can change edge-sensitive forbidden moves. Validate both
+     // complete histories; a matching prefix never excuses a bad later move.
+     if(!original)original=validate(input,inspect,originalPrefixes);
+     const mapped=original.moves.map(project);if(mapped.some(i=>i===null))throw Error('Reduced opening leaves the actual board');
+     [mapped[0],mapped[2]]=[mapped[2],mapped[0]];
+     if(!historyContext.history.slice(0,3).every((i,k)=>mapped[k]===i))continue;
+     const key=n+'|'+mapped.join(',');if(seen.has(key))continue;seen.add(key);
+     if(valid.length>=limit){overflow=true;throw Error('Reduced opening subset exceeds source limit');}
+     const id='reduction-source-'+n+'-c'+frame.catalogIndex+'-t'+frame.transform+'-s'+s;
+     const line=validate({id,title:frame.title,sourceId:original.sourceId,moves:mapped,fromPly:original.fromPly,preferred:original.preferred},inspect,actualPrefixes),i=line.moves[current.count];
+     const reduction=Object.freeze({...frame,sourceTransform:s,historyOrigin:'openingHistory'});
+     const details={reduction,sourceOriginalId:original.id,sourceOriginalMoves:Object.freeze(original.moves.slice()),sourceMappedMoves:Object.freeze(line.moves.slice()),sourceOpeningHistory:Object.freeze(historyContext.history.slice())};
+     valid.push(line);evidence.set(id,details);options.push({i,id,familyId:frame.familyId,title:frame.title,sourceId:line.sourceId,ply:current.count+1,preferred:line.preferred});
+     if(!prior||line.preferred&&!prior.preferred)prior={i,id,familyId:frame.familyId,title:frame.title,sourceId:line.sourceId,ply:current.count+1,preferred:line.preferred,ambiguous:false};
+     else if(!!prior.preferred===line.preferred&&prior.i!==i&&!equivalent(current.relative,prior.i,i))prior.ambiguous=true;
+    }catch(error){errors.push(Object.freeze({index:n,id:typeof input?.id==='string'?input.id.slice(0,120):null,message:String(error?.message||error)}));if(!original)invalidOriginal=true;}
+   }
+  }
+  const fresh=(board,i,p)=>{try{return inspect(Array.from(board),i,p)?.legal===true;}catch{return false;}};
+  return {lines:Object.freeze(valid),errors:Object.freeze(errors),conflicts:prior?.ambiguous?1:0,
+   lookup(board,p){if(overflow||!prior||prior.ambiguous||!fresh(board,prior.i,p))return null;const {preferred,ambiguous,...hit}=prior;return {...hit,...copyReductionEvidence(evidence.get(hit.id)),pv:[hit.i],source:'opening-reference',reference:true,proven:false};},
+   choices(board,p){if(overflow)return [];const grouped=new Map();for(const row of options)if(fresh(board,row.i,p)){if(!grouped.has(row.i))grouped.set(row.i,new Map());const families=grouped.get(row.i);if(!families.has(row.familyId))families.set(row.familyId,{id:row.familyId,title:row.title});}return [...grouped].sort(([a],[b])=>a-b).map(([i,group])=>{const families=[...group.values()],row=options.find(r=>r.i===i);return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,ply:current.count+1,source:'opening-reference',reference:true,proven:false,...copyReductionEvidence(evidence.get(row.id))};});}};
+ }
  // Display choices from eligible opening families without changing the
  // source-preferred recommendation or compiling the continuation book.
  function choices(board,p,firstPlayer,{inspect,catalog=defaultCatalog()}={}){
@@ -57,6 +148,7 @@ const OmokOpeningBook=(()=>{
   let own=0,other=0,second=-1;
   for(let i=0;i<SIZE;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p){other++;second=i;}else if(stone!==0)return [];}
   if(own!==1||other!==1||board[CENTER]!==p)return [];
+  if(outerSecond(second))return reductionChoices(board,p,second,inspect,catalog);
   const grouped=new Map();
   for(const family of catalog){
    if(!family||typeof family.id!=='string'||!family.id.trim()||family.id.length>160||typeof family.title!=='string'||!family.title.trim()||family.title.length>160||!Array.isArray(family.moves)||family.moves.length!==3||family.moves[0]!==CENTER)continue;
@@ -143,7 +235,7 @@ const OmokOpeningBook=(()=>{
  // Runtime queries need only source rows that can nominate this exact board.
  // Every selected row still passes the complete validator, including all of
  // its later moves. This selection never publishes a partly checked prefix.
- function createForPosition({inspect,board,p,firstPlayer,lines=defaultLines()}={}){
+ function createForPosition({inspect,board,p,firstPlayer,lines=defaultLines(),catalog=defaultCatalog(),openingHistory}={}){
   if(typeof inspect!=='function')throw Error('Opening inspection callback is required');
   if(!Array.isArray(lines)||lines.length>MAX_LINES)throw Error('Opening book must contain at most '+MAX_LINES+' lines');
   const current=relativePosition(board,p,firstPlayer),selected=[],ids=new Set();let duplicateId=false;
@@ -159,11 +251,40 @@ const OmokOpeningBook=(()=>{
   }
   // The full compiler defines first-valid-row handling for duplicate IDs.
   // Keep that behavior even for malformed caller-supplied catalogues.
-  const compiled=create({inspect,lines:duplicateId?lines:selected});
+  const compiled=create({inspect,lines:duplicateId?lines:selected}),actual=current?Array.from(board):null;
+  const catalogSnapshot=reductionFamilies(catalog)?.map(f=>({id:f.id,title:f.title,moves:f.moves.slice()}))||null;
+  const historyContext=duplicateId?null:reductionHistory(openingHistory,current,actual,firstPlayer,inspect,catalogSnapshot);
+  const reduced=historyContext&&!compiled.lookup(board,p,firstPlayer)?reducedSource({inspect,current,lines,historyContext,limit:MAX_LINES-compiled.lines.length}):null;
   const matches=(b,q,first)=>{const next=relativePosition(b,q,first);return !!current&&next?.key===current.key;};
+  const matchesActual=(b,q,first)=>!!actual&&q===p&&first===firstPlayer&&b?.length===SIZE&&actual.every((v,i)=>b[i]===v);
+  function third(board,p){
+   if(current?.count!==2)return null;const second=current.relative.findIndex(v=>v===2);if(!outerSecond(second))return null;
+   const rows=reductionChoices(board,p,second,inspect,catalogSnapshot),x=Math.abs(second%N-7),y=Math.abs((second/N|0)-7),preferred=x===0||y===0?'I7':x===y?'D10':'I4';
+   const candidates=rows.flatMap(row=>row.families.map(family=>({row,family}))).sort((a,b)=>(a.family.id===preferred?0:1)-(b.family.id===preferred?0:1)||a.family.id.localeCompare(b.family.id)||a.row.i-b.row.i),choice=candidates[0];if(!choice)return null;
+   const {row,family}=choice,reduction=row.reductions.find(f=>f.familyId===family.id);let id='reduction-third-'+second+'-'+row.i+'-'+family.id;if(id.length>120)id='reduction-third-'+second+'-'+row.i+'-c'+reduction.catalogIndex;
+   return {i:row.i,id,title:family.title,familyId:family.id,families:row.families,sourceId:'opening-catalog-reduction',ply:3,pv:[row.i],source:'opening-reference',reference:true,proven:false,reduction,preferencePolicy:'outer-ring-reference-v1'};
+  }
+  function scopedChoices(b,q,first){
+   if(!matches(b,q,first))return [];
+   const literal=compiled.choices(b,q,first);if(!matchesActual(b,q,first))return literal;
+   const second=current.relative.findIndex(v=>v===2),fallback=current.count===2&&outerSecond(second)?reductionChoices(b,q,second,inspect,catalogSnapshot):reduced?.choices(b,q)||[];
+   // A literal default keeps its existing choices. When only ambiguous literal
+   // alternatives remain, include the reduced default and its alternatives.
+   if(!fallback.length||compiled.lookup(b,q,first))return literal;
+   if(!literal.length)return fallback;
+   const grouped=new Map();
+   for(const row of [...literal,...fallback]){
+    const copy=copyReductionEvidence(row),prior=grouped.get(row.i);if(!prior){grouped.set(row.i,copy);continue;}
+    const aliases=new Map();for(const f of [...prior.families,...copy.families])if(!aliases.has(f.id))aliases.set(f.id,f);
+    const families=[...aliases.values()];grouped.set(row.i,{...prior,...copy,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families});
+   }
+   return [...grouped].sort(([a],[b])=>a-b).map(([,row])=>row);
+  }
   // A selected subset must not serve a different future position whose other
   // source preferences or conflicts were outside this request's selection.
-  return Object.freeze({...compiled,lookup:(b,q,first)=>matches(b,q,first)?compiled.lookup(b,q,first):null,choices:(b,q,first)=>matches(b,q,first)?compiled.choices(b,q,first):[]});
+  return Object.freeze({...compiled,lines:reduced?Object.freeze([...compiled.lines,...reduced.lines]):compiled.lines,errors:reduced?Object.freeze([...compiled.errors,...reduced.errors]):compiled.errors,conflicts:compiled.conflicts+(reduced?.conflicts||0),
+   lookup:(b,q,first)=>{if(!matches(b,q,first))return null;const literal=compiled.lookup(b,q,first);if(literal)return literal;if(!matchesActual(b,q,first))return null;return third(b,q)||reduced?.lookup(b,q)||null;},
+   choices:scopedChoices});
  }
  return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create,createForPosition,choices});
 })();

@@ -157,6 +157,97 @@ const OmokOpeningBook=(()=>{
   if(typeof require==='function')try{return require('./opening-data.js').catalog||[];}catch(error){if(error.code!=='MODULE_NOT_FOUND')throw error;}
   return [];
  }
+ const outerSecond=i=>Number.isInteger(i)&&i>=0&&i<SIZE&&Math.max(Math.abs(i%N-7),Math.abs((i/N|0)-7))===2;
+ // Exchange only the two first-role stones. The resulting colored triple is
+ // exact; it does not omit the remote opponent stone or establish a win.
+ function reductionFamilies(catalog){
+  if(!Array.isArray(catalog)||catalog.length>128)return null;
+  const ids=new Set(),out=[];
+  for(let n=0;n<catalog.length;n++){
+   const f=catalog[n],moves=Array.isArray(f?.moves)?Array.from(f.moves):null;
+   if(!f||typeof f!=='object'||Array.isArray(f)||typeof f.id!=='string'||!f.id.trim()||f.id.length>160||ids.has(f.id)||typeof f.title!=='string'||!f.title.trim()||f.title.length>150||!Array.isArray(moves)||moves.length!==3||moves[0]!==CENTER||new Set(moves).size!==3||moves.some(i=>!Number.isInteger(i)||i<0||i>=SIZE)||Math.max(Math.abs(moves[1]%N-7),Math.abs((moves[1]/N|0)-7))!==1||Math.max(Math.abs(moves[2]%N-7),Math.abs((moves[2]/N|0)-7))>2)return null;
+   ids.add(f.id);out.push({id:f.id,title:f.title,moves:moves.slice(),catalogIndex:n});
+  }
+  return out;
+ }
+ function mapReduction(i,frame,sourceTransform=0){
+  if(!Number.isInteger(i)||i<0||i>=SIZE)return null;
+  const v=transformed(transformed(i,sourceTransform),frame.transform),x=v%N+frame.translation.dx,y=(v/N|0)+frame.translation.dy;
+  return inside(x,y)?y*N+x:null;
+ }
+ const copyReductionEvidence=value=>JSON.parse(JSON.stringify(value));
+ function reductionFrames(catalog,second,third){
+  if(!outerSecond(second))return [];
+  const families=reductionFamilies(catalog);if(!families)return [];
+  const frames=[];
+  for(const f of families)for(let t=0;t<8;t++){
+   const anchor=transformed(f.moves[2],t),frame={kind:'outer-second-source-reduction',familyId:f.id,baseTitle:f.title,title:f.title+' 환원',catalogIndex:f.catalogIndex,sourceCatalogMoves:f.moves.slice(),transform:t,translation:{dx:7-anchor%N,dy:7-(anchor/N|0)},blackOrderExchanged:true};
+   const initial=[CENTER,mapReduction(f.moves[1],frame),mapReduction(f.moves[0],frame)];
+   if(initial[1]===second&&initial[2]!==null&&(third===undefined||initial[2]===third)){frame.initialMoves=Object.freeze(initial);Object.freeze(frame.translation);Object.freeze(frame.sourceCatalogMoves);frames.push(Object.freeze(frame));}
+  }
+  return frames;
+ }
+ function reductionChoices(board,p,second,inspect,catalog){
+  const grouped=new Map();
+  for(const frame of reductionFrames(catalog,second)){
+   const i=frame.initialMoves[2];if(board[i])continue;
+   try{if(inspect(Array.from(board),i,p)?.legal!==true)continue;}catch{continue;}
+   if(!grouped.has(i))grouped.set(i,[]);grouped.get(i).push(frame);
+  }
+  return [...grouped].sort(([a],[b])=>a-b).map(([i,frames])=>{
+   const aliases=new Map();for(const f of frames)if(!aliases.has(f.familyId))aliases.set(f.familyId,{id:f.familyId,title:f.title,baseTitle:f.baseTitle});
+   const families=[...aliases.values()].sort((a,b)=>a.id.localeCompare(b.id));
+   return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,source:'opening-family-reduction',reference:true,proven:false,reduction:copyReductionEvidence(frames[0]),reductions:frames.map(copyReductionEvidence)};
+  });
+ }
+ function reductionHistory(openingHistory,current,board,firstPlayer,inspect,catalog){
+  if(!current||current.count<4||!Array.isArray(openingHistory)||openingHistory.length!==current.count||openingHistory[0]!==CENTER||!outerSecond(openingHistory[1]))return null;
+  const history=openingHistory.slice(),copy=Array(SIZE).fill(0);
+  try{for(let k=0;k<history.length;k++){
+   const i=history[k],p=k%2?3-firstPlayer:firstPlayer;
+   if(!Number.isInteger(i)||i<0||i>=SIZE||copy[i]||inspect(copy.slice(),i,p)?.legal!==true)return null;
+   copy[i]=p;if(exact(copy,i,p))return null;
+  }}catch{return null;}
+  if(copy.some((v,i)=>v!==board[i]))return null;
+  const frames=reductionFrames(catalog,history[1],history[2]);return frames.length?{history,frames}:null;
+ }
+ function reducedSource({inspect,current,lines,historyContext,limit=MAX_LINES}){
+  const valid=[],errors=[],evidence=new Map(),originalPrefixes=new Map(),actualPrefixes=new Map(),seen=new Set(),options=[];let prior=null,overflow=false;
+  for(let n=0;n<lines.length&&!overflow;n++){
+   const input=lines[n],moves=input?.moves,from=input?.fromPly===undefined?1:input.fromPly;
+   if(!Array.isArray(moves)||moves.length<=current.count||moves.length>MAX_PLIES||!Number.isInteger(from)||from<1||from%2!==1||from>current.count+1)continue;
+   let original=null,invalidOriginal=false;
+   for(const frame of historyContext.frames)for(let s=0;s<8;s++){
+    if(invalidOriginal)break;
+    if(input.familyId!==undefined&&input.familyId!==frame.familyId)continue;
+    if(!frame.sourceCatalogMoves.every((i,k)=>Number.isInteger(moves[k])&&moves[k]>=0&&moves[k]<SIZE&&transformed(moves[k],s)===i))continue;
+    const project=i=>mapReduction(i,frame,s),prefix=moves.slice(0,current.count).map(project);
+    [prefix[0],prefix[2]]=[prefix[2],prefix[0]];
+    if(prefix.some((i,k)=>i===null||current.relative[i]!== (k%2?2:1))||new Set(prefix).size!==prefix.length)continue;
+    try{
+     // Translation can change edge-sensitive forbidden moves. Validate both
+     // complete histories; a matching prefix never excuses a bad later move.
+     if(!original)original=validate(input,inspect,originalPrefixes);
+     const mapped=original.moves.map(project);if(mapped.some(i=>i===null))throw Error('Reduced opening leaves the actual board');
+     [mapped[0],mapped[2]]=[mapped[2],mapped[0]];
+     if(!historyContext.history.slice(0,3).every((i,k)=>mapped[k]===i))continue;
+     const key=n+'|'+mapped.join(',');if(seen.has(key))continue;seen.add(key);
+     if(valid.length>=limit){overflow=true;throw Error('Reduced opening subset exceeds source limit');}
+     const id='reduction-source-'+n+'-c'+frame.catalogIndex+'-t'+frame.transform+'-s'+s;
+     const line=validate({id,title:frame.title,sourceId:original.sourceId,moves:mapped,fromPly:original.fromPly,preferred:original.preferred},inspect,actualPrefixes),i=line.moves[current.count];
+     const reduction=Object.freeze({...frame,sourceTransform:s,historyOrigin:'openingHistory'});
+     const details={reduction,sourceOriginalId:original.id,sourceOriginalMoves:Object.freeze(original.moves.slice()),sourceMappedMoves:Object.freeze(line.moves.slice()),sourceOpeningHistory:Object.freeze(historyContext.history.slice())};
+     valid.push(line);evidence.set(id,details);options.push({i,id,familyId:frame.familyId,title:frame.title,sourceId:line.sourceId,ply:current.count+1,preferred:line.preferred});
+     if(!prior||line.preferred&&!prior.preferred)prior={i,id,familyId:frame.familyId,title:frame.title,sourceId:line.sourceId,ply:current.count+1,preferred:line.preferred,ambiguous:false};
+     else if(!!prior.preferred===line.preferred&&prior.i!==i&&!equivalent(current.relative,prior.i,i))prior.ambiguous=true;
+    }catch(error){errors.push(Object.freeze({index:n,id:typeof input?.id==='string'?input.id.slice(0,120):null,message:String(error?.message||error)}));if(!original)invalidOriginal=true;}
+   }
+  }
+  const fresh=(board,i,p)=>{try{return inspect(Array.from(board),i,p)?.legal===true;}catch{return false;}};
+  return {lines:Object.freeze(valid),errors:Object.freeze(errors),conflicts:prior?.ambiguous?1:0,
+   lookup(board,p){if(overflow||!prior||prior.ambiguous||!fresh(board,prior.i,p))return null;const {preferred,ambiguous,...hit}=prior;return {...hit,...copyReductionEvidence(evidence.get(hit.id)),pv:[hit.i],source:'opening-reference',reference:true,proven:false};},
+   choices(board,p){if(overflow)return [];const grouped=new Map();for(const row of options)if(fresh(board,row.i,p)){if(!grouped.has(row.i))grouped.set(row.i,new Map());const families=grouped.get(row.i);if(!families.has(row.familyId))families.set(row.familyId,{id:row.familyId,title:row.title});}return [...grouped].sort(([a],[b])=>a-b).map(([i,group])=>{const families=[...group.values()],row=options.find(r=>r.i===i);return {i,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families,ply:current.count+1,source:'opening-reference',reference:true,proven:false,...copyReductionEvidence(evidence.get(row.id))};});}};
+ }
  // Display choices from eligible opening families without changing the
  // source-preferred recommendation or compiling the continuation book.
  function choices(board,p,firstPlayer,{inspect,catalog=defaultCatalog()}={}){
@@ -164,6 +255,7 @@ const OmokOpeningBook=(()=>{
   let own=0,other=0,second=-1;
   for(let i=0;i<SIZE;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p){other++;second=i;}else if(stone!==0)return [];}
   if(own!==1||other!==1||board[CENTER]!==p)return [];
+  if(outerSecond(second))return reductionChoices(board,p,second,inspect,catalog);
   const grouped=new Map();
   for(const family of catalog){
    if(!family||typeof family.id!=='string'||!family.id.trim()||family.id.length>160||typeof family.title!=='string'||!family.title.trim()||family.title.length>160||!Array.isArray(family.moves)||family.moves.length!==3||family.moves[0]!==CENTER)continue;
@@ -250,7 +342,7 @@ const OmokOpeningBook=(()=>{
  // Runtime queries need only source rows that can nominate this exact board.
  // Every selected row still passes the complete validator, including all of
  // its later moves. This selection never publishes a partly checked prefix.
- function createForPosition({inspect,board,p,firstPlayer,lines=defaultLines()}={}){
+ function createForPosition({inspect,board,p,firstPlayer,lines=defaultLines(),catalog=defaultCatalog(),openingHistory}={}){
   if(typeof inspect!=='function')throw Error('Opening inspection callback is required');
   if(!Array.isArray(lines)||lines.length>MAX_LINES)throw Error('Opening book must contain at most '+MAX_LINES+' lines');
   const current=relativePosition(board,p,firstPlayer),selected=[],ids=new Set();let duplicateId=false;
@@ -266,11 +358,40 @@ const OmokOpeningBook=(()=>{
   }
   // The full compiler defines first-valid-row handling for duplicate IDs.
   // Keep that behavior even for malformed caller-supplied catalogues.
-  const compiled=create({inspect,lines:duplicateId?lines:selected});
+  const compiled=create({inspect,lines:duplicateId?lines:selected}),actual=current?Array.from(board):null;
+  const catalogSnapshot=reductionFamilies(catalog)?.map(f=>({id:f.id,title:f.title,moves:f.moves.slice()}))||null;
+  const historyContext=duplicateId?null:reductionHistory(openingHistory,current,actual,firstPlayer,inspect,catalogSnapshot);
+  const reduced=historyContext&&!compiled.lookup(board,p,firstPlayer)?reducedSource({inspect,current,lines,historyContext,limit:MAX_LINES-compiled.lines.length}):null;
   const matches=(b,q,first)=>{const next=relativePosition(b,q,first);return !!current&&next?.key===current.key;};
+  const matchesActual=(b,q,first)=>!!actual&&q===p&&first===firstPlayer&&b?.length===SIZE&&actual.every((v,i)=>b[i]===v);
+  function third(board,p){
+   if(current?.count!==2)return null;const second=current.relative.findIndex(v=>v===2);if(!outerSecond(second))return null;
+   const rows=reductionChoices(board,p,second,inspect,catalogSnapshot),x=Math.abs(second%N-7),y=Math.abs((second/N|0)-7),preferred=x===0||y===0?'I7':x===y?'D10':'I4';
+   const candidates=rows.flatMap(row=>row.families.map(family=>({row,family}))).sort((a,b)=>(a.family.id===preferred?0:1)-(b.family.id===preferred?0:1)||a.family.id.localeCompare(b.family.id)||a.row.i-b.row.i),choice=candidates[0];if(!choice)return null;
+   const {row,family}=choice,reduction=row.reductions.find(f=>f.familyId===family.id);let id='reduction-third-'+second+'-'+row.i+'-'+family.id;if(id.length>120)id='reduction-third-'+second+'-'+row.i+'-c'+reduction.catalogIndex;
+   return {i:row.i,id,title:family.title,familyId:family.id,families:row.families,sourceId:'opening-catalog-reduction',ply:3,pv:[row.i],source:'opening-reference',reference:true,proven:false,reduction,preferencePolicy:'outer-ring-reference-v1'};
+  }
+  function scopedChoices(b,q,first){
+   if(!matches(b,q,first))return [];
+   const literal=compiled.choices(b,q,first);if(!matchesActual(b,q,first))return literal;
+   const second=current.relative.findIndex(v=>v===2),fallback=current.count===2&&outerSecond(second)?reductionChoices(b,q,second,inspect,catalogSnapshot):reduced?.choices(b,q)||[];
+   // A literal default keeps its existing choices. When only ambiguous literal
+   // alternatives remain, include the reduced default and its alternatives.
+   if(!fallback.length||compiled.lookup(b,q,first))return literal;
+   if(!literal.length)return fallback;
+   const grouped=new Map();
+   for(const row of [...literal,...fallback]){
+    const copy=copyReductionEvidence(row),prior=grouped.get(row.i);if(!prior){grouped.set(row.i,copy);continue;}
+    const aliases=new Map();for(const f of [...prior.families,...copy.families])if(!aliases.has(f.id))aliases.set(f.id,f);
+    const families=[...aliases.values()];grouped.set(row.i,{...prior,...copy,familyId:families[0].id,title:families.map(f=>f.title).join(' / '),families});
+   }
+   return [...grouped].sort(([a],[b])=>a-b).map(([,row])=>row);
+  }
   // A selected subset must not serve a different future position whose other
   // source preferences or conflicts were outside this request's selection.
-  return Object.freeze({...compiled,lookup:(b,q,first)=>matches(b,q,first)?compiled.lookup(b,q,first):null,choices:(b,q,first)=>matches(b,q,first)?compiled.choices(b,q,first):[]});
+  return Object.freeze({...compiled,lines:reduced?Object.freeze([...compiled.lines,...reduced.lines]):compiled.lines,errors:reduced?Object.freeze([...compiled.errors,...reduced.errors]):compiled.errors,conflicts:compiled.conflicts+(reduced?.conflicts||0),
+   lookup:(b,q,first)=>{if(!matches(b,q,first))return null;const literal=compiled.lookup(b,q,first);if(literal)return literal;if(!matchesActual(b,q,first))return null;return third(b,q)||reduced?.lookup(b,q)||null;},
+   choices:scopedChoices});
  }
  return Object.freeze({RULES_ID,CENTER,MAX_PLIES,MAX_LINES,create,createForPosition,choices});
 })();
@@ -1819,11 +1940,15 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
+  const normalizeOpeningHistory=value=>{
+    if(!Array.isArray(value)||value.length>225)return null;const history=Array.from(value);
+    return history.every(i=>Number.isInteger(i)&&i>=0&&i<225)&&new Set(history).size===history.length?history:null;
+  };
   const strategyVersion='initiative-3-opening-junction-1';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
-    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
+    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
@@ -1848,7 +1973,7 @@ function createEngine(options={}) {
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
     if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
-    const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect});
+    const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect,openingHistory:rules.openingHistory});
     const book=third.length?null:getOpeningBook(board,p);
     let rows=third.length?third:book?.choices?.(board,p,rules.firstPlayer)||[];
     if(!third.length&&!book?.lookup(board,p,rules.firstPlayer)){
@@ -1875,7 +2000,7 @@ function createEngine(options={}) {
     for(let i=0;i<225;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
     if(own!==other||own+other>=openingFactory.MAX_PLIES)return null;
     if(!openingFactory.createForPosition)return openingBook||(openingBook=openingFactory.create({inspect}));
-    const key=p+'|'+board.join('');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer});openingBookKey=key;}return openingBook;
+    const key=p+'|'+board.join('')+'|'+(rules.openingHistory?.join(',')||'');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer,openingHistory:rules.openingHistory});openingBookKey=key;}return openingBook;
   }
   function openingReply(board,p,{budget,allowComputed=true}={}){
     const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
@@ -1908,9 +2033,13 @@ function createEngine(options={}) {
       const modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(next.model):'baseline';
       if(modelVersion!==rules.modelVersion){searchMemory?.clear();rules.model=next.model;rules.modelVersion=modelVersion;forest=createForestEngine(rules);}
     }
-    if(Object.prototype.hasOwnProperty.call(next,'firstPlayer')||next.context){
+    if(Object.prototype.hasOwnProperty.call(next,'firstPlayer')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'firstPlayer')){
       const firstPlayer=normalizeFirst(next.firstPlayer??next.context?.firstPlayer);
-      if(firstPlayer!==rules.firstPlayer){searchMemory?.clear();rules.firstPlayer=firstPlayer;forest=createForestEngine(rules);}
+      if(firstPlayer!==rules.firstPlayer){searchMemory?.clear();rules.firstPlayer=firstPlayer;rules.openingHistory=null;openingBook=null;openingBookKey=null;forest=createForestEngine(rules);}
+    }
+    if(Object.prototype.hasOwnProperty.call(next,'openingHistory')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'openingHistory')){
+      const history=Object.prototype.hasOwnProperty.call(next,'openingHistory')?next.openingHistory:next.context.openingHistory;
+      rules.openingHistory=normalizeOpeningHistory(history);openingBook=null;openingBookKey=null;
     }
   }
   const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion});
@@ -2820,7 +2949,7 @@ function msg(t){$('message').textContent=t;}
 function stopWorker(){job++;if(worker){worker.terminate();worker=null;}}
 function freeze(){if(!paused)remaining=Math.max(0,deadline-Date.now());paused=true;}
 function resume(){if(!g||reviewing||g.result)return;paused=false;deadline=Date.now()+Math.max(1,remaining);}
-function rebuild(){E.configure({...g.rules,firstPlayer:g.first});b.fill(0);turn=g.first;winCells=[];g.result=null;for(let e of events.slice(0,cursor)){if(e.type==='move'){b[e.i]=e.p;let w=E.win(b,e.i,e.p);if(w.length){winCells=w;g.result={winner:e.p};}}turn=3-e.p;}if(!b.includes(0)&&!g.result)g.result={winner:0};}
+function rebuild(){const active=events.slice(0,cursor),openingHistory=active.every((e,k)=>e.type==='move'&&e.p===(k%2?3-g.first:g.first))?active.map(e=>e.i):null;E.configure({...g.rules,firstPlayer:g.first,openingHistory});b.fill(0);turn=g.first;winCells=[];g.result=null;for(let e of active){if(e.type==='move'){b[e.i]=e.p;let w=E.win(b,e.i,e.p);if(w.length){winCells=w;g.result={winner:e.p};}}turn=3-e.p;}if(!b.includes(0)&&!g.result)g.result={winner:0};}
 function render(){const cells=$('board').children;for(let i=0;i<225;i++){let el=cells[i];el.replaceChildren();el.className='cell';el.setAttribute('aria-label',E.coord(i)+' '+(b[i]?names[b[i]]:'빈칸'));if(b[i])el.append(sprite(b[i]));if(i===events[cursor-1]?.i)el.classList.add('last');if(hints&&rec?.i===i&&!b[i]){el.classList.add('hint');el.append(sprite(turn));}if(hints&&rec?.threats?.includes(i)&&!b[i])el.classList.add('threat');if(winCells.includes(i))el.classList.add('winner');el.disabled=!!b[i]||paused||reviewing||!!g?.result;}
  $('turnSprite').replaceChildren(sprite(turn));$('turnName').textContent=!g?'게임 준비':g.result?(g.result.winner?names[g.result.winner]+' 승리':'무승부'):names[turn]+' 차례';$('turnInfo').textContent=g?`${turn===g.me?'내 돌':'상대 돌'} · ${cursor+1}번째 턴 · ${reviewing?'복기 중':paused?'일시 정지':'직접 착수하세요'}`:'돌와 선공을 선택하세요';$('pause').textContent=paused?'재개':'일시 정지';$('undo').disabled=!g||cursor===0||reviewing;$('redo').disabled=!g||cursor>=events.length||reviewing;$('count').textContent=g?`${cursor}턴 · 내 돌 ${names[g.me]}`:cursor+'턴';$('reviewPanel').style.display=reviewing?'block':'none';$('hint').textContent=hints?'추천 켜짐':'추천 꺼짐';$('hint').setAttribute('aria-pressed',String(hints));
  $('recommend').textContent=rec?.i!=null?E.coord(rec.i):'—';$('reason').textContent=rec?.reason||'국면을 분석하면 추천과 근거가 표시됩니다.';$('metrics').textContent=rec?`${rec.depth}수 탐색 · ${rec.ms}ms · ${rec.nodes}노드 · ${rec.proven?'강제승 확인':rec.lossProven?'강제 패배 확인':'평가 '+Math.round(rec.score||0)+' (추정)'}`:'제한 탐색 · 승리 보장 아님';$('sequence').textContent=rec?.dangerLine?.length?'막아야 할 상대 강제 수순: '+rec.dangerLine.map(E.coord).join(' → '):rec?.pv?.length?(rec.proven?'확인한 공격 수순: ':'예상 진행: ')+rec.pv.map(E.coord).join(' → '):'';$('memoryWarning').textContent=rec?.memory?'과거 패배 기록과 같은 국면입니다. 회전·대칭 포함.':'';
@@ -3028,7 +3157,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.29';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.29');
+versionBadge.textContent='통합 v5.18.30';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.30');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -3278,6 +3407,13 @@ analyze=function(explicit,onDone){
   if(g&&!g.result&&!globalThis.omokComputeReady){stopWorker();setAnalysisStatus('연산 준비 중','선택한 분석 모드를 유지하고 연산 준비 완료 후 시작합니다.','ready');return;}
   if(!g||g.result){stopWorker();rec=null;render();const winner=g?.result?.winner,outcome=winner?(winner===g.me?'내 승리':'내 패배'):'';setAnalysisStatus(winner?`대국 종료 · ${names[winner]} 승리 · ${outcome}`:g?.result?'대국 종료 · 무승부':'분석 준비',winner?`정확한 5목 완성: ${winCells.map(E.coord).join(' → ')}`:g?.result?'빈칸 없이 종료되었습니다.':'착수 후 자동으로 추천을 계산합니다.',winner?'complete':g?.result?'stopped':'ready');return;}
   if(explicit==null&&!reviewing&&turn===g.me&&ponder?.key===positionKey(b,turn)){
+    // The actual history can establish a translated source that the predicted
+    // board could not safely use before the opponent really played its move.
+    const fresh=E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,40000).budget});
+    if(fresh?.openingEvidence?.reduction){
+      cancelPonder();stopWorker();lastProgress=null;rec=null;selectedBudget(b,turn);
+      acceptResult(fresh);onDone?.(fresh);return;
+    }
     const task=ponder;task.promoted=true;task.onDone=onDone;currentAnalysisPolicy=task.policy;activePlan=formatAnalysisPlan(task.policy);
     analysisPlan.textContent=activePlan+' · 사전 계산 이어받음';
     if(task.result){acceptResult(task.result);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';onDone?.(task.result);}else if(task.partial)acceptResult(task.partial,true);
@@ -3596,8 +3732,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.29 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.29');
+versionBadge.textContent='통합 v5.18.30 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.30');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

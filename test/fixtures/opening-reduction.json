@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "families": [
+    "D5",
+    "D7",
+    "D8",
+    "D9",
+    "D10",
+    "I4",
+    "I7",
+    "I9",
+    "I11"
+  ],
+  "fixtures": [
+    {
+      "familyId": "D5",
+      "title": "잔월",
+      "ply": 5,
+      "moves": [
+        112,
+        110,
+        95,
+        124,
+        97
+      ],
+      "sourceOriginalId": "all26-D5-11964",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        129,
+        141,
+        114
+      ]
+    },
+    {
+      "familyId": "D5",
+      "title": "잔월",
+      "ply": 7,
+      "moves": [
+        112,
+        110,
+        95,
+        124,
+        97,
+        96,
+        82
+      ],
+      "sourceOriginalId": "all26-D5-11970",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        129,
+        141,
+        114,
+        113,
+        99
+      ]
+    },
+    {
+      "familyId": "D7",
+      "title": "금성",
+      "ply": 5,
+      "moves": [
+        112,
+        125,
+        110,
+        139,
+        126
+      ],
+      "sourceOriginalId": "all26-D7-14854",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        114,
+        141,
+        128
+      ]
+    },
+    {
+      "familyId": "D7",
+      "title": "금성",
+      "ply": 7,
+      "moves": [
+        112,
+        125,
+        110,
+        139,
+        126,
+        109,
+        142
+      ],
+      "sourceOriginalId": "all26-D7-14860",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        114,
+        141,
+        128,
+        111,
+        144
+      ]
+    },
+    {
+      "familyId": "D8",
+      "title": "송월",
+      "ply": 5,
+      "moves": [
+        112,
+        142,
+        127,
+        144,
+        141
+      ],
+      "sourceOriginalId": "all26-D8-16144",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        97,
+        129,
+        126
+      ]
+    },
+    {
+      "familyId": "D8",
+      "title": "송월",
+      "ply": 7,
+      "moves": [
+        112,
+        142,
+        127,
+        82,
+        113,
+        126,
+        141
+      ],
+      "sourceOriginalId": "all26-D8-18536",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        97,
+        67,
+        98,
+        111,
+        126
+      ]
+    },
+    {
+      "familyId": "D9",
+      "title": "구월",
+      "ply": 5,
+      "moves": [
+        112,
+        141,
+        126,
+        125,
+        140
+      ],
+      "sourceOriginalId": "all26-D9-18730",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        98,
+        111,
+        126
+      ]
+    },
+    {
+      "familyId": "D9",
+      "title": "구월",
+      "ply": 7,
+      "moves": [
+        112,
+        141,
+        126,
+        125,
+        140,
+        98,
+        157
+      ],
+      "sourceOriginalId": "coverage-taiwan-d4-2-276028-d9-84",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        98,
+        111,
+        126,
+        84,
+        143
+      ]
+    },
+    {
+      "familyId": "D10",
+      "title": "신월",
+      "ply": 5,
+      "moves": [
+        112,
+        140,
+        125,
+        154,
+        127
+      ],
+      "sourceOriginalId": "all26-D10-18890",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        99,
+        141,
+        114
+      ]
+    },
+    {
+      "familyId": "D10",
+      "title": "신월",
+      "ply": 7,
+      "moves": [
+        112,
+        140,
+        125,
+        154,
+        127,
+        124,
+        142
+      ],
+      "sourceOriginalId": "all26-D10-18898",
+      "sourceOriginalMoves": [
+        112,
+        127,
+        99,
+        141,
+        114,
+        111,
+        129
+      ]
+    },
+    {
+      "familyId": "I4",
+      "title": "수월",
+      "ply": 5,
+      "moves": [
+        112,
+        141,
+        125,
+        155,
+        96
+      ],
+      "sourceOriginalId": "all26-I4-78028",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        99,
+        142,
+        83
+      ]
+    },
+    {
+      "familyId": "I4",
+      "title": "수월",
+      "ply": 7,
+      "moves": [
+        112,
+        141,
+        125,
+        124,
+        96,
+        140,
+        142
+      ],
+      "sourceOriginalId": "all26-I4-78420",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        99,
+        111,
+        83,
+        127,
+        129
+      ]
+    },
+    {
+      "familyId": "I7",
+      "title": "포월",
+      "ply": 5,
+      "moves": [
+        112,
+        142,
+        126,
+        139,
+        140
+      ],
+      "sourceOriginalId": "all26-I7-102",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        98,
+        125,
+        126
+      ]
+    },
+    {
+      "familyId": "I7",
+      "title": "포월",
+      "ply": 7,
+      "moves": [
+        112,
+        142,
+        126,
+        110,
+        140,
+        154,
+        96
+      ],
+      "sourceOriginalId": "all26-I7-3246",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        98,
+        96,
+        126,
+        140,
+        82
+      ]
+    },
+    {
+      "familyId": "I9",
+      "title": "은월",
+      "ply": 5,
+      "moves": [
+        112,
+        143,
+        127,
+        156,
+        126
+      ],
+      "sourceOriginalId": "all26-I9-53256",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        97,
+        141,
+        111
+      ]
+    },
+    {
+      "familyId": "I9",
+      "title": "은월",
+      "ply": 7,
+      "moves": [
+        112,
+        143,
+        127,
+        142,
+        141,
+        126,
+        113
+      ],
+      "sourceOriginalId": "all26-I9-53482",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        97,
+        127,
+        126,
+        111,
+        98
+      ]
+    },
+    {
+      "familyId": "I11",
+      "title": "사월",
+      "ply": 5,
+      "moves": [
+        112,
+        144,
+        128,
+        159,
+        114
+      ],
+      "sourceOriginalId": "all26-I11-47456",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        96,
+        143,
+        98
+      ]
+    },
+    {
+      "familyId": "I11",
+      "title": "사월",
+      "ply": 7,
+      "moves": [
+        112,
+        144,
+        128,
+        159,
+        114,
+        142,
+        111
+      ],
+      "sourceOriginalId": "all26-I11-47464",
+      "sourceOriginalMoves": [
+        112,
+        128,
+        96,
+        143,
+        98,
+        126,
+        95
+      ]
+    }
+  ]
+}

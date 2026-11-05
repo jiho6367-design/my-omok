@@ -4,11 +4,15 @@ function createEngine(options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   // Exact five takes precedence even when loading a legacy strict-rule setting.
   const normalizeFirst=value=>[1,2].includes(value)?value:null;
+  const normalizeOpeningHistory=value=>{
+    if(!Array.isArray(value)||value.length>225)return null;const history=Array.from(value);
+    return history.every(i=>Number.isInteger(i)&&i>=0&&i<225)&&new Set(history).size===history.length?history:null;
+  };
   const strategyVersion='initiative-3-opening-junction-1';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
-    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
+    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
@@ -33,7 +37,7 @@ function createEngine(options={}) {
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
     if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
-    const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect});
+    const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect,openingHistory:rules.openingHistory});
     const book=third.length?null:getOpeningBook(board,p);
     let rows=third.length?third:book?.choices?.(board,p,rules.firstPlayer)||[];
     if(!third.length&&!book?.lookup(board,p,rules.firstPlayer)){
@@ -60,7 +64,7 @@ function createEngine(options={}) {
     for(let i=0;i<225;i++){const stone=board[i];if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
     if(own!==other||own+other>=openingFactory.MAX_PLIES)return null;
     if(!openingFactory.createForPosition)return openingBook||(openingBook=openingFactory.create({inspect}));
-    const key=p+'|'+board.join('');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer});openingBookKey=key;}return openingBook;
+    const key=p+'|'+board.join('')+'|'+(rules.openingHistory?.join(',')||'');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer,openingHistory:rules.openingHistory});openingBookKey=key;}return openingBook;
   }
   function openingReply(board,p,{budget,allowComputed=true}={}){
     const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
@@ -93,9 +97,13 @@ function createEngine(options={}) {
       const modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(next.model):'baseline';
       if(modelVersion!==rules.modelVersion){searchMemory?.clear();rules.model=next.model;rules.modelVersion=modelVersion;forest=createForestEngine(rules);}
     }
-    if(Object.prototype.hasOwnProperty.call(next,'firstPlayer')||next.context){
+    if(Object.prototype.hasOwnProperty.call(next,'firstPlayer')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'firstPlayer')){
       const firstPlayer=normalizeFirst(next.firstPlayer??next.context?.firstPlayer);
-      if(firstPlayer!==rules.firstPlayer){searchMemory?.clear();rules.firstPlayer=firstPlayer;forest=createForestEngine(rules);}
+      if(firstPlayer!==rules.firstPlayer){searchMemory?.clear();rules.firstPlayer=firstPlayer;rules.openingHistory=null;openingBook=null;openingBookKey=null;forest=createForestEngine(rules);}
+    }
+    if(Object.prototype.hasOwnProperty.call(next,'openingHistory')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'openingHistory')){
+      const history=Object.prototype.hasOwnProperty.call(next,'openingHistory')?next.openingHistory:next.context.openingHistory;
+      rules.openingHistory=normalizeOpeningHistory(history);openingBook=null;openingBookKey=null;
     }
   }
   const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion});
