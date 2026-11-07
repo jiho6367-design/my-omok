@@ -285,7 +285,7 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1-defense-horizon-1-closed-nomination-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -633,15 +633,15 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
       automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,proofNomination=automatic||mode==='deep',cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
-      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,attempted=new Set(),checks=[],stop={};
-    let spent=0,preparationSpent=0,extraNodes=0,winner=null;
+      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,independentPreparationReserve=proofNomination?preparationReserve:0,attempted=new Set(),checks=[],stop={};
+    let spent=0,preparationSpent=0,independentPreparationSpent=0,extraNodes=0,winner=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
-      analysisWork:r.analysisWork?{...r.analysisWork,budgetMs:limit,guardBudgetMs:(r.analysisWork.guardBudgetMs||0)+Math.max(0,limit-(r.analysisWork.budgetMs??limit)),nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.analysisWork});
+      analysisWork:r.analysisWork?{...r.analysisWork,budgetMs:limit,guardBudgetMs:(r.analysisWork.guardBudgetMs||0)+Math.max(0,limit-(r.analysisWork.budgetMs??limit)),nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.urgent?{mode:mode||(automatic?'auto':limit>=20000?'deep':'custom'),budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:0,completedDepth:r.depth||0,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start),source:'urgent',stopReason:r.proven?'verified-win':r.lossProven?'verified-loss':'mandatory-defense'}:r.analysisWork});
     const forward=r=>{
       const shape=r.shape,tactical=r.score>=5e6||shape?.threes?.length||shape?.fours?.length,
-        eligible=checks.length<4&&!r.proven&&!r.lossProven&&r.i!=null&&!r.rejected?.some(m=>m.i===r.i&&refutation(m)),
-        preparation=eligible&&!tactical&&preparationReserve>preparationSpent&&!attempted.has(r.i+'|preparation')?forest.strategicPreparation?.(board,r.i,p):null,
-        stage=r.score>=5e6?'mate':tactical?'shape':preparation?.eligible?'preparation':null,key=r.i+'|'+stage;
+        eligible=checks.filter(c=>c.nomination!=='independent-closed-preparation').length<4&&!r.proven&&!r.lossProven&&r.i!=null&&!r.rejected?.some(m=>m.i===r.i&&refutation(m)),
+        preparation=eligible&&!shape?.threes?.length&&!shape?.fours?.length&&preparationReserve>preparationSpent&&!attempted.has(r.i+'|preparation')?forest.strategicPreparation?.(board,r.i,p):null,
+        stage=preparation?.eligible?'preparation':r.score>=5e6?'mate':tactical?'shape':null,key=r.i+'|'+stage;
       if(eligible&&stage&&!attempted.has(key)){
         // Closed/broken threes can switch to another live axis after actual
         // forced blocks. Nomination changes no score: only a full all-reply
@@ -673,6 +673,40 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
         if(check.complete&&check.proof){
           const result=finalizeResult(board,p,{i:seed.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,score:1e8,depth:check.pv.length,nodes:0,analysisIncomplete:false,timedOut:false,comparison:{complete:false,selected:seed.i,depth:0,source:'open-three-proof',rootsCompared:0},reason:'열린 셋 후보 뒤 상대의 모든 합법 응수에서 강제승 확인',analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:check.pv.length,source:'open-three-proof',stopReason:'verified-win'}});
           if(result.proven){const done=decorate(result);progress(done);return{...done,ms:clockNow()-start};}
+        }
+      }
+    }
+    // A deeper defensive leaf must not hide an already available closed
+    // preparation win. Nominate independently of the current comparison,
+    // using a separate bounded reserve. Preserve the original selected-move
+    // preparation reserve; both stages share the same absolute move deadline.
+    if(proofNomination&&board.filter(v=>v===p).length>=3&&independentPreparationReserve>independentPreparationSpent&&checks.length<4){
+      const nominationStart=clockNow(),nominationEnd=Math.min(start+limit-30,nominationStart+40),nominees=[];
+      for(const i of forest.candidates(board)){
+        if(clockNow()>=nominationEnd)break;
+        const shape=inspect(board,i,p);
+        if(!shape.legal||shape.win.length||shape.threes.length||shape.fours.length)continue;
+        const feature=forest.strategicPreparation?.(board,i,p);
+        if(feature?.eligible)nominees.push({i,feature,priority:commonScore(board,i,p)});
+      }
+      independentPreparationSpent+=clockNow()-nominationStart;
+      nominees.sort((a,b)=>b.feature.threeAxes.length-a.feature.threeAxes.length||b.feature.axes.length-a.feature.axes.length||b.priority-a.priority||a.i-b.i);
+      const nominee=nominees[0],ms=Math.min(independentPreparationReserve-independentPreparationSpent,start+limit-clockNow()-30);
+      if(nominee&&ms>=10&&!attempted.has(nominee.i+'|independent-preparation')){
+        attempted.add(nominee.i+'|independent-preparation');
+        const check=verifyWinningMove(board,p,nominee.i,ms);extraNodes+=check.nodes||0;independentPreparationSpent+=check.ms;
+        // A timeout is not a completed negative. A subsequently selected
+        // candidate retains its original preparation verification opportunity.
+        if(check.complete&&!check.proof)attempted.add(nominee.i+'|preparation');
+        checks.push({i:nominee.i,stage:'preparation',complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,
+          nomination:'independent-closed-preparation',preparation:{axes:nominee.feature.axes,threeAxes:nominee.feature.threeAxes,evidence:nominee.feature.evidence}});
+        if(check.complete&&check.proof){
+          const result=finalizeResult(board,p,{i:nominee.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,
+            score:1e8,depth:check.pv.length,nodes:0,analysisIncomplete:false,timedOut:false,
+            comparison:{complete:false,selected:nominee.i,depth:0,source:'preparation-proof',rootsCompared:0},
+            reason:'닫힌 공격 준비 뒤 상대의 모든 합법 응수에서 강제승 확인',
+            analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:check.pv.length,source:'preparation-proof',stopReason:'verified-win'}});
+          if(result.proven){const done=decorate(result);progress(done);return {...done,ms:clockNow()-start};}
         }
       }
     }

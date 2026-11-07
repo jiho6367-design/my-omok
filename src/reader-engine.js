@@ -4,12 +4,14 @@ function createEngine(N, board, options={}) {
   const clockNow=typeof performance!=='undefined'?performance.now.bind(performance):Date.now.bind(Date);
   if(![15,19].includes(N)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid board');
   const b=Array.from(board),dirs=[[1,0],[0,1],[1,1],[1,-1]],M=10000000;
+  const initialCounts=[0,0,0];for(const v of b)initialCounts[v]++;
+  const openingContext=initialCounts[1]<=2&&initialCounts[2]<=2,quietProfile=openingContext?'opening-ply4':'all-ply';
   const neuralFactory=options.model?(typeof OmokNeural!=='undefined'?OmokNeural:typeof require==='function'?require('./neural-evaluator.js'):null):null;
   if(options.model&&!neuralFactory)throw Error('Learning evaluator is required for this model');
   const neural=options.model?neuralFactory.createEvaluator(options.model,N,options.firstPlayer):null;
   let neuralPosition=null;
   const neuralDirty=neural?new Uint8Array(N*N):null,neuralDirtyIndices=neural?[]:null;
-  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion}):'';
+  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion})+'|defense-horizon:1|'+quietProfile:'';
   const inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N, at=(x,y)=>inside(x,y)?b[y*N+x]:3;
   let legalRays=READER_LEGAL_RAYS.get(N);
   if(!legalRays){legalRays=Array.from({length:N*N},(_,i)=>{
@@ -39,6 +41,8 @@ function createEngine(N, board, options={}) {
     }return patterns;
   }));
   let total=0,nodes=0,deadline=Infinity,phaseDeadline=Infinity,tt=new Map(),tacticalCache=new Map();
+  const __quietMemo=new Map(),__quietMemoWork={eligible:0,hits:0,misses:0,computed:0,evictions:0};
+  function quietMemoWork(){return {...__quietMemoWork,entries:__quietMemo.size,capacity:2048};}
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)for(let [axis,[dx,dy]]of dirs.entries()){
     if(!inside(x+4*dx,y+4*dy))continue;
     const cells=Array.from({length:5},(_,k)=>(y+k*dy)*N+x+k*dx);
@@ -82,11 +86,66 @@ function createEngine(N, board, options={}) {
   function wins(p){const res=new Set(),own=p===1?counts1:counts2,enemy=p===1?counts2:counts1;for(const id of [...fourWindows[p]].sort((a,c)=>a-c)){const w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;const empty=w.cells.find(i=>!b[i]);if(legal(empty,p))res.add(empty);}return [...res];}
   function forcingCandidates(p){const res=new Set(),own=p===1?counts1:counts2,enemy=p===1?counts2:counts1;for(const id of [...forcingWindows[p]].sort((a,c)=>a-c)){const w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;for(const i of w.cells)if(!b[i])res.add(i);}return [...res].filter(i=>legal(i,p));}
   function candidates(){const s=new Set();for(let i=0;i<b.length;i++)if(b[i]){const x=i%N,y=Math.floor(i/N);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){let xx=x+dx,yy=y+dy;if(inside(xx,yy)&&!b[yy*N+xx])s.add(yy*N+xx);}}if(strategy)for(const i of strategy.searchPoints(b,1))s.add(i);if(!s.size&&!b.some(Boolean))s.add(Math.floor(N/2)*(N+1));return [...s];}
-  const localWindows=options.optimized?affected.map((ids,i)=>ids.map(id=>({w:windows[id],increment:cellAffected[i].includes(id)?1:0}))):null;
-  function localFast(i,p){let sum=0;for(const {w,increment} of localWindows[i]){if(w.pre===i||w.post===i||b[w.pre]===p||b[w.post]===p)continue;const enemy=p===1?counts2[w.id]:counts1[w.id];if(!enemy)sum+=[0,1,20,400,25000,2000000][(p===1?counts1[w.id]:counts2[w.id])+increment];}return sum;}
-  function local(i,p){if(options.optimized)return localFast(i,p);b[i]=p;let sum=0;for(let id of affected[i]){let w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;let count=0,blocked=false;for(let j of w.cells){if(b[j]===p)count++;else if(b[j]){blocked=true;break;}}if(!blocked)sum+=[0,1,20,400,25000,2000000][count];}b[i]=0;return sum;}
+  const optimized=options.optimized!==false;
+  let localWindows=null;
+  function localFast(i,p){if(!localWindows)localWindows=Array(N*N);const localRow=localWindows[i]||(localWindows[i]=affected[i].map(id=>({w:windows[id],increment:cellAffected[i].includes(id)?1:0})));let sum=0;for(const {w,increment} of localRow){if(w.pre===i||w.post===i||b[w.pre]===p||b[w.post]===p)continue;const enemy=p===1?counts2[w.id]:counts1[w.id];if(!enemy)sum+=[0,1,20,400,25000,2000000][(p===1?counts1[w.id]:counts2[w.id])+increment];}return sum;}
+  function local(i,p){if(optimized)return localFast(i,p);b[i]=p;let sum=0;for(let id of affected[i]){let w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;let count=0,blocked=false;for(let j of w.cells){if(b[j]===p)count++;else if(b[j]){blocked=true;break;}}if(!blocked)sum+=[0,1,20,400,25000,2000000][count];}b[i]=0;return sum;}
   function strategicLocal(i,p,feature){if(!feature?.invalidThreeAxes?.length)return local(i,p);b[i]=p;let sum=0;try{for(const id of affected[i]){const w=windows[id];if(b[w.pre]===p||b[w.post]===p)continue;let count=0,blocked=false;for(const j of w.cells){if(b[j]===p)count++;else if(b[j]){blocked=true;break;}}if(!blocked&&!(count===3&&feature.invalidThreeAxes.includes(w.axis)))sum+=[0,1,20,400,25000,2000000][count];}}finally{b[i]=0;}return sum;}
   function rank(p,cs=candidates(),rich=false){let center=(N-1)/2;return cs.filter(i=>legal(i,p)).map(i=>{const feature=rich?strategy?.move(b,i,p):null;return {i,s:strategicLocal(i,p,feature)+(rich&&strategy&&!legal(i,3-p)?0:local(i,3-p)*1.1)-.05*(Math.abs(i%N-center)+Math.abs(Math.floor(i/N)-center))+(feature?.score||0),...(feature?{strategy:feature}:{})};}).sort((a,c)=>c.s-a.s);}
+  // These are nominations only. Existing search/proof code determines value.
+  function quietActualFours(p,ranked){
+    const actual=new Set();for(const i of forcingCandidates(p)){tick();set(i,p);try{if(wins(p).length&&!wins(3-p).length)actual.add(i);}finally{set(i,0);}}
+    const result=ranked.filter(m=>actual.delete(m.i));for(const i of [...actual].sort((a,c)=>a-c))result.push({i});return result;
+  }
+  function quietOpenContiguousShape(i,p,length=3){
+    const x=i%N,y=i/N|0;
+    for(const [dx,dy]of dirs){let negative=0,positive=0;
+      while(at(x-(negative+1)*dx,y-(negative+1)*dy)===p)negative++;
+      while(at(x+(positive+1)*dx,y+(positive+1)*dy)===p)positive++;
+      if(negative+positive+1!==length)continue;
+      const leftX=x-(negative+1)*dx,leftY=y-(negative+1)*dy,
+        rightX=x+(positive+1)*dx,rightY=y+(positive+1)*dy;
+      if(inside(leftX,leftY)&&inside(rightX,rightY)&&at(leftX,leftY)===0&&at(rightX,rightY)===0)return true;
+    }return false;
+  }
+  // Keep both legal ways to stop an opponent's next open four. A single
+  // cut representative can discard the end with the better counterplay.
+  // Cheap virtual geometry runs before legality and incremental rule probes.
+  function quietOpenFourCuts(p,ranked){
+    const q=3-p,result=[];
+    for(const move of ranked){tick();const i=move.i;
+      if(!quietOpenContiguousShape(i,q,4)||!legal(i,q))continue;set(i,q);
+      try{const winning=new Set(wins(q));if(winning.size<2)continue;
+        const x=i%N,y=i/N|0;
+        for(const [dx,dy]of dirs){let negative=0,positive=0;
+          while(at(x-(negative+1)*dx,y-(negative+1)*dy)===q)negative++;
+          while(at(x+(positive+1)*dx,y+(positive+1)*dy)===q)positive++;
+          if(negative+positive+1!==4)continue;
+          const left=[x-(negative+1)*dx,y-(negative+1)*dy],right=[x+(positive+1)*dx,y+(positive+1)*dy];
+          if([left,right].every(([xx,yy])=>inside(xx,yy)&&winning.has(yy*N+xx))){result.push(move);break;}
+        }
+      }finally{set(i,0);}
+    }return result;
+  }
+  function quietContiguousThree(p,ranked){
+    for(const move of ranked){tick();const i=move.i;if(!dirs.some((_,axis)=>nearbyOwn[p][i*4+axis]>=2))continue;if(!quietOpenContiguousShape(i,p))continue;set(i,p);
+      try{if(wins(p).length||wins(3-p).length)continue;const x=i%N,y=i/N|0;
+        for(const [dx,dy]of dirs){let negative=0,positive=0;
+          while(at(x-(negative+1)*dx,y-(negative+1)*dy)===p)negative++;
+          while(at(x+(positive+1)*dx,y+(positive+1)*dy)===p)positive++;
+          if(negative+positive+1!==3)continue;
+          const ends=[[x-(negative+1)*dx,y-(negative+1)*dy],[x+(positive+1)*dx,y+(positive+1)*dy]];
+          if(ends.some(([xx,yy])=>!inside(xx,yy)||at(xx,yy)!==0))continue;
+          for(let side=0;side<2;side++){const [xx,yy]=ends[side],j=yy*N+xx;if(!legal(j,p))continue;set(j,p);let usable=false;
+            try{if(exact(j,p))continue;const winsNow=wins(p),other=ends[1-side],outside=side===0?[xx-dx,yy-dy]:[xx+dx,yy+dy];
+              usable=[other,outside].some(([ex,ey])=>inside(ex,ey)&&at(ex,ey)===0&&winsNow.includes(ey*N+ex)&&legal(ey*N+ex,p));
+            }finally{set(j,0);}if(usable)return move;
+          }
+        }
+      }finally{set(i,0);}
+    }return null;
+  }
+
   function fork(p){for(let i of forcingCandidates(p)){tick();set(i,p);let ws,enemy,forbiddenBlock;try{ws=wins(p);enemy=wins(3-p);forbiddenBlock=ws.length===1&&!legal(ws[0],3-p);}finally{set(i,0);}if((ws.length>=2||forbiddenBlock)&&!enemy.length)return {i,ends:ws,forbiddenBlock};}return null;}
   // A forcing-four proof checks every relevant defense: a legal win, or the
   // unique block. Any other defense loses immediately to exact five.
@@ -229,7 +288,11 @@ function createEngine(N, board, options={}) {
     }catch(error){if(error.message!=='timeout')throw error;return output(false);}finally{deadline=savedDeadline;phaseDeadline=savedPhase;}
   }
 
-  function search(p,depth,alpha,beta,ply,extension=6,quietExtension=1){
+  // Every root in a completed round uses the same finite optional-choice
+  // horizon. It grows with ordinary depth, including worker comparisons;
+  // neither elapsed time nor an earlier root's work changes leaf semantics.
+  const defenseExtension=depth=>Math.max(2,Math.min(6,depth+1));
+  function search(p,depth,alpha,beta,ply,extension=6,quietExtension=15){
     tick();const own=wins(p);if(own.length)return {score:M-ply,pv:[own[0]]};const danger=wins(3-p);
     if(danger.length>1||danger.length===1&&!legal(danger[0],p))return {score:-M+ply+1,pv:[]};
     // Do not replace a forcing win just beyond the horizon with a positional
@@ -242,16 +305,21 @@ function createEngine(N, board, options={}) {
       if(neuralPosition){for(const i of neuralDirtyIndices){neuralPosition.set(i,b[i]);neuralDirty[i]=0;}neuralDirtyIndices.length=0;}
       return (p===1?total:-total)+(neuralPosition?.score(p)||0);
     };
+    if(depth<=0&&extension<=0&&!danger.length)return {score:staticScore(),pv:[]};
     let quietMoves=null;
     // Quiet extensions are branch-local. A global work cap used to change
     // the value of the same leaf after earlier candidates consumed it.
-    if(depth<=0&&!danger.length&&strategy&&quietExtension>0&&ply<=4){
+    if(depth<=0&&!danger.length&&strategy&&(quietExtension&(1<<(p-1)))&&(!openingContext||ply<=4)){
+      const __quietKey=b.join('')+p,__quietKnown=__quietMemo.get(__quietKey);__quietMemoWork.eligible++;
+      if(__quietKnown!==undefined){__quietMemoWork.hits++;quietMoves=__quietKnown.map(i=>({i}));tick();}
+      else{__quietMemoWork.misses++;
       // Quiet leaves read actual threats. Weak pair preparation remains in
       // ordinary search; extending it here can consume the next full round.
       // Window hints nominate fours/cuts, while geometric threes include
       // shapes omitted by exact-five windows. Full descriptors decide below.
       const potential=m=>{if(m.strategy.attack>=120||m.strategy.cut>=120)return true;b[m.i]=p;try{return openThrees(m.i,p)>0;}finally{b[m.i]=0;}};
-      const all=rank(p),prepared=strategy.searchSelect(b,p,all,4,4,new Set(),'unknown',potential).map(m=>({...m,strategy:strategy.searchMove(b,m.i,p)}));
+      const all=rank(p),protectedFours=quietActualFours(p,all),protectedThree=quietContiguousThree(p,all),protectedCuts=quietOpenFourCuts(p,all);
+      const prepared=strategy.searchSelect(b,p,all,4,4,new Set(),'unknown',potential).map(m=>({...m,strategy:strategy.searchMove(b,m.i,p)}));
       const attack=m=>m.strategy.legalExtensions.length&&(m.strategy.forcing||m.strategy.usableThreeAxes.length||m.strategy.axes.length>1),
         cut=m=>m.strategy.cut>=120;
       const eligible=prepared.filter(m=>m.strategy.legal&&(attack(m)||cut(m))),chosen=[];
@@ -262,11 +330,27 @@ function createEngine(N, board, options={}) {
         if(m&&!chosen.some(x=>x.i===m.i))chosen.push(m);
       }
       for(const m of eligible)if(chosen.length<2&&!chosen.some(x=>x.i===m.i))chosen.push(m);
+      const dual=eligible.filter(m=>m.strategy.attack>=120&&m.strategy.cut>=120&&!chosen.some(x=>x.i===m.i)).sort((a,c)=>(c.strategy.dual||0)-(a.strategy.dual||0)||c.s-a.s||a.i-c.i)[0];
+      if(dual&&chosen.length<3)chosen.push(dual);
+      // Preserve every legacy attack/cut/dual representative in its original order.
+      for(const m of protectedFours)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
+      if(protectedThree&&!chosen.some(c=>c.i===protectedThree.i))chosen.push(protectedThree);
+      for(const m of protectedCuts)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
       quietMoves=chosen;tick();
+      // A completed pure nomination is identified by the board, side and
+      // this Reader's fixed constructor profile. Eligibility remains outside
+      // lookup; only owned indices are stored, with fresh arrays on every hit.
+      if(__quietMemo.size>=2048){__quietMemo.delete(__quietMemo.keys().next().value);__quietMemoWork.evictions++;}
+      __quietMemo.set(__quietKey,chosen.map(m=>m.i));__quietMemoWork.computed++;
+      }
+    }
+    // Spent preparation credit still permits real legal fours.
+    if(depth<=0&&!danger.length&&extension>0&&!quietMoves?.length&&strategy&&!(quietExtension&(1<<(p-1)))&&(!openingContext||ply<=4)){
+      const fours=[];for(const i of forcingCandidates(p)){tick();set(i,p);try{if(wins(p).length)fours.push(i);}finally{set(i,0);}}
+      quietMoves=rank(p,fours).slice(0,2);tick();
     }
     if(depth<=0&&!danger.length&&!quietMoves?.length)return {score:staticScore(),pv:[]};
-    if(depth<=0&&extension<=0)return {score:staticScore(),pv:[]};
-    const key=b.join('')+p,entry=tt.get(key),a0=alpha,b0=beta;
+    const key=b.join('')+p+'|'+depth+'|'+extension+'|'+quietExtension+'|'+ply,entry=tt.get(key),a0=alpha,b0=beta;
     // The quiet extension model depends on distance from the root. Reuse an
     // exact matching subproblem; normalize mate distance when the root moves.
     const memoryKey=memory?key+'|'+depth+'|'+extension+'|'+quietExtension+'|'+Math.max(0,4-ply):'';
@@ -275,14 +359,22 @@ function createEngine(N, board, options={}) {
       if(saved.bound==='exact')return {score,pv:saved.pv};
       if(saved.bound==='lower')alpha=Math.max(alpha,score);else beta=Math.min(beta,score);
       if(alpha>=beta)return {score,pv:saved.pv};}
-    if(entry&&entry.depth>=depth&&entry.extension>=extension&&entry.quietExtension>=quietExtension){if(entry.bound==='exact')return {score:entry.score,pv:entry.pv};if(entry.bound==='lower')alpha=Math.max(alpha,entry.score);else beta=Math.min(beta,entry.score);if(alpha>=beta)return {score:entry.score,pv:entry.pv};}
+    if(entry){if(entry.bound==='exact')return {score:entry.score,pv:entry.pv};if(entry.bound==='lower')alpha=Math.max(alpha,entry.score);else beta=Math.min(beta,entry.score);if(alpha>=beta)return {score:entry.score,pv:entry.pv};}
     let moves;if(danger.length)moves=[{i:danger[0],s:M}];else{
       if(quietMoves?.length)moves=quietMoves;
       else{const all=rank(p),forcing=new Set(forcingCandidates(p));moves=strategy?strategy.searchSelect(b,p,all,16,4,forcing,'unknown'):all.filter((m,k)=>k<16||forcing.has(m.i));tick();}
       if(entry?.pv.length){let k=moves.findIndex(m=>m.i===entry.pv[0]);if(k>0)moves.unshift(...moves.splice(k,1));}
     }
     if(!moves.length)return {score:b.every(Boolean)?0:-M+ply,pv:[]};let best={score:-Infinity,pv:[]};
-    for(let {i}of moves){set(i,p);let child;try{child=search(3-p,depth-1,-beta,-alpha,ply+1,depth<=0?extension-1:extension,quietMoves?.length?quietExtension-1:quietExtension);}finally{set(i,0);}const score=-child.score;if(score>best.score)best={score,pv:[i,...child.pv]};alpha=Math.max(alpha,score);if(alpha>=beta)break;}
+    for(let {i}of moves){set(i,p);let child;try{
+      // Optional choices spend a shared bound; compulsory legal blocks do not.
+      // Each colour owns one preparation and one rearm after a unique block.
+      const nextExtension=depth<=0&&!danger.length?extension-1:extension,
+        spentQuiet=quietMoves?.length&&!wins(p).length?quietExtension&~(1<<(p-1)):quietExtension,
+        rearmed=danger.length===1&&i===danger[0]?((~spentQuiet)&3)&(spentQuiet>>2):0,
+        nextQuiet=(spentQuiet|rearmed)&~(rearmed<<2);
+      child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
+    }finally{set(i,0);}const score=-child.score;if(score>best.score)best={score,pv:[i,...child.pv]};alpha=Math.max(alpha,score);if(alpha>=beta)break;}
     const bound=best.score<=a0?'upper':best.score>=b0?'lower':'exact';
     if(tt.size>50000)tt.clear();tt.set(key,{...best,depth,extension,quietExtension,bound});
     memory?.put(memScope+'|search',memoryKey,{score:OmokSearchMemory.toStored(best.score,ply,M),pv:best.pv,bound},Math.max(0,depth)*2+(bound==='exact'?4:0));return best;
@@ -406,7 +498,7 @@ function createEngine(N, board, options={}) {
     const rounds=[];let stopReason='최대 탐색 깊이 도달';
     for(let d=1;d<=(automatic?16:10);d++){
       const round=[];
-      try{for(let r of frontier){tick();set(r.i,p);let child;try{child=search(3-p,d-1,-Infinity,Infinity,1);}finally{set(r.i,0);}
+      try{for(let r of frontier){tick();set(r.i,p);let child;try{child=search(3-p,d-1,-Infinity,Infinity,1,defenseExtension(d));}finally{set(r.i,0);}
         // One existing static-three unit rewards a forcing continuation that
         // survived every sampled actual reply, including a mandatory block.
         // This is a soft ordering preference, never a safety or win proof.
@@ -430,18 +522,18 @@ function createEngine(N, board, options={}) {
   // is absent from geometric open-three descriptors. This only schedules
   // bounded proof work; it is never itself a threat or a loss certificate.
   function counterSeeds(p,ms=40){const oldDeadline=deadline,oldPhase=phaseDeadline;deadline=Math.min(oldDeadline,clockNow()+Math.max(0,ms));phaseDeadline=Math.min(oldPhase,deadline);const found=[];try{for(const {i}of rank(p)){tick();set(i,p);try{if(wins(p).length||threes(i,p))continue;const axes=new Set(),three=[];for(const id of cellAffected[i]){const w=windows[id],own=p===1?counts1[id]:counts2[id],enemy=p===1?counts2[id]:counts1[id];if(enemy||b[w.pre]===p||b[w.post]===p)continue;if(own>=2)axes.add(w.axis);if(own>=3)three.push(id);}if(three.length&&axes.size>=2)found.push(i);}finally{set(i,0);}}}catch(error){if(error.message!=='timeout')throw error;}finally{deadline=oldDeadline;phaseDeadline=oldPhase;}return found;}
-  function fixedWork(p,depth=3){nodes=0;strategy?.setBudget(Infinity);deadline=Infinity;phaseDeadline=Infinity;tt.clear();tacticalCache.clear();if(memory&&!options.memoryManaged)memory.begin();const start=clockNow(),result=search(p,depth,-Infinity,Infinity,0);return {...result,nodes,depth,ms:clockNow()-start,searchMemory:memory?.stats()};}
+  function fixedWork(p,depth=3){nodes=0;strategy?.setBudget(Infinity);deadline=Infinity;phaseDeadline=Infinity;tt.clear();tacticalCache.clear();if(memory&&!options.memoryManaged)memory.begin();const start=clockNow(),result=search(p,depth,-Infinity,Infinity,0,defenseExtension(depth));return {...result,nodes,depth,ms:clockNow()-start,searchMemory:memory?.stats()};}
   function compareRoots(p,roots,depth=1,ms=1000){
     if(![1,2].includes(p)||!Number.isInteger(depth)||depth<1||depth>16||!Array.isArray(roots)||roots.some(r=>!legal(r.i,p)))throw Error('Invalid root comparison');
     const oldDeadline=deadline,oldPhase=phaseDeadline,start=clockNow(),rows=[];nodes=0;deadline=start+Math.max(1,ms);phaseDeadline=Infinity;strategy?.setBudget(Infinity);
-    try{for(const r of roots){tick();set(r.i,p);let child;try{child=search(3-p,depth-1,-Infinity,Infinity,1);}finally{set(r.i,0);}
+    try{for(const r of roots){tick();set(r.i,p);let child;try{child=search(3-p,depth-1,-Infinity,Infinity,1,defenseExtension(depth));}finally{set(r.i,0);}
       const positional=Math.abs(child.score)<M/2,policy=r.rootPolicy||{},probeAdjust=positional?policy.adjust||0:0,
         pressureBonus=positional?policy.pressure||0:0,tempoPenalty=positional?policy.tempo||0:0,baseSearchScore=-child.score,openingPenalty=positional?policy.openingRisk?.penalty||0:0;
       rows.push({...r,score:baseSearchScore+probeAdjust+pressureBonus-tempoPenalty-openingPenalty,baseSearchScore,probeAdjust,openingPenalty,openingRisk:policy.openingRisk||null,pressureBonus,tempoPenalty,pv:[r.i,...child.pv],depth,comparisonComplete:true});
     }}catch(error){if(error.message!=='timeout')throw error;}finally{deadline=oldDeadline;phaseDeadline=oldPhase;}
     return {complete:rows.length===roots.length,rows,nodes,depth,ms:clockNow()-start};
   }
-  return {fixedWork,rank,compareRoots,forbiddenTrap,counterRejections,counterSeeds,counterMove,counterLoss,counterCertificate,legal,moveInfo,winMove,threes,analyze,state,board:b,winningMoves:wins,threatWin:(p,ms=1000)=>{deadline=clockNow()+ms;try{return threatWin(p);}catch(e){if(e.message==='timeout')return null;throw e;}finally{deadline=Infinity;}},forcingWin:(p,depth=13,ms=1000)=>{deadline=clockNow()+ms;try{return vcf(p,depth);}catch(e){if(e.message==='timeout')return null;throw e;}finally{deadline=Infinity;}}};
+  return {fixedWork,rank,compareRoots,quietMemoWork,forbiddenTrap,counterRejections,counterSeeds,counterMove,counterLoss,counterCertificate,legal,moveInfo,winMove,threes,analyze,state,board:b,winningMoves:wins,threatWin:(p,ms=1000)=>{deadline=clockNow()+ms;try{return threatWin(p);}catch(e){if(e.message==='timeout')return null;throw e;}finally{deadline=Infinity;}},forcingWin:(p,depth=13,ms=1000)=>{deadline=clockNow()+ms;try{return vcf(p,depth);}catch(e){if(e.message==='timeout')return null;throw e;}finally{deadline=Infinity;}}};
 }
 function autoStable(rounds,depth,elapsed,checks,moves){
   if(elapsed<1000||depth<4||rounds.length<3||!checks.screeningComplete||!checks.forcingChecksComplete||!moves.length||moves[0].status==='unverified')return false;
