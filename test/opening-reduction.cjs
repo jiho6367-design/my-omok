@@ -68,10 +68,11 @@ const badFuture={...seventh,id:'generated-invalid-future',fromPly:5,moves:[112,1
 // projection is a forbidden double three despite an otherwise legal prefix.
 const witnessSource=[112,127,96,158,15,145,17,173,1,175,31,147],witnessActual=[112,143,128,174,31,161,33,189,17,191,47,163],witness={id:'generated-edge-legality',title:'구월',familyId:'D9',sourceId:'generated-finite-edge',fromPly:13,moves:witnessSource.concat(16)};
 for(const p of[1,2])for(let t=0;t<8;t++){const src=position(witnessSource,p,t),actual=position(witnessActual,p,t),history=witnessActual.map(i=>tr(i,t));assert(R(src).legal(tr(16,t),p));assert(!R(actual).legal(tr(32,t),p));const book=scoped(actual,p,history,[witness]);assert.equal(book.lookup(actual,p,p),null);assert.deepEqual(book.choices(actual,p,p),[]);historyGuards++;}
-// Engine history is explicit context. Changing it must invalidate a cached
-// derived source book; opponent predictions cannot borrow the first-role line.
+// Engine history is explicit context for translated source references.
+// Isolate those guards from the separately tested exact actual-board dataset;
+// a direct analysis of the complete board does not require translated history.
 for(const p of[1,2]){
- const E=create({firstPlayer:p,openingHistory:h4.slice(),model:null,recordBook:[],searchMemory:false}),b=position(h4,p),initial=E.openingReply(b,p);assert(initial?.openingEvidence?.reduction);assert.equal(initial.kind,'opening');
+ const E=create({firstPlayer:p,openingHistory:h4.slice(),openingReductionData:{schemaVersion:1,rulesId:Book.RULES_ID,entries:[]},model:null,recordBook:[],searchMemory:false}),b=position(h4,p),initial=E.openingReply(b,p);assert(initial?.openingEvidence?.reduction);assert.equal(initial.kind,'opening');
  const originalEvidence=plain(initial.openingEvidence);mutateEvidence(initial.openingEvidence);assert.deepEqual(plain(E.openingReply(b,p).openingEvidence),originalEvidence);
  for(const mode of['auto','deep']){const hit=E.openingReply(b,p,{budget:{mode,ms:15000}});assert.equal(hit.kind,'opening');assert.equal(hit.proven,false);assert.equal(hit.proof,null);assert.equal(hit.depth,0);}
  E.configure({openingHistory:null});assert.equal(E.openingReply(b,p),null);assert.deepEqual(plain(E.openingChoices(b,p)),[]);E.configure({context:{openingHistory:h4.slice()}});assert.equal(E.openingReply(b,p).i,initial.i);

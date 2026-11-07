@@ -1,7 +1,7 @@
 /* Exact registered positions with offline engine responses. Stored search
  * metadata never establishes a current search result or a winning proof. */
 const OmokOpeningAnalysis=(()=>{
- const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=32768,MAX_PLIES=40;
+ const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,CENTER=112,MAX_ENTRIES=225,MAX_CONTINUATIONS=32768,MAX_REDUCTIONS=65536,MAX_PLIES=40;
  const FAMILIES={D1:{title:'한성',moves:[112,127,142]},D2:{title:'계월',moves:[112,127,143]},D4:{title:'화월',moves:[112,127,128]},D5:{title:'잔월',moves:[112,127,129]},D6:{title:'우월',moves:[112,127,113]},D7:{title:'금성',moves:[112,127,114]},D8:{title:'송월',moves:[112,127,97]},D9:{title:'구월',moves:[112,127,98]},D10:{title:'신월',moves:[112,127,99]},D11:{title:'서성',moves:[112,127,82]},D12:{title:'산월',moves:[112,127,83]},I2:{title:'협월',moves:[112,128,129]},I3:{title:'항성',moves:[112,128,114]},I4:{title:'수월',moves:[112,128,99]},I6:{title:'운월',moves:[112,128,113]},I7:{title:'포월',moves:[112,128,98]},I8:{title:'람월',moves:[112,128,83]},I9:{title:'은월',moves:[112,128,97]},I10:{title:'명성',moves:[112,128,82]},I11:{title:'사월',moves:[112,128,96]},I12:{title:'명월',moves:[112,128,81]}};
  const player=p=>p===1||p===2,index=i=>Number.isInteger(i)&&i>=0&&i<SIZE;
  function tr(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const a=x;x=N-1-y;y=a;}return y*N+x;}
@@ -10,14 +10,24 @@ const OmokOpeningAnalysis=(()=>{
  function number(v,name,{integer=false,positive=false,max=1e12}={}){if(!Number.isFinite(v)||(integer&&!Number.isInteger(v))||v<(positive?1:0)||v>max)throw Error('Invalid engine response '+name);return v;}
  function defaultData(){if(typeof OmokOpeningAnalysisData!=='undefined')return OmokOpeningAnalysisData;if(typeof require==='function')try{return require('./opening-analysis-data.js');}catch(e){if(e.code!=='MODULE_NOT_FOUND')throw e;}return {schemaVersion:1,rulesId:RULES_ID,base:[CENTER,128,98,126,114],entries:[]};}
  function defaultContinuations(){if(typeof OmokOpeningContinuationData!=='undefined')return OmokOpeningContinuationData;if(typeof require==='function')try{return require('./opening-continuation-data.js');}catch(e){if(e.code!=='MODULE_NOT_FOUND')throw e;}return {schemaVersion:2,rulesId:RULES_ID,entries:[]};}
+ function emptyReductions(){return {schemaVersion:1,rulesId:RULES_ID,entries:[]};}
+ function reductionFamily(moves,familyId,inspect){
+  if(!Array.isArray(moves)||moves[0]!==CENTER||!index(moves[1])||!index(moves[2])||Math.max(Math.abs(moves[1]%N-7),Math.abs((moves[1]/N|0)-7))!==2)return false;
+  let factory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
+  if(!factory&&typeof require==='function')try{factory=require('./opening-book.js');}catch{return false;}
+  const b=Array(SIZE).fill(0);b[CENTER]=1;b[moves[1]]=2;
+  const family=FAMILIES[familyId];if(!family)return false;
+  return !!factory?.choices(b,1,1,{inspect,catalog:[{id:familyId,title:family.title,moves:family.moves.slice()}]}).some(row=>row.i===moves[2]&&row.families.some(f=>f.id===familyId));
+ }
  function equivalent(b,a,c){for(let t=0;t<8;t++)if(tr(a,t)===c&&b.every((v,i)=>b[tr(i,t)]===v))return true;return false;}
- function validateData(data,continuationData){
+ function validateData(data,continuationData,reductionData){
   if(!data||data.schemaVersion!==1||data.rulesId!==RULES_ID||!Array.isArray(data.base)||data.base.length!==5||data.base[0]!==CENTER||!Array.isArray(data.entries)||data.entries.length>MAX_ENTRIES)throw Error('Invalid engine response data');
   if(!continuationData||continuationData.schemaVersion!==2||continuationData.rulesId!==RULES_ID||!Array.isArray(continuationData.entries)||continuationData.entries.length>MAX_CONTINUATIONS)throw Error('Invalid engine continuation data');
+  if(!reductionData||reductionData.schemaVersion!==1||reductionData.rulesId!==RULES_ID||!Array.isArray(reductionData.entries)||reductionData.entries.length>MAX_REDUCTIONS)throw Error('Invalid actual-board reduction data');
  }
- function create({inspect,data=defaultData(),continuationData=defaultContinuations()}={}){
+ function create({inspect,data=defaultData(),continuationData=defaultContinuations(),reductionData=emptyReductions()}={}){
   if(typeof inspect!=='function')throw Error('Engine response inspection callback required');
-  validateData(data,continuationData);
+  validateData(data,continuationData,reductionData);
   const base=data.base.slice(),start=Array(SIZE).fill(0),valid=[],errors=[],ids=new Set(),table=new Map();
   for(let k=0;k<base.length;k++){const i=base[k],p=k%2?2:1;if(!index(i)||start[i]||inspect(start.slice(),i,p)?.legal!==true)throw Error('Invalid engine response base');start[i]=p;if(exact(start,i,p))throw Error('Terminal engine response base');}
   for(let n=0;n<data.entries.length;n++){
@@ -31,26 +41,37 @@ const OmokOpeningAnalysis=(()=>{
   }
   // Reuse only paths validated by this inspection callback. A later source or
   // dataset cannot inherit legality from another engine or altered rules.
-  const prefixes=new Map([['',Array(SIZE).fill(0)]]);
-  for(let n=0;n<continuationData.entries.length;n++)try{
-   const r=continuationData.entries[n];if(!r||typeof r!=='object'||Array.isArray(r))throw Error('Invalid engine continuation entry');
+  const prefixes=new Map([['',Array(SIZE).fill(0)]]),reductionStarts=new Map();
+  for(const [dataset,input,reduced]of [['continuation',continuationData.entries,false],['reduction',reductionData.entries,true]])for(let n=0;n<input.length;n++)try{
+   const r=input[n];if(!r||typeof r!=='object'||Array.isArray(r))throw Error('Invalid engine continuation entry');
    const id=text(r.id,120),family=FAMILIES[r.familyId];if(ids.has(id))throw Error('Duplicate engine response id');
-   if(!family||r.title!==family.title||!Array.isArray(r.moves)||r.moves.length<4||r.moves.length>=MAX_PLIES||r.moves.length%2||r.moves[0]!==CENTER||!r.moves.every(index)||!family.moves.every((i,k)=>r.moves[k]===i))throw Error('Invalid engine continuation family or path');
+   if(!family||r.title!==family.title||!Array.isArray(r.moves)||r.moves.length<4||r.moves.length>=MAX_PLIES||r.moves.length%2||r.moves[0]!==CENTER||!r.moves.every(index)||(!reduced&&!family.moves.every((i,k)=>r.moves[k]===i)))throw Error('Invalid engine continuation family or path');
+   if(reduced){const key=r.familyId+'|'+r.moves.slice(0,3).join(',');if(!reductionStarts.has(key))reductionStarts.set(key,reductionFamily(r.moves,r.familyId,inspect));if(!reductionStarts.get(key))throw Error('Invalid actual-board reduction start');}
    let b=prefixes.get(''),key='';for(let k=0;k<r.moves.length;k++){const i=r.moves[k],p=k%2?2:1;key+=(k?',':'')+i;const saved=prefixes.get(key);if(saved){b=saved;continue;}if(!index(i)||b[i]||inspect(b.slice(),i,p)?.legal!==true)throw Error('Illegal engine continuation path');b=b.slice();b[i]=p;if(exact(b,i,p))throw Error('Terminal engine continuation path');prefixes.set(key,b);}
    if(!index(r.move)||b[r.move]||inspect(b.slice(),r.move,1)?.legal!==true)throw Error('Illegal engine continuation move');
+   let evidence=null;
+   const evidenceFields=['evidenceTransform','evidenceOriginalId','evidenceOriginalMoves','evidenceOriginalMove','evidenceBoardKeySha256'];
+   if(reduced&&evidenceFields.some(field=>r[field]!==undefined)){
+    const t=r.evidenceTransform,moves=r.evidenceOriginalMoves,move=r.evidenceOriginalMove;
+    if(!Number.isInteger(t)||t<0||t>7||!Array.isArray(moves)||moves.length!==r.moves.length||!moves.every(index)||!index(move)||typeof r.evidenceBoardKeySha256!=='string'||!/^[a-f0-9]{64}$/.test(r.evidenceBoardKeySha256))throw Error('Invalid actual-board evidence mapping');
+    const id=text(r.evidenceOriginalId,120);let original=prefixes.get(''),key='';
+    for(let k=0;k<moves.length;k++){const i=moves[k],p=k%2?2:1;key+=(k?',':'')+i;const saved=prefixes.get(key);if(saved){original=saved;continue;}if(!index(i)||original[i]||inspect(original.slice(),i,p)?.legal!==true)throw Error('Illegal actual-board evidence path');original=original.slice();original[i]=p;if(exact(original,i,p))throw Error('Terminal actual-board evidence path');prefixes.set(key,original);}
+    if(original[move]||inspect(original.slice(),move,1)?.legal!==true||tr(move,t)!==r.move||original.some((v,i)=>b[tr(i,t)]!==v))throw Error('Actual-board evidence is not an exact D4 match');
+    evidence=Object.freeze({evidenceTransform:t,evidenceOriginalId:id,evidenceOriginalMoves:Object.freeze(moves.slice()),evidenceOriginalMove:move,evidenceBoardKeySha256:r.evidenceBoardKeySha256});
+   }
    if(typeof r.engineCommit!=='string'||typeof r.resultSha256!=='string'||!/^[a-f0-9]{40}$/.test(r.engineCommit)||!/^[a-f0-9]{64}$/.test(r.resultSha256))throw Error('Invalid engine response evidence digest');
    const winningMoveVerified=r.winningMoveVerified===true;if(winningMoveVerified?(typeof r.proofSha256!=='string'||!/^[a-f0-9]{64}$/.test(r.proofSha256)):r.proofSha256!==undefined&&r.proofSha256!==null)throw Error('Invalid verified engine continuation proof digest');
    if(r.comparisonComplete!==true&&!winningMoveVerified)throw Error('Incomplete engine continuation comparison');
-   const row=Object.freeze({id,move:r.move,moves:Object.freeze(r.moves.slice()),familyId:r.familyId,title:family.title,budgetMs:number(r.budgetMs,'budget',{positive:true,max:3600000}),elapsedMs:number(r.elapsedMs,'elapsed',{max:86400000}),depth:number(r.depth,'depth',{integer:true,positive:true,max:1000}),nodes:number(r.nodes,'nodes',{integer:true}),engineCommit:r.engineCommit,resultSha256:r.resultSha256,engineVersion:text(r.engineVersion,1000),modelVersion:text(r.modelVersion,400),comparisonComplete:r.comparisonComplete===true,winningMoveVerified,proofSha256:winningMoveVerified?r.proofSha256:null});
-   add(row,row.moves,row.familyId,row.title);
-  }catch(e){errors.push(Object.freeze({dataset:'continuation',index:n,id:typeof continuationData.entries[n]?.id==='string'?continuationData.entries[n].id.slice(0,120):null,message:String(e.message||e)}));}
+   const row=Object.freeze({id,move:r.move,moves:Object.freeze(r.moves.slice()),familyId:r.familyId,title:family.title,budgetMs:number(r.budgetMs,'budget',{positive:true,max:3600000}),elapsedMs:number(r.elapsedMs,'elapsed',{max:86400000}),depth:number(r.depth,'depth',{integer:true,positive:true,max:1000}),nodes:number(r.nodes,'nodes',{integer:true}),engineCommit:r.engineCommit,resultSha256:r.resultSha256,engineVersion:text(r.engineVersion,1000),modelVersion:text(r.modelVersion,400),comparisonComplete:r.comparisonComplete===true,winningMoveVerified,proofSha256:winningMoveVerified?r.proofSha256:null,...(reduced?{reduction:Object.freeze({kind:'outer-second-engine-analysis',initialMoves:Object.freeze(r.moves.slice(0,3)),verifiedOnActualBoard:true}),evidence}:{})});
+   add(row,row.moves,row.familyId,reduced?row.title+' 환원':row.title);
+  }catch(e){errors.push(Object.freeze({dataset,index:n,id:typeof input[n]?.id==='string'?input[n].id.slice(0,120):null,message:String(e.message||e)}));}
   function add(row,moves,familyId,title){ids.add(row.id);valid.push(row);for(let t=0;t<8;t++){const b=Array(SIZE).fill(0);moves.forEach((i,k)=>b[tr(i,t)]=k%2?2:1);const key=b.join(''),move=tr(row.move,t),prior=table.get(key);if(!prior)table.set(key,{row,i:move,transform:t,ply:moves.length+1,familyId,title,families:new Map([[familyId,title]]),ambiguous:false});else if(prior.i!==move&&!equivalent(b,prior.i,move))prior.ambiguous=true;else prior.families.set(familyId,title);}}
   function lookup(board,p,firstPlayer){
    if(!player(firstPlayer)||p!==firstPlayer||!board||board.length!==SIZE||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
    const relative=Array.from(board);let own=0,other=0;for(let i=0;i<SIZE;i++){const v=relative[i];if(v!==0&&v!==1&&v!==2)return null;if(v===firstPlayer){own++;relative[i]=1;}else if(v){other++;relative[i]=2;}}
    if(own<2||own!==other||own+other>=MAX_PLIES||relative.some((v,i)=>v&&exact(relative,i,v)))return null;const hit=table.get(relative.join(''));if(!hit||hit.ambiguous||board[hit.i])return null;
    try{if(inspect(Array.from(board),hit.i,p)?.legal!==true)return null;}catch{return null;}
-   const {row,i,transform,ply,familyId,title}=hit;return {id:row.id,i,ply,familyId,title,families:[...hit.families].map(([id,title])=>({id,title})),transform,source:'engine-precomputed',reference:false,proven:false,offline:{budgetMs:row.budgetMs,elapsedMs:row.elapsedMs,depth:row.depth,nodes:row.nodes,engineCommit:row.engineCommit,engineVersion:row.engineVersion,modelVersion:row.modelVersion,resultSha256:row.resultSha256,comparisonComplete:row.comparisonComplete,...(row.moves?{winningMoveVerified:row.winningMoveVerified,proofSha256:row.proofSha256}:{})}};
+   const {row,i,transform,ply,familyId,title}=hit;return {id:row.id,i,ply,familyId,title,families:[...hit.families].map(([id,title])=>({id,title})),transform,source:'engine-precomputed',reference:false,proven:false,...(row.reduction?{reduction:{...row.reduction,initialMoves:row.reduction.initialMoves.map(i=>tr(i,transform))}}:{}),offline:{budgetMs:row.budgetMs,elapsedMs:row.elapsedMs,depth:row.depth,nodes:row.nodes,engineCommit:row.engineCommit,engineVersion:row.engineVersion,modelVersion:row.modelVersion,resultSha256:row.resultSha256,comparisonComplete:row.comparisonComplete,...(row.evidence?{...row.evidence,evidenceOriginalMoves:row.evidence.evidenceOriginalMoves.slice()}:{}),...(row.moves?{winningMoveVerified:row.winningMoveVerified,proofSha256:row.proofSha256}:{})}};
   }
   return Object.freeze({entries:Object.freeze(valid),errors:Object.freeze(errors),conflicts:[...table.values()].filter(x=>x.ambiguous).length,lookup});
  }
@@ -62,10 +83,10 @@ const OmokOpeningAnalysis=(()=>{
  }
  // Runtime queries validate only rows that can nominate this entire colored
  // position. The selected rows still pass the complete path/evidence validator.
- function createForPosition({inspect,board,p,firstPlayer,data=defaultData(),continuationData=defaultContinuations()}={}){
+ function createForPosition({inspect,board,p,firstPlayer,data=defaultData(),continuationData=defaultContinuations(),reductionData=emptyReductions()}={}){
   if(typeof inspect!=='function')throw Error('Engine response inspection callback required');
-  validateData(data,continuationData);
-  const current=relativePosition(board,p,firstPlayer),legacy=[],selected=[],ids=new Set();let duplicateId=false;
+  validateData(data,continuationData,reductionData);
+  const current=relativePosition(board,p,firstPlayer),legacy=[],selected=[],reduced=[],ids=new Set();let duplicateId=false;
   function matchesMoves(moves){
    if(!current||!Array.isArray(moves)||moves.length!==current.count)return false;
    for(let t=0;t<8;t++){let matches=true;for(let k=0;k<moves.length;k++){const i=moves[k];if(!index(i)||current.relative[tr(i,t)]!==(k%2?2:1)){matches=false;break;}}if(matches)return true;}
@@ -75,13 +96,14 @@ const OmokOpeningAnalysis=(()=>{
   if(current){
    for(const r of data.entries){track(r);if(current.count===6&&matchesMoves(data.base.concat(r?.reply)))legacy.push(r);}
    for(const r of continuationData.entries){track(r);if(matchesMoves(r?.moves))selected.push(r);}
+   for(const r of reductionData.entries){track(r);if(matchesMoves(r?.moves))reduced.push(r);}
   }
   // Duplicate IDs retain the full compiler's first-valid-row semantics,
   // including duplicates shared by legacy and continuation datasets.
-  const compiled=create({inspect,data:duplicateId?data:{...data,entries:legacy},continuationData:duplicateId?continuationData:{...continuationData,entries:selected}});
+  const compiled=create({inspect,data:duplicateId?data:{...data,entries:legacy},continuationData:duplicateId?continuationData:{...continuationData,entries:selected},reductionData:duplicateId?reductionData:{...reductionData,entries:reduced}});
   const matches=(b,q,first)=>{const next=relativePosition(b,q,first);return !!current&&next?.key===current.key;};
   return Object.freeze({...compiled,lookup:(b,q,first)=>matches(b,q,first)?compiled.lookup(b,q,first):null});
  }
- return Object.freeze({RULES_ID,MAX_ENTRIES,MAX_CONTINUATIONS,MAX_PLIES,create,createForPosition});
+ return Object.freeze({RULES_ID,MAX_ENTRIES,MAX_CONTINUATIONS,MAX_REDUCTIONS,MAX_PLIES,create,createForPosition});
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=OmokOpeningAnalysis;

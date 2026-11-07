@@ -86,7 +86,7 @@ function createEngine(options={}) {
     if(own<2||own!==other||own+other>=openingAnalysisFactory.MAX_PLIES)return null;
     const key=openingAnalysisFactory.createForPosition?p+'|'+board.join(''):'all';
     if(!openingAnalysis||key!==openingAnalysisKey)try{
-      const settings={inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData}),...(options.openingContinuationData===undefined?{}:{continuationData:options.openingContinuationData})};
+      const settings={inspect,...(options.openingAnalysisData===undefined?{}:{data:options.openingAnalysisData}),...(options.openingContinuationData===undefined?{}:{continuationData:options.openingContinuationData}),...(options.openingReductionData===undefined?(typeof OmokOpeningReductionData==='undefined'?{}:{reductionData:OmokOpeningReductionData}):{reductionData:options.openingReductionData})};
       openingAnalysis=openingAnalysisFactory.createForPosition?openingAnalysisFactory.createForPosition({...settings,board,p,firstPlayer:rules.firstPlayer}):openingAnalysisFactory.create(settings);openingAnalysisKey=key;
     }catch{openingAnalysisFailed=true;return null;}
     return openingAnalysis;

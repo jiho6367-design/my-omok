@@ -1,0 +1,4181 @@
+{
+  "schemaVersion": 1,
+  "rulesId": "15x15-exact5-both33-v1",
+  "sourceEngineCommit": "244f948f75ae8053bece2b9f778113ec3b102a14",
+  "favorableReductionFamilies": 9,
+  "outerSeconds": 16,
+  "thirdPairs": 64,
+  "representativeThirds": 9,
+  "representativeFourthScope": 1998,
+  "expandedFourthScope": 14208,
+  "representativeSixthScope": 1980,
+  "primaryMissingHistories": 1894,
+  "secondaryMissingHistories": 1802,
+  "families": [
+    {
+      "familyId": "D10",
+      "title": "신월",
+      "thirdMoves": [
+        112,
+        80,
+        81
+      ],
+      "thirdAliases": [
+        {
+          "second": 80,
+          "third": 81
+        },
+        {
+          "second": 80,
+          "third": 95
+        },
+        {
+          "second": 84,
+          "third": 83
+        },
+        {
+          "second": 84,
+          "third": 99
+        },
+        {
+          "second": 140,
+          "third": 125
+        },
+        {
+          "second": 140,
+          "third": 141
+        },
+        {
+          "second": 144,
+          "third": 129
+        },
+        {
+          "second": 144,
+          "third": 143
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 10,
+        "literalSource": 2,
+        "reducedSource": 8,
+        "oldComputed": 5,
+        "missing": 207
+      },
+      "selectedFourth": 66,
+      "selectedFourthEvidenceSha256": "5cc2cbb5b3a348c68f142dae3af90da84771b5f8ccba471bdc40283bbb4162c0",
+      "selectedFifthMoves": [
+        112,
+        80,
+        81,
+        66,
+        94
+      ],
+      "selectedFifthPolicy": {
+        "kind": "source",
+        "id": "reduction-source-230-c8-t1-s0",
+        "sourceId": "renlib-all26",
+        "sourceOriginalId": "all26-D10-19256",
+        "move": 94
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 43,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 177
+      }
+    },
+    {
+      "familyId": "D5",
+      "title": "잔월",
+      "thirdMoves": [
+        112,
+        82,
+        81
+      ],
+      "thirdAliases": [
+        {
+          "second": 82,
+          "third": 81
+        },
+        {
+          "second": 82,
+          "third": 83
+        },
+        {
+          "second": 110,
+          "third": 95
+        },
+        {
+          "second": 110,
+          "third": 125
+        },
+        {
+          "second": 114,
+          "third": 99
+        },
+        {
+          "second": 114,
+          "third": 129
+        },
+        {
+          "second": 142,
+          "third": 141
+        },
+        {
+          "second": 142,
+          "third": 143
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 7,
+        "literalSource": 3,
+        "reducedSource": 4,
+        "oldComputed": 3,
+        "missing": 212
+      },
+      "selectedFourth": 96,
+      "selectedFourthEvidenceSha256": "5f512af61955f90d6f31636112989500d12dc3226b0bf260666d78d7fe9d9c3f",
+      "selectedFifthMoves": [
+        112,
+        82,
+        81,
+        96,
+        110
+      ],
+      "selectedFifthPolicy": {
+        "kind": "source",
+        "id": "all26-I2-30360",
+        "sourceId": "renlib-all26",
+        "sourceOriginalId": null,
+        "move": 110
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 42,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 178
+      }
+    },
+    {
+      "familyId": "D7",
+      "title": "금성",
+      "thirdMoves": [
+        112,
+        81,
+        82
+      ],
+      "thirdAliases": [
+        {
+          "second": 81,
+          "third": 82
+        },
+        {
+          "second": 83,
+          "third": 82
+        },
+        {
+          "second": 95,
+          "third": 110
+        },
+        {
+          "second": 99,
+          "third": 114
+        },
+        {
+          "second": 125,
+          "third": 110
+        },
+        {
+          "second": 129,
+          "third": 114
+        },
+        {
+          "second": 141,
+          "third": 142
+        },
+        {
+          "second": 143,
+          "third": 142
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 10,
+        "literalSource": 4,
+        "reducedSource": 6,
+        "oldComputed": 4,
+        "missing": 208
+      },
+      "selectedFourth": 97,
+      "selectedFourthEvidenceSha256": "ef64f37f4313dad56870414f5bfc8f53d7cf4446e8395dfdc013a2695a0167c6",
+      "selectedFifthMoves": [
+        112,
+        81,
+        82,
+        97,
+        113
+      ],
+      "selectedFifthPolicy": {
+        "kind": "old-computed",
+        "id": "computed-four-D1-p5-G10",
+        "sourceId": null,
+        "sourceOriginalId": null,
+        "move": 113,
+        "resultSha256": "a062d54bff0b147dfbb0d9e8cf5bc3d25a5f2fa7f90fff97ed24bfe7548666b8"
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 1,
+        "oldComputed": 1,
+        "urgent": 0,
+        "missing": 218
+      }
+    },
+    {
+      "familyId": "D8",
+      "title": "송월",
+      "thirdMoves": [
+        112,
+        82,
+        97
+      ],
+      "thirdAliases": [
+        {
+          "second": 82,
+          "third": 97
+        },
+        {
+          "second": 110,
+          "third": 111
+        },
+        {
+          "second": 114,
+          "third": 113
+        },
+        {
+          "second": 142,
+          "third": 127
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 11,
+        "literalSource": 4,
+        "reducedSource": 7,
+        "oldComputed": 1,
+        "missing": 210
+      },
+      "selectedFourth": 96,
+      "selectedFourthEvidenceSha256": "bb254900d7cdece1981e2c9967ece1c19f4d94fe9b9b53141dfb4abe2e0b1fde",
+      "selectedFifthMoves": [
+        112,
+        82,
+        97,
+        96,
+        110
+      ],
+      "selectedFifthPolicy": {
+        "kind": "source",
+        "id": "all26-I6-36784",
+        "sourceId": "renlib-all26",
+        "sourceOriginalId": null,
+        "move": 110
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 40,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 180
+      }
+    },
+    {
+      "familyId": "D9",
+      "title": "구월",
+      "thirdMoves": [
+        112,
+        81,
+        96
+      ],
+      "thirdAliases": [
+        {
+          "second": 81,
+          "third": 96
+        },
+        {
+          "second": 83,
+          "third": 98
+        },
+        {
+          "second": 95,
+          "third": 96
+        },
+        {
+          "second": 99,
+          "third": 98
+        },
+        {
+          "second": 125,
+          "third": 126
+        },
+        {
+          "second": 129,
+          "third": 128
+        },
+        {
+          "second": 141,
+          "third": 126
+        },
+        {
+          "second": 143,
+          "third": 128
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 2,
+        "literalSource": 1,
+        "reducedSource": 1,
+        "oldComputed": 6,
+        "missing": 214
+      },
+      "selectedFourth": 82,
+      "selectedFourthEvidenceSha256": "a7ad4a8b8a837886a2bba2381308f86646c0bee433cbd2d00bca9e84b53d7468",
+      "selectedFifthMoves": [
+        112,
+        81,
+        96,
+        82,
+        98
+      ],
+      "selectedFifthPolicy": {
+        "kind": "new-computed",
+        "id": "computed-reduction-p5-d5180967c6decb4e",
+        "move": 98,
+        "resultSha256": "6925ce717ba93c4e836175b5551b2d2adfba3e3527aa1fa1451fe6cbd4978f6f"
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 0,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 220
+      }
+    },
+    {
+      "familyId": "I11",
+      "title": "사월",
+      "thirdMoves": [
+        112,
+        80,
+        96
+      ],
+      "thirdAliases": [
+        {
+          "second": 80,
+          "third": 96
+        },
+        {
+          "second": 84,
+          "third": 98
+        },
+        {
+          "second": 140,
+          "third": 126
+        },
+        {
+          "second": 144,
+          "third": 128
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 8,
+        "literalSource": 4,
+        "reducedSource": 4,
+        "oldComputed": 3,
+        "missing": 211
+      },
+      "selectedFourth": 82,
+      "selectedFourthEvidenceSha256": "ae47e2fad9a7e37c3b889498cfa166deb214f0b6616e39f2b8e1152321293231",
+      "selectedFifthMoves": [
+        112,
+        80,
+        96,
+        82,
+        98
+      ],
+      "selectedFifthPolicy": {
+        "kind": "new-computed",
+        "id": "computed-reduction-p5-8e12b7a8a6e335a5",
+        "move": 98,
+        "resultSha256": "02a72ca9ccf0b590de7877050b3c4c39d74da781614ce74a94a89852c1ccea20"
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 0,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 220
+      }
+    },
+    {
+      "familyId": "I4",
+      "title": "수월",
+      "thirdMoves": [
+        112,
+        81,
+        95
+      ],
+      "thirdAliases": [
+        {
+          "second": 81,
+          "third": 95
+        },
+        {
+          "second": 83,
+          "third": 99
+        },
+        {
+          "second": 95,
+          "third": 81
+        },
+        {
+          "second": 99,
+          "third": 83
+        },
+        {
+          "second": 125,
+          "third": 141
+        },
+        {
+          "second": 129,
+          "third": 143
+        },
+        {
+          "second": 141,
+          "third": 125
+        },
+        {
+          "second": 143,
+          "third": 129
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 5,
+        "literalSource": 2,
+        "reducedSource": 3,
+        "oldComputed": 6,
+        "missing": 211
+      },
+      "selectedFourth": 97,
+      "selectedFourthEvidenceSha256": "dd5f68db0593f7f72b86c1c7a119de32ab19a5372266d72016fe349f58addb4a",
+      "selectedFifthMoves": [
+        112,
+        81,
+        95,
+        97,
+        80
+      ],
+      "selectedFifthPolicy": {
+        "kind": "old-computed",
+        "id": "computed-remaining-D5-p5-I10",
+        "sourceId": null,
+        "sourceOriginalId": null,
+        "move": 80,
+        "resultSha256": "f73da4f5065f1011fb2e3fe3a01d31368c991dfb581a9efc3f34141c9ac2dd5d"
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 0,
+        "oldComputed": 1,
+        "urgent": 0,
+        "missing": 219
+      }
+    },
+    {
+      "familyId": "I7",
+      "title": "포월",
+      "thirdMoves": [
+        112,
+        82,
+        96
+      ],
+      "thirdAliases": [
+        {
+          "second": 82,
+          "third": 96
+        },
+        {
+          "second": 82,
+          "third": 98
+        },
+        {
+          "second": 110,
+          "third": 96
+        },
+        {
+          "second": 110,
+          "third": 126
+        },
+        {
+          "second": 114,
+          "third": 98
+        },
+        {
+          "second": 114,
+          "third": 128
+        },
+        {
+          "second": 142,
+          "third": 126
+        },
+        {
+          "second": 142,
+          "third": 128
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 8,
+        "literalSource": 3,
+        "reducedSource": 5,
+        "oldComputed": 3,
+        "missing": 211
+      },
+      "selectedFourth": 80,
+      "selectedFourthEvidenceSha256": "8e50144733816d31713638ab867dd80a81aa377ff73fe1be8458803b622148e0",
+      "selectedFifthMoves": [
+        112,
+        82,
+        96,
+        80,
+        98
+      ],
+      "selectedFifthPolicy": {
+        "kind": "source",
+        "id": "reduction-source-775-c15-t6-s0",
+        "sourceId": "renlib-I7",
+        "sourceOriginalId": "i7-connected-148-0",
+        "move": 98
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 46,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 174
+      }
+    },
+    {
+      "familyId": "I9",
+      "title": "은월",
+      "thirdMoves": [
+        112,
+        81,
+        97
+      ],
+      "thirdAliases": [
+        {
+          "second": 81,
+          "third": 97
+        },
+        {
+          "second": 83,
+          "third": 97
+        },
+        {
+          "second": 95,
+          "third": 111
+        },
+        {
+          "second": 99,
+          "third": 113
+        },
+        {
+          "second": 125,
+          "third": 111
+        },
+        {
+          "second": 129,
+          "third": 113
+        },
+        {
+          "second": 141,
+          "third": 127
+        },
+        {
+          "second": 143,
+          "third": 127
+        }
+      ],
+      "legalFourths": 222,
+      "nonterminalFourths": 222,
+      "terminalFourths": 0,
+      "baselineFifths": {
+        "source": 9,
+        "literalSource": 2,
+        "reducedSource": 7,
+        "oldComputed": 3,
+        "missing": 210
+      },
+      "selectedFourth": 82,
+      "selectedFourthEvidenceSha256": "e60718e06c315786e8b01e9a3d7ceb448c470e25ef538540d6716a92fbebfbeb",
+      "selectedFifthMoves": [
+        112,
+        81,
+        97,
+        82,
+        83
+      ],
+      "selectedFifthPolicy": {
+        "kind": "source",
+        "id": "reduction-source-616-c17-t2-s0",
+        "sourceId": "renlib-all26",
+        "sourceOriginalId": "all26-I9-53392",
+        "move": 83
+      },
+      "legalSixths": 220,
+      "nonterminalSixths": 220,
+      "terminalSixths": 0,
+      "baselineSevenths": {
+        "source": 4,
+        "oldComputed": 0,
+        "urgent": 0,
+        "missing": 216
+      }
+    }
+  ],
+  "laterBranches": [
+    {
+      "id": "D10-r1",
+      "familyId": "D10",
+      "moves": [
+        112,
+        80,
+        81,
+        66,
+        94,
+        65,
+        95,
+        50,
+        109,
+        67,
+        64,
+        35,
+        20,
+        79,
+        93
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 94,
+          "id": "reduction-source-230-c8-t1-s0",
+          "sourceOriginalId": "all26-D10-19256"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 95,
+          "id": "reduction-source-1801-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-412322"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 109,
+          "id": "reduction-source-2181-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-441850"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 64,
+          "id": "computed-reduction-p11-dfbe46ce5f4ea7ef",
+          "sourceOriginalId": null,
+          "resultSha256": "5112a20c8b9ccdac759e55f02a6524f26c41357259f4c88321e78bad84b8dbf7",
+          "evidenceOriginalId": "outer11-dfbe46ce5f4ea7ef",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "urgent",
+          "move": 20,
+          "id": null,
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 93,
+          "id": "computed-reduction-p15-946ddc995b810888",
+          "sourceOriginalId": null,
+          "resultSha256": "f47ac7871e95cc58fbb61f26f933d29a42cc0e8b7ea750fd980e10862c16ecee",
+          "evidenceOriginalId": "outer15-946ddc995b810888",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D10",
+          "resultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f",
+          "rank": 1,
+          "move": 65,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-8605e06fb93f26cb",
+          "resultSha256": "f3410d893f715826bd2cc75b806195651d12f9736de894667a79da92eca9fc7a",
+          "budgetMs": 750,
+          "move": 50,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-eea413bdd7e61644",
+          "resultSha256": "51fd9a597ba674c98dc7b2c3488f5f91312830d7ae4b5cfdca7540fad84901a5",
+          "budgetMs": 750,
+          "move": 67,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-dfbe46ce5f4ea7ef",
+          "parentResultSha256": "5112a20c8b9ccdac759e55f02a6524f26c41357259f4c88321e78bad84b8dbf7",
+          "budgetMs": 750,
+          "rawCounterMove": 35,
+          "evidenceTransform": 0,
+          "move": 35,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-ad371ae748f70072",
+          "resultSha256": "7a631a221658a20f4c5ea4325c6f49fe707f71de4f03e72204ff3e2105b41d27",
+          "budgetMs": 750,
+          "move": 79,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f"
+    },
+    {
+      "id": "D10-r2",
+      "familyId": "D10",
+      "moves": [
+        112,
+        80,
+        81,
+        66,
+        94,
+        67,
+        65,
+        97,
+        109,
+        79,
+        110,
+        111,
+        126,
+        78,
+        154
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 94,
+          "id": "reduction-source-230-c8-t1-s0",
+          "sourceOriginalId": "all26-D10-19256"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 65,
+          "id": "reduction-source-1808-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-659046"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 109,
+          "id": "reduction-source-2367-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-659050"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 110,
+          "id": "computed-reduction-p11-8713b5d036b76a2b",
+          "sourceOriginalId": null,
+          "resultSha256": "904af35a437ee21c8269b9e63cb72adb1805edaed4e10264e9f8f342c47780ef",
+          "evidenceOriginalId": "outer11-8713b5d036b76a2b",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p13-8f3844a6dacd4b64",
+          "sourceOriginalId": null,
+          "resultSha256": "d035d2bb8500ab0c5adf8b6b6643b99d8258d3424534a9cbcbe3cb1ac676c345",
+          "evidenceOriginalId": "outer13-8f3844a6dacd4b64",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 154,
+          "id": "computed-reduction-p15-533290a8a045e9db",
+          "sourceOriginalId": null,
+          "resultSha256": "bafd049f93c61e1ee46b26d833a1d6019b0a007a210b7f97c94c38bfbddccf74",
+          "evidenceOriginalId": "outer15-533290a8a045e9db",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D10",
+          "resultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f",
+          "rank": 2,
+          "move": 67,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-7d1d3515a84a843e",
+          "resultSha256": "e1c49d0055c7999c48cb18e3ecb26c2eaa3df8f81c1af36dc08a7fb47846e3ab",
+          "budgetMs": 750,
+          "move": 97,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-466bd970a8edd649",
+          "resultSha256": "d60af93821520b0f913ad9802fd635d826f0d3531855617fd95caebcbca7075f",
+          "budgetMs": 750,
+          "move": 79,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-8713b5d036b76a2b",
+          "parentResultSha256": "904af35a437ee21c8269b9e63cb72adb1805edaed4e10264e9f8f342c47780ef",
+          "budgetMs": 750,
+          "rawCounterMove": 111,
+          "evidenceTransform": 0,
+          "move": 111,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-8f3844a6dacd4b64",
+          "parentResultSha256": "d035d2bb8500ab0c5adf8b6b6643b99d8258d3424534a9cbcbe3cb1ac676c345",
+          "budgetMs": 750,
+          "rawCounterMove": 78,
+          "evidenceTransform": 0,
+          "move": 78,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f"
+    },
+    {
+      "id": "D10-r3",
+      "familyId": "D10",
+      "moves": [
+        112,
+        80,
+        81,
+        66,
+        94,
+        82,
+        98,
+        70,
+        126,
+        140,
+        110,
+        142,
+        111,
+        113,
+        96
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 94,
+          "id": "reduction-source-230-c8-t1-s0",
+          "sourceOriginalId": "all26-D10-19256"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 98,
+          "id": "reduction-source-1809-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-746864"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 126,
+          "id": "reduction-source-2417-c8-t1-s0",
+          "sourceOriginalId": "coverage-D10-1-758082"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 110,
+          "id": "computed-reduction-p11-d110b7dfea789e08",
+          "sourceOriginalId": null,
+          "resultSha256": "e2f0c38e3b5b2d41eedad6bb4b6ead8480166e4b3e920f7e3af98950f8c866ed",
+          "evidenceOriginalId": "outer11-d110b7dfea789e08",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p13-72db36ad9e105e30",
+          "sourceOriginalId": null,
+          "resultSha256": "6e90eb05e3eda10ae4374dad22e87ef31156a5fc9f5c0f8fd89bd8823c4dac03",
+          "evidenceOriginalId": "outer13-72db36ad9e105e30",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 96,
+          "id": "computed-reduction-p15-ba09a1cee05154e5",
+          "sourceOriginalId": null,
+          "resultSha256": "0991d7e85b3e4b9d726178d7a65a7f883c30304444bccbc0557d395e44f8b6fa",
+          "evidenceOriginalId": "outer15-ba09a1cee05154e5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D10",
+          "resultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f",
+          "rank": 3,
+          "move": 82,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-4a6adcf9fe8daf10",
+          "resultSha256": "9fd2ce052f85785aa1f71b1118c9b76a2619275fa846ed7f3d50c35a87aed2cb",
+          "budgetMs": 750,
+          "move": 70,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-c21d29229ea6c71f",
+          "resultSha256": "905f5279870b46dbaeacdc8c0ea343179a8069d25802124a36394229c939febc",
+          "budgetMs": 750,
+          "move": 140,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-d110b7dfea789e08",
+          "parentResultSha256": "e2f0c38e3b5b2d41eedad6bb4b6ead8480166e4b3e920f7e3af98950f8c866ed",
+          "budgetMs": 750,
+          "rawCounterMove": 142,
+          "evidenceTransform": 0,
+          "move": 142,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-72db36ad9e105e30",
+          "parentResultSha256": "6e90eb05e3eda10ae4374dad22e87ef31156a5fc9f5c0f8fd89bd8823c4dac03",
+          "budgetMs": 750,
+          "rawCounterMove": 113,
+          "evidenceTransform": 0,
+          "move": 113,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c545760e92d68e3814029e17a8f30cdad1206e742e4ae07c7e5d33940075b36f"
+    },
+    {
+      "id": "I11-r1",
+      "familyId": "I11",
+      "moves": [
+        112,
+        80,
+        96,
+        82,
+        98,
+        94,
+        126,
+        84,
+        154,
+        140,
+        83,
+        113,
+        99,
+        97,
+        67
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-8e12b7a8a6e335a5",
+          "sourceOriginalId": null,
+          "resultSha256": "02a72ca9ccf0b590de7877050b3c4c39d74da781614ce74a94a89852c1ccea20",
+          "evidenceOriginalId": "outer5-8e12b7a8a6e335a5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p7-95832b73b71cd589",
+          "sourceOriginalId": null,
+          "resultSha256": "1e483bf4798b6f02a4e2d1addba0d04396dc3d5df7579951faca41db4c0795b4",
+          "evidenceOriginalId": "outer7-95832b73b71cd589",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 154,
+          "id": "computed-reduction-p9-743a3497355442f4",
+          "sourceOriginalId": null,
+          "resultSha256": "98bdf74ebeae1c1ff730570cfc090b3d3668dfa107913442c6e847f65df678aa",
+          "evidenceOriginalId": "outer9-743a3497355442f4",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 83,
+          "id": "computed-reduction-p11-e760474a53d4f5cb",
+          "sourceOriginalId": null,
+          "resultSha256": "4da069eb1de9c16e303a94aeb38baa198afc7a6fe7b4b5c9847559dc77e52e44",
+          "evidenceOriginalId": "outer11-e760474a53d4f5cb",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 99,
+          "id": "computed-reduction-p13-cce458da441df483",
+          "sourceOriginalId": null,
+          "resultSha256": "8753f74abfae501ece13b8bb05518255030189a8df59a65d478a37b5c8f88ccc",
+          "evidenceOriginalId": "outer13-cce458da441df483",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 67,
+          "id": "computed-reduction-p15-992e12d651d53b26",
+          "sourceOriginalId": null,
+          "resultSha256": "9cf5fce4465649e5a004a56c725e3c4a81063633b9b327fa2f4604f9ef922cd0",
+          "evidenceOriginalId": "outer15-992e12d651d53b26",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I11",
+          "resultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a",
+          "rank": 1,
+          "move": 94,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-95832b73b71cd589",
+          "parentResultSha256": "1e483bf4798b6f02a4e2d1addba0d04396dc3d5df7579951faca41db4c0795b4",
+          "budgetMs": 750,
+          "rawCounterMove": 84,
+          "evidenceTransform": 0,
+          "move": 84,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-743a3497355442f4",
+          "parentResultSha256": "98bdf74ebeae1c1ff730570cfc090b3d3668dfa107913442c6e847f65df678aa",
+          "budgetMs": 750,
+          "rawCounterMove": 140,
+          "evidenceTransform": 0,
+          "move": 140,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-e760474a53d4f5cb",
+          "parentResultSha256": "4da069eb1de9c16e303a94aeb38baa198afc7a6fe7b4b5c9847559dc77e52e44",
+          "budgetMs": 750,
+          "rawCounterMove": 113,
+          "evidenceTransform": 0,
+          "move": 113,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-cce458da441df483",
+          "parentResultSha256": "8753f74abfae501ece13b8bb05518255030189a8df59a65d478a37b5c8f88ccc",
+          "budgetMs": 750,
+          "rawCounterMove": 97,
+          "evidenceTransform": 0,
+          "move": 97,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a"
+    },
+    {
+      "id": "I11-r2",
+      "familyId": "I11",
+      "moves": [
+        112,
+        80,
+        96,
+        82,
+        98,
+        52,
+        97,
+        95,
+        126,
+        140,
+        111,
+        81,
+        84,
+        70,
+        79
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-8e12b7a8a6e335a5",
+          "sourceOriginalId": null,
+          "resultSha256": "02a72ca9ccf0b590de7877050b3c4c39d74da781614ce74a94a89852c1ccea20",
+          "evidenceOriginalId": "outer5-8e12b7a8a6e335a5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 97,
+          "id": "computed-reduction-p7-e9d064e89e33f16b",
+          "sourceOriginalId": null,
+          "resultSha256": "e22a1acee5fadf87cd38cbcedb17b4560c1ce7bb6531de83eba9589c2a2752e1",
+          "evidenceOriginalId": "outer7-e9d064e89e33f16b",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p9-08c87a3c10c62627",
+          "sourceOriginalId": null,
+          "resultSha256": "f0afa59b29e61964e1a9229219cb489390f0eeb7533605232a30d6b0408136ac",
+          "evidenceOriginalId": "outer9-08c87a3c10c62627",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p11-fec6ff4995344bc2",
+          "sourceOriginalId": null,
+          "resultSha256": "a492289bf64269016626fa30af3a6f75a95e5802cfc01c0df70a020ffd381e5a",
+          "evidenceOriginalId": "outer11-d71c9c2c67dd8deb",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 84,
+          "id": "computed-reduction-p13-4bded7ef29616471",
+          "sourceOriginalId": null,
+          "resultSha256": "5debfa637c9919fe7149bdb37990a42e2cd50663b54302e6d5adb9f1893d74fe",
+          "evidenceOriginalId": "outer13-4bded7ef29616471",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 79,
+          "id": "computed-reduction-p15-30e80549be56dc37",
+          "sourceOriginalId": null,
+          "resultSha256": "22c9c266b9a5ab1481d6b047c299ee14c849caebf9b8be9e73aa6082ceea0431",
+          "evidenceOriginalId": "outer15-30e80549be56dc37",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I11",
+          "resultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a",
+          "rank": 2,
+          "move": 52,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-e9d064e89e33f16b",
+          "parentResultSha256": "e22a1acee5fadf87cd38cbcedb17b4560c1ce7bb6531de83eba9589c2a2752e1",
+          "budgetMs": 750,
+          "rawCounterMove": 95,
+          "evidenceTransform": 0,
+          "move": 95,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-08c87a3c10c62627",
+          "parentResultSha256": "f0afa59b29e61964e1a9229219cb489390f0eeb7533605232a30d6b0408136ac",
+          "budgetMs": 750,
+          "rawCounterMove": 140,
+          "evidenceTransform": 0,
+          "move": 140,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-d71c9c2c67dd8deb",
+          "parentResultSha256": "a492289bf64269016626fa30af3a6f75a95e5802cfc01c0df70a020ffd381e5a",
+          "budgetMs": 750,
+          "rawCounterMove": 81,
+          "evidenceTransform": 0,
+          "move": 81,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-4bded7ef29616471",
+          "parentResultSha256": "5debfa637c9919fe7149bdb37990a42e2cd50663b54302e6d5adb9f1893d74fe",
+          "budgetMs": 750,
+          "rawCounterMove": 70,
+          "evidenceTransform": 0,
+          "move": 70,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a"
+    },
+    {
+      "id": "I11-r3",
+      "familyId": "I11",
+      "moves": [
+        112,
+        80,
+        96,
+        82,
+        98,
+        66,
+        97,
+        95,
+        84,
+        126,
+        99,
+        100,
+        114,
+        129,
+        113
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-8e12b7a8a6e335a5",
+          "sourceOriginalId": null,
+          "resultSha256": "02a72ca9ccf0b590de7877050b3c4c39d74da781614ce74a94a89852c1ccea20",
+          "evidenceOriginalId": "outer5-8e12b7a8a6e335a5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 97,
+          "id": "computed-reduction-p7-b7c144740b9e5faf",
+          "sourceOriginalId": null,
+          "resultSha256": "e9ffae718adbc1384ee0776b9f8bfe535b7e1d1bf5e758d465db40f3af478096",
+          "evidenceOriginalId": "outer7-b7c144740b9e5faf",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 84,
+          "id": "computed-reduction-p9-e89bff06067fddea",
+          "sourceOriginalId": null,
+          "resultSha256": "a92c90195c30336feaf32abc986480785c2c492561dadca27c6d664643f1bcc2",
+          "evidenceOriginalId": "outer9-e89bff06067fddea",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 99,
+          "id": "computed-reduction-p11-9f8037ce8c29522a",
+          "sourceOriginalId": null,
+          "resultSha256": "ffba1b26697c79efdc102a5f4df441ca8de9b28a54709a42313ed51065517cd9",
+          "evidenceOriginalId": "outer11-9f8037ce8c29522a",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 114,
+          "id": "computed-reduction-p13-b42e8a42101d5a96",
+          "sourceOriginalId": null,
+          "resultSha256": "d28306d32a2ebdb68472bb723a5293c3e4fe3d920c9ddb1adf8135508dad64e3",
+          "evidenceOriginalId": "outer13-b42e8a42101d5a96",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 113,
+          "id": "computed-reduction-p15-04f071caa277f712",
+          "sourceOriginalId": null,
+          "resultSha256": "67aa22252480509a0dbee7db1736a06514e93ff6ae7a4a278c76217c43b3093b",
+          "evidenceOriginalId": "outer15-04f071caa277f712",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I11",
+          "resultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a",
+          "rank": 3,
+          "move": 66,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-b7c144740b9e5faf",
+          "parentResultSha256": "e9ffae718adbc1384ee0776b9f8bfe535b7e1d1bf5e758d465db40f3af478096",
+          "budgetMs": 750,
+          "rawCounterMove": 95,
+          "evidenceTransform": 0,
+          "move": 95,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-e89bff06067fddea",
+          "parentResultSha256": "a92c90195c30336feaf32abc986480785c2c492561dadca27c6d664643f1bcc2",
+          "budgetMs": 750,
+          "rawCounterMove": 126,
+          "evidenceTransform": 0,
+          "move": 126,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-9f8037ce8c29522a",
+          "parentResultSha256": "ffba1b26697c79efdc102a5f4df441ca8de9b28a54709a42313ed51065517cd9",
+          "budgetMs": 750,
+          "rawCounterMove": 100,
+          "evidenceTransform": 0,
+          "move": 100,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-b42e8a42101d5a96",
+          "parentResultSha256": "d28306d32a2ebdb68472bb723a5293c3e4fe3d920c9ddb1adf8135508dad64e3",
+          "budgetMs": 750,
+          "rawCounterMove": 129,
+          "evidenceTransform": 0,
+          "move": 129,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "e3a2ebaacab40d9bd0f58446f18dcc7bdb61cad8ed24dc20b07892dcafbfae5a"
+    },
+    {
+      "id": "D7-r1",
+      "familyId": "D7",
+      "moves": [
+        112,
+        81,
+        82,
+        97,
+        113,
+        83,
+        111,
+        110,
+        98,
+        115,
+        66,
+        114,
+        126,
+        140,
+        50
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 113,
+          "id": "computed-four-D1-p5-G10",
+          "sourceOriginalId": null,
+          "resultSha256": "a062d54bff0b147dfbb0d9e8cf5bc3d25a5f2fa7f90fff97ed24bfe7548666b8"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p7-5bb8a57f14c6c9fa",
+          "sourceOriginalId": null,
+          "resultSha256": "35a02cc996362c66b0cea713f28fb22e474ccf03c3f5fef1d46bc99d542b5067",
+          "evidenceOriginalId": "outer7-5bb8a57f14c6c9fa",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p9-01534fa53a540d25",
+          "sourceOriginalId": null,
+          "resultSha256": "af24c773cba5c97d401e39c1861d65af15534e12a01dc2e7a2f061c431d4b49c",
+          "evidenceOriginalId": "outer9-01534fa53a540d25",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 66,
+          "id": "computed-reduction-p11-18b40d4517cca6e6",
+          "sourceOriginalId": null,
+          "resultSha256": "d374af6be1bacfa865c0d95ea35f9f9b3978c5f7403bcaea7bc1d91ea9a553ef",
+          "evidenceOriginalId": "outer11-18b40d4517cca6e6",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p13-3504962758ac02e0",
+          "sourceOriginalId": null,
+          "resultSha256": "c6c034f29b982e682ac72f1c0d6e925084677b7bae8ec638b2962e26916a1ade",
+          "evidenceOriginalId": "outer13-3504962758ac02e0",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 50,
+          "id": "computed-reduction-p15-43af32f5945c238b",
+          "sourceOriginalId": null,
+          "resultSha256": "1a0ac7a957faa8abef5b432f9b44bb26d2081100aab31573b2752e083485c29b",
+          "evidenceOriginalId": "outer15-43af32f5945c238b",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D7",
+          "resultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796",
+          "rank": 1,
+          "move": 83,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-5bb8a57f14c6c9fa",
+          "parentResultSha256": "35a02cc996362c66b0cea713f28fb22e474ccf03c3f5fef1d46bc99d542b5067",
+          "budgetMs": 750,
+          "rawCounterMove": 110,
+          "evidenceTransform": 0,
+          "move": 110,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-01534fa53a540d25",
+          "parentResultSha256": "af24c773cba5c97d401e39c1861d65af15534e12a01dc2e7a2f061c431d4b49c",
+          "budgetMs": 750,
+          "rawCounterMove": 115,
+          "evidenceTransform": 0,
+          "move": 115,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-18b40d4517cca6e6",
+          "parentResultSha256": "d374af6be1bacfa865c0d95ea35f9f9b3978c5f7403bcaea7bc1d91ea9a553ef",
+          "budgetMs": 750,
+          "rawCounterMove": 114,
+          "evidenceTransform": 0,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-3504962758ac02e0",
+          "parentResultSha256": "c6c034f29b982e682ac72f1c0d6e925084677b7bae8ec638b2962e26916a1ade",
+          "budgetMs": 750,
+          "rawCounterMove": 140,
+          "evidenceTransform": 0,
+          "move": 140,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796"
+    },
+    {
+      "id": "D7-r2",
+      "familyId": "D7",
+      "moves": [
+        112,
+        81,
+        82,
+        97,
+        113,
+        111,
+        96,
+        128,
+        98,
+        125,
+        83,
+        68,
+        127,
+        84,
+        114
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 113,
+          "id": "computed-four-D1-p5-G10",
+          "sourceOriginalId": null,
+          "resultSha256": "a062d54bff0b147dfbb0d9e8cf5bc3d25a5f2fa7f90fff97ed24bfe7548666b8"
+        },
+        {
+          "ply": 7,
+          "kind": "old-computed",
+          "move": 96,
+          "id": "computed-four-followup-D1-f4eb9bb1f02a79b42b21f-a0",
+          "sourceOriginalId": null,
+          "resultSha256": "7d5f2b81912558c78a9c26508eb14589f4e705919ab08828e7efcf420b652aec"
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p9-c934630c3ad1ee12",
+          "sourceOriginalId": null,
+          "resultSha256": "b6fd8cf31c1bc9796aab2fd1888b1c2ead975cde093eb695d7f4191e2acad1f6",
+          "evidenceOriginalId": "outer9-c934630c3ad1ee12",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 83,
+          "id": "computed-reduction-p11-fba05807eb18c09a",
+          "sourceOriginalId": null,
+          "resultSha256": "74f9b98ce04beadf46b83f40c66114b00552d8af0f8eafa5287c832a26fb15f0",
+          "evidenceOriginalId": "outer11-fba05807eb18c09a",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 127,
+          "id": "computed-reduction-p13-e8356c4f7855dba5",
+          "sourceOriginalId": null,
+          "resultSha256": "b4b72f1150d8f05d9a1d5893825f879cf6016a156de9cbb938de2c43bc5f780c",
+          "evidenceOriginalId": "outer13-e8356c4f7855dba5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 114,
+          "id": "computed-reduction-p15-d9561ed3a5ca56ad",
+          "sourceOriginalId": null,
+          "resultSha256": "c5cf9638ac400ae621b4fe0e07b270a307f81b1a1be43218ad7c636ecf7676bc",
+          "evidenceOriginalId": "outer15-d9561ed3a5ca56ad",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D7",
+          "resultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796",
+          "rank": 2,
+          "move": 111,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-b53084d3ec3250f9",
+          "resultSha256": "a6dbd93c173d0d981f4a257ee1a180c3f21e9087a7c79dc0b2a04ee56899d00c",
+          "budgetMs": 750,
+          "move": 128,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-c934630c3ad1ee12",
+          "parentResultSha256": "b6fd8cf31c1bc9796aab2fd1888b1c2ead975cde093eb695d7f4191e2acad1f6",
+          "budgetMs": 750,
+          "rawCounterMove": 125,
+          "evidenceTransform": 0,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-fba05807eb18c09a",
+          "parentResultSha256": "74f9b98ce04beadf46b83f40c66114b00552d8af0f8eafa5287c832a26fb15f0",
+          "budgetMs": 750,
+          "rawCounterMove": 68,
+          "evidenceTransform": 0,
+          "move": 68,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-e8356c4f7855dba5",
+          "parentResultSha256": "b4b72f1150d8f05d9a1d5893825f879cf6016a156de9cbb938de2c43bc5f780c",
+          "budgetMs": 750,
+          "rawCounterMove": 84,
+          "evidenceTransform": 0,
+          "move": 84,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796"
+    },
+    {
+      "id": "D7-r3",
+      "familyId": "D7",
+      "moves": [
+        112,
+        81,
+        82,
+        97,
+        113,
+        95,
+        114,
+        111,
+        98,
+        66,
+        126,
+        96,
+        51,
+        84,
+        115
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 113,
+          "id": "computed-four-D1-p5-G10",
+          "sourceOriginalId": null,
+          "resultSha256": "a062d54bff0b147dfbb0d9e8cf5bc3d25a5f2fa7f90fff97ed24bfe7548666b8"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 114,
+          "id": "computed-reduction-p7-d07e85edc1103819",
+          "sourceOriginalId": null,
+          "resultSha256": "034e1c8d784cacd9f66b9dcbaae61acfc1819d18449a68cdb40bc93c1e4d68d6",
+          "evidenceOriginalId": "outer7-d07e85edc1103819",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p9-e907b3dd5ae91b15",
+          "sourceOriginalId": null,
+          "resultSha256": "f2a19742c94ef09a9d7bc730caa44e2f4edd0b28dd49085f86407788a1a8da64",
+          "evidenceOriginalId": "outer9-e907b3dd5ae91b15",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p11-5e09b0466318a4f5",
+          "sourceOriginalId": null,
+          "resultSha256": "5a27d39e2fc1758ed6334a45aae79697b40035069a8b414930e70ff159cbf6e7",
+          "evidenceOriginalId": "outer11-5e09b0466318a4f5",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "urgent",
+          "move": 51,
+          "id": null,
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 115,
+          "id": "computed-reduction-p15-08fee465918627f9",
+          "sourceOriginalId": null,
+          "resultSha256": "c0d2eb5b7b5f7700795cc02a024f3517632f00f70a4a66ee23f52b5d15a262a5",
+          "evidenceOriginalId": "outer15-08fee465918627f9",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D7",
+          "resultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796",
+          "rank": 3,
+          "move": 95,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-d07e85edc1103819",
+          "parentResultSha256": "034e1c8d784cacd9f66b9dcbaae61acfc1819d18449a68cdb40bc93c1e4d68d6",
+          "budgetMs": 750,
+          "rawCounterMove": 111,
+          "evidenceTransform": 0,
+          "move": 111,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-e907b3dd5ae91b15",
+          "parentResultSha256": "f2a19742c94ef09a9d7bc730caa44e2f4edd0b28dd49085f86407788a1a8da64",
+          "budgetMs": 750,
+          "rawCounterMove": 66,
+          "evidenceTransform": 0,
+          "move": 66,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-5e09b0466318a4f5",
+          "parentResultSha256": "5a27d39e2fc1758ed6334a45aae79697b40035069a8b414930e70ff159cbf6e7",
+          "budgetMs": 750,
+          "rawCounterMove": 96,
+          "evidenceTransform": 0,
+          "move": 96,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-dc4f1c15195b75a1",
+          "resultSha256": "891dacd1880da3f5a2c3324d1395ea716f95339414670ca6afa0de12ef1011ca",
+          "budgetMs": 750,
+          "move": 84,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "5528feb8b333db487b1cc65241e58a5d422039e10a813e34b0bffd9356642796"
+    },
+    {
+      "id": "I4-r1",
+      "familyId": "I4",
+      "moves": [
+        112,
+        81,
+        95,
+        97,
+        80,
+        96,
+        111,
+        113,
+        65,
+        110,
+        79,
+        63,
+        51,
+        93,
+        35
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 80,
+          "id": "computed-remaining-D5-p5-I10",
+          "sourceOriginalId": null,
+          "resultSha256": "f73da4f5065f1011fb2e3fe3a01d31368c991dfb581a9efc3f34141c9ac2dd5d"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p7-88d2e20ebb665af9",
+          "sourceOriginalId": null,
+          "resultSha256": "4a341aa8c021c0cfb02a2664b18332c564e292e24c5a37657031580affc5ac87",
+          "evidenceOriginalId": "outer7-88d2e20ebb665af9",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 65,
+          "id": "computed-reduction-p9-cb320a25d8071938",
+          "sourceOriginalId": null,
+          "resultSha256": "0eb7466f80dcd807b5c3e8957d290d4816e57c0dd8a781b16f082d36542f959b",
+          "evidenceOriginalId": "outer9-cb320a25d8071938",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 79,
+          "id": "computed-reduction-p11-1961407e6470ab73",
+          "sourceOriginalId": null,
+          "resultSha256": "9bfe06009121e3c96e2431df49f90043fcab76abdcb8d44858d45ac5bcfe87d9",
+          "evidenceOriginalId": "outer11-1961407e6470ab73",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 51,
+          "id": "computed-reduction-p13-c44ec2cb7f04e9ad",
+          "sourceOriginalId": null,
+          "resultSha256": "dbf436045f3471c7c9e3ff77b19b51372774ae1ce076742ba2ee3f553f9979f5",
+          "evidenceOriginalId": "outer13-c44ec2cb7f04e9ad",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 35,
+          "id": "computed-reduction-p15-713ac3e2cf2ee3c2",
+          "sourceOriginalId": null,
+          "resultSha256": "e34c3ce36eb3ff520b043b22fc2b313424eeaa1dca4c7d2240839c6ad5db07dd",
+          "evidenceOriginalId": "outer15-713ac3e2cf2ee3c2",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I4",
+          "resultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b",
+          "rank": 1,
+          "move": 96,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-88d2e20ebb665af9",
+          "parentResultSha256": "4a341aa8c021c0cfb02a2664b18332c564e292e24c5a37657031580affc5ac87",
+          "budgetMs": 750,
+          "rawCounterMove": 113,
+          "evidenceTransform": 0,
+          "move": 113,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-cb320a25d8071938",
+          "parentResultSha256": "0eb7466f80dcd807b5c3e8957d290d4816e57c0dd8a781b16f082d36542f959b",
+          "budgetMs": 750,
+          "rawCounterMove": 110,
+          "evidenceTransform": 0,
+          "move": 110,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-1961407e6470ab73",
+          "parentResultSha256": "9bfe06009121e3c96e2431df49f90043fcab76abdcb8d44858d45ac5bcfe87d9",
+          "budgetMs": 750,
+          "rawCounterMove": 63,
+          "evidenceTransform": 0,
+          "move": 63,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-c44ec2cb7f04e9ad",
+          "parentResultSha256": "dbf436045f3471c7c9e3ff77b19b51372774ae1ce076742ba2ee3f553f9979f5",
+          "budgetMs": 750,
+          "rawCounterMove": 93,
+          "evidenceTransform": 0,
+          "move": 93,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b"
+    },
+    {
+      "id": "I4-r2",
+      "familyId": "I4",
+      "moves": [
+        112,
+        81,
+        95,
+        97,
+        80,
+        125,
+        96,
+        128,
+        65,
+        50,
+        66,
+        64,
+        94,
+        108,
+        67
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 80,
+          "id": "computed-remaining-D5-p5-I10",
+          "sourceOriginalId": null,
+          "resultSha256": "f73da4f5065f1011fb2e3fe3a01d31368c991dfb581a9efc3f34141c9ac2dd5d"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 96,
+          "id": "computed-reduction-p7-c9612c63f8676bc8",
+          "sourceOriginalId": null,
+          "resultSha256": "a6019f42ed898e216a69d2c5b78fd2b5a1cd440af3989c4a185f99099a28549b",
+          "evidenceOriginalId": "outer7-c9612c63f8676bc8",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 65,
+          "id": "computed-reduction-p9-58aa4a460f9433f8",
+          "sourceOriginalId": null,
+          "resultSha256": "d4a68ada9564c44ea97ca952f311a8bfa7e2cd29e2d4acfb1be32b42dbc12644",
+          "evidenceOriginalId": "outer9-58aa4a460f9433f8",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 66,
+          "id": "computed-reduction-p11-cf32afbc84698a1f",
+          "sourceOriginalId": null,
+          "resultSha256": "8835d6eb41f146c86b7ed831eab01aef20b4f27fe2a6b1e17b83a80070b12509",
+          "evidenceOriginalId": "outer11-cf32afbc84698a1f",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 94,
+          "id": "computed-reduction-p13-ae6e9b440a31316f",
+          "sourceOriginalId": null,
+          "resultSha256": "d1407fedef3790c87ee99ddefaeebe9148f9c16c7d2c578ae3f662d34c1b9e11",
+          "evidenceOriginalId": "outer13-ae6e9b440a31316f",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 67,
+          "id": "computed-reduction-p15-bac745ac1ca77741",
+          "sourceOriginalId": null,
+          "resultSha256": "f1e948ae73a8857ae767f0331c1563c13e6fd7692498ee3800675699b5fe58a9",
+          "evidenceOriginalId": "outer15-bac745ac1ca77741",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I4",
+          "resultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b",
+          "rank": 2,
+          "move": 125,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-c9612c63f8676bc8",
+          "parentResultSha256": "a6019f42ed898e216a69d2c5b78fd2b5a1cd440af3989c4a185f99099a28549b",
+          "budgetMs": 750,
+          "rawCounterMove": 128,
+          "evidenceTransform": 0,
+          "move": 128,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-58aa4a460f9433f8",
+          "parentResultSha256": "d4a68ada9564c44ea97ca952f311a8bfa7e2cd29e2d4acfb1be32b42dbc12644",
+          "budgetMs": 750,
+          "rawCounterMove": 50,
+          "evidenceTransform": 0,
+          "move": 50,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-cf32afbc84698a1f",
+          "parentResultSha256": "8835d6eb41f146c86b7ed831eab01aef20b4f27fe2a6b1e17b83a80070b12509",
+          "budgetMs": 750,
+          "rawCounterMove": 64,
+          "evidenceTransform": 0,
+          "move": 64,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-ae6e9b440a31316f",
+          "parentResultSha256": "d1407fedef3790c87ee99ddefaeebe9148f9c16c7d2c578ae3f662d34c1b9e11",
+          "budgetMs": 750,
+          "rawCounterMove": 108,
+          "evidenceTransform": 0,
+          "move": 108,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b"
+    },
+    {
+      "id": "I4-r3",
+      "familyId": "I4",
+      "moves": [
+        112,
+        81,
+        95,
+        97,
+        80,
+        110,
+        96,
+        64,
+        113,
+        144,
+        111,
+        114,
+        127,
+        143,
+        141
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "old-computed",
+          "move": 80,
+          "id": "computed-remaining-D5-p5-I10",
+          "sourceOriginalId": null,
+          "resultSha256": "f73da4f5065f1011fb2e3fe3a01d31368c991dfb581a9efc3f34141c9ac2dd5d"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 96,
+          "id": "computed-reduction-p7-5b5b319f8eaa0afc",
+          "sourceOriginalId": null,
+          "resultSha256": "f1aeb9cc23575691664d9a8a0ef576a984d16682d9527a0ae3964d4eb82a3656",
+          "evidenceOriginalId": "outer7-5b5b319f8eaa0afc",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 113,
+          "id": "computed-reduction-p9-38147c194947e566",
+          "sourceOriginalId": null,
+          "resultSha256": "99adda805e17c0455666a7eb10ddceb8bd84ab10a1ce1b7144a67cf2ef9cda64",
+          "evidenceOriginalId": "outer9-38147c194947e566",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p11-95fb23063330de33",
+          "sourceOriginalId": null,
+          "resultSha256": "9699866b7e708d0a37eb44b90544f0c55be85a979e45aeb00e2083a8faa31ee9",
+          "evidenceOriginalId": "outer11-95fb23063330de33",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 127,
+          "id": "computed-reduction-p13-919a7b300ad0bb3e",
+          "sourceOriginalId": null,
+          "resultSha256": "36262ee679cfb0d86949eca99364923d6fb426e4fbabd93c2ae7c6f2403933ea",
+          "evidenceOriginalId": "outer13-919a7b300ad0bb3e",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 141,
+          "id": "computed-reduction-p15-bac3469bd34b244d",
+          "sourceOriginalId": null,
+          "resultSha256": "b047374481f1abf1297704f5534c709bf5d8a022b259399a36cb7162ce06e7be",
+          "evidenceOriginalId": "outer15-bac3469bd34b244d",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I4",
+          "resultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b",
+          "rank": 3,
+          "move": 110,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-5b5b319f8eaa0afc",
+          "parentResultSha256": "f1aeb9cc23575691664d9a8a0ef576a984d16682d9527a0ae3964d4eb82a3656",
+          "budgetMs": 750,
+          "rawCounterMove": 64,
+          "evidenceTransform": 0,
+          "move": 64,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-38147c194947e566",
+          "parentResultSha256": "99adda805e17c0455666a7eb10ddceb8bd84ab10a1ce1b7144a67cf2ef9cda64",
+          "budgetMs": 750,
+          "rawCounterMove": 144,
+          "evidenceTransform": 0,
+          "move": 144,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-95fb23063330de33",
+          "parentResultSha256": "9699866b7e708d0a37eb44b90544f0c55be85a979e45aeb00e2083a8faa31ee9",
+          "budgetMs": 750,
+          "rawCounterMove": 114,
+          "evidenceTransform": 0,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-919a7b300ad0bb3e",
+          "parentResultSha256": "36262ee679cfb0d86949eca99364923d6fb426e4fbabd93c2ae7c6f2403933ea",
+          "budgetMs": 750,
+          "rawCounterMove": 143,
+          "evidenceTransform": 0,
+          "move": 143,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "22f3364e680a803305a55b5052bd652a6afc0c762989616ad42379b5b3e7083b"
+    },
+    {
+      "id": "D9-r1",
+      "familyId": "D9",
+      "moves": [
+        112,
+        81,
+        96,
+        82,
+        98,
+        97,
+        84,
+        126,
+        128,
+        80,
+        79,
+        83,
+        113,
+        144,
+        111
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-d5180967c6decb4e",
+          "sourceOriginalId": null,
+          "resultSha256": "6925ce717ba93c4e836175b5551b2d2adfba3e3527aa1fa1451fe6cbd4978f6f",
+          "evidenceOriginalId": "outer5-82dd49d810063836",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 84,
+          "id": "computed-reduction-p7-e886dbd5032cf64e",
+          "sourceOriginalId": null,
+          "resultSha256": "20ab1adda0d7f4593344ed161b13497bbdb5096f90c82e4d8fe445f6f3ff711b",
+          "evidenceOriginalId": "outer7-e886dbd5032cf64e",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 128,
+          "id": "computed-reduction-p9-c7e3ea85a962bd5e",
+          "sourceOriginalId": null,
+          "resultSha256": "7c81730d4bdb08240608ebe4a547f2b486d6ad12f1fb2aae5f2fd9f97c7ec11f",
+          "evidenceOriginalId": "outer9-c7e3ea85a962bd5e",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 79,
+          "id": "computed-reduction-p11-9458ddc963b1e6e9",
+          "sourceOriginalId": null,
+          "resultSha256": "e123ceedd9bd7863a793b8b42b5a51c120637d8b3d26c95d1d84d1ba3d4bedb2",
+          "evidenceOriginalId": "outer11-9458ddc963b1e6e9",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 113,
+          "id": "computed-reduction-p13-0d83b8f6d72e8b03",
+          "sourceOriginalId": null,
+          "resultSha256": "50493f37468cc056cfd4652c6570a5c1f5df88ba1e20150487703b362137163b",
+          "evidenceOriginalId": "outer13-0d83b8f6d72e8b03",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p15-eba502d6e2249dab",
+          "sourceOriginalId": null,
+          "resultSha256": "84dea11105f61e70a41f140780cdc04a220b82643147086e5343235477e2dbdf",
+          "evidenceOriginalId": "outer15-eba502d6e2249dab",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D9",
+          "resultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea",
+          "rank": 1,
+          "move": 97,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-e886dbd5032cf64e",
+          "parentResultSha256": "20ab1adda0d7f4593344ed161b13497bbdb5096f90c82e4d8fe445f6f3ff711b",
+          "budgetMs": 750,
+          "rawCounterMove": 126,
+          "evidenceTransform": 0,
+          "move": 126,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-c7e3ea85a962bd5e",
+          "parentResultSha256": "7c81730d4bdb08240608ebe4a547f2b486d6ad12f1fb2aae5f2fd9f97c7ec11f",
+          "budgetMs": 750,
+          "rawCounterMove": 80,
+          "evidenceTransform": 0,
+          "move": 80,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-9458ddc963b1e6e9",
+          "parentResultSha256": "e123ceedd9bd7863a793b8b42b5a51c120637d8b3d26c95d1d84d1ba3d4bedb2",
+          "budgetMs": 750,
+          "rawCounterMove": 83,
+          "evidenceTransform": 0,
+          "move": 83,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-0d83b8f6d72e8b03",
+          "parentResultSha256": "50493f37468cc056cfd4652c6570a5c1f5df88ba1e20150487703b362137163b",
+          "budgetMs": 750,
+          "rawCounterMove": 144,
+          "evidenceTransform": 0,
+          "move": 144,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea"
+    },
+    {
+      "id": "D9-r2",
+      "familyId": "D9",
+      "moves": [
+        112,
+        81,
+        96,
+        82,
+        98,
+        84,
+        83,
+        97,
+        113,
+        128,
+        99,
+        51,
+        53,
+        68,
+        111
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-d5180967c6decb4e",
+          "sourceOriginalId": null,
+          "resultSha256": "6925ce717ba93c4e836175b5551b2d2adfba3e3527aa1fa1451fe6cbd4978f6f",
+          "evidenceOriginalId": "outer5-82dd49d810063836",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 83,
+          "id": "computed-reduction-p7-21c3636a4e029c90",
+          "sourceOriginalId": null,
+          "resultSha256": "3cbae3b51974c0cab61fd58fd431f485104d52ce3b2b46913b64fb3a7cf56b21",
+          "evidenceOriginalId": "outer7-21c3636a4e029c90",
+          "evidenceTransform": 0,
+          "entryTransform": 4
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 113,
+          "id": "computed-reduction-p9-6ce4fc44a507169a",
+          "sourceOriginalId": null,
+          "resultSha256": "b7abcce66807f8ba9d9fa06e7b44228598f5c6f1a18fe53f0e04db1f3cddbca6",
+          "evidenceOriginalId": "outer9-6ce4fc44a507169a",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 99,
+          "id": "computed-reduction-p11-13d890e6f7b5628a",
+          "sourceOriginalId": null,
+          "resultSha256": "4c9a06486ccadea11b4463bbc5d6aea5b125f002326dae39e67c71263fae3bf6",
+          "evidenceOriginalId": "outer11-13d890e6f7b5628a",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 53,
+          "id": "computed-reduction-p13-21a75dff0159bdac",
+          "sourceOriginalId": null,
+          "resultSha256": "ddf3b8a2c9972bb32dc0b797c835323238cca2291da6e82adc394edfdd190177",
+          "evidenceOriginalId": "outer13-21a75dff0159bdac",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p15-3ba09ecb63399cd2",
+          "sourceOriginalId": null,
+          "resultSha256": "e618c8d30754fe0be83315b7b277ce1128b973838081e8607bb972ba911b7fcb",
+          "evidenceOriginalId": "outer15-3ba09ecb63399cd2",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D9",
+          "resultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea",
+          "rank": 2,
+          "move": 84,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-21c3636a4e029c90",
+          "parentResultSha256": "3cbae3b51974c0cab61fd58fd431f485104d52ce3b2b46913b64fb3a7cf56b21",
+          "budgetMs": 750,
+          "rawCounterMove": 97,
+          "evidenceTransform": 4,
+          "move": 97,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-6ce4fc44a507169a",
+          "parentResultSha256": "b7abcce66807f8ba9d9fa06e7b44228598f5c6f1a18fe53f0e04db1f3cddbca6",
+          "budgetMs": 750,
+          "rawCounterMove": 128,
+          "evidenceTransform": 0,
+          "move": 128,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-13d890e6f7b5628a",
+          "parentResultSha256": "4c9a06486ccadea11b4463bbc5d6aea5b125f002326dae39e67c71263fae3bf6",
+          "budgetMs": 750,
+          "rawCounterMove": 51,
+          "evidenceTransform": 0,
+          "move": 51,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-21a75dff0159bdac",
+          "parentResultSha256": "ddf3b8a2c9972bb32dc0b797c835323238cca2291da6e82adc394edfdd190177",
+          "budgetMs": 750,
+          "rawCounterMove": 68,
+          "evidenceTransform": 0,
+          "move": 68,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea"
+    },
+    {
+      "id": "D9-r3",
+      "familyId": "D9",
+      "moves": [
+        112,
+        81,
+        96,
+        82,
+        98,
+        128,
+        97,
+        95,
+        126,
+        84,
+        83,
+        111,
+        99,
+        100,
+        68
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "new-computed",
+          "move": 98,
+          "id": "computed-reduction-p5-d5180967c6decb4e",
+          "sourceOriginalId": null,
+          "resultSha256": "6925ce717ba93c4e836175b5551b2d2adfba3e3527aa1fa1451fe6cbd4978f6f",
+          "evidenceOriginalId": "outer5-82dd49d810063836",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 97,
+          "id": "computed-reduction-p7-a888ef3101a2cc96",
+          "sourceOriginalId": null,
+          "resultSha256": "68ffa69073466787dbc4c66866a398c76eed4b6713152858f56752b8ddb520f2",
+          "evidenceOriginalId": "outer7-a888ef3101a2cc96",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 126,
+          "id": "computed-reduction-p9-df3c0e9ded695339",
+          "sourceOriginalId": null,
+          "resultSha256": "3d4b5e8cf7886d577a4dc743368d668efb25f4a5d2c52c2b8895f72baa5d1987",
+          "evidenceOriginalId": "outer9-df3c0e9ded695339",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 83,
+          "id": "computed-reduction-p11-72bec0076312e6b1",
+          "sourceOriginalId": null,
+          "resultSha256": "da6205cc98fe8d0fc6deec61440e8664831bd522bf83dc4359d4bb5383e1edde",
+          "evidenceOriginalId": "outer11-72bec0076312e6b1",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 99,
+          "id": "computed-reduction-p13-1a31878272bf1b03",
+          "sourceOriginalId": null,
+          "resultSha256": "13fe03ad233940bc54ba7ff34c5e8ce15975cee33d658249a78b809362e84ea6",
+          "evidenceOriginalId": "outer13-1a31878272bf1b03",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 68,
+          "id": "computed-reduction-p15-d6d0d1e89251cc84",
+          "sourceOriginalId": null,
+          "resultSha256": "dd5923dc3e931508ea8da4d427d29c44589b14c1a43292396c0be3c18a939153",
+          "evidenceOriginalId": "outer15-d6d0d1e89251cc84",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D9",
+          "resultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea",
+          "rank": 3,
+          "move": 128,
+          "budgetMs": 3000,
+          "depth": 2
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-a888ef3101a2cc96",
+          "parentResultSha256": "68ffa69073466787dbc4c66866a398c76eed4b6713152858f56752b8ddb520f2",
+          "budgetMs": 750,
+          "rawCounterMove": 95,
+          "evidenceTransform": 0,
+          "move": 95,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-df3c0e9ded695339",
+          "parentResultSha256": "3d4b5e8cf7886d577a4dc743368d668efb25f4a5d2c52c2b8895f72baa5d1987",
+          "budgetMs": 750,
+          "rawCounterMove": 84,
+          "evidenceTransform": 0,
+          "move": 84,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-72bec0076312e6b1",
+          "parentResultSha256": "da6205cc98fe8d0fc6deec61440e8664831bd522bf83dc4359d4bb5383e1edde",
+          "budgetMs": 750,
+          "rawCounterMove": 111,
+          "evidenceTransform": 0,
+          "move": 111,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-1a31878272bf1b03",
+          "parentResultSha256": "13fe03ad233940bc54ba7ff34c5e8ce15975cee33d658249a78b809362e84ea6",
+          "budgetMs": 750,
+          "rawCounterMove": 100,
+          "evidenceTransform": 0,
+          "move": 100,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "a5887dcc0518b1c7962d0297755adcc7ddfd1ec3adba43321d8b486a7d5a77ea"
+    },
+    {
+      "id": "I9-r1",
+      "familyId": "I9",
+      "moves": [
+        112,
+        81,
+        97,
+        82,
+        83,
+        96,
+        111,
+        125,
+        113,
+        110,
+        68,
+        98,
+        67,
+        124,
+        138
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 83,
+          "id": "reduction-source-616-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-53392"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "reduction-source-620-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-54930"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 113,
+          "id": "reduction-source-622-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-55482"
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 68,
+          "id": "reduction-source-30164-c17-t2-s0",
+          "sourceOriginalId": "coverage-allrenju-55556"
+        },
+        {
+          "ply": 13,
+          "kind": "source",
+          "move": 67,
+          "id": "reduction-source-30196-c17-t2-s0",
+          "sourceOriginalId": "coverage-allrenju-55560"
+        },
+        {
+          "ply": 15,
+          "kind": "urgent",
+          "move": 138,
+          "id": null,
+          "sourceOriginalId": null
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I9",
+          "resultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9",
+          "rank": 1,
+          "move": 96,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-e15fe777b73c5db5",
+          "resultSha256": "13ce9b31ba5d9a474631d268749a1799c3c8ca0abd8318a204d8ec2f6d2f76a8",
+          "budgetMs": 750,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-d7a74ef647873072",
+          "resultSha256": "da85af1676c5c9fd4f4ecbd1e9ca19e305d45f2556aed184762128253d1cda4e",
+          "budgetMs": 750,
+          "move": 110,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-7a6b42677fb65ea4",
+          "resultSha256": "d2bdfb233d84e27cfb3ebe2ba09b0c41d70dd42a90856e748568d945be18a3d2",
+          "budgetMs": 750,
+          "move": 98,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-e0e175b7c4a54d27",
+          "resultSha256": "d30940fdfa9a387d66b7281da4555f2ba6b90cb566ec38d83909b588a4add174",
+          "budgetMs": 750,
+          "move": 124,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9"
+    },
+    {
+      "id": "I9-r2",
+      "familyId": "I9",
+      "moves": [
+        112,
+        81,
+        97,
+        82,
+        83,
+        98,
+        111,
+        125,
+        114,
+        113,
+        128,
+        69,
+        144,
+        160,
+        142
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 83,
+          "id": "reduction-source-616-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-53392"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "reduction-source-617-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-53482"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 114,
+          "id": "reduction-source-619-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-53594"
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 128,
+          "id": "reduction-source-30159-c17-t2-s0",
+          "sourceOriginalId": "coverage-allrenju-54290"
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 144,
+          "id": "computed-reduction-p13-25fb6ed84b3ff94d",
+          "sourceOriginalId": null,
+          "resultSha256": "5fdf8f2f54760dc02cf55b3be09eb4e50957d2afac9c0e58b9d94cd15007147d",
+          "evidenceOriginalId": "outer13-25fb6ed84b3ff94d",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 142,
+          "id": "computed-reduction-p15-154d7a3037f89e48",
+          "sourceOriginalId": null,
+          "resultSha256": "987e06ae3b7c0a6dc51274ae88a65307c405d48fa738d40512df8391186c244d",
+          "evidenceOriginalId": "outer15-154d7a3037f89e48",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I9",
+          "resultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9",
+          "rank": 2,
+          "move": 98,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-f984f5eec0b5bc82",
+          "resultSha256": "b96ee1d0378489bfb0182e21adf98c1032bb1e150ef17435d35491a8544f19f1",
+          "budgetMs": 750,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-43e5fc59804c0cc3",
+          "resultSha256": "5ec470b71104927a7a14b66be9019053e7b127ae7cb8b69431bb633e3464c5ce",
+          "budgetMs": 750,
+          "move": 113,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-61e75374cdc781d8",
+          "resultSha256": "9db2a294eb9b88a5e3b6657f9b8c8309cb05a1f49f7ffaf7012c4ed493395c23",
+          "budgetMs": 750,
+          "move": 69,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-25fb6ed84b3ff94d",
+          "parentResultSha256": "5fdf8f2f54760dc02cf55b3be09eb4e50957d2afac9c0e58b9d94cd15007147d",
+          "budgetMs": 750,
+          "rawCounterMove": 160,
+          "evidenceTransform": 0,
+          "move": 160,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9"
+    },
+    {
+      "id": "I9-r3",
+      "familyId": "I9",
+      "moves": [
+        112,
+        81,
+        97,
+        82,
+        83,
+        95,
+        111,
+        125,
+        67,
+        110,
+        80,
+        140,
+        155,
+        96,
+        68
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 83,
+          "id": "reduction-source-616-c17-t2-s0",
+          "sourceOriginalId": "all26-I9-53392"
+        },
+        {
+          "ply": 7,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p7-92237908d6f11d26",
+          "sourceOriginalId": null,
+          "resultSha256": "5a3e3cfe22f8bc2c27510368a33a01a3bf508a85c35d1f2f8c7e7424d9d5b34c",
+          "evidenceOriginalId": "outer7-92237908d6f11d26",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 67,
+          "id": "reduction-source-30051-c17-t2-s0",
+          "sourceOriginalId": "coverage-I9-1-984104"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 80,
+          "id": "computed-reduction-p11-ee41563dff51ccf4",
+          "sourceOriginalId": null,
+          "resultSha256": "4569a74df7d91b278e7ba80dcb601354338aeef2fe3ab253d226e3dfb98c27f9",
+          "evidenceOriginalId": "outer11-ee41563dff51ccf4",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "urgent",
+          "move": 155,
+          "id": null,
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 68,
+          "id": "computed-reduction-p15-18250fa166da665f",
+          "sourceOriginalId": null,
+          "resultSha256": "a96a7e16a99ab43580dcafb62d64d1ac152b2099296289ea22f4436911f300c0",
+          "evidenceOriginalId": "outer15-18250fa166da665f",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I9",
+          "resultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9",
+          "rank": 3,
+          "move": 95,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer7-92237908d6f11d26",
+          "parentResultSha256": "5a3e3cfe22f8bc2c27510368a33a01a3bf508a85c35d1f2f8c7e7424d9d5b34c",
+          "budgetMs": 750,
+          "rawCounterMove": 125,
+          "evidenceTransform": 0,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-55353c0e9551f5f5",
+          "resultSha256": "914ebf1c3fb339a5bc4d24430f77e89525154b874fa3ea1a262efe920726a26b",
+          "budgetMs": 750,
+          "move": 110,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-ee41563dff51ccf4",
+          "parentResultSha256": "4569a74df7d91b278e7ba80dcb601354338aeef2fe3ab253d226e3dfb98c27f9",
+          "budgetMs": 750,
+          "rawCounterMove": 140,
+          "evidenceTransform": 0,
+          "move": 140,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-d94efd2a04c3a835",
+          "resultSha256": "6c13e2b7595d91a91dbf87e5cc2f330ff776437230ea78a12b67b5f2d058668b",
+          "budgetMs": 750,
+          "move": 96,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "c7eb24c0b9c0e0da491933e9325f2c967646b50a8b8657ba7adbcfce03b79bc9"
+    },
+    {
+      "id": "D5-r1",
+      "familyId": "D5",
+      "moves": [
+        112,
+        82,
+        81,
+        96,
+        110,
+        54,
+        111,
+        109,
+        113,
+        114,
+        97,
+        65,
+        145,
+        129,
+        125
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 110,
+          "id": "all26-I2-30360",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "coverage-D2I2-2-53555382",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 113,
+          "id": "coverage-D2I2-2-53555506",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 97,
+          "id": "remaining-source-taiwan-d2i2-2-53555510-I2",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 145,
+          "id": "computed-reduction-p13-4545e242d43cdb31",
+          "sourceOriginalId": null,
+          "resultSha256": "2c4777533a0f43123e526adf79bf34de90d2b0a55d506fe160a6481083c52700",
+          "evidenceOriginalId": "outer13-4545e242d43cdb31",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 125,
+          "id": "computed-reduction-p15-136d9c00adb7c0d3",
+          "sourceOriginalId": null,
+          "resultSha256": "650e972292e960e8f56d9c80cb513e7f93c3c023d77a6fe5db2288171f892cd9",
+          "evidenceOriginalId": "outer15-136d9c00adb7c0d3",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D5",
+          "resultSha256": "756a021e6b19e2a061bdca986bab5baf313cb0724fd3c4394b02266f53b1a1e0",
+          "rank": 1,
+          "move": 54,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-a38c3c390ac3340c",
+          "resultSha256": "626b0d7b02edddd0cb68c66269772578ffcab852a841c2aba29fed8aa16af22d",
+          "budgetMs": 750,
+          "move": 109,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-e13ffc0b7c288baa",
+          "resultSha256": "07a5c8332bc4fe976a7abdfb65373ace4daa8fa24e9d820aec21a25b6e057845",
+          "budgetMs": 750,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-73e11f55c129c652",
+          "resultSha256": "356b295058b3aa02ea12aa3a5cd8d99663fc0040b66891a2d3a2cb7715fd0f4f",
+          "budgetMs": 750,
+          "move": 65,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-4545e242d43cdb31",
+          "parentResultSha256": "2c4777533a0f43123e526adf79bf34de90d2b0a55d506fe160a6481083c52700",
+          "budgetMs": 750,
+          "rawCounterMove": 129,
+          "evidenceTransform": 0,
+          "move": 129,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "756a021e6b19e2a061bdca986bab5baf313cb0724fd3c4394b02266f53b1a1e0"
+    },
+    {
+      "id": "D5-r2",
+      "familyId": "D5",
+      "moves": [
+        112,
+        82,
+        81,
+        96,
+        110,
+        68,
+        111,
+        109,
+        113,
+        114,
+        97,
+        65,
+        125,
+        54,
+        40
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 110,
+          "id": "all26-I2-30360",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "reduction-source-10838-c3-t7-s0",
+          "sourceOriginalId": "coverage-D5-1-256650"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 113,
+          "id": "reduction-source-11036-c3-t7-s0",
+          "sourceOriginalId": "coverage-D5-1-256654"
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 97,
+          "id": "reduction-source-42008-c3-t7-s0",
+          "sourceOriginalId": "remaining-source-taiwan-d5-1-256658-D5"
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 125,
+          "id": "computed-reduction-p13-1d0381e130f3321c",
+          "sourceOriginalId": null,
+          "resultSha256": "52494b887338c779cb97e118439022e53bdb913a8d65e2308653b30f7f8d3e49",
+          "evidenceOriginalId": "outer13-1d0381e130f3321c",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "urgent",
+          "move": 40,
+          "id": null,
+          "sourceOriginalId": null
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D5",
+          "resultSha256": "756a021e6b19e2a061bdca986bab5baf313cb0724fd3c4394b02266f53b1a1e0",
+          "rank": 2,
+          "move": 68,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-97738380abb08e30",
+          "resultSha256": "d22c972a189f229110f2537cf5eafd5eeff826e6f9301de17e6222c0851e6306",
+          "budgetMs": 750,
+          "move": 109,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-6188dcf5c90aae48",
+          "resultSha256": "db7e8130a4733f8689d61e1b87b92e1a8aeb86f4d51c307cea1952014fd54158",
+          "budgetMs": 750,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-bfa65daf339263b7",
+          "resultSha256": "d3847b6a245e078c5fd56c6abb85104fb238b5232a37c0e40742366a098c6e48",
+          "budgetMs": 750,
+          "move": 65,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-1d0381e130f3321c",
+          "parentResultSha256": "52494b887338c779cb97e118439022e53bdb913a8d65e2308653b30f7f8d3e49",
+          "budgetMs": 750,
+          "rawCounterMove": 54,
+          "evidenceTransform": 0,
+          "move": 54,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "756a021e6b19e2a061bdca986bab5baf313cb0724fd3c4394b02266f53b1a1e0"
+    },
+    {
+      "id": "I7-r1",
+      "familyId": "I7",
+      "moves": [
+        112,
+        82,
+        96,
+        80,
+        98,
+        94,
+        84,
+        70,
+        99,
+        95,
+        114,
+        69,
+        113,
+        111,
+        127
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 98,
+          "id": "reduction-source-775-c15-t6-s0",
+          "sourceOriginalId": "i7-connected-148-0"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 84,
+          "id": "reduction-source-998-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-1009778"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 99,
+          "id": "reduction-source-1000-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-1009822"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 114,
+          "id": "computed-reduction-p11-76ab89e2b08edac3",
+          "sourceOriginalId": null,
+          "resultSha256": "e96eb91b758bc952d3ee4e5eeafb139fd3b17891ddf9e7641d2ca4b4ecd88e46",
+          "evidenceOriginalId": "outer11-76ab89e2b08edac3",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 113,
+          "id": "computed-reduction-p13-43eaba274121f47d",
+          "sourceOriginalId": null,
+          "resultSha256": "9cf1a2748eb5402281a54ff7dc8a417b2cd17ff25f49addd08607b630f8a90d1",
+          "evidenceOriginalId": "outer13-43eaba274121f47d",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 127,
+          "id": "computed-reduction-p15-2eb6debedf2c5434",
+          "sourceOriginalId": null,
+          "resultSha256": "42c454d45303cfe8dce4bb721794b0da71459f012b55e6518bab8d312d0db952",
+          "evidenceOriginalId": "outer15-2eb6debedf2c5434",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I7",
+          "resultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8",
+          "rank": 1,
+          "move": 94,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-57bcd06362bb3c0e",
+          "resultSha256": "7437655655513a943e10c8c430127513f316b3e00439facddd39eaf272c2f391",
+          "budgetMs": 750,
+          "move": 70,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-98fabfb118c48f33",
+          "resultSha256": "7a9a3f69bd2b0d73914fb45b7378bea6ab7fda12f53638962ccdcc5d3d5d1c08",
+          "budgetMs": 750,
+          "move": 95,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-76ab89e2b08edac3",
+          "parentResultSha256": "e96eb91b758bc952d3ee4e5eeafb139fd3b17891ddf9e7641d2ca4b4ecd88e46",
+          "budgetMs": 750,
+          "rawCounterMove": 69,
+          "evidenceTransform": 0,
+          "move": 69,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-43eaba274121f47d",
+          "parentResultSha256": "9cf1a2748eb5402281a54ff7dc8a417b2cd17ff25f49addd08607b630f8a90d1",
+          "budgetMs": 750,
+          "rawCounterMove": 111,
+          "evidenceTransform": 0,
+          "move": 111,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8"
+    },
+    {
+      "id": "I7-r2",
+      "familyId": "I7",
+      "moves": [
+        112,
+        82,
+        96,
+        80,
+        98,
+        52,
+        126,
+        140,
+        97,
+        95,
+        111,
+        81,
+        84,
+        70,
+        79
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 98,
+          "id": "reduction-source-775-c15-t6-s0",
+          "sourceOriginalId": "i7-connected-148-0"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 126,
+          "id": "reduction-source-1079-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-1046676"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 97,
+          "id": "reduction-source-1081-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-1046854"
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 111,
+          "id": "computed-reduction-p11-fec6ff4995344bc2",
+          "sourceOriginalId": null,
+          "resultSha256": "a492289bf64269016626fa30af3a6f75a95e5802cfc01c0df70a020ffd381e5a",
+          "evidenceOriginalId": "outer11-d71c9c2c67dd8deb",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "new-computed",
+          "move": 84,
+          "id": "computed-reduction-p13-4bded7ef29616471",
+          "sourceOriginalId": null,
+          "resultSha256": "5debfa637c9919fe7149bdb37990a42e2cd50663b54302e6d5adb9f1893d74fe",
+          "evidenceOriginalId": "outer13-4bded7ef29616471",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 79,
+          "id": "computed-reduction-p15-30e80549be56dc37",
+          "sourceOriginalId": null,
+          "resultSha256": "22c9c266b9a5ab1481d6b047c299ee14c849caebf9b8be9e73aa6082ceea0431",
+          "evidenceOriginalId": "outer15-30e80549be56dc37",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I7",
+          "resultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8",
+          "rank": 2,
+          "move": 52,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-76947aca9cefda24",
+          "resultSha256": "3d1d77d6de729051bd1b7eb6a3322fe6d647145ec2099ae90b19e910f6fbc755",
+          "budgetMs": 750,
+          "move": 140,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-bd3b7da46b94887d",
+          "resultSha256": "7f35864e33b148f70a238764aa10dfbde6ea480d97bdc05eb93173d3affd88c5",
+          "budgetMs": 750,
+          "move": 95,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-d71c9c2c67dd8deb",
+          "parentResultSha256": "a492289bf64269016626fa30af3a6f75a95e5802cfc01c0df70a020ffd381e5a",
+          "budgetMs": 750,
+          "rawCounterMove": 81,
+          "evidenceTransform": 0,
+          "move": 81,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer13-4bded7ef29616471",
+          "parentResultSha256": "5debfa637c9919fe7149bdb37990a42e2cd50663b54302e6d5adb9f1893d74fe",
+          "budgetMs": 750,
+          "rawCounterMove": 70,
+          "evidenceTransform": 0,
+          "move": 70,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8"
+    },
+    {
+      "id": "I7-r3",
+      "familyId": "I7",
+      "moves": [
+        112,
+        82,
+        96,
+        80,
+        98,
+        66,
+        84,
+        126,
+        99,
+        97,
+        114,
+        129,
+        113,
+        111,
+        68
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 98,
+          "id": "reduction-source-775-c15-t6-s0",
+          "sourceOriginalId": "i7-connected-148-0"
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 84,
+          "id": "reduction-source-1217-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-129210"
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 99,
+          "id": "reduction-source-1219-c15-t6-s0",
+          "sourceOriginalId": "taiwan-i7-2-129218"
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 114,
+          "id": "reduction-source-44892-c15-t6-s0",
+          "sourceOriginalId": "remaining-source-taiwan-i7-2-129238-I7"
+        },
+        {
+          "ply": 13,
+          "kind": "source",
+          "move": 113,
+          "id": "reduction-source-53223-c15-t6-s0",
+          "sourceOriginalId": "deeper-source-taiwan-i7-2-129242-I7"
+        },
+        {
+          "ply": 15,
+          "kind": "source",
+          "move": 68,
+          "id": "reduction-source-58026-c15-t6-s0",
+          "sourceOriginalId": "later-source-taiwan-i7-2-129250-I7"
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-I7",
+          "resultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8",
+          "rank": 3,
+          "move": 66,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-9f019e8a465dbc2a",
+          "resultSha256": "77d936136fc0dd480b75cd69b83f4d36d9f71a7f8e2d2fa1b8229fc22611dae5",
+          "budgetMs": 750,
+          "move": 126,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-d9ba51ead9ba90a3",
+          "resultSha256": "e297186392ec95e9fff8258fc2eb6bac8ee53c2728761b54e3b37145779ace6a",
+          "budgetMs": 750,
+          "move": 97,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-44f28de4add57af3",
+          "resultSha256": "1101cca32fde000c17e6dcbadb5fa3e182595d6ad6049703727339605a97ae0c",
+          "budgetMs": 750,
+          "move": 129,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-925ee1a9c07d6aed",
+          "resultSha256": "f567c1020278c657ccaaae806fc3451d6337d67f12d856f87d540d5855c9f9cb",
+          "budgetMs": 750,
+          "move": 111,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "6373ad8d2f1674f67ed3ef3b3dc7cd6a84232791732843d7ccfbf01a267762e8"
+    },
+    {
+      "id": "D8-r1",
+      "familyId": "D8",
+      "moves": [
+        112,
+        82,
+        97,
+        96,
+        110,
+        81,
+        111,
+        109,
+        113,
+        114,
+        83,
+        125,
+        98,
+        68,
+        126
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 110,
+          "id": "all26-I6-36784",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "all26-I6-37456",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 113,
+          "id": "coverage-D6I6-2-24890876",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 83,
+          "id": "remaining-source-taiwan-d6i6-2-24890880-I6",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 13,
+          "kind": "source",
+          "move": 98,
+          "id": "lecture-ranker-unwol-680-p13",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "source",
+          "move": 126,
+          "id": "lecture-ranker-unwol-680-p15",
+          "sourceOriginalId": null
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D8",
+          "resultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca",
+          "rank": 1,
+          "move": 81,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-8c0e416b8c9cd30b",
+          "resultSha256": "9c4cc908f284bc44ce7b44c0034f3cca04bbe87a4118b6d58cbb1b1b595cb2d1",
+          "budgetMs": 750,
+          "move": 109,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-322e4eec6ec743f1",
+          "resultSha256": "6f8e6d573a48693cc6f12539e596a46d75a8f04c9c6c926459b267a8ab6a8c22",
+          "budgetMs": 750,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-a06ec5556e1a1634",
+          "resultSha256": "090ef52dfe8864cb0e97d8c3b08f25410d34d1ac9430948d906862df97acd6db",
+          "budgetMs": 750,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-6afee4f66e83d920",
+          "resultSha256": "42523d060f1036822b6a234295250dd731e8ddb12d085a9fcdd5ffd89af7f611",
+          "budgetMs": 750,
+          "move": 68,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca"
+    },
+    {
+      "id": "D8-r2",
+      "familyId": "D8",
+      "moves": [
+        112,
+        82,
+        97,
+        96,
+        110,
+        80,
+        111,
+        109,
+        113,
+        114,
+        83,
+        125,
+        98,
+        68,
+        126
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 110,
+          "id": "all26-I6-36784",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "all26-I6-36980",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 9,
+          "kind": "source",
+          "move": 113,
+          "id": "coverage-D6I6-2-24847756",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 11,
+          "kind": "source",
+          "move": 83,
+          "id": "remaining-source-taiwan-d6i6-2-24847760-I6",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 13,
+          "kind": "source",
+          "move": 98,
+          "id": "deeper-source-taiwan-d6i6-2-24847764-I6",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "source",
+          "move": 126,
+          "id": "deeper-source-taiwan-d6i6-2-24847768-I6",
+          "sourceOriginalId": null
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D8",
+          "resultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca",
+          "rank": 2,
+          "move": 80,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-00c08896da440e36",
+          "resultSha256": "cd0338a8af75313805126d70e471a5f52eabb0d8d23632ae2771c6f9b7080775",
+          "budgetMs": 750,
+          "move": 109,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter10-de022243b4a51c8f",
+          "resultSha256": "f4f05a3227850b628e0a4480b34307497614a6e588eb7716405ae70b76b3bffa",
+          "budgetMs": 750,
+          "move": 114,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter12-06d5e62da3e4dad4",
+          "resultSha256": "1cc9d01c334665b362c61878a9f5c46fc8fc798d4a381884fe528fe183e6b722",
+          "budgetMs": 750,
+          "move": 125,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-c1f500bf57601fd5",
+          "resultSha256": "ea33978c9882ef8ed24c93bc653accd621f0c5439827d72d188b6072a903950c",
+          "budgetMs": 750,
+          "move": 68,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca"
+    },
+    {
+      "id": "D8-r3",
+      "familyId": "D8",
+      "moves": [
+        112,
+        82,
+        97,
+        96,
+        110,
+        84,
+        111,
+        109,
+        125,
+        83,
+        81,
+        85,
+        86,
+        65,
+        140
+      ],
+      "terminal": null,
+      "ownPolicies": [
+        {
+          "ply": 5,
+          "kind": "source",
+          "move": 110,
+          "id": "all26-I6-36784",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 7,
+          "kind": "source",
+          "move": 111,
+          "id": "all26-I6-38090",
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 9,
+          "kind": "new-computed",
+          "move": 125,
+          "id": "computed-reduction-p9-589f4ffb3e133cc8",
+          "sourceOriginalId": null,
+          "resultSha256": "1f239b32a8c560fca4d19da690d68cf388641d47e76ef18aa4cce6357e1167a1",
+          "evidenceOriginalId": "outer9-589f4ffb3e133cc8",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 11,
+          "kind": "new-computed",
+          "move": 81,
+          "id": "computed-reduction-p11-b5f4f622a978e3d1",
+          "sourceOriginalId": null,
+          "resultSha256": "f90f9f6f6fd7a7bbd928c37d441acf788ec11485419eb5e848dacc36ebc320d6",
+          "evidenceOriginalId": "outer11-b5f4f622a978e3d1",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        },
+        {
+          "ply": 13,
+          "kind": "urgent",
+          "move": 86,
+          "id": null,
+          "sourceOriginalId": null
+        },
+        {
+          "ply": 15,
+          "kind": "new-computed",
+          "move": 140,
+          "id": "computed-reduction-p15-5df4af6b9bf31b30",
+          "sourceOriginalId": null,
+          "resultSha256": "60eb8b3ec4949268e47e8aac7a099840431eb32a6902a922895b6def56917273",
+          "evidenceOriginalId": "outer15-5df4af6b9bf31b30",
+          "evidenceTransform": 0,
+          "entryTransform": 0
+        }
+      ],
+      "counterPolicies": [
+        {
+          "ply": 6,
+          "kind": "bounded-sixth-seed",
+          "selectionId": "select6-D8",
+          "resultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca",
+          "rank": 3,
+          "move": 84,
+          "budgetMs": 3000,
+          "depth": 3
+        },
+        {
+          "ply": 8,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter8-8656cd51b94e6c2d",
+          "resultSha256": "ce97bc16e58ba8ca19fe174fdc8798950955fcbbe4505f80cab79abf4d686ad1",
+          "budgetMs": 750,
+          "move": 109,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 10,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer9-589f4ffb3e133cc8",
+          "parentResultSha256": "1f239b32a8c560fca4d19da690d68cf388641d47e76ef18aa4cce6357e1167a1",
+          "budgetMs": 750,
+          "rawCounterMove": 83,
+          "evidenceTransform": 0,
+          "move": 83,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 12,
+          "kind": "accepted-parent-raw-counter",
+          "rawId": "outer11-b5f4f622a978e3d1",
+          "parentResultSha256": "f90f9f6f6fd7a7bbd928c37d441acf788ec11485419eb5e848dacc36ebc320d6",
+          "budgetMs": 750,
+          "rawCounterMove": 85,
+          "evidenceTransform": 0,
+          "move": 85,
+          "engineClaimedWin": false
+        },
+        {
+          "ply": 14,
+          "kind": "fresh-existing-parent-counter",
+          "rawId": "counter14-3932d626851a0af6",
+          "resultSha256": "8a3fafafeb69a4eac270d2681bb1b562bef1a06872096277c12961e85e7ead09",
+          "budgetMs": 750,
+          "move": 65,
+          "engineClaimedWin": false
+        }
+      ],
+      "seedSelectionResultSha256": "620d6509ecc81a1a62030f98cff027fc93f069d5e901b5777f3b1921582a76ca"
+    }
+  ],
+  "scope": "All legal fourths after every outer-ring favorable third. All legal sixths after one selected fourth/runtime-priority fifth per each of nine D4 third classes. Later paths, when present, are selected counter branches, not every future reply.",
+  "censusSha256": "abe41571c6ab72d21ca84055fc0bb7e2ac70d3fe3b358f16bd1707e1bf18d0cd",
+  "secondaryCasesSha256": "4bb658a31c692cf139721311e9e8f89341e713c0a5d35b816694e39e7030a225",
+  "laterDispositions": [],
+  "laterScope": {
+    "selectionPolicy": "At most three legal sixth moves per family: the pinned 3000ms selected opponent move followed by the first same-completed-depth, complete-PV candidate alternatives in the recorded engine order. The own seventh must follow the actual augmented runtime source/old-C/new-C priority before any later branch is expanded. This is bounded representative selection, not a strongest-defense proof.",
+    "seedBranches": 26,
+    "selectedFamilies": 9,
+    "selectionSha256": "6f6ec345455f055cc66e5f479334d0083385e13721ddb1f6556d3a4df711c89a",
+    "finalStateSha256": "30b9d6816ff706f6bfa57a7d1680e4862b6cd1b4f432a6a1db81fe545736ff0c",
+    "runtimeSelectionSnapshotSha256": "cf2a9fe426cfc829516463eab8c6c94ea1aefa01bc5cfdf820a015e1add0aaf1",
+    "maximumOwnPly": 15,
+    "activeThroughFifteenth": 26,
+    "terminalOwn": 0,
+    "terminalOpponent": 0
+  }
+}

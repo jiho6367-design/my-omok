@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.30';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.30');
+versionBadge.textContent='통합 v5.18.31';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.31');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -264,10 +264,10 @@ analyze=function(explicit,onDone){
   if(g&&!g.result&&!globalThis.omokComputeReady){stopWorker();setAnalysisStatus('연산 준비 중','선택한 분석 모드를 유지하고 연산 준비 완료 후 시작합니다.','ready');return;}
   if(!g||g.result){stopWorker();rec=null;render();const winner=g?.result?.winner,outcome=winner?(winner===g.me?'내 승리':'내 패배'):'';setAnalysisStatus(winner?`대국 종료 · ${names[winner]} 승리 · ${outcome}`:g?.result?'대국 종료 · 무승부':'분석 준비',winner?`정확한 5목 완성: ${winCells.map(E.coord).join(' → ')}`:g?.result?'빈칸 없이 종료되었습니다.':'착수 후 자동으로 추천을 계산합니다.',winner?'complete':g?.result?'stopped':'ready');return;}
   if(explicit==null&&!reviewing&&turn===g.me&&ponder?.key===positionKey(b,turn)){
-    // The actual history can establish a translated source that the predicted
-    // board could not safely use before the opponent really played its move.
+    // Resolve actual-history source references and exact actual-board offline
+    // responses before promoting a generic result for the predicted reply.
     const fresh=E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,40000).budget});
-    if(fresh?.openingEvidence?.reduction){
+    if(fresh?.openingEvidence?.reduction||fresh?.analysisEvidence?.reduction){
       cancelPonder();stopWorker();lastProgress=null;rec=null;selectedBudget(b,turn);
       acceptResult(fresh);onDone?.(fresh);return;
     }
