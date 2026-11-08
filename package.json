@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.39",
+  "version": "5.18.40",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -82,7 +82,9 @@
     "test:opening-strategy249:ui": "node test/opening-strategy249-ui.cjs",
     "test:opening-ancestor251:integration": "node test/opening-ancestor251-runtime.cjs",
     "test:opening-ancestor251:ui": "node test/opening-ancestor251-ui.cjs",
-    "test:live-proof-keeper": "node test/live-proof-keeper.cjs && node test/live-proof-resource.cjs"
+    "test:live-proof-keeper": "node test/live-proof-keeper.cjs && node test/live-proof-resource.cjs",
+    "test:opening-seven258:integration": "node test/opening-seven258-runtime.cjs",
+    "test:opening-seven258:ui": "node test/opening-seven258-ui.cjs"
   },
   "engines": {
     "node": ">=22.13"
