@@ -8,7 +8,13 @@ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex'),inspec
 function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const old=x;x=14-y;y=old;}return y*15+x;}
 function board(moves,p=1,t=0){const b=Array(225).fill(0);for(let k=0;k<moves.length;k++){const i=tr(moves[k],t),q=k%2?3-p:p;assert(R(b).legal(i,q),'Illegal published path');b[i]=q;assert(!R(b).exact(i,q),'Published input must remain nonterminal');}return b;}
 function equivalent(b,a,z){for(let t=0;t<8;t++)if(tr(a,t)===z&&b.every((v,i)=>b[tr(i,t)]===v))return true;return false;}
-for(const [name,digest]of Object.entries({'opening-data.js':'d241e006e8af7e7d0988cf21ec01ce181a26f6ef40df339ab3a19c990493864d','opening-analysis-data.js':'50d52cb345c6471c8a50d919854b287480668965c95ec8a9913a00d163afa096'}))assert.equal(hash(fs.readFileSync(path.join(__dirname,'../src',name)).toString().replace(/\r\n/g,'\n')),digest,'Historical source/evidence must remain unchanged');
+assert.equal(hash(fs.readFileSync(path.join(__dirname,'../src/opening-analysis-data.js')).toString().replace(/\r\n/g,'\n')),'50d52cb345c6471c8a50d919854b287480668965c95ec8a9913a00d163afa096','Historical tactical evidence must remain unchanged');
+// Source references may append facts; preserve the complete prior evidence prefix.
+const source=require('../src/opening-data.js'),sourceBook=require('../src/opening-book.js'),sourceMetaKeys=['maxPly','catalog','excluded','continuationRepair','expansion','coverageExpansion','lectureExpansion','supplementalExpansion','fourFamilyExpansion','threeMoreExpansion','remainingExpansion','deeperExpansion','laterExpansion'];
+assert.equal(sourceBook.MAX_LINES,65536);assert.equal(source.maxPly,40);assert(source.version>=12);assert(source.lines.length>=61441&&source.lines.length<=sourceBook.MAX_LINES);assert(source.sources.length>=69);
+assert.equal(hash(JSON.stringify(source.lines.slice(0,61441))),'3989622381d210e18a918aeae7588cf3827682e6dd6ee8a1a84e1a6b939962df','Historical source entry order/evidence must remain unchanged');
+assert.equal(hash(JSON.stringify(source.sources.slice(0,69))),'466b59b4e46f3db4a66395fb1b7ee0774abf80dfd1062dc90794eba7b2cd367c','Historical source metadata must remain unchanged');
+assert.equal(hash(JSON.stringify(Object.fromEntries(sourceMetaKeys.map(k=>[k,source[k]])))),'1796b32e9ab6cab0d889d5105d6ba7518b667ad00c9c8dc93b3706a07ee0278a','Historical source expansion metadata must remain unchanged');
 // Native continuations grow by append; preserve all evidence through the prior release.
 const native=require('../src/opening-continuation-data.js');
 assert.deepEqual(Object.keys(native).sort(),['analysis','entries','extensions','rulesId','schemaVersion']);
@@ -62,4 +68,4 @@ for(const branch of scope.laterBranches||[]){
  }laterPaths++;
 }
 assert(laterPaths>0,'Selected continuations beyond7 must be present');
-console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,scope:'All declared1998 representative fourth replies and1980 selected-parent sixth replies; all published actual-board rows in both colors/D4, unchanged historical source bytes and native evidence prefix, exact original evidence, current source/urgent priority and causal selected later paths. No guarantee for all future replies.'}));
+console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,scope:'All declared1998 representative fourth replies and1980 selected-parent sixth replies; all published actual-board rows in both colors/D4, preserved historical source/native evidence prefixes and metadata, exact original evidence, current source/urgent priority and causal selected later paths. No guarantee for all future replies.'}));
