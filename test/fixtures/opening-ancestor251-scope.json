@@ -1,0 +1,5079 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-main-api-and-ui-fixture-not-executed-on251",
+  "dataSha256": "0da04912683539d5b0e5b50fb511f973325081fe8335c74bc5a7d82e1dd62ed1",
+  "dataValueSha256": "ba3bff2cc883e61197ef458e0c3a46180da359df14b42f85158e35780106b8ed",
+  "sourceModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+  "rulesId": "15x15-exact5-both33-v1",
+  "sourceCommit": "048ec3e339b2d5915bb21af7b1c8ba22593578b6",
+  "old249Prefix": {
+    "roots": 249,
+    "nodes": 1497,
+    "rootsSha256": "1724131b6f52c13f332d76ab173e22a02257026969ad1936410a7f082831756f",
+    "nodesSha256": "25df7088860e43f0bdb2b9561d32e4866ea0b94825345747202fb89e9742397d"
+  },
+  "currentReleased37": {
+    "commit": "3f7d4c46dc35d7f7e47a9c2d5994850f48fb7889",
+    "registry249ValueSha256": "7ac1acadcb651cf7bbd6708438404760a792ef4b842f3f3c898f8a6041f4fc79",
+    "sourceSha256": {
+      "src/neural-evaluator.js": "c85d04d1d39ee33f08e357145d4b94b8dd4a7855b928b9082c792eee0b1404a7",
+      "src/record-book.js": "b69d9570c771ad5647e551619644eb02b31464f8b963d42a4802ffe756e49df2",
+      "src/opening-data.js": "b0fd593c65155800ac8aeafc138e055d99af35136b04c9f4deb126658bb73bb2",
+      "src/opening-book.js": "380b31153ed62119e0130629857cfe6c8e5f08edf6a1f108d0419499f7780438",
+      "src/opening-analysis-data.js": "50d52cb345c6471c8a50d919854b287480668965c95ec8a9913a00d163afa096",
+      "src/opening-continuation-data.js": "f51f6951c0eb2182b72af167fea969d15034298cb9572f0670cfe9a422a2ab92",
+      "src/opening-reduction-data.js": "0738c85ff9ea7e496a101d4f6584842f7083ca7741b06fbcf2b002b2c6b6e49a",
+      "src/opening-analysis.js": "839267f95cc3cd1045237e49d6bda0663a98cfa1f3c3db5822c511d131d3d6ca",
+      "src/opening-strategy-data.js": "8f07bdedb797ece8c900908f481ccb5be89b0fd70fcba6eb0eeaf31548db4343",
+      "src/opening-strategy.js": "db41cab47322530415bfbbbedde349ee96a6e75acb8140bec53121704ab2fb1d",
+      "src/search-memory.js": "08366861cc718b586b96341d33b70d58bda7d280c94da84f71f00b7b785f107f",
+      "src/gpu-patterns.js": "eaab311e4bd7d020a0aacc0b5a15bb7f49cb9b750e935633142e19c042a35c8b",
+      "src/strategy-engine.js": "6542ccecca93c1fda430c133c3b733a1e9f43ce86980f19880be49c11be4059c",
+      "src/reader-engine.js": "2bc18a08b29e6739fb95c38925790eafa17cc597e0ea6af8c74f5e948685dbca",
+      "src/search-engine.js": "5f5cc727ccc443aa13f9d54dc789b3057c905c36773db4f31bfc75b19b5864d2",
+      "src/unified-engine.js": "73062802de8e942fb521a285f2d39cf072e52253b716dad692f1b3aaa0f74db9"
+    },
+    "ancestorChain": [
+      {
+        "ply": 9,
+        "parent": [
+          112,
+          96,
+          110,
+          111,
+          126,
+          140,
+          142,
+          94
+        ],
+        "expectedHistoricalMove": 128,
+        "expectedCoordinate": "I9",
+        "currentImmediate": {
+          "move": 128,
+          "kind": "opening",
+          "urgent": false,
+          "proven": false,
+          "sourceId": "tw-user8-I3-p9-10581150",
+          "hasRetainedStrategy": false,
+          "choiceCoordinates": [
+            128
+          ]
+        },
+        "matchesCurrentImmediateDefault": true,
+        "manualExactMoveLegal": true,
+        "requiresFreshAnalysis": false,
+        "requiresUserChoiceToEnsureExactAncestor": false,
+        "sourceScope": "Actual accepted37 immediate registered/urgent API; no timed fresh analysis is called when no hit exists."
+      },
+      {
+        "ply": 11,
+        "parent": [
+          112,
+          96,
+          110,
+          111,
+          126,
+          140,
+          142,
+          94,
+          128,
+          97
+        ],
+        "expectedHistoricalMove": 98,
+        "expectedCoordinate": "I7",
+        "currentImmediate": {
+          "move": 98,
+          "kind": "opening-analysis",
+          "urgent": false,
+          "proven": false,
+          "sourceId": "computed-user8-I3-p11-5a7057ee457788b7fb",
+          "hasRetainedStrategy": false,
+          "choiceCoordinates": [
+            98
+          ]
+        },
+        "matchesCurrentImmediateDefault": true,
+        "manualExactMoveLegal": true,
+        "requiresFreshAnalysis": false,
+        "requiresUserChoiceToEnsureExactAncestor": false,
+        "sourceScope": "Actual accepted37 immediate registered/urgent API; no timed fresh analysis is called when no hit exists."
+      },
+      {
+        "ply": 13,
+        "parent": [
+          112,
+          96,
+          110,
+          111,
+          126,
+          140,
+          142,
+          94,
+          128,
+          97,
+          98,
+          125
+        ],
+        "expectedHistoricalMove": 83,
+        "expectedCoordinate": "I6",
+        "currentImmediate": {
+          "move": 83,
+          "kind": "opening-analysis",
+          "urgent": false,
+          "proven": false,
+          "sourceId": "computed-user8-repair-I3-p13-5ceb1eabe8cb28fa52",
+          "hasRetainedStrategy": false,
+          "choiceCoordinates": [
+            83
+          ]
+        },
+        "matchesCurrentImmediateDefault": true,
+        "manualExactMoveLegal": true,
+        "requiresFreshAnalysis": false,
+        "requiresUserChoiceToEnsureExactAncestor": false,
+        "sourceScope": "Actual accepted37 immediate registered/urgent API; no timed fresh analysis is called when no hit exists."
+      }
+    ],
+    "initial15BothAlreadyUrgent": true,
+    "root15Baseline": [
+      {
+        "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+        "parent14": [
+          112,
+          96,
+          110,
+          111,
+          126,
+          140,
+          142,
+          94,
+          128,
+          97,
+          98,
+          125,
+          83,
+          93
+        ],
+        "move15": 95,
+        "currentMainPriority": "urgent-required-block-unproved",
+        "newUtility": "Complete original strategy delivery after every legal16, not a newly invented15 recommendation.",
+        "baseline37": {
+          "move": 95,
+          "kind": "block",
+          "urgent": true,
+          "proven": false,
+          "sourceId": null,
+          "hasRetainedStrategy": false,
+          "choiceCoordinates": []
+        }
+      },
+      {
+        "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+        "parent14": [
+          112,
+          96,
+          110,
+          111,
+          126,
+          140,
+          142,
+          94,
+          128,
+          97,
+          98,
+          125,
+          83,
+          139
+        ],
+        "move15": 153,
+        "currentMainPriority": "urgent-required-block-unproved",
+        "newUtility": "Complete original strategy delivery after every legal16, not a newly invented15 recommendation.",
+        "baseline37": {
+          "move": 153,
+          "kind": "block",
+          "urgent": true,
+          "proven": false,
+          "sourceId": null,
+          "hasRetainedStrategy": false,
+          "choiceCoordinates": []
+        }
+      }
+    ]
+  },
+  "newRootOriginalWhiteResponses": [
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "actualParent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        93
+      ],
+      "move15": 95,
+      "responses": [
+        {
+          "opponent16": 0,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 1,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 2,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 3,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 4,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 5,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 6,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 7,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 8,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 9,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 10,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 11,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 12,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 13,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 14,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 15,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 16,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 17,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 18,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 19,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 20,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 21,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 22,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 23,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 24,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 25,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 26,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 27,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 28,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 29,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 30,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 31,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 32,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 33,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 34,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 35,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 36,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 37,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 38,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 39,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 40,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 41,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 42,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 43,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 44,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 45,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 46,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 47,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 48,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 49,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 50,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 51,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 52,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 53,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 54,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 55,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 56,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 57,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 58,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 59,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 60,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 61,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 62,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 63,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 64,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 65,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 66,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 67,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 68,
+          "move17": 84,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 1526,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 69,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 70,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 71,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 72,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 73,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 74,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 75,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 76,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 77,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 78,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 79,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 80,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 81,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 82,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 84,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 85,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 86,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 87,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 88,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 89,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 90,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 91,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 92,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 99,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 100,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 101,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 102,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 103,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 104,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 105,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 106,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 107,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 108,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 109,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 113,
+          "move17": 84,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 1509,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 114,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 115,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 116,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 117,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 118,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 119,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 120,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 121,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 122,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 123,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 124,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 127,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 129,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 130,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 131,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 132,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 133,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 134,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 135,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 136,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 137,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 138,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 139,
+          "move17": 153,
+          "category": "current-required-block-unproved",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 1574,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 141,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 143,
+          "move17": 68,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 1548,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 144,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 145,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 146,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 147,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 148,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 149,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 150,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 151,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 152,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 153,
+          "move17": 139,
+          "category": "current-required-block-unproved",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 1587,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 154,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 155,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 156,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 157,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 158,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 159,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 160,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 161,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 162,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 163,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 164,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 165,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 166,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 167,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 168,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 169,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 170,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 171,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 172,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 173,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 174,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 175,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 176,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 177,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 178,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 179,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 180,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 181,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 182,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 183,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 184,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 185,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 186,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 187,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 188,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 189,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 190,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 191,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 192,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 193,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 194,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 195,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 196,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 197,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 198,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 199,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 200,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 201,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 202,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 203,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 204,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 205,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 206,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 207,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 208,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 209,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 210,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 211,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 212,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 213,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 214,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 215,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 216,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 217,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 218,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 219,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 220,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 221,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 222,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 223,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 224,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        }
+      ]
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "actualParent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        139
+      ],
+      "move15": 153,
+      "responses": [
+        {
+          "opponent16": 0,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 1,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 2,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 3,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 4,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 5,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 6,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 7,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 8,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 9,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 10,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 11,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 12,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 13,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 14,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 15,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 16,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 17,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 18,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 19,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 20,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 21,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 22,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 23,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 24,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 25,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 26,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 27,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 28,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 29,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 30,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 31,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 32,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 33,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 34,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 35,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 36,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 37,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 38,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 39,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 40,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 41,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 42,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 43,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 44,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 45,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 46,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 47,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 48,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 49,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 50,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 51,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 52,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 53,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 54,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 55,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 56,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 57,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 58,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 59,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 60,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 61,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 62,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 63,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 64,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 65,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 66,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 67,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 68,
+          "move17": 84,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 1609,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 69,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 70,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 71,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 72,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 73,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 74,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 75,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 76,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 77,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 78,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 79,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 80,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 81,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 82,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 84,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 85,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 86,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 87,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 88,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 89,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 90,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 91,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 92,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 93,
+          "move17": 95,
+          "category": "current-required-block-unproved",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 1708,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 95,
+          "move17": 93,
+          "category": "current-required-block-unproved",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 1709,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 99,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 100,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 101,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 102,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 103,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 104,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 105,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 106,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 107,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 108,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 109,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 113,
+          "move17": 84,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 1597,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 114,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 115,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 116,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 117,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 118,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 119,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 120,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 121,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 122,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 123,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 124,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 127,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 129,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 130,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 131,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 132,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 133,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 134,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 135,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 136,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 137,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 138,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 141,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 143,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 1707,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 144,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 145,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 146,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 147,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 148,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 149,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 150,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 151,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 152,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 154,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 155,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 156,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 157,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 158,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 159,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 160,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 161,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 162,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 163,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 164,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 165,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 166,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 167,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 168,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 169,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 170,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 171,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 172,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 173,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 174,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 175,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 176,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 177,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 178,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 179,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 180,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 181,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 182,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 183,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 184,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 185,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 186,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 187,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 188,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 189,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 190,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 191,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 192,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 193,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 194,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 195,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 196,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 197,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 198,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 199,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 200,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 201,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 202,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 203,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 204,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 205,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 206,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 207,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 208,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 209,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 210,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 211,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 212,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 213,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 214,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 215,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 216,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 217,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 218,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 219,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 220,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 221,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 222,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 223,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        },
+        {
+          "opponent16": 224,
+          "move17": 113,
+          "category": "retained-offline-strategy",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "normalizedNode": 367,
+          "pvOffset": 0
+        }
+      ]
+    }
+  ],
+  "d4Parents": [
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 0,
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        93
+      ],
+      "move15": 95,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 1,
+      "parent14": [
+        112,
+        98,
+        82,
+        97,
+        96,
+        80,
+        110,
+        68,
+        126,
+        113,
+        128,
+        81,
+        129,
+        53
+      ],
+      "move15": 83,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 2,
+      "parent14": [
+        112,
+        128,
+        114,
+        113,
+        98,
+        84,
+        82,
+        130,
+        96,
+        127,
+        126,
+        99,
+        141,
+        131
+      ],
+      "move15": 129,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 3,
+      "parent14": [
+        112,
+        126,
+        142,
+        127,
+        128,
+        144,
+        114,
+        156,
+        98,
+        111,
+        96,
+        143,
+        95,
+        171
+      ],
+      "move15": 141,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 4,
+      "parent14": [
+        112,
+        98,
+        114,
+        113,
+        128,
+        144,
+        142,
+        100,
+        126,
+        97,
+        96,
+        129,
+        81,
+        101
+      ],
+      "move15": 99,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 5,
+      "parent14": [
+        112,
+        128,
+        142,
+        127,
+        126,
+        140,
+        110,
+        158,
+        96,
+        113,
+        98,
+        141,
+        99,
+        173
+      ],
+      "move15": 143,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 6,
+      "parent14": [
+        112,
+        126,
+        110,
+        111,
+        96,
+        80,
+        82,
+        124,
+        98,
+        127,
+        128,
+        95,
+        143,
+        123
+      ],
+      "move15": 125,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 2,
+      "transformFromOriginal": 7,
+      "parent14": [
+        112,
+        96,
+        82,
+        97,
+        98,
+        84,
+        114,
+        66,
+        128,
+        111,
+        126,
+        83,
+        125,
+        51
+      ],
+      "move15": 81,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 0,
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        93
+      ],
+      "move15": 95,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 1,
+      "parent14": [
+        112,
+        98,
+        82,
+        97,
+        96,
+        80,
+        110,
+        68,
+        126,
+        113,
+        128,
+        81,
+        129,
+        53
+      ],
+      "move15": 83,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 2,
+      "parent14": [
+        112,
+        128,
+        114,
+        113,
+        98,
+        84,
+        82,
+        130,
+        96,
+        127,
+        126,
+        99,
+        141,
+        131
+      ],
+      "move15": 129,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 3,
+      "parent14": [
+        112,
+        126,
+        142,
+        127,
+        128,
+        144,
+        114,
+        156,
+        98,
+        111,
+        96,
+        143,
+        95,
+        171
+      ],
+      "move15": 141,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 4,
+      "parent14": [
+        112,
+        98,
+        114,
+        113,
+        128,
+        144,
+        142,
+        100,
+        126,
+        97,
+        96,
+        129,
+        81,
+        101
+      ],
+      "move15": 99,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 5,
+      "parent14": [
+        112,
+        128,
+        142,
+        127,
+        126,
+        140,
+        110,
+        158,
+        96,
+        113,
+        98,
+        141,
+        99,
+        173
+      ],
+      "move15": 143,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 6,
+      "parent14": [
+        112,
+        126,
+        110,
+        111,
+        96,
+        80,
+        82,
+        124,
+        98,
+        127,
+        128,
+        95,
+        143,
+        123
+      ],
+      "move15": 125,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "firstPlayer": 1,
+      "transformFromOriginal": 7,
+      "parent14": [
+        112,
+        96,
+        82,
+        97,
+        98,
+        84,
+        114,
+        66,
+        128,
+        111,
+        126,
+        83,
+        125,
+        51
+      ],
+      "move15": 81,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 0,
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        139
+      ],
+      "move15": 153,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 1,
+      "parent14": [
+        112,
+        98,
+        82,
+        97,
+        96,
+        80,
+        110,
+        68,
+        126,
+        113,
+        128,
+        81,
+        129,
+        65
+      ],
+      "move15": 49,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 2,
+      "parent14": [
+        112,
+        128,
+        114,
+        113,
+        98,
+        84,
+        82,
+        130,
+        96,
+        127,
+        126,
+        99,
+        141,
+        85
+      ],
+      "move15": 71,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 3,
+      "parent14": [
+        112,
+        126,
+        142,
+        127,
+        128,
+        144,
+        114,
+        156,
+        98,
+        111,
+        96,
+        143,
+        95,
+        159
+      ],
+      "move15": 175,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 4,
+      "parent14": [
+        112,
+        98,
+        114,
+        113,
+        128,
+        144,
+        142,
+        100,
+        126,
+        97,
+        96,
+        129,
+        81,
+        145
+      ],
+      "move15": 161,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 5,
+      "parent14": [
+        112,
+        128,
+        142,
+        127,
+        126,
+        140,
+        110,
+        158,
+        96,
+        113,
+        98,
+        141,
+        99,
+        155
+      ],
+      "move15": 169,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 6,
+      "parent14": [
+        112,
+        126,
+        110,
+        111,
+        96,
+        80,
+        82,
+        124,
+        98,
+        127,
+        128,
+        95,
+        143,
+        79
+      ],
+      "move15": 63,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 2,
+      "transformFromOriginal": 7,
+      "parent14": [
+        112,
+        96,
+        82,
+        97,
+        98,
+        84,
+        114,
+        66,
+        128,
+        111,
+        126,
+        83,
+        125,
+        69
+      ],
+      "move15": 55,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 0,
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        139
+      ],
+      "move15": 153,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 1,
+      "parent14": [
+        112,
+        98,
+        82,
+        97,
+        96,
+        80,
+        110,
+        68,
+        126,
+        113,
+        128,
+        81,
+        129,
+        65
+      ],
+      "move15": 49,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 2,
+      "parent14": [
+        112,
+        128,
+        114,
+        113,
+        98,
+        84,
+        82,
+        130,
+        96,
+        127,
+        126,
+        99,
+        141,
+        85
+      ],
+      "move15": 71,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 3,
+      "parent14": [
+        112,
+        126,
+        142,
+        127,
+        128,
+        144,
+        114,
+        156,
+        98,
+        111,
+        96,
+        143,
+        95,
+        159
+      ],
+      "move15": 175,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 4,
+      "parent14": [
+        112,
+        98,
+        114,
+        113,
+        128,
+        144,
+        142,
+        100,
+        126,
+        97,
+        96,
+        129,
+        81,
+        145
+      ],
+      "move15": 161,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 5,
+      "parent14": [
+        112,
+        128,
+        142,
+        127,
+        126,
+        140,
+        110,
+        158,
+        96,
+        113,
+        98,
+        141,
+        99,
+        155
+      ],
+      "move15": 169,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 6,
+      "parent14": [
+        112,
+        126,
+        110,
+        111,
+        96,
+        80,
+        82,
+        124,
+        98,
+        127,
+        128,
+        95,
+        143,
+        79
+      ],
+      "move15": 63,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "firstPlayer": 1,
+      "transformFromOriginal": 7,
+      "parent14": [
+        112,
+        96,
+        82,
+        97,
+        98,
+        84,
+        114,
+        66,
+        128,
+        111,
+        126,
+        83,
+        125,
+        69
+      ],
+      "move15": 55,
+      "initialMainPriority": "urgent-required-block-unproved",
+      "expectedResponseCount": 210,
+      "deriveResponses": "Transform the original-white response rows for this root by transformFromOriginal; swap roles to firstPlayer."
+    }
+  ],
+  "expected": {
+    "newRoots": 2,
+    "d4ParentCases": 32,
+    "canonicalComplete16ResponseCases": 420,
+    "fullColorD4ResponseCases": 6720,
+    "selectedGames": 2
+  },
+  "selectedGames": [
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+      "case": "D7",
+      "firstPlayer": 2,
+      "me": 2,
+      "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+      "sourceResultSha256": "234bfceebe820b5be1f49abd7e190dbf541619ede5a83b9cb4050f43b694a985",
+      "sourceCommit": "048ec3e339b2d5915bb21af7b1c8ba22593578b6",
+      "rootOwnPly": 15,
+      "setupUser8": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94
+      ],
+      "ancestor13": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83
+      ],
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        93
+      ],
+      "moves": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        93,
+        95,
+        113,
+        84,
+        70,
+        158,
+        174,
+        114,
+        100,
+        170,
+        156,
+        130,
+        139,
+        153,
+        82,
+        127,
+        129,
+        172,
+        157,
+        144,
+        116,
+        186
+      ],
+      "coordinates": [
+        "H8",
+        "G7",
+        "F8",
+        "G8",
+        "G9",
+        "F10",
+        "H10",
+        "E7",
+        "I9",
+        "H7",
+        "I7",
+        "F9",
+        "I6",
+        "D7",
+        "F7",
+        "I8",
+        "J6",
+        "K5",
+        "I11",
+        "J12",
+        "J8",
+        "K7",
+        "F12",
+        "G11",
+        "K9",
+        "E10",
+        "D11",
+        "H6",
+        "H9",
+        "J9",
+        "H12",
+        "H11",
+        "J10",
+        "L8",
+        "G13"
+      ],
+      "ownSteps": [
+        {
+          "ply": 15,
+          "i": 95,
+          "coordinate": "F7",
+          "expectedMainPriority": "urgent-required-block-unproved",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1588,
+          "pvOffset": 0
+        },
+        {
+          "ply": 17,
+          "i": 84,
+          "coordinate": "J6",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1509,
+          "pvOffset": 0
+        },
+        {
+          "ply": 19,
+          "i": 158,
+          "coordinate": "I11",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1508,
+          "pvOffset": 0
+        },
+        {
+          "ply": 21,
+          "i": 114,
+          "coordinate": "J8",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1507,
+          "pvOffset": 0
+        },
+        {
+          "ply": 23,
+          "i": 170,
+          "coordinate": "F12",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1500,
+          "pvOffset": 0
+        },
+        {
+          "ply": 25,
+          "i": 130,
+          "coordinate": "K9",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1499,
+          "pvOffset": 0
+        },
+        {
+          "ply": 27,
+          "i": 153,
+          "coordinate": "D11",
+          "expectedMainPriority": "urgent-required-block-unproved",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1497,
+          "pvOffset": 0
+        },
+        {
+          "ply": 29,
+          "i": 127,
+          "coordinate": "H9",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1318,
+          "pvOffset": 0
+        },
+        {
+          "ply": 31,
+          "i": 172,
+          "coordinate": "H12",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1318,
+          "pvOffset": 2
+        },
+        {
+          "ply": 33,
+          "i": 144,
+          "coordinate": "J10",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1318,
+          "pvOffset": 4
+        },
+        {
+          "ply": 35,
+          "i": 186,
+          "coordinate": "G13",
+          "expectedMainPriority": "urgent-exact-five",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-93-proof15-c490f3ed49e6",
+          "sourceProofSha256": "c490f3ed49e692fb83217239e765eaf6900034c9df78e39bc2d9f57101602dc3",
+          "node": 1318,
+          "pvOffset": 4
+        }
+      ],
+      "opponentSteps": [
+        {
+          "ply": 16,
+          "i": 113,
+          "coordinate": "I8",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 18,
+          "i": 70,
+          "coordinate": "K5",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 20,
+          "i": 174,
+          "coordinate": "J12",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 22,
+          "i": 100,
+          "coordinate": "K7",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 24,
+          "i": 156,
+          "coordinate": "G11",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 26,
+          "i": 139,
+          "coordinate": "E10",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 28,
+          "i": 82,
+          "coordinate": "H6",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 30,
+          "i": 129,
+          "coordinate": "J9",
+          "kind": "original-vcf-forced-defense"
+        },
+        {
+          "ply": 32,
+          "i": 157,
+          "coordinate": "H11",
+          "kind": "original-vcf-forced-defense"
+        },
+        {
+          "ply": 34,
+          "i": 116,
+          "coordinate": "L8",
+          "kind": "legal-vcf-terminal-defense"
+        }
+      ],
+      "terminal": {
+        "winner": 2,
+        "ply": 35,
+        "i": 186,
+        "acceptedWinningMoves": [
+          186
+        ]
+      },
+      "selectedBy": "Maximum conservative remaining original DAG cost; critical legal VCF defense and immediate exact5 priority. No strongest-opponent timed selection."
+    },
+    {
+      "rootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+      "case": "E10",
+      "firstPlayer": 2,
+      "me": 2,
+      "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+      "sourceResultSha256": "e1eff9e5d560d63d0b384ae8f0d43ef1e3ee049bd86f31ad6670377c00d58cec",
+      "sourceCommit": "048ec3e339b2d5915bb21af7b1c8ba22593578b6",
+      "rootOwnPly": 15,
+      "setupUser8": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94
+      ],
+      "ancestor13": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83
+      ],
+      "parent14": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        139
+      ],
+      "moves": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        139,
+        153,
+        113,
+        84,
+        70,
+        158,
+        174,
+        114,
+        95,
+        93,
+        100,
+        170,
+        156,
+        130,
+        82,
+        127,
+        129,
+        172,
+        157,
+        144,
+        116,
+        186
+      ],
+      "coordinates": [
+        "H8",
+        "G7",
+        "F8",
+        "G8",
+        "G9",
+        "F10",
+        "H10",
+        "E7",
+        "I9",
+        "H7",
+        "I7",
+        "F9",
+        "I6",
+        "E10",
+        "D11",
+        "I8",
+        "J6",
+        "K5",
+        "I11",
+        "J12",
+        "J8",
+        "F7",
+        "D7",
+        "K7",
+        "F12",
+        "G11",
+        "K9",
+        "H6",
+        "H9",
+        "J9",
+        "H12",
+        "H11",
+        "J10",
+        "L8",
+        "G13"
+      ],
+      "ownSteps": [
+        {
+          "ply": 15,
+          "i": 153,
+          "coordinate": "D11",
+          "expectedMainPriority": "urgent-required-block-unproved",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1710,
+          "pvOffset": 0
+        },
+        {
+          "ply": 17,
+          "i": 84,
+          "coordinate": "J6",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1597,
+          "pvOffset": 0
+        },
+        {
+          "ply": 19,
+          "i": 158,
+          "coordinate": "I11",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1596,
+          "pvOffset": 0
+        },
+        {
+          "ply": 21,
+          "i": 114,
+          "coordinate": "J8",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1595,
+          "pvOffset": 0
+        },
+        {
+          "ply": 23,
+          "i": 93,
+          "coordinate": "D7",
+          "expectedMainPriority": "urgent-required-block-unproved",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1594,
+          "pvOffset": 0
+        },
+        {
+          "ply": 25,
+          "i": 170,
+          "coordinate": "F12",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1325,
+          "pvOffset": 0
+        },
+        {
+          "ply": 27,
+          "i": 130,
+          "coordinate": "K9",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1324,
+          "pvOffset": 0
+        },
+        {
+          "ply": 29,
+          "i": 127,
+          "coordinate": "H9",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1318,
+          "pvOffset": 0
+        },
+        {
+          "ply": 31,
+          "i": 172,
+          "coordinate": "H12",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1318,
+          "pvOffset": 2
+        },
+        {
+          "ply": 33,
+          "i": 144,
+          "coordinate": "J10",
+          "expectedMainPriority": "retained-strategy",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1318,
+          "pvOffset": 4
+        },
+        {
+          "ply": 35,
+          "i": 186,
+          "coordinate": "G13",
+          "expectedMainPriority": "urgent-exact-five",
+          "sourceRootId": "I3-user8-op10-97-op12-125-op14-139-proof15-a8a10ccc967c",
+          "sourceProofSha256": "a8a10ccc967ccf5577ec00a182180b3d4d0406119bd071c825bbfcc693cef43a",
+          "node": 1318,
+          "pvOffset": 4
+        }
+      ],
+      "opponentSteps": [
+        {
+          "ply": 16,
+          "i": 113,
+          "coordinate": "I8",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 18,
+          "i": 70,
+          "coordinate": "K5",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 20,
+          "i": 174,
+          "coordinate": "J12",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 22,
+          "i": 95,
+          "coordinate": "F7",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 24,
+          "i": 100,
+          "coordinate": "K7",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 26,
+          "i": 156,
+          "coordinate": "G11",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 28,
+          "i": 82,
+          "coordinate": "H6",
+          "kind": "maximum-remaining-original-DAG-cost"
+        },
+        {
+          "ply": 30,
+          "i": 129,
+          "coordinate": "J9",
+          "kind": "original-vcf-forced-defense"
+        },
+        {
+          "ply": 32,
+          "i": 157,
+          "coordinate": "H11",
+          "kind": "original-vcf-forced-defense"
+        },
+        {
+          "ply": 34,
+          "i": 116,
+          "coordinate": "L8",
+          "kind": "legal-vcf-terminal-defense"
+        }
+      ],
+      "terminal": {
+        "winner": 2,
+        "ply": 35,
+        "i": 186,
+        "acceptedWinningMoves": [
+          186
+        ]
+      },
+      "selectedBy": "Maximum conservative remaining original DAG cost; critical legal VCF defense and immediate exact5 priority. No strongest-opponent timed selection."
+    }
+  ],
+  "priorityContract": {
+    "root15": "Both original15 nominees are already unique urgent blocks in released37. Confirm those actual unproven urgent results and matching new251 ghosts; do not demand retainedStrategy/live0 or manufacture a record proof pin.",
+    "next17": "After the real urgent15 record, first check all210 legal16 responses with openingStrategyPin=null. Match source-root15 implicit selection/ghost. Also check explicit known-root pin separately as a module/API contract. Once an actual retained result is played, use the application history helper to restore its original root15 pin.",
+    "urgentNonwinning": "Require actual legal unique block equal the source DAG recommendation, original conditional ghost, and original pin if history has actually acquired one. Keep provenfalse and do not call a current blocking inspection an offline0ms lookup.",
+    "retained": "Require live depth/nodes/score/ms0/proofnull only on the actual retained lookup, with expected original root/source proof metadata and same default/ghost.",
+    "terminal": "Accept the actual engine exact-five recommendation from the independently checked winning set. Source PV length is not a clicked terminal length."
+  },
+  "chainContract": "The explicit13I6 ancestor is legal but is called current default only if the released37 immediate query above actually returns it. A null immediate hit means timed fresh analysis was not measured; retain that unknown and test user entry at the legal I6 coordinate instead of substituting another representative.",
+  "whole13WinProven": false,
+  "api251Executed": false,
+  "uiExecuted": false
+}
