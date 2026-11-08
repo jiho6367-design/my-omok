@@ -8,7 +8,15 @@ const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex'),inspec
 function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const old=x;x=14-y;y=old;}return y*15+x;}
 function board(moves,p=1,t=0){const b=Array(225).fill(0);for(let k=0;k<moves.length;k++){const i=tr(moves[k],t),q=k%2?3-p:p;assert(R(b).legal(i,q),'Illegal published path');b[i]=q;assert(!R(b).exact(i,q),'Published input must remain nonterminal');}return b;}
 function equivalent(b,a,z){for(let t=0;t<8;t++)if(tr(a,t)===z&&b.every((v,i)=>b[tr(i,t)]===v))return true;return false;}
-for(const [name,digest]of Object.entries({'opening-data.js':'d241e006e8af7e7d0988cf21ec01ce181a26f6ef40df339ab3a19c990493864d','opening-analysis-data.js':'50d52cb345c6471c8a50d919854b287480668965c95ec8a9913a00d163afa096','opening-continuation-data.js':'8fa1a867db41f9d0e9c3853185a82e39cfdf851b6a9a7c8a3f07054f3f0d9f48'}))assert.equal(hash(fs.readFileSync(path.join(__dirname,'../src',name)).toString().replace(/\r\n/g,'\n')),digest,'Historical source/evidence must remain unchanged');
+for(const [name,digest]of Object.entries({'opening-data.js':'d241e006e8af7e7d0988cf21ec01ce181a26f6ef40df339ab3a19c990493864d','opening-analysis-data.js':'50d52cb345c6471c8a50d919854b287480668965c95ec8a9913a00d163afa096'}))assert.equal(hash(fs.readFileSync(path.join(__dirname,'../src',name)).toString().replace(/\r\n/g,'\n')),digest,'Historical source/evidence must remain unchanged');
+// Native continuations grow by append; preserve all evidence through the prior release.
+const native=require('../src/opening-continuation-data.js');
+assert.deepEqual(Object.keys(native).sort(),['analysis','entries','extensions','rulesId','schemaVersion']);
+assert.equal(native.schemaVersion,2);assert.equal(native.rulesId,'15x15-exact5-both33-v1');assert.equal(native.rulesId,A.RULES_ID);
+assert.equal(A.MAX_CONTINUATIONS,32768);assert(native.entries.length>=31779&&native.entries.length<=A.MAX_CONTINUATIONS);assert(native.extensions.length>=4);
+assert.equal(hash(JSON.stringify(native.entries.slice(0,31779))),'4f99303984c1387df1a113222274fcfcc60fcf5d866f6db8cd009d7194c13255','Historical native entry order/evidence must remain unchanged');
+assert.equal(hash(JSON.stringify(native.analysis)),'782a0fb34b11e5ef4dab0e6af763aba3c09bdd9124d8de782f725227b324b0f1','Historical native analysis must remain unchanged');
+assert.equal(hash(JSON.stringify(native.extensions.slice(0,4))),'befbde86d6c9bb027a7bf6feab3a995f213cf0628176036f064cbc3364e40be5','Historical native extensions must remain unchanged');
 assert.equal(scope.schemaVersion,1);assert.equal(scope.rulesId,A.RULES_ID);assert.equal(scope.outerSeconds,16);assert.equal(scope.thirdPairs,64);assert.equal(scope.representativeThirds,9);assert.equal(scope.representativeFourthScope,1998);assert.equal(scope.expandedFourthScope,14208);assert.equal(scope.representativeSixthScope,1980);
 assert.deepEqual(scope.families.map(r=>r.familyId).sort(),families.slice().sort());
 assert.equal(D.schemaVersion,1);assert.equal(D.rulesId,A.RULES_ID);assert(D.entries.length>0&&D.entries.length<=A.MAX_REDUCTIONS);assert(!D.analysis.previewOnly,'A partial preview is not a published dataset');assert.equal(D.analysis.sourceEngineCommit,scope.sourceEngineCommit);assert.equal(new Set(D.entries.map(r=>r.id)).size,D.entries.length);
@@ -54,4 +62,4 @@ for(const branch of scope.laterBranches||[]){
  }laterPaths++;
 }
 assert(laterPaths>0,'Selected continuations beyond7 must be present');
-console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,scope:'All declared1998 representative fourth replies and1980 selected-parent sixth replies; all published actual-board rows in both colors/D4, unchanged historical bytes, exact original evidence, current source/urgent priority and causal selected later paths. No guarantee for all future replies.'}));
+console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,scope:'All declared1998 representative fourth replies and1980 selected-parent sixth replies; all published actual-board rows in both colors/D4, unchanged historical source bytes and native evidence prefix, exact original evidence, current source/urgent priority and causal selected later paths. No guarantee for all future replies.'}));
