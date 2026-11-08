@@ -12,7 +12,7 @@ function createEngine(options={}) {
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
-    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),openingStrategyPin:options.openingStrategyPin??options.context?.openingStrategyPin??null,strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
+    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),openingStrategyPin:options.openingStrategyPin??options.context?.openingStrategyPin??null,strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),...(options.counterProofDetails===true?{counterProofDetails:true}:{}),
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
@@ -366,7 +366,7 @@ function createEngine(options={}) {
       r.kind==='block'?'상대의 다음 5목을 막는 필수 방어':
       r.kind==='incomplete'?'임시 합법 후보 · 추가 계산 중':'공격과 방어를 비교한 추천';
     return {i,reason,depth:r.depth||0,proofPlies:r.proofPlies??null,proofSearchDepth:r.proofSearchDepth??null,proofSearchDepthScope:r.proofSearchDepthScope??null,nodes:r.nodes||0,ms:clockNow()-started,score:first?.score||0,
-      pv:validPV(board,p,first?.pv),proven:['win','forced'].includes(r.kind),lossProven:r.kind==='lost',forcedLoss:r.kind==='lost',
+      pv:validPV(board,p,first?.pv),...(options.proofDetails===true?{proof:r.kind==='win'?{type:'exact-five',move:i,attacker:p,complete:true}:r.kind==='forced'&&r.proof==='forcing-four'?{type:'forcing-four',pv:first?.pv?.slice()}:r.proof??null}:{}),proven:['win','forced'].includes(r.kind),lossProven:r.kind==='lost',forcedLoss:r.kind==='lost',
       threats:r.danger||[],shape:i==null?null:inspect(board,i,p),urgent:r.kind==='win'||!!r.mandatoryDefense||(r.kind==='lost'&&!!r.danger?.length),
       forbiddenDefense,
       defenseChecked:first?.status==='screened',fallback:!!r.fallback,kind:r.kind,mandatoryDefense:!!r.mandatoryDefense,
@@ -876,7 +876,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
         if(pv?.length&&validPV(board,p,pv).length===pv.length){
           best={...best,proven:true,lossProven:false,forcedLoss:false,kind:'forced',score:1e8,pv,
             reason:'추천 수 뒤 상대의 모든 합법 방어에 강제패배 확인',
-            proof:{type:'opponent-complete-loss',rejected:confirmation.rejectedMoves||[],danger:confirmation.danger||[]}};
+            proof:options.proofDetails===true&&confirmation.completeLossCertificate?.complete===true&&confirmation.completeLossCertificate.attacker===p&&confirmation.completeLossCertificate.defender===3-p&&confirmation.completeLossCertificate.entryBoardKey===after.join('')?{type:'all-legal-replies',move:best.i,attacker:p,defender:3-p,entryBoardKey:board.join(''),replyBoardKey:after.join(''),complete:true,checkedReplies:confirmation.completeLossCertificate.checkedReplies,branches:confirmation.completeLossCertificate.branches}:{type:'opponent-complete-loss',rejected:confirmation.rejectedMoves||[],danger:confirmation.danger||[]}};
         }
       }else if(['win','forced'].includes(confirmation.kind)){
         const line=confirmation.moves?.[0]?.pv||[];

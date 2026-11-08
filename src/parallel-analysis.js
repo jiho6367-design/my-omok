@@ -56,9 +56,12 @@ const OmokParallel=(()=>{
   if(m.type==='plan'){const result=reader.analyze(m.base.p,700);postMessage({type:'plan',result});}
   else{const result=reader.compareRoots(m.base.p,m.roots,m.depth,m.ms);postMessage({type:'round',round:m.round,result,searchMemory:memory?.delta(1024)});}
  }catch(error){postMessage({error:String(error)});}};`;
- function start({source,base,budget,mode,onProgress,onDone,onError,hardware=globalThis.navigator?.hardwareConcurrency||1}){
+ function start({source,base,budget,mode,onProgress,onDone,onError,onProofSource=()=>{},hardware=globalThis.navigator?.hardwareConcurrency||1}){
   if(!['auto','deep'].includes(mode)||budget<3000||hardware<6||typeof Worker==='undefined')return null;
   base={...base,options:{...base.options,rootWidth:mode==='deep'?32:24}};
+  const exportNativeProof=base.options?.proofDetails===true&&base.options?.counterProofDetails===true;
+  let actualWorkerSourceBlob=null;const nativeRequests=new Map(),snapshotRequest=(type,ms)=>{if(!exportNativeProof)return;try{nativeRequests.set(type,structuredClone({board:base.b,p:base.p,firstPlayer:base.options.firstPlayer??null,model:base.options.model??null,rules:{fivePriority:base.options.fivePriority!==false},ms}));}catch{nativeRequests.delete(type);}};
+  const proofSource=(sourceKind,messageType,result,declaredWorkerBudgetMs)=>{if(exportNativeProof)try{onProofSource({schemaVersion:1,source:sourceKind,messageType,declaredWorkerBudgetMs,result,requestSnapshot:nativeRequests.get(messageType)??null,workerSourceBlob:actualWorkerSourceBlob});}catch{}};
   const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),deadline=guardDeadline-Math.min(1200,budget*.12),count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
   let stopped=false,guarding=false,guardReason=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
   const close=()=>{if(stopped)return;stopped=true;clearTimeout(timer);for(const w of workers)w.terminate();};
@@ -84,11 +87,12 @@ const OmokParallel=(()=>{
    if(data.type==='guard'){finish(guardReason);return;}if(guarding)return;
    if(data.type==='win-check'){
     if(!pendingWin||data.round!==round||data.i!==pendingWin.i)return;
-    const check=data.check;pendingWin=null;winMs+=check.ms||0;winChecks.push({i:data.i,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0});
+    const check=data.check,nativeWorkerBudgetMs=pendingWin.ms;pendingWin=null;winMs+=check.ms||0;winChecks.push({i:data.i,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0});
     if(check.complete&&check.proof?.move===data.i&&!bad.has(data.i)){
      const nodes=latest.nodes+winChecks.reduce((n,c)=>n+(c.nodes||0),0),result={...latest,i:data.i,proven:true,lossProven:false,forcedLoss:false,analysisIncomplete:false,timedOut:false,kind:check.kind,
       pv:check.pv,proof:check.proof,score:1e8,depth:latest.depth||0,proofPlies:check.proofPlies??check.pv.length,proofSearchDepth:check.proofSearchDepth??null,proofSearchDepthScope:check.proofSearchDepthScope??null,nodes,candidateWinChecks:winChecks,
       reason:'후보 착수 뒤 상대의 모든 합법 응수에서 강제승 확인'};
+     proofSource('parallel-verify-winning-move-result','win-check',check,nativeWorkerBudgetMs);
      close();onDone({...result,
       parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:'verified-win'},analysisWork:{...result.analysisWork,completedDepth:result.depth,nodes,elapsedMs:Math.round(performance.now()-started),stopReason:'verified-win'}});return;
     }
@@ -97,6 +101,7 @@ const OmokParallel=(()=>{
    if(data.type==='plan'){
     seed=data.result;const victory=readerVictory(seed);
     if(victory&&!bad.has(victory.i)){
+     proofSource('parallel-plan-native-reader-result','plan',seed,700);
      close();onDone({...victory,modelVersion:base.modelInfo?.modelVersion,learnedEvaluation:!!base.modelInfo?.active,automatic:mode==='auto',
       analysisWork:{mode,budgetMs:budget,elapsedMs:Math.round(performance.now()-started),completedDepth:victory.depth,
        nodes:victory.nodes,source:'parallel-plan',stopReason:'verified-win'}});return;
@@ -120,14 +125,14 @@ const OmokParallel=(()=>{
    onProgress(latest,data.searchMemory);
    rounds.push({i:best.i,score:best.score,depth,pv:best.pv.slice(0,3),ranking:compared.slice(0,3).map(m=>m.i),gap:compared.length>1?best.score-compared[1].score:null});
    const key=best.i+'|'+(best.score>=5e6?'mate':'candidate'),winBudget=Math.min(160,320-winMs,deadline-performance.now()-30);
-   if(winChecks.length<4&&!winAttempted.has(key)&&winBudget>=20){winAttempted.add(key);pendingWin={i:best.i};
-    workers[0].postMessage({type:'win-check',base,round,i:best.i,ms:winBudget});return;}
+   if(winChecks.length<4&&!winAttempted.has(key)&&winBudget>=20){winAttempted.add(key);pendingWin={i:best.i,ms:winBudget};
+    snapshotRequest('win-check',winBudget);workers[0].postMessage({type:'win-check',base,round,i:best.i,ms:winBudget});return;}
    advance();
   };
   try{
-   const url=URL.createObjectURL(new Blob([source+'\n'+workerCode],{type:'text/javascript'}));
+   actualWorkerSourceBlob=new Blob([source+'\n'+workerCode],{type:'text/javascript'});const url=URL.createObjectURL(actualWorkerSourceBlob);
    try{for(let k=0;k<count;k++){const w=new Worker(url);w.onmessage=e=>receive(k,e.data);w.onerror=e=>fail(e.message||'병렬 Worker 오류');workers.push(w);}}finally{URL.revokeObjectURL(url);}
-   timer=setTimeout(()=>done('time-limit'),Math.max(1,deadline-performance.now()));workers[0].postMessage({type:'plan',base});
+   timer=setTimeout(()=>done('time-limit'),Math.max(1,deadline-performance.now()));snapshotRequest('plan',700);workers[0].postMessage({type:'plan',base});
   }catch(error){fail(String(error));return null;}
   return {terminate:close,observe(result){serial=result;for(const m of result?.rejected||[])if(!m.riskOnly&&(m.verifiedRefutation||m.pv?.length||m.line?.length||m.replyTrap))bad.add(m.i);},get latest(){return latest;}};
  }

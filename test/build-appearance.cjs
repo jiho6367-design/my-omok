@@ -3,7 +3,11 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const project=path.resolve(__dirname,'..'),temporary=fs.mkdtempSync(path.join(os.tmpdir(),'omok-appearance-'));
 try{
  // Copy only build inputs, never this machine's images, active model or runs.
- const files=cp.execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:project,encoding:'utf8'}).split('\0').filter(f=>f==='build.cjs'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'));
+ // Isolated release copies can supply their exact public input manifest;
+ // normal clean checkouts continue to obtain the same list from Git.
+ const listed=process.env.OMOK_BUILD_INPUTS_FILE?JSON.parse(fs.readFileSync(process.env.OMOK_BUILD_INPUTS_FILE,'utf8')):cp.execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:project,encoding:'utf8'}).split('\0').filter(Boolean);
+ assert(Array.isArray(listed)&&listed.every(f=>typeof f==='string'&&!path.isAbsolute(f)&&!f.split(/[\\/]/).includes('..')),'Public relative build inputs required');
+ const files=listed.filter(f=>(f==='build.cjs'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'))&&f!=='src/active-model.json');
  files.push('tools/build-appearance.cjs');
  for(const relative of new Set(files)){if(!fs.existsSync(path.join(project,relative)))continue;const target=path.join(temporary,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(project,relative),target);}
  const build=(...args)=>cp.execFileSync(process.execPath,['build.cjs','--baseline',...args],{cwd:temporary,stdio:'pipe'}),read=f=>fs.readFileSync(path.join(temporary,f),'utf8');

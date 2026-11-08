@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.38';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.38');
+versionBadge.textContent='통합 v5.18.39';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.39');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -88,6 +88,7 @@ function selectedBudget(board,p){
   activePlan=own.label;analysisPlan.textContent=activePlan;return own.budget;
 }
 function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
+  const proofObserver=spawnAnalysis.proofObserver;
   const recorded=p===g?.me?(E.openingReply?.(board,p,{budget})||E.recordedReply?.(board,p)):null;
   if(recorded){let cancelled=false;const task={terminate(){cancelled=true;}};queueMicrotask(()=>{if(!cancelled)onDone(recorded);});return task;}
   const started=performance.now();
@@ -101,8 +102,8 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     session=spawnAnalysis.memory;session.store.begin();
   }
   const engineSource=$('engineSource').textContent;
-  const src=engineSource+'\nonmessage=e=>{try{const memory=typeof OmokSearchMemory!=="undefined"?OmokSearchMemory.create({snapshot:e.data.searchMemory}):null;const E=createEngine({...e.data.rules,openingBook:false,model:e.data.model,firstPlayer:e.data.firstPlayer,patternTable:e.data.patternTable,optimized:e.data.optimized,searchMemory:memory});const r=E.analyze(e.data.b,e.data.p,e.data.ms,e.data.lessons,r=>postMessage({progress:true,result:r,searchMemory:memory?.delta(512)}));postMessage({result:r,searchMemory:memory?.delta(4096)})}catch(x){postMessage({error:String(x)})}}';
-  const url=URL.createObjectURL(new Blob([src],{type:'text/javascript'}));let w;
+  const src=engineSource+'\nonmessage=e=>{try{const memory=typeof OmokSearchMemory!=="undefined"?OmokSearchMemory.create({snapshot:e.data.searchMemory}):null;const E=createEngine({...e.data.rules,openingBook:false,model:e.data.model,firstPlayer:e.data.firstPlayer,patternTable:e.data.patternTable,optimized:e.data.optimized,proofDetails:true,counterProofDetails:true,searchMemory:memory});const r=E.analyze(e.data.b,e.data.p,e.data.ms,e.data.lessons,r=>postMessage({progress:true,result:r,searchMemory:memory?.delta(512)}));postMessage({result:r,searchMemory:memory?.delta(4096)})}catch(x){postMessage({error:String(x)})}}';
+  const workerSourceBlob=new Blob([src],{type:'text/javascript'}),url=URL.createObjectURL(workerSourceBlob);let w;
   try{w=new Worker(url);}finally{URL.revokeObjectURL(url);}
   const limit=typeof budget==='object'?budget.ms:Number(budget);
   const reserve=Math.min(1500,Math.max(60,limit*.06)),searchLimit=Math.max(30,limit-reserve);
@@ -188,6 +189,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     finish(fallback,'시간 상한 도달');
   },Math.max(0,limit-(performance.now()-started)));
   w.onmessage=e=>{if(finished)return;
+    if(!e.data.parallel&&e.data.result)try{proofObserver?.nativeResult?.(e.data.result,{progress:!!e.data.progress});}catch{}
     if(session&&spawnAnalysis.memory===session)session.store.merge(e.data.searchMemory);
     if(e.data.error)finish(lastVerified,e.data.error);
     else if(e.data.progress){let r=e.data.result;
@@ -216,9 +218,11 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     }else finish(e.data.result);};
   w.onerror=e=>finish(lastVerified,e.message||'Worker 오류');
   const model=E.getModel?.()??null,firstPlayer=g?.first??null,patternTable=globalThis.omokAcceleration?.table,optimized=globalThis.omokAcceleration?.optimized,searchMemory=session?.store.snapshot();
+  try{proofObserver?.jobStart?.({engineSource,workerSourceBlob,sourceAPI:'createEngine.analyze',board:board.slice(),p,firstPlayer,model,ms:searchBudget,rules:g?.rules||{},lessons:db.lessons});}catch{}
   w.postMessage({model,firstPlayer,patternTable,optimized,b:board,p,ms:searchBudget,lessons:db.lessons,rules:g?.rules||{},searchMemory});
   if(typeof OmokParallel!=='undefined')parallel=OmokParallel.start({source:engineSource,budget:searchLimit,mode:budget?.mode||(budget?.automatic?'auto':null),
-    base:{b:board,p,options:{...(g?.rules||{}),openingBook:false,model,firstPlayer,patternTable,optimized},modelInfo:E.getModelInfo?.(),searchMemory},
+    base:{b:board,p,options:{...(g?.rules||{}),openingBook:false,model,firstPlayer,patternTable,optimized,proofDetails:true,counterProofDetails:true},modelInfo:E.getModelInfo?.(),searchMemory},
+    onProofSource:source=>{try{proofObserver?.proofSource?.(source);}catch{}},
     onProgress:(r,memory)=>w.onmessage({data:{progress:true,result:r,searchMemory:memory,parallel:true}}),onDone:r=>finish(r),
     onError:()=>{parallel=null;if(serialFinished)finish(serialFinished);}});
   return w;
@@ -256,9 +260,9 @@ function prepareReply(){
   const task={opponent,key:positionKey(board,p),sourceKey:positionKey(b,turn),started:Date.now(),worker:null,result:null,partial:null,promoted:false,policy:{...own.policy,role:'ponder'}};ponder=task;
   predictionNote.textContent=`상대 ${E.coord(opponent)} 1초 예측 · 내 응수 ${settingsPolicy.label(analysisSettings)}으로 사전 계산`;
   const current=()=>ponder===task&&g&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
-  const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;};
+  const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;};
   const immediate=E.urgent(board,p);if(immediate){finish(immediate);return;}
-  try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){task.partial={...r,analysisPolicy:task.policy};if(task.promoted)acceptResult(task.partial,true);}},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){cancelPonder();}
+  try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){task.partial={...r,analysisPolicy:task.policy};if(task.promoted&&!task.liveProofGatePending)acceptResult(task.partial,true);}},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){cancelPonder();}
 }
 analyze=function(explicit,onDone){
   // Historical study buttons now use the one selected analysis policy.
