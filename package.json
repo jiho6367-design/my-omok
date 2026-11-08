@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.36",
+  "version": "5.18.37",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -74,10 +74,12 @@
     "test:opening-hangseong-followups": "node test/opening-hangseong-followups.cjs",
     "test:opening-hangseong-followups:ui": "node test/opening-hangseong-followups-ui.cjs",
     "test:opening-strategy": "node test/opening-strategy.cjs && node test/opening-strategy-engine.cjs && node test/opening-auto-admission.cjs",
-    "test:opening-strategy:integration": "node test/opening-strategy-runtime.cjs",
+    "test:opening-strategy:integration": "node test/opening-strategy-runtime.cjs && node test/opening-strategy249-runtime.cjs",
     "test:opening-strategy:ui": "node test/opening-strategy-ui.cjs",
     "test:proof-metrics": "node test/proof-search-metrics.cjs",
-    "test:proof-wall-smoke": "node test/second-player-counterattack-smoke.cjs"
+    "test:proof-wall-smoke": "node test/second-player-counterattack-smoke.cjs",
+    "test:opening-strategy249:integration": "node test/opening-strategy249-runtime.cjs",
+    "test:opening-strategy249:ui": "node test/opening-strategy249-ui.cjs"
   },
   "engines": {
     "node": ">=22.13"
