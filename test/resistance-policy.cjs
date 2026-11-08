@@ -82,7 +82,7 @@ const quiet=board('H8 H9','I8 G7');
 for(const [source,run] of [['reader',()=>makeReader(15,quiet,opts).analyze(1,500)],['forest',()=>E.analyze(quiet,1,500)]]){
  const r=run(),c=r.comparison;assert(c?.complete);assert(c.depth>0&&c.rootsCompared>1);assert.equal(c.source,source);assert.equal(c.depth,r.depth);assert.equal(c.selected,source==='reader'?r.moves[0].i:r.i);assert.deepEqual(quiet,board('H8 H9','I8 G7'));cases++;
 }
-const immediate=board('D8 E8 F8 G8','A1'),won=makeReader(15,immediate,opts).analyze(1,1000);assert.equal(won.kind,'win');assert.equal(won.comparison.complete,false);assert(won.depth>0);cases++;
+const immediate=board('D8 E8 F8 G8','A1'),won=makeReader(15,immediate,opts).analyze(1,1000);assert.equal(won.kind,'win');assert.equal(won.comparison.complete,false);assert.equal(won.depth,0);assert.equal(won.comparison.depth,0);assert.equal(won.proofPlies,1);assert.equal(won.proofSearchDepth,0);assert.equal(won.proofSearchDepthScope,'immediate-inspection-no-recursive-proof-work');cases++;
 // VM injection changes only the clock, retaining real rules and search. It
 // reaches screening but never a completed comparison round.
 let clock=0;const context={Date,performance:{now:()=>clock+=10}};vm.createContext(context);vm.runInContext(fs.readFileSync('src/reader-engine.js','utf8'),context);

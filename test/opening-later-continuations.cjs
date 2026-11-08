@@ -58,52 +58,7 @@ for(const family of families)for(const count of[14,16,18,20]){
   const position=board(row.moves,p,t),before=position.slice(),scoped=A.createForPosition({continuationData:D,inspect,board:position,p,firstPlayer:p});assert.deepEqual(scoped.errors,[]);assert.deepEqual(plain(scoped.lookup(position,p,p)),plain(book.lookup(position,p,p)));assert.deepEqual(position,before);scopedChecks++;
  }
 }
-// Sample only entries that remain the actual default in every orientation.
-// Native references and immediate tactical moves continue to take priority.
-const selected=[],probe=create({firstPlayer:1,model:null,recordBook:[],searchMemory:false});
-for(const family of families)for(const count of[14,16,18,20]){
- const row=entries.find(row=>row.familyId===family&&row.moves.length===count&&Array.from({length:8},(_,t)=>t).every(t=>{const b=board(row.moves,1,t),hit=probe.openingReply(b,1);return hit?.kind==='opening-analysis'&&hit.analysisEvidence.offline.resultSha256===row.resultSha256&&hit.analysisEvidence.families.some(f=>f.id===family)&&equivalent(b,hit.i,tr(row.move,t));}));
- if(row)selected.push(row);
-}
-for(const family of families)if(entries.some(row=>row.familyId===family&&row.moves.length===14))assert(selected.some(row=>row.familyId===family&&row.moves.length===14),family+' must expose a new automatic fifteenth recommendation');
-for(const p of[1,2]){
- const engine=create({firstPlayer:p,model:null,recordBook:[],searchMemory:false});
- for(const row of selected)for(let t=0;t<8;t++){
-  const b=board(row.moves,p,t),before=b.slice(),hit=engine.openingReply(b,p,{budget:{mode:'auto',ms:15000}});assert.equal(hit.kind,'opening-analysis');assert(equivalent(b,hit.i,tr(row.move,t)));assert.equal(hit.assessmentStatus,'ENGINE_PRECOMPUTED');assert.equal(hit.proven,false);assert.equal(hit.lossProven,false);assert.equal(hit.proof,null);assert.equal(hit.depth,0);assert.equal(hit.nodes,0);assert.equal(hit.score,0);assert.equal(hit.comparison.complete,false);assert.equal(hit.analysisEvidence.offline.resultSha256,row.resultSha256);assert(engine.openingChoices(b,p).some(choice=>choice.i===hit.i&&choice.families.some(f=>f.id===row.familyId)),'The default response must be a selectable translucent stone');
-  assert.equal(engine.openingReply(b,p,{budget:{mode:'deep',ms:3000}}),null);assert.deepEqual(b,before);engineCases++;
- }
-}
-// Immediate wins and forced defenses are live engine work, rather than
-// duplicated offline rows. Check the full defined fifteenth-move scope using
-// those priorities too, including every source and immediate tactical priority.
-const coverage={targets:0,source:0,computed:0,urgent:0};
-for(const sample of scope.families){
- const engine=create({firstPlayer:1,model:null,recordBook:[],searchMemory:false});
- for(const ply of[5,7,9,11,13]){const b=board(sample.moves.slice(0,ply-1)),hit=engine.openingReply(b,1)||engine.urgent(b,1);assert(hit,sample.familyId+' has a connected recommended parent '+ply);assert(equivalent(b,hit.i,sample.moves[ply-1]));}
- const b=board(sample.moves);assert.equal(sample.moves.length,13);assert(!R(b).exact(sample.moves.at(-1),1),'The representative must still be active after thirteen');let legal=0,terminal=0;
- for(let i=0;i<225;i++)if(R(b).legal(i,2)){
-  const next=b.slice();next[i]=2;if(R(next).exact(i,2)){terminal++;continue;}legal++;const before=next.slice(),hit=engine.urgent(next,1)||engine.openingReply(next,1,{budget:{mode:'auto',ms:15000}});assert(hit,sample.familyId+' lacks a fifteenth response after '+i);assert(R(next).legal(hit.i,1));assert.deepEqual(next,before);
-  if(hit.kind==='opening')coverage.source++;else if(hit.kind==='opening-analysis')coverage.computed++;else{assert(hit.urgent||hit.proven);coverage.urgent++;}coverage.targets++;
- }
- assert.equal(legal,sample.legalFourteenthReplies);assert.equal(terminal,sample.terminalFourteenthReplies);
-}
-assert.equal(coverage.targets,scope.totalLegalNonterminalReplies);
-// A twenty-first response must follow the actual current choices throughout
-// its path, including native and immediate tactical priorities at each parent.
-let runtimeTwentyFirstParents=0;
-for(const row of entries)if(row.moves.length===20){
- const end=board(row.moves);assert(!R(end).exact(row.moves.at(-1),2),'The path must remain active before twenty-one');
- for(const ply of[5,7,9,11,13,15,17,19]){
-  const b=board(row.moves.slice(0,ply-1)),before=b.slice(),hit=probe.urgent(b,1)||probe.openingReply(b,1,{budget:{mode:'auto',ms:15000}});
-  assert(hit,row.id+' lacks its live parent at '+ply);assert(equivalent(b,hit.i,row.moves[ply-1]),row.id+' differs from its live parent at '+ply);assert(R(b).legal(hit.i,1));assert.deepEqual(b,before);
-  const played=b.slice();played[hit.i]=1;assert(!R(played).exact(hit.i,1),'A twenty-first path must stop at an earlier terminal move');runtimeTwentyFirstParents++;
- }
-}
-// Every newly stored later response must also be the live automatic response,
-// so a native preference or known refutation cannot silently hide a tail row.
-let runtimeFollowups=0;
-for(const row of entries)if(row.moves.length>=16){
- const b=board(row.moves),before=b.slice(),hit=probe.openingReply(b,1,{budget:{mode:'auto',ms:15000}});
- assert(hit,row.id+' must remain an automatic continuation');assert.equal(hit.kind,'opening-analysis',row.id);assert(equivalent(b,hit.i,row.move));assert.equal(hit.analysisEvidence.offline.resultSha256,row.resultSha256);assert(hit.analysisEvidence.families.some(f=>f.id===row.familyId));assert.equal(hit.proven,false);assert.equal(hit.lossProven,false);assert.equal(hit.proof,null);assert.equal(hit.depth,0);assert.equal(hit.nodes,0);assert.equal(hit.score,0);assert.deepEqual(b,before);runtimeFollowups++;
-}
-console.log(JSON.stringify({test:'opening-later-continuations',passed:true,newEntries:entries.length,byFamily,byPly,lookups,scopedChecks,partialGuards,engineCases,runtimeFollowups,runtimeTwentyFirstParents,coverage,scope:'Exact full colored boards after13, all new rows in both colors/D4; all defined legal nonterminal fourteenth replies across21 connected representative thirteenths and every newly stored later response checked in the live automatic engine; twenty-first paths follow actual current parents; isolated partial and altered-board guards, source/tactical priorities and selectable current defaults. Bounded offline evidence is never promoted to a current proof.'}));
+// Complete archival rows above remain unchanged. Current automatic admission
+// and retained-strategy priority are tested separately below.
+const current=require('./helpers/opening-current-admission.cjs')({create,R,A,D,entries,scope,board,tr,equivalent,primaryLength:14,followupMinimum:16});
+console.log(JSON.stringify({test:'opening-later-continuations',passed:true,newEntries:entries.length,byFamily,byPly,lookups,scopedChecks,partialGuards,current,scope:'Every archived row and original evidence in both colours/D4; current auto15 admission and priorities on the exact historical scope, with blocked comparisons and changed parents reported separately. No claim that every historical parent remains the current default.'}));

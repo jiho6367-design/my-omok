@@ -113,22 +113,24 @@ function createForestEngine(options={}){
  // proof 없음은 안전의 증명이 아니다. 시간 초과는 unknown으로 구분한다.
  function forcing(board,p,maxPlies=11,budget=100,cache=new Map()){
   if(searchMemory&&arguments[4]===undefined)cache=searchMemory.cache(memScope+'|forcing');
-  let b=board.slice(),end=clockNow()+budget,nodes=0,TIME={},prefiltered=false;
-  function solve(left){if(clockNow()>=end)throw TIME;nodes++;let key=b.join('')+p+':'+left;if(cache.has(key))return cache.get(key);
+  let b=board.slice(),end=clockNow()+budget,nodes=0,TIME={},prefiltered=false,proofSearchDepth=0;
+  function visit(placed){proofSearchDepth=Math.max(proofSearchDepth,placed);if(typeof options.onProofVisit==='function')options.onProofVisit({board:b.slice()});}
+  function solve(left,placed=0){if(clockNow()>=end)throw TIME;nodes++;visit(placed);let key=b.join('')+p+':'+left;if(cache.has(key))return cache.get(key);
    if(nodes===1&&options.vcfPrefilter!==false&&!mayStartForcing(b,p)){prefiltered=true;cache.set(key,null);return null;}
    let wins=winning(b,p);if(wins.length)return {pv:[wins[0]],finish:'five'};
    if(left<3)return null;
    let enemy=winning(b,3-p);if(enemy.length>1)return null;
    let attacks=candidates(b).map(i=>({i,s:inspect(b,i,p)})).filter(m=>m.s.legal&&m.s.fours.length&&(!enemy.length||enemy.includes(m.i))).sort((a,c)=>value(c.s)-value(a.s));
-   for(let {i}of attacks){if(clockNow()>=end)throw TIME;b[i]=p;try{
+   for(let {i}of attacks){if(clockNow()>=end)throw TIME;b[i]=p;try{visit(placed+1);
      // 방어자가 먼저 끝낼 수 있다면 이 공격은 강제승이 아니다.
      if(winning(b,3-p).length)continue;
      let threats=winning(b,p);if(threats.length>1){let block=threats.find(j=>inspect(b,j,3-p).legal);return {pv:block==null?[i,threats[0]]:[i,block,threats.find(j=>j!==block)],finish:'double',endpoints:threats};}
-     if(threats.length===1){let j=threats[0];if(!inspect(b,j,3-p).legal)return {pv:[i,j],finish:'forbidden-block',endpoints:threats};b[j]=3-p;let r;try{r=solve(left-2);}finally{b[j]=0;}if(r){let result={...r,pv:[i,j,...r.pv]};cache.set(key,result);return result;}}
+     if(threats.length===1){let j=threats[0];if(!inspect(b,j,3-p).legal)return {pv:[i,j],finish:'forbidden-block',endpoints:threats};b[j]=3-p;let r;try{r=solve(left-2,placed+2);}finally{b[j]=0;}if(r){let result={...r,pv:[i,j,...r.pv]};cache.set(key,result);return result;}}
     }finally{b[i]=0;}}
    cache.set(key,null);return null;
   }
-  try{let proof=solve(maxPlies);return {proof,complete:true,nodes,prefiltered};}catch(e){if(e!==TIME)throw e;return {proof:null,complete:false,nodes,prefiltered};}
+  const metrics=()=>({proofSearchDepth,proofSearchDepthScope:'additional-placed-plies-visited-from-forcing-call-entry'});
+  try{let proof=solve(maxPlies);return {proof,complete:true,nodes,prefiltered,proofPlies:proof?.pv?.length??null,...metrics()};}catch(e){if(e!==TIME)throw e;return {proof:null,complete:false,nodes,prefiltered,proofPlies:null,...metrics()};}
  }
  // Search-independent exact-five guard, also usable before starting a Worker.
  function urgent(board,p){
@@ -300,12 +302,12 @@ function createForestEngine(options={}){
   const verifiedRejected=verifiedBad.map(m=>({i:m.i,reason:m.reason,verifiedRefutation:true}));
   function finish(m,reason,extra={}){const selectedDepth=extra.depth??depth,compared=lastComparison.find(row=>row.i===m?.i&&row.comparisonComplete&&row.depth===selectedDepth);return {i:m?.i??null,reason,depth,score:m?.score||0,pv:m?[m.i]:[],ms:clockNow()-start,nodes,rootWork:{generated:roots.length,compared:comparedRootCount,screened:screenedRootCount},proven:false,forcedLoss:false,threats:[],memory:memory.length,bad,shape:m?.a,limits,engineVersion:'3.0-cached-search',...(m?.resistance?{resistance:m.resistance}:{}),candidates:lastCandidates.length?lastCandidates:m?[{i:m.i,score:m.score,pv:[m.i],depth:0,strategy:m.strategy,comparisonComplete:false,...(m.resistance?{resistance:m.resistance}:{})}]:[],...(strategy?{strategy:{...(strategicSummary||strategy.profile(board,p)),work:strategy.statistics()}}:{}),...extra,comparison:{complete:!!compared&&selectedDepth>0,selected:m?.i??null,depth:selectedDepth,source:'forest',rootsCompared:comparedRootCount}};}
   if(!roots.length)return finish(null,'합법적인 후보 없음');
-  let w=roots.find(m=>m.a.win.length);if(w)return finish(w,'정확한 5목으로 즉시 승리',{proven:true,depth:1,score:MATE});
+  let w=roots.find(m=>m.a.win.length);if(w)return finish(w,'정확한 5목으로 즉시 승리',{proven:true,depth:0,proofPlies:1,proofSearchDepth:0,proofSearchDepthScope:'immediate-inspection-no-recursive-proof-work',score:MATE});
   let enemyWins=winning(b,3-p),blocking=roots.filter(m=>enemyWins.includes(m.i));
   if(enemyWins.length>1||(enemyWins.length===1&&!blocking.length))return finish(blocking[0]||roots[0],'상대 즉시 승리점 방어 불가 · 패배 확정',{forcedLoss:true,lossProven:true,threats:enemyWins,score:-MATE});
   if(enemyWins.length===1)roots=blocking;
   let ownProof=timedProof(p,Math.min(500,budget*.1));
-  if(ownProof.proof){let proof=ownProof.proof,m=roots.find(m=>m.i===proof.pv[0]);if(m)return finish(m,'필승 수 발견 · 연속 4 강제 수순 확인',{proven:true,pv:proof.pv,depth:proof.pv.length,score:MATE,proof});}
+  if(ownProof.proof){let proof=ownProof.proof,m=roots.find(m=>m.i===proof.pv[0]);if(m)return finish(m,'필승 수 발견 · 연속 4 강제 수순 확인',{proven:true,pv:proof.pv,depth:0,proofPlies:ownProof.proofPlies,proofSearchDepth:ownProof.proofSearchDepth,proofSearchDepthScope:ownProof.proofSearchDepthScope,score:MATE,proof});}
   let danger=timedProof(3-p,Math.min(700,budget*.14)),enemy43=ranked(b,3-p).filter(m=>m.a.fork43).map(m=>m.i),dangerLine=danger.proof?.pv||[];
   // 위협 수순의 방어점은 정적 상위 14개 밖에 있어도 탐색 후보에서 보존한다.
   for(let m of roots)m.order=m.score+(m.a.fours.length?1600000:0)+(dangerLine.includes(m.i)?800000:0)+(good.includes(m.i)?1000:0)-(bad.includes(m.i)?12000:0);

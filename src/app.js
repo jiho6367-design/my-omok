@@ -10,7 +10,17 @@ function msg(t){$('message').textContent=t;}
 function stopWorker(){job++;if(worker){worker.terminate();worker=null;}}
 function freeze(){if(!paused)remaining=Math.max(0,deadline-Date.now());paused=true;}
 function resume(){if(!g||reviewing||g.result)return;paused=false;deadline=Date.now()+Math.max(1,remaining);}
-function rebuild(){const active=events.slice(0,cursor),openingHistory=active.every((e,k)=>e.type==='move'&&e.p===(k%2?3-g.first:g.first))?active.map(e=>e.i):null;E.configure({...g.rules,firstPlayer:g.first,openingHistory});b.fill(0);turn=g.first;winCells=[];g.result=null;for(let e of active){if(e.type==='move'){b[e.i]=e.p;let w=E.win(b,e.i,e.p);if(w.length){winCells=w;g.result={winner:e.p};}}turn=3-e.p;}if(!b.includes(0)&&!g.result)g.result={winner:0};}
+function retainedStrategyPin(active,history){
+ if(!history||g.me!==g.first||!E.openingStrategyPinForEvidence)return null;
+ for(const [k,e] of active.entries()){
+  if(e.p!==g.first||e.type!=='move'||e.rec?.i!==e.i)continue;
+  const sha=e.rec.retainedStrategy?.sourceProofSha256||e.rec.strategyEvidence?.strategy?.sourceProofSha256||e.rec.analysisEvidence?.offline?.proofSha256;
+  if(typeof sha!=='string'||!/^[a-f0-9]{64}$/.test(sha))continue;
+  const pin=E.openingStrategyPinForEvidence(history.slice(0,k+1),sha);if(pin)return pin;
+ }
+ return null;
+}
+function rebuild(){const active=events.slice(0,cursor),openingHistory=active.every((e,k)=>e.type==='move'&&e.p===(k%2?3-g.first:g.first))?active.map(e=>e.i):null,openingStrategyPin=retainedStrategyPin(active,openingHistory);E.configure({...g.rules,firstPlayer:g.first,openingHistory,openingStrategyPin});b.fill(0);turn=g.first;winCells=[];g.result=null;for(let e of active){if(e.type==='move'){b[e.i]=e.p;let w=E.win(b,e.i,e.p);if(w.length){winCells=w;g.result={winner:e.p};}}turn=3-e.p;}if(!b.includes(0)&&!g.result)g.result={winner:0};}
 function render(){const cells=$('board').children;for(let i=0;i<225;i++){let el=cells[i];el.replaceChildren();el.className='cell';el.setAttribute('aria-label',E.coord(i)+' '+(b[i]?names[b[i]]:'빈칸'));if(b[i])el.append(sprite(b[i]));if(i===events[cursor-1]?.i)el.classList.add('last');if(hints&&rec?.i===i&&!b[i]){el.classList.add('hint');el.append(sprite(turn));}if(hints&&rec?.threats?.includes(i)&&!b[i])el.classList.add('threat');if(winCells.includes(i))el.classList.add('winner');el.disabled=!!b[i]||paused||reviewing||!!g?.result;}
  $('turnSprite').replaceChildren(sprite(turn));$('turnName').textContent=!g?'게임 준비':g.result?(g.result.winner?names[g.result.winner]+' 승리':'무승부'):names[turn]+' 차례';$('turnInfo').textContent=g?`${turn===g.me?'내 돌':'상대 돌'} · ${cursor+1}번째 턴 · ${reviewing?'복기 중':paused?'일시 정지':'직접 착수하세요'}`:'돌와 선공을 선택하세요';$('pause').textContent=paused?'재개':'일시 정지';$('undo').disabled=!g||cursor===0||reviewing;$('redo').disabled=!g||cursor>=events.length||reviewing;$('count').textContent=g?`${cursor}턴 · 내 돌 ${names[g.me]}`:cursor+'턴';$('reviewPanel').style.display=reviewing?'block':'none';$('hint').textContent=hints?'추천 켜짐':'추천 꺼짐';$('hint').setAttribute('aria-pressed',String(hints));
  $('recommend').textContent=rec?.i!=null?E.coord(rec.i):'—';$('reason').textContent=rec?.reason||'국면을 분석하면 추천과 근거가 표시됩니다.';$('metrics').textContent=rec?`${rec.depth}수 탐색 · ${rec.ms}ms · ${rec.nodes}노드 · ${rec.proven?'강제승 확인':rec.lossProven?'강제 패배 확인':'평가 '+Math.round(rec.score||0)+' (추정)'}`:'제한 탐색 · 승리 보장 아님';$('sequence').textContent=rec?.dangerLine?.length?'막아야 할 상대 강제 수순: '+rec.dangerLine.map(E.coord).join(' → '):rec?.pv?.length?(rec.proven?'확인한 공격 수순: ':'예상 진행: ')+rec.pv.map(E.coord).join(' → '):'';$('memoryWarning').textContent=rec?.memory?'과거 패배 기록과 같은 국면입니다. 회전·대칭 포함.':'';

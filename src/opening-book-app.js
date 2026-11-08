@@ -17,7 +17,8 @@
  let choiceListKey='';
  function availableChoices(){
   if(!hints||!g||reviewing||g.result||cursor<2||g.me!==g.first||turn!==g.me||$('setup').open||$('modal').open)return [];
-  return E.openingChoices?.(b,turn)||[];
+  const available=paused||g.timer===false?40000:Math.max(0,deadline-Date.now()),budget=typeof configuredOwnBudget==='function'?configuredOwnBudget(b,turn,available).budget:undefined;
+  return E.openingChoices?.(b,turn,{budget})||[];
  }
  function choiceTitle(row){return row.families?.length?row.families.map(f=>f.title).join(' / '):row.title;}
  function renderOpeningChoices(){
@@ -37,7 +38,7 @@
  function explainMissingContinuation(){
   if(g&&!reviewing&&g.me===g.first&&turn===g.me&&cursor>=4){
    const previous=events.slice(0,cursor).reverse().find(e=>e.p===g.me&&e.rec?.openingEvidence)?.rec.openingEvidence;
-   if(previous&&!E.openingReply(b,turn)){
+   if(previous&&!(E.hasOpeningReply?E.hasOpeningReply(b,turn):E.openingReply(b,turn))){
     const reason=cursor>=OmokOpeningBook.MAX_PLIES?'정석 조회 범위 이후':'등록 변화 밖';
     const prefix=`${previous.title} ${reason} · 현재 판을 엔진으로 분석 · `;
     if(!analysisPlan.textContent.startsWith(prefix))analysisPlan.textContent=prefix+analysisPlan.textContent;
@@ -50,11 +51,19 @@
  render=function(){
   renderWithSearch();
   renderOpeningChoices();
+  if(rec?.retainedStrategy||rec?.assessmentStatus==='ENGINE_STRATEGY'){
+   const strategy=rec.retainedStrategy||rec.strategyEvidence.strategy,title=rec.strategyEvidence?.title||rec.analysisEvidence?.title||rec.openingEvidence?.title||'주형';
+   $('metrics').textContent=title+' 검증 수순 이어두기 · 즉시 조회';
+   $('sequence').textContent=`${b.filter(Boolean).length+1}수: ${E.coord(rec.i)}`;
+   analysisPlan.textContent=`${strategy.rootOwnPly}수에서 검증한 조건부 전략을 이어갑니다 · 심층 모드에서는 새로 분석`;
+   strategyNote.textContent='원 증명의 상대 응수별 전략 조회 · 현재 실시간 검색·승리 판정은 아님';
+   return;
+  }
   if(rec?.assessmentStatus==='ENGINE_PRECOMPUTED'){
    const offline=rec.analysisEvidence.offline;
    $('metrics').textContent=rec.analysisEvidence.title+' 엔진 사전분석 대응 · 즉시 조회';
    $('sequence').textContent=`${rec.analysisEvidence.ply}수: ${E.coord(rec.i)}`;
-   analysisPlan.textContent=`사전 분석 예산 ${(offline.budgetMs/1000).toFixed(0)}초 · ${offline.winningMoveVerified?'검증 수순 깊이':'완료 깊이'} ${offline.depth} · 이후 국면은 기존 엔진 분석`;
+   analysisPlan.textContent=`사전 분석 예산 ${(offline.budgetMs/1000).toFixed(0)}초 · 과거 엔진 반환 깊이 ${offline.depth} · 이후 국면은 기존 엔진 분석`;
    strategyNote.textContent='엔진이 미리 분석한 대응 수 · 이 조회에는 강제승 판정을 부여하지 않습니다 · 심층 모드에서 다시 분석';
    return;
   }

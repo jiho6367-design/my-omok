@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.35';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.35');
+versionBadge.textContent='통합 v5.18.36';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.36');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -71,7 +71,7 @@ function formatAnalysisPlan(policy,result){
   if(!policy)return '';
   const role=policy.role==='prediction'?'상대 다음 수 예측 · 1초 고정 · ':policy.role==='ponder'?'내 예상 응수 · ':'';
   const end=result?(result.timedOut?'시간 상한 도달':result.urgent||['win','block','terminal'].includes(result.kind)?'즉시 전술 판정으로 조기 완료':result.analysisIncomplete?'추가 탐색·검사 미완료 · 마지막 완료 비교 유지':result.autoReason||result.reason||'엔진 계산 완료'):policy.reason;
-  const work=result?' · 실제 '+((result.ms||result.analysisWork?.elapsedMs||0)/1000).toFixed(2)+'초 · 완료 깊이 '+(result.depth||0):'';
+  const work=result?' · 실제 '+((result.ms||result.analysisWork?.elapsedMs||0)/1000).toFixed(2)+'초 · 완료 비교 깊이 '+(result.depth||0)+(Number.isInteger(result.proofSearchDepth)?' · 증명 탐색 실제 최대 '+result.proofSearchDepth+'수':'')+(Number.isInteger(result.proofPlies)?' · 표시 증명 수순 '+result.proofPlies+'수':''):'';
   return role+'선택 '+policy.selectedLabel+' · 적용 최대 '+(policy.externalMs/1000).toFixed(2)+'초 · 내부 탐색 '+(policy.internalMs/1000).toFixed(2)+'초'+(policy.clockLimited?' · 대국 시계로 예산 축소':'')+work+' · '+end;
 }
 function configuredOwnBudget(board,p,available=40000){
@@ -234,8 +234,9 @@ function acceptResult(result,partial=false){
     '강제패배가 확인되었습니다. 표시된 합법 수는 승리 수가 아닙니다.','warning');
   else if(result.i==null)setAnalysisStatus('분석 완료 · 추천 없음','검사한 후보가 배제되었고 안전한 대안을 확인하지 못했습니다. 더 이른 수에서 복기하세요.','warning');
   else if(result.kind==='block'&&result.urgent)setAnalysisStatus('분석 완료 · 즉시 차단','상대의 다음 5목을 막는 필수 방어입니다. 이후 국면의 승패까지 확인한 것은 아닙니다.','urgent');
+  else if(result.retainedStrategy||result.assessmentStatus==='ENGINE_STRATEGY')setAnalysisStatus('검증 수순 이어두기 · '+(result.strategyEvidence?.title||result.analysisEvidence?.title||result.openingEvidence?.title||'주형'),'최초 증명의 조건부 전략을 상대 응수에 맞춰 이어갑니다. 현재 실시간 승리 판정은 아닙니다.','complete');
   else if(result.assessmentStatus==='OPENING_REFERENCE')setAnalysisStatus('무적수 정석 · '+result.openingEvidence.title,'출처가 있는 초반 정석을 추천합니다. 정석 범위 밖에서는 기존 엔진으로 전환합니다.','complete');
-  else if(result.assessmentStatus==='ENGINE_PRECOMPUTED')setAnalysisStatus('엔진 사전분석 대응 · 포월','현재 6수 배치에서 엔진이 미리 비교한 7수 대응입니다. 심층 모드에서는 현재 판을 새로 분석합니다.','complete');
+  else if(result.assessmentStatus==='ENGINE_PRECOMPUTED')setAnalysisStatus('엔진 사전분석 대응 · '+result.analysisEvidence.title,`${result.analysisEvidence.ply}수 대응으로 미리 분석한 수입니다. 심층 모드에서는 현재 판을 새로 분석합니다.`,'complete');
   else if(result.assessmentStatus==='RECORDED_LINE')setAnalysisStatus('기보 활용 · 후공 승리 수순','저장한 승리 기보와 같은 배치·차례입니다. 과거에 이긴 수순이며 현재의 강제승 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BOUNDED_FAVORABLE')setAnalysisStatus('분석 완료 · 제한 비교 추천','완료된 깊이에서 공격·방어를 비교한 추천입니다. 강제승이나 이후 안전의 증명은 아닙니다.','complete');
   else if(result.assessmentStatus==='BLOCKING_UNCHECKED')setAnalysisStatus('분석 완료 · 차단 후보','상대 위협이나 연결을 차단하는 후보입니다. 그 뒤의 안전과 승리는 확인되지 않았습니다.','warning');
@@ -266,8 +267,9 @@ analyze=function(explicit,onDone){
   if(explicit==null&&!reviewing&&turn===g.me&&ponder?.key===positionKey(b,turn)){
     // Resolve actual-history source references and exact actual-board offline
     // responses before promoting a generic result for the predicted reply.
-    const fresh=E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,40000).budget});
-    if(fresh?.openingEvidence?.reduction||fresh?.analysisEvidence?.reduction){
+    const available=paused||g?.timer===false?40000:Math.max(0,deadline-Date.now()),
+      fresh=E.urgent(b,turn)||E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,available).budget});
+    if(fresh){
       cancelPonder();stopWorker();lastProgress=null;rec=null;selectedBudget(b,turn);
       acceptResult(fresh);onDone?.(fresh);return;
     }
@@ -302,8 +304,8 @@ render=function(){unifiedRender();
     const el=document.createElement('span');el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}`;candidateList.append(el);
   }
   analysisPlan.textContent=formatAnalysisPlan(rec?.analysisPolicy||currentAnalysisPolicy,rec)||activePlan;
-  if(rec?.lossProven||rec?.proven)$('metrics').textContent=(rec.proven?'강제승 확인':'강제패배 확인 · 합법 후보 유지')+` · ${rec.ms||0}ms`;
-  if(rec?.i!=null&&!rec.proven&&!rec.lossProven)$('metrics').textContent=`완료 깊이 ${rec.depth||0}반수 · ${rec.ms||0}ms · ${(rec.nodes||0).toLocaleString()}노드 · 제한 탐색`;
+  if(rec?.lossProven||rec?.proven)$('metrics').textContent=(rec.proven?'강제승 확인':'강제패배 확인 · 합법 후보 유지')+` · 완료 비교 ${rec.depth||0}반수 · ${Number.isInteger(rec.proofSearchDepth)?'증명 탐색 최대 '+rec.proofSearchDepth+'수':'증명 탐색 깊이 미계측'}${Number.isInteger(rec.proofPlies)?' · 표시 수순 '+rec.proofPlies+'수':''} · ${(rec.nodes||0).toLocaleString()}노드 · ${rec.ms||0}ms`;
+  if(rec?.i!=null&&!rec.proven&&!rec.lossProven)$('metrics').textContent=`완료 비교 깊이 ${rec.depth||0}반수 · ${rec.ms||0}ms · ${(rec.nodes||0).toLocaleString()}노드 · 제한 탐색`;
   if(rec?.searchMemory?.reused)$('metrics').textContent+=` · 이전 계산 ${rec.searchMemory.reused.toLocaleString()}회 재사용`;
   const strategy=rec?.strategy,initiative=strategy?.initiative,
     initiativeText={own:names[turn]+' 공격 주도',opponent:names[3-turn]+' 공격 주도',contested:'양쪽 위협 경합',unknown:'주도권 판단 불확실'}[initiative];

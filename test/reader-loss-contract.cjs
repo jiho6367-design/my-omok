@@ -18,13 +18,13 @@ function coverage(e,r,p){const legal=Array.from({length:225},(_,i)=>i).filter(i=
 function sameChoices(before,after){for(const key of ['kind','depth','nodes','danger','fallback','mandatoryDefense','lossReason','rejectedMoves','moves'])assert.deepEqual(plain(after[key]),plain(before[key]),'Reader search/move evidence changed: '+key);}
 const forks=fixture(['D4','E4','F4','J11','K11','L11']);
 test('completed ordinary loss screen publishes complete all-legal-root coverage',()=>{
- const {e,r}=readerResult(forks,2,1000),legal=coverage(e,r,2);assert.equal(r.kind,'lost');assert.equal(r.depth,3);assert.equal(r.counterProof,null);
+ const {e,r}=readerResult(forks,2,1000),legal=coverage(e,r,2);assert.equal(r.kind,'lost');assert.equal(r.depth,0);assert.equal(r.comparison.complete,false);assert.equal(r.comparison.depth,0);assert.equal(r.rootWork.compared,0);assert.equal(r.proofSearchDepth,null,'Ordinary screening has no aggregate proof-visit measurement');assert.equal(r.proofSearchDepthScope,null);assert.equal(r.counterProof,null);
  assert.equal(r.screened,legal.length);assert.equal(r.rejectedMoves.length,legal.length);assert.equal(r.lossCoverage.explicitlyRefutedRoots,legal.length);assert.equal(r.lossCoverage.implicitImmediateRoots,0);
  assert(r.moves.length&&r.moves.every(m=>m.score<0&&e.legal(m.i,2)));if(baseline)sameChoices(baseline.reader(15,forks,{strategy:false,optimized:true}).analyze(2,1000),r);
 });
 test('completed real counter routine retains its actual certificate and every legal root',()=>{
  const {e,r}=readerResult(forks,2,3000),legal=coverage(e,r,2);assert.equal(r.kind,'lost');assert.equal(r.depth,0);assert(r.counterProof.complete);assert.equal(r.counterProof.checkedRoots,legal.length);
- assert.equal(r.counterProof.forcing,19);assert.equal(r.counterProof.quiet,1);assert.equal(r.lossCoverage.explicitlyRefutedRoots,legal.length);assert.equal(r.lossCoverage.implicitImmediateRoots,0);
+ assert.equal(r.counterProof.forcing,19);assert.equal(r.counterProof.quiet,1);assert.equal(r.comparison.complete,false);assert.equal(r.comparison.depth,0);assert.equal(r.rootWork.compared,0);assert(r.counterProof.nodes>0&&r.counterProof.nodes<=r.nodes,'Actual counter-call nodes remain distinct from whole Reader nodes');assert(Number.isInteger(r.counterProof.proofSearchDepth)&&r.counterProof.proofSearchDepth>=0);assert.equal(r.proofSearchDepth,r.counterProof.proofSearchDepth);assert.equal(r.proofSearchDepthScope,'additional-occupied-plies-visited-from-proof-call-entry');assert.equal(r.counterProof.proofSearchDepthScope,r.proofSearchDepthScope);assert.equal(r.lossCoverage.explicitlyRefutedRoots,legal.length);assert.equal(r.lossCoverage.implicitImmediateRoots,0);
  if(baseline){const old=baseline.reader(15,forks,{strategy:false,optimized:true}).analyze(2,3000);sameChoices(old,r);for(const key of ['complete','checkedRoots','forcing','quiet'])assert.equal(r.counterProof[key],old.counterProof[key]);}
 });
 test('single mandatory block plus implicit immediate losses covers the whole board',()=>{

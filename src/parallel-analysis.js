@@ -8,7 +8,7 @@ const OmokParallel=(()=>{
   const first=result?.moves?.[0],kind=result?.kind;
   if(!first||!(kind==='win'&&first.status==='win'||kind==='forced'&&first.status==='proven'&&result.proof==='forcing-four')||
     !Number.isInteger(first.i)||!Array.isArray(first.pv)||first.pv[0]!==first.i||!first.pv.every(i=>Number.isInteger(i)&&i>=0&&i<225))return null;
-  return {i:first.i,pv:first.pv,score:first.score,depth:result.depth||0,nodes:result.nodes||0,
+  return {i:first.i,pv:first.pv,score:first.score,depth:result.depth||0,proofPlies:result.proofPlies??null,proofSearchDepth:result.proofSearchDepth??null,proofSearchDepthScope:result.proofSearchDepthScope??null,nodes:result.nodes||0,
    kind,proven:true,lossProven:false,forcedLoss:false,urgent:kind==='win',comparisonSource:'reader',
    proof:{type:kind==='win'?'exact-five':'forcing-four',source:'parallel-plan'},
    reason:kind==='win'?'정확한 5목 완성':'연속 위협 강제승 확인',
@@ -87,7 +87,7 @@ const OmokParallel=(()=>{
     const check=data.check;pendingWin=null;winMs+=check.ms||0;winChecks.push({i:data.i,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0});
     if(check.complete&&check.proof?.move===data.i&&!bad.has(data.i)){
      const nodes=latest.nodes+winChecks.reduce((n,c)=>n+(c.nodes||0),0),result={...latest,i:data.i,proven:true,lossProven:false,forcedLoss:false,analysisIncomplete:false,timedOut:false,kind:check.kind,
-      pv:check.pv,proof:check.proof,score:1e8,depth:Math.max(latest.depth,check.pv.length),nodes,candidateWinChecks:winChecks,
+      pv:check.pv,proof:check.proof,score:1e8,depth:latest.depth||0,proofPlies:check.proofPlies??check.pv.length,proofSearchDepth:check.proofSearchDepth??null,proofSearchDepthScope:check.proofSearchDepthScope??null,nodes,candidateWinChecks:winChecks,
       reason:'후보 착수 뒤 상대의 모든 합법 응수에서 강제승 확인'};
      close();onDone({...result,
       parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:'verified-win'},analysisWork:{...result.analysisWork,completedDepth:result.depth,nodes,elapsedMs:Math.round(performance.now()-started),stopReason:'verified-win'}});return;

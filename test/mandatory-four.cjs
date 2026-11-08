@@ -8,7 +8,13 @@ const idx=c=>(Number(c.slice(1))-1)*15+c.charCodeAt(0)-65,plain=v=>JSON.parse(JS
 function load({controlled=false,oldStaged=false}={}){
  const c={performance,Date};vm.createContext(c);vm.runInContext(texts.slice(0,-1).join('\n'),c);const calls=[];
  if(controlled){const factory=c.createForestEngine;c.createForestEngine=options=>{const e=factory(options);for(const name of ['forcing','forbiddenTrap','forcedReplyTrap','quietTrap'])e[name]=()=>{calls.push(name);throw Error('late-'+name);};return e;};}
- let unified=texts.at(-1);if(oldStaged){const marker="if(best.urgent||best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);";assert.equal(unified.split(marker).length,2);unified=unified.replace(marker,"if(best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);");}
+ let unified=texts.at(-1);if(controlled){
+  // Reach the staged boundary under test even though an earlier nomination
+  // preflight also correctly returns an urgent action. Real tactics above
+  // still execute the untouched production flow; only this controlled VM
+  // bypasses the outer preflight, retaining analyzeCore's actual urgency.
+  const preflight='if(proofNomination){const immediate=urgent(board,p);if(immediate)return decorate(immediate);}';assert.equal(unified.split(preflight).length,2);unified=unified.replace(preflight,'/* controlled VM: staged urgent boundary is tested directly */');
+ }if(oldStaged){const marker="if(best.urgent||best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);";assert.equal(unified.split(marker).length,2);unified=unified.replace(marker,"if(best.proven||best.lossProven||best.kind==='terminal'||best.i==null)return describe(best);");}
  vm.runInContext(unified,c);return {E:c.createEngine({model:null,strategy:false,optimized:true,searchMemory:false}),calls};
 }
 function symmetry(t){return i=>{let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++)[x,y]=[14-y,x];return y*15+x;};}

@@ -41,6 +41,11 @@ function createEngine(N, board, options={}) {
     }return patterns;
   }));
   let total=0,nodes=0,deadline=Infinity,phaseDeadline=Infinity,tt=new Map(),tacticalCache=new Map();
+  // Instrument real search mutations, never temporary legality inspections.
+  let occupiedCount=b.reduce((n,v)=>n+(v!==0),0),proofTrace=null,lastProofTrace=null;
+  function markProofDepth(){if(proofTrace){proofTrace.maxVisited=Math.max(proofTrace.maxVisited,occupiedCount-proofTrace.entryCount);if(typeof options.onProofVisit==='function')options.onProofVisit({board:b.slice(),entryCount:proofTrace.entryCount});}}
+  function finishProofTrace(trace,previous){lastProofTrace={...trace};proofTrace=previous;if(previous)previous.maxVisited=Math.max(previous.maxVisited,trace.entryCount+trace.maxVisited-previous.entryCount);}
+  function proofMetrics(trace){return {proofSearchDepth:trace.maxVisited,proofSearchDepthScope:'additional-occupied-plies-visited-from-proof-call-entry'};}
   const __quietMemo=new Map(),__quietMemoWork={eligible:0,hits:0,misses:0,computed:0,evictions:0};
   function quietMemoWork(){return {...__quietMemoWork,entries:__quietMemo.size,capacity:2048};}
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)for(let [axis,[dx,dy]]of dirs.entries()){
@@ -54,8 +59,8 @@ function createEngine(N, board, options={}) {
   windows.forEach(w=>indexWindow(w.id));
   function value(w){const n1=counts1[w.id],n2=counts2[w.id];if(n1&&n2||!n1&&!n2)return 0;let p=n1?1:2,n=n1||n2;if(b[w.pre]===p||b[w.post]===p)return 0;let v=[0,2,25,420,24000,2000000][n];return p===1?v:-v;}
   windows.forEach((w,k)=>{contributions[k]=value(w);total+=contributions[k];});
-  function set(i,p){const before=b[i];if(before!==p){const old=nearbyOwn[before],next=nearbyOwn[p];for(const target of legalRays[i]){if(old)old[target]--;if(next)next[target]++;}}for(const id of cellAffected[i]){const old1=counts1[id],old2=counts2[id];counts1[id]+=(p===1)-(before===1);counts2[id]+=(p===2)-(before===2);indexWindow(id,old1,old2);}b[i]=p;if(neuralPosition&&before!==p&&!neuralDirty[i]){neuralDirty[i]=1;neuralDirtyIndices.push(i);}for(let id of affected[i]){const v=value(windows[id]);total+=v-contributions[id];contributions[id]=v;}}
-  function tick(){nodes++;if(clockNow()>Math.min(deadline,phaseDeadline))throw Error('timeout');}
+  function set(i,p){const before=b[i];if(!before&&p)occupiedCount++;else if(before&&!p)occupiedCount--;if(before!==p){const old=nearbyOwn[before],next=nearbyOwn[p];for(const target of legalRays[i]){if(old)old[target]--;if(next)next[target]++;}}for(const id of cellAffected[i]){const old1=counts1[id],old2=counts2[id];counts1[id]+=(p===1)-(before===1);counts2[id]+=(p===2)-(before===2);indexWindow(id,old1,old2);}b[i]=p;if(neuralPosition&&before!==p&&!neuralDirty[i]){neuralDirty[i]=1;neuralDirtyIndices.push(i);}for(let id of affected[i]){const v=value(windows[id]);total+=v-contributions[id];contributions[id]=v;}}
+  function tick(){nodes++;markProofDepth();if(clockNow()>Math.min(deadline,phaseDeadline))throw Error('timeout');}
   function run(i,p,dx,dy){let x=i%N,y=Math.floor(i/N),len=1;for(let s of [-1,1]){let k=1;while(at(x+s*k*dx,y+s*k*dy)===p){len++;k++;}}return len;}
   function exact(i,p){return dirs.some(([dx,dy])=>run(i,p,dx,dy)===5);}
   // House-rule threes depend on geometric OPEN ends, not whether both future
@@ -150,11 +155,17 @@ function createEngine(N, board, options={}) {
   // A forcing-four proof checks every relevant defense: a legal win, or the
   // unique block. Any other defense loses immediately to exact five.
   function vcf(p,remaining,seen=new Set()){
+    // Only an outer call opens a trace; recursive VCF/counter calls reuse it.
+    if(proofTrace)return vcfBody(p,remaining,seen);
+    const previous=proofTrace,trace={entryCount:occupiedCount,maxVisited:0};proofTrace=trace;
+    try{return vcfBody(p,remaining,seen);}finally{finishProofTrace(trace,previous);}
+  }
+  function vcfBody(p,remaining,seen){
     tick();const own=wins(p);if(own.length)return [own[0]];if(remaining<3)return null;
     const danger=wins(3-p);if(danger.length>1)return null;
     let attacks=danger.length?[danger[0]].filter(i=>legal(i,p)):rank(p,forcingCandidates(p)).map(v=>v.i);
     const key=b.join('')+p;if(seen.has(key))return null;seen.add(key);
-    try{for(let i of attacks){tick();set(i,p);try{
+    try{for(let i of attacks){tick();set(i,p);markProofDepth();try{
       if(wins(3-p).length)continue;const threats=wins(p);if(!threats.length)continue;
       if(threats.length>=2||!legal(threats[0],3-p))return [i];
       const block=threats[0];set(block,3-p);try{const rest=vcf(p,remaining-2,seen);if(rest)return [i,block,...rest];}finally{set(block,0);}
@@ -203,7 +214,7 @@ function createEngine(N, board, options={}) {
     const direct=vcf(p,Math.min(7,left));if(direct){const proof={pv:direct,type:'vcf'};counterMemo.set(key,proof);return proof;}
     if(left<3)return null;
     const attacks=danger.length?[danger[0]]:quietLeft>0?rank(p).map(m=>m.i):[];
-    for(const i of attacks){tick();set(i,p);try{
+    for(const i of attacks){tick();set(i,p);markProofDepth();try{
       if(exact(i,p))return {pv:[i],type:'vcf'};if(wins(3-p).length)continue;
       const ends=wins(p);if(!danger.length&&ends.length&&(!optionalFours||quietLeft<=0))continue;const forced=ends.length===1,remainingQuiet=quietLeft-(danger.length||forced?0:1);
       if(!danger.length&&!forced&&!cellAffected[i].some(id=>{const w=windows[id];return (p===1?counts1[id]:counts2[id])>=3&&!(p===1?counts2[id]:counts1[id])&&b[w.pre]!==p&&b[w.post]!==p;}))continue;
@@ -214,10 +225,26 @@ function createEngine(N, board, options={}) {
     }finally{set(i,0);}}
     counterMemo.set(key,null);return null;
   }
-  function counterCertificate(p,ms=1000,left=19,quiet=1){const savedDeadline=deadline,savedPhase=phaseDeadline;deadline=Math.min(savedDeadline,clockNow()+Math.max(0,ms));phaseDeadline=Math.min(savedPhase,deadline);const start=clockNow();try{let direct=null;if(left>7){const phase=phaseDeadline;try{phaseDeadline=Math.min(deadline,clockNow()+Math.min(120,Math.max(0,ms*.12)));direct=vcf(p,left);}catch(error){if(error.message!=='timeout')throw error;}finally{phaseDeadline=phase;}}return {proof:direct?{type:'vcf',pv:direct,bound:left,quietNeeded:0}:counterSolve(p,left,quiet,quiet>=2),complete:true,ms:clockNow()-start,nodes,memo:counterMemo.size};}catch(e){if(e.message!=='timeout')throw e;return {proof:null,complete:false,ms:clockNow()-start,nodes,memo:counterMemo.size};}finally{deadline=savedDeadline;phaseDeadline=savedPhase;}}
+  function counterCertificate(p,ms=1000,left=19,quiet=1){
+    const savedDeadline=deadline,savedPhase=phaseDeadline;deadline=Math.min(savedDeadline,clockNow()+Math.max(0,ms));phaseDeadline=Math.min(savedPhase,deadline);
+    const start=clockNow(),startNodes=nodes,previousTrace=proofTrace,trace={entryCount:occupiedCount,maxVisited:0};proofTrace=trace;
+    const finish=(proof,complete)=>({proof,complete,ms:clockNow()-start,nodes:nodes-startNodes,totalNodes:nodes,memo:counterMemo.size,proofPlies:proof?.pv?.length??null,...proofMetrics(trace)});
+    try{let direct=null;if(left>7){const phase=phaseDeadline;try{phaseDeadline=Math.min(deadline,clockNow()+Math.min(120,Math.max(0,ms*.12)));direct=vcf(p,left);}catch(error){if(error.message!=='timeout')throw error;}finally{phaseDeadline=phase;}}
+      return finish(direct?{type:'vcf',pv:direct,bound:left,quietNeeded:0}:counterSolve(p,left,quiet,quiet>=2),true);
+    }catch(e){if(e.message!=='timeout')throw e;return finish(null,false);}finally{deadline=savedDeadline;phaseDeadline=savedPhase;finishProofTrace(trace,previousTrace);}
+  }
 
 
-  function counterLoss(p,ms=1000,left=19,quiet=1){const savedDeadline=deadline,savedPhase=phaseDeadline;deadline=Math.min(savedDeadline,clockNow()+Math.max(0,ms));phaseDeadline=Math.min(savedPhase,deadline);const start=clockNow(),branches=[];try{if(wins(p).length)return {lossProven:false,complete:true,ownImmediateWin:true,nodes};const danger=wins(3-p),ordered=rank(p,b.flatMap((v,i)=>v?[]:[i]));const critical=new Set(forcingCandidates(3-p));ordered.sort((a,c)=>(critical.has(c.i)?1:0)-(critical.has(a.i)?1:0));for(const {i}of ordered){tick();set(i,p);let proof;try{if(exact(i,p))return {lossProven:false,complete:true,ownImmediateWin:true,nodes};proof=counterSolve(3-p,left,quiet,quiet>=2);}finally{set(i,0);}if(!proof)return {lossProven:false,complete:true,unrefuted:i,branches,ms:clockNow()-start,memo:counterMemo.size,nodes};branches.push({i,proof});}return {lossProven:branches.length>0,complete:true,branches,ms:clockNow()-start,memo:counterMemo.size,nodes};}catch(e){if(e.message!=='timeout')throw e;return {lossProven:false,complete:false,branches,ms:clockNow()-start,memo:counterMemo.size,nodes};}finally{deadline=savedDeadline;phaseDeadline=savedPhase;}}
+  function counterLoss(p,ms=1000,left=19,quiet=1){
+    const savedDeadline=deadline,savedPhase=phaseDeadline;deadline=Math.min(savedDeadline,clockNow()+Math.max(0,ms));phaseDeadline=Math.min(savedPhase,deadline);
+    const start=clockNow(),branches=[],startNodes=nodes,previousTrace=proofTrace,trace={entryCount:occupiedCount,maxVisited:0};proofTrace=trace;
+    const finish=value=>({...value,nodes:nodes-startNodes,totalNodes:nodes,...proofMetrics(trace)});
+    try{if(wins(p).length)return finish({lossProven:false,complete:true,ownImmediateWin:true});const danger=wins(3-p),ordered=rank(p,b.flatMap((v,i)=>v?[]:[i]));const critical=new Set(forcingCandidates(3-p));ordered.sort((a,c)=>(critical.has(c.i)?1:0)-(critical.has(a.i)?1:0));
+      for(const {i}of ordered){tick();set(i,p);let proof;try{if(exact(i,p))return finish({lossProven:false,complete:true,ownImmediateWin:true});proof=counterSolve(3-p,left,quiet,quiet>=2);}finally{set(i,0);}
+        if(!proof)return finish({lossProven:false,complete:true,unrefuted:i,branches,ms:clockNow()-start,memo:counterMemo.size});branches.push({i,proof});}
+      return finish({lossProven:branches.length>0,complete:true,branches,ms:clockNow()-start,memo:counterMemo.size});
+    }catch(e){if(e.message!=='timeout')throw e;return finish({lossProven:false,complete:false,branches,ms:clockNow()-start,memo:counterMemo.size});}finally{deadline=savedDeadline;phaseDeadline=savedPhase;finishProofTrace(trace,previousTrace);}
+  }
 
   // Expose a representative legal line for each completed AND root while
   // keeping the complete proof coverage and historical diagnostic categories.
@@ -425,11 +452,11 @@ function createEngine(N, board, options={}) {
       const selectedCheck=summary?.checks?.find(c=>c.i===moves[0]?.i&&c.complete),bounded=summary?.evidence?.replyCoverage==='bounded';
       const initiative=['win','forced'].includes(kind)?'own':bounded?(selectedCheck?.replies>0&&selectedCheck.continues===selectedCheck.replies?(selectedCheck.forcingReplies?'contested':'own'):selectedCheck?.forcingReplies&&selectedCheck.score<0?'opponent':'unknown'):summary?.initiative;
       const comparison={complete:!fallback&&depth>0&&moves[0]?.comparisonComplete===true,selected:moves[0]?.i??null,depth,source:'reader',rootsCompared:comparedRootCount};
-      return {kind,moves,depth,nodes,danger,immediateThreats,...extra,comparison,rootWork:{generated:rootCount,compared:comparedRootCount,screened:extra.screened||0},...(options.exportRootFrontier&&parallelFrontier?{rootFrontier:parallelFrontier}:{}),...(summary?{strategy:{...summary,work:strategy.statistics(),initiative,selectedCheck:selectedCheck||null}}:{}),fallback,mandatoryDefense:!own.length&&danger.length===1&&legal(danger[0],p),automatic,autoReason:automatic?(extra.autoReason||(['win','forced'].includes(kind)?'승리 경로 확인':kind==='lost'?'강제 위협 확인':'복잡한 판 · 추가 비교 중')):null};
+      return {kind,moves,depth,nodes,danger,immediateThreats,proofSearchDepth:null,proofSearchDepthScope:null,...extra,comparison,rootWork:{generated:rootCount,compared:comparedRootCount,screened:extra.screened||0},...(options.exportRootFrontier&&parallelFrontier?{rootFrontier:parallelFrontier}:{}),...(summary?{strategy:{...summary,work:strategy.statistics(),initiative,selectedCheck:selectedCheck||null}}:{}),fallback,mandatoryDefense:!own.length&&danger.length===1&&legal(danger[0],p),automatic,autoReason:automatic?(extra.autoReason||(['win','forced'].includes(kind)?'승리 경로 확인':kind==='lost'?'강제 위협 확인':'복잡한 판 · 추가 비교 중')):null};
     };
-    if(own.length)return output('win',own.map(i=>({i,score:M,pv:[i],status:'win'})),1);
-    if(danger.length>1||danger.length===1&&!legal(danger[0],p))return output('lost',[],1,{lossReason:danger.length===1?'forbidden-defense':'immediate',forbiddenDefenses:danger.filter(i=>!legal(i,p)).map(i=>moveInfo(i,p))});
-    if(automatic&&danger.length===1)return output('block',[{i:danger[0],score:0,pv:[danger[0]],status:'mandatory'}],1,{autoReason:'유일한 즉시 방어점 · 이후 판세 미검사'});
+    if(own.length)return output('win',own.map(i=>({i,score:M,pv:[i],status:'win'})),0,{proofPlies:1,proofSearchDepth:0,proofSearchDepthScope:'immediate-inspection-no-recursive-proof-work'});
+    if(danger.length>1||danger.length===1&&!legal(danger[0],p))return output('lost',[],0,{lossReason:danger.length===1?'forbidden-defense':'immediate',forbiddenDefenses:danger.filter(i=>!legal(i,p)).map(i=>moveInfo(i,p))});
+    if(automatic&&danger.length===1)return output('block',[{i:danger[0],score:0,pv:[danger[0]],status:'mandatory'}],0,{autoReason:'유일한 즉시 방어점 · 이후 판세 미검사'});
     if(automatic&&!b.some(Boolean)){const i=Math.floor(N/2)*(N+1);return output('search',[{i,score:0,pv:[i],status:'opening'}],0,{autoReason:'빈 판 · 중앙 시작 후보'});}
     // Screen every legal board point before heuristic pruning. Far-away moves
     // may be poor, but are still legal defenses and cannot be omitted in a loss claim.
@@ -437,7 +464,7 @@ function createEngine(N, board, options={}) {
     rootCount=roots.length;
     if(!roots.length)return output('none',[]);
     onProgress(output('incomplete',[],0,{screeningComplete:false}));
-    try{phaseDeadline=start+Math.min(ms*.22,2200);const proof=vcf(p,13);if(proof)return output('forced',[{i:proof[0],score:M-1,pv:proof,status:'proven'}],proof.length,{proof:'forcing-four'});}catch(e){if(e.message!=='timeout')throw e;}finally{phaseDeadline=Infinity;}
+    try{phaseDeadline=start+Math.min(ms*.22,2200);const proof=vcf(p,13);if(proof)return output('forced',[{i:proof[0],score:M-1,pv:proof,status:'proven'}],0,{proof:'forcing-four',proofPlies:proof.length,proofSearchDepth:lastProofTrace?.maxVisited??null,proofSearchDepthScope:'additional-occupied-plies-visited-from-vcf-call-entry'});}catch(e){if(e.message!=='timeout')throw e;}finally{phaseDeadline=Infinity;}
     // Counter fours can delay a quiet win without escaping it. This separate
     // proof checks every legal root and every quiet-setup defense. Its bounded
     // discovery failures remain unknown; it never labels a move safe.
@@ -447,7 +474,7 @@ function createEngine(N, board, options={}) {
       let virtual=null;try{phaseDeadline=Math.min(deadline,clockNow()+80);virtual=vcf(3-p,13);}catch(err){if(err.message!=='timeout')throw err;}finally{phaseDeadline=savedPhase;}
       if(virtual){
         counterCheck=counterLoss(p,Math.min(6500,ms*.82,deadline-clockNow()-600),19,1);
-        if(counterCheck.lossProven){const rejectedMoves=counterRejections(p,counterCheck);return output('lost',[],0,{lossReason:rejectedMoves.some(m=>m.reason==='counter-threat')?'counter-threat':'forcing-line',counterProof:{complete:true,checkedRoots:counterCheck.branches.length,forcing:19,quiet:1,ms:counterCheck.ms},screened:rejectedMoves.length,rejectedMoves,screeningComplete:true,forcingChecksComplete:true});}
+        if(counterCheck.lossProven){const rejectedMoves=counterRejections(p,counterCheck);return output('lost',[],0,{lossReason:rejectedMoves.some(m=>m.reason==='counter-threat')?'counter-threat':'forcing-line',counterProof:{complete:true,checkedRoots:counterCheck.branches.length,forcing:19,quiet:1,ms:counterCheck.ms,nodes:counterCheck.nodes,...proofMetrics({maxVisited:counterCheck.proofSearchDepth})},...proofMetrics({maxVisited:counterCheck.proofSearchDepth}),screened:rejectedMoves.length,rejectedMoves,screeningComplete:true,forcingChecksComplete:true});}
       }
     }
     const counterRejected=counterCheck?counterRejections(p,counterCheck):[],counterBad=new Set(counterRejected.map(m=>m.i));
@@ -474,7 +501,7 @@ function createEngine(N, board, options={}) {
     const pending=roots.filter(r=>!checked.has(r.i)).map(r=>({...r,score:r.s,pv:[r.i],status:'unverified'}));
     if(pending.length){screeningComplete=false;forcingChecksComplete=false;}
     let safe=[...screened.filter(r=>r.status!=='loss'),...pending];if(!safe.length){
-      if(screeningComplete)return output('lost',[],3,{lossReason:'forcing-line',screened:screened.length+counterRejected.length,rejectedMoves});
+      if(screeningComplete)return output('lost',[],0,{lossReason:'forcing-line',screened:screened.length+counterRejected.length,rejectedMoves});
       return output('incomplete',[],0,{screened:screened.length+counterRejected.length,rejected:rejectedMoves.length,rejectedMoves,screeningComplete:false,forcingChecksComplete:false});
     }
     let best=safe.slice(0,3),depth=0;const rejected=rejectedMoves.length;

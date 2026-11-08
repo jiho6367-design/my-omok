@@ -12,7 +12,7 @@ function createEngine(options={}) {
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
-    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
+    firstPlayer:normalizeFirst(options.firstPlayer??options.context?.firstPlayer),openingHistory:normalizeOpeningHistory(Object.prototype.hasOwnProperty.call(options,'openingHistory')?options.openingHistory:options.context?.openingHistory),openingStrategyPin:options.openingStrategyPin??options.context?.openingStrategyPin??null,strategy:options.strategy,forbiddenGuard:options.forbiddenGuard!==false,searchMemory,memoryManaged:true,...(options.proofDetails===true?{proofDetails:true}:{}),
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
@@ -32,17 +32,41 @@ function createEngine(options={}) {
   }
   const openingFactory=typeof OmokOpeningBook!=='undefined'?OmokOpeningBook:null;
   let openingBook=null,openingBookKey=null;
-  function openingChoices(board,p){
+  let openingRequest=null;
+  const openingRequestKey=(board,p)=>board&&board.length===225&&(Array.isArray(board)||ArrayBuffer.isView(board))?p+'|'+board.join(''):null;
+  function precomputedBudgetAllows(hit,budget){
+    if(!hit?.offline)return false;
+    if(!hit.offline.winningMoveVerified&&!(hit.offline.comparisonComplete===true&&Number.isInteger(hit.offline.depth)&&hit.offline.depth>0))return false;
+    const suppliedMode=budget&&typeof budget==='object'?budget.mode:typeof budget==='number'?'custom':null,
+      mode=['fast','auto','deep','custom'].includes(suppliedMode)?suppliedMode:null,
+      automatic=mode?mode==='auto':typeof budget!=='number',
+      requested=Number(budget&&typeof budget==='object'?budget.ms:budget);
+    // Short historical comparisons remain stored evidence. Automatic play
+    // performs a fresh comparison instead of fixing an unproved3s response.
+    // A fully certified short response remains eligible at every auto setting.
+    if((mode==='custom'||typeof budget==='number')&&(!Number.isFinite(requested)||requested<0))return false;
+    if(automatic&&!hit.offline.winningMoveVerified&&hit.offline.budgetMs<15000)return false;
+    return mode!=='deep'&&!((mode==='custom'||typeof budget==='number')&&requested>hit.offline.budgetMs);
+  }
+  function openingChoices(board,p,{budget}={}){
     if(options.openingBook===false||!openingFactory?.choices||!rules.firstPlayer||p!==rules.firstPlayer)return [];
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
     if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
+    const retained=retainedOpeningSelection(board,p,budget);
+    if(retained.blocked)return [];
+    if(retained.hit){
+      const hit=retained.hit,immediate=urgent(board,p);
+      if(immediate&&(immediate.proven?inspect(board,hit.i,p).win.length===0:immediate.i!==hit.i))return [];
+      if(forest.knownRefutations(board,p).some(row=>row.i===hit.i))return [];
+      return [{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-strategy',reference:false,proven:false,strategy:hit.strategy}];
+    }
     const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect,openingHistory:rules.openingHistory});
     const book=third.length?null:getOpeningBook(board,p);
     let rows=third.length?third:book?.choices?.(board,p,rules.firstPlayer)||[];
     if(!third.length&&!book?.lookup(board,p,rules.firstPlayer)){
       const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
-      if(hit){
+      if(hit&&precomputedBudgetAllows(hit,budget)){
         const prior=rows.find(row=>row.i===hit.i);
         if(prior){const families=[...new Map([...(prior.families||[{id:prior.familyId,title:prior.title}]),...hit.families].map(f=>[f.id,f])).values()];rows=rows.map(row=>row===prior?{...row,title:families.map(f=>f.title).join(' / '),families}:row);}
         else rows=[...rows,{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-precomputed',reference:false,proven:false}];
@@ -55,6 +79,27 @@ function createEngine(options={}) {
   }
   const openingAnalysisFactory=typeof OmokOpeningAnalysis!=='undefined'?OmokOpeningAnalysis:null;
   let openingAnalysis=null,openingAnalysisKey=null,openingAnalysisFailed=false;
+  const openingStrategyFactory=typeof OmokOpeningStrategy!=='undefined'?OmokOpeningStrategy:null,
+    openingStrategyData=options.openingStrategyData===undefined?(typeof OmokOpeningStrategyData==='undefined'?undefined:OmokOpeningStrategyData):options.openingStrategyData;
+  let openingStrategy=null,openingStrategyFailed=false;
+  function getOpeningStrategyCompiler(history=rules.openingHistory){
+    if(options.openingBook===false||options.openingAnalysis===false||options.openingStrategy===false||!openingStrategyFactory||openingStrategyFailed||!Array.isArray(history)||history.length<4)return null;
+    if(!openingStrategy&&Array.isArray(openingStrategyData?.roots)&&!openingStrategyData.roots.some(root=>Array.isArray(root?.rootMoves)&&root.rootMoves.length<=history.length))return null;
+    if(!openingStrategy)try{openingStrategy=openingStrategyFactory.create({inspect,...(openingStrategyData===undefined?{}:{data:openingStrategyData})});}catch{openingStrategyFailed=true;return null;}
+    return openingStrategy;
+  }
+  function openingStrategyPinForEvidence(history,sourceProofSha256){
+    return getOpeningStrategyCompiler(history)?.resolvePin?.(history,sourceProofSha256)||null;
+  }
+  function retainedOpeningSelection(board,p,budget,allowComputed=true){
+    if(!allowComputed||!rules.firstPlayer||p!==rules.firstPlayer)return {hit:null,blocked:false};
+    const hit=getOpeningStrategyCompiler()?.lookup(board,p,rules.firstPlayer,rules.openingHistory,rules.openingStrategyPin);
+    if(!hit)return {hit:null,blocked:false};
+    const mode=budget&&typeof budget==='object'?budget.mode:typeof budget==='number'?'custom':null,
+      requested=Number(budget&&typeof budget==='object'?budget.ms:budget),historicalBudget=hit.strategy.historicalBudgetMs;
+    const blocked=mode==='deep'||(mode==='custom'||typeof budget==='number')&&(!Number.isFinite(requested)||requested<0||!Number.isFinite(historicalBudget)||requested>historicalBudget);
+    return {hit:blocked?null:hit,blocked};
+  }
   function getOpeningBook(board,p){
     // Ordinary analysis, inspection-only engines and opponent prediction need
     // no source compilation. Eligible requests validate complete matching rows.
@@ -67,19 +112,20 @@ function createEngine(options={}) {
     const key=p+'|'+board.join('')+'|'+(rules.openingHistory?.join(',')||'');if(key!==openingBookKey){openingBook=openingFactory.createForPosition({inspect,board,p,firstPlayer:rules.firstPlayer,openingHistory:rules.openingHistory});openingBookKey=key;}return openingBook;
   }
   function openingReply(board,p,{budget,allowComputed=true}={}){
+    openingRequest={key:openingRequestKey(board,p),budget:budget&&typeof budget==='object'?{mode:budget.mode,ms:budget.ms}:budget,allowComputed};
+    const retained=retainedOpeningSelection(board,p,budget,allowComputed);
+    if(retained.blocked)return null;
     const hit=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
     let analyzed=hit||!allowComputed?null:getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
-    if(analyzed){
-      const mode=budget&&typeof budget==='object'?budget.mode:null,requested=Number(budget&&typeof budget==='object'?budget.ms:budget);
-      // A stored limited search must not prevent an explicitly deeper one.
-      if(mode==='deep'||(mode==='custom'||typeof budget==='number')&&requested>analyzed.offline.budgetMs)analyzed=null;
-    }
-    if(!hit&&!analyzed)return null;
+    if(analyzed&&!precomputedBudgetAllows(analyzed,budget))analyzed=null;
+    if(!hit&&!analyzed&&!retained.hit)return null;
     const immediate=urgent(board,p);if(immediate)return immediate;
-    if(forest.knownRefutations(board,p).some(m=>m.i===(hit||analyzed).i))return null;
+    if(forest.knownRefutations(board,p).some(m=>m.i===(retained.hit||hit||analyzed).i))return null;
+    if(retained.hit&&(!hit||hit.i!==retained.hit.i)&&(!analyzed||analyzed.i!==retained.hit.i))return finalizeResult(board,p,{kind:'opening-strategy',i:retained.hit.i,strategyEvidence:retained.hit});
     return hit?finalizeResult(board,p,{kind:'opening',i:hit.i,openingEvidence:hit}):
       finalizeResult(board,p,{kind:'opening-analysis',i:analyzed.i,analysisEvidence:analyzed});
   }
+  function hasOpeningReply(board,p,settings){const request=openingRequest;try{return !!openingReply(board,p,settings);}finally{openingRequest=request;}}
   function getOpeningAnalysis(board,p){
     if(options.openingBook===false||options.openingAnalysis===false||!openingAnalysisFactory||openingAnalysisFailed||!rules.firstPlayer||p!==rules.firstPlayer||!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return null;}
@@ -92,6 +138,8 @@ function createEngine(options={}) {
     return openingAnalysis;
   }
   function configure(next={}) {
+    openingRequest=null;
+    if(typeof next.openingStrategy==='boolean')options.openingStrategy=next.openingStrategy;
     rules.fivePriority=true;
     if(Object.prototype.hasOwnProperty.call(next,'model')){
       const modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(next.model):'baseline';
@@ -105,8 +153,9 @@ function createEngine(options={}) {
       const history=Object.prototype.hasOwnProperty.call(next,'openingHistory')?next.openingHistory:next.context.openingHistory;
       rules.openingHistory=normalizeOpeningHistory(history);openingBook=null;openingBookKey=null;
     }
+    if(Object.prototype.hasOwnProperty.call(next,'openingStrategyPin')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'openingStrategyPin'))rules.openingStrategyPin=next.openingStrategyPin??next.context?.openingStrategyPin??null;
   }
-  const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion});
+  const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion,...(rules.openingStrategyPin?{openingStrategyPin:{...rules.openingStrategyPin}}:{})});
   function validPV(board,p,pv) {
     const copy=board.slice(),out=[];
     for(const i of pv||[]){const s=inspect(copy,i,p);if(!s.legal)break;out.push(i);copy[i]=p;if(s.win.length)break;p=3-p;}
@@ -151,14 +200,33 @@ function createEngine(options={}) {
   // Scores from Reader and Forest are never mixed to rank a merged shortlist.
   function finalizeResult(board,p,result){
     if(!result)return result;
+    const request=openingRequest?.key===openingRequestKey(board,p)?openingRequest:null,
+      retained=['opening','opening-analysis','opening-strategy'].includes(result.kind)?retainedOpeningSelection(board,p,request?.budget,request?.allowComputed!==false):{hit:null,blocked:false};
+    if(retained.blocked||retained.hit&&retained.hit.i!==result.i)return fallbackResult(board,p,{reason:'현재 선택한 조건부 전략과 요청 설정에 맞춰 다시 분석해야 합니다.'});
+    if(result.kind==='opening-strategy'){
+      const hit=retained.hit;if(!hit||hit.id!==result.strategyEvidence?.id)return fallbackResult(board,p,{reason:'검증 수순과 현재 기보가 달라 다시 분석해야 합니다.'});
+      const immediate=urgent(board,p);if(immediate)return immediate;
+      if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 수순 후보를 제외하고 다시 분석해야 합니다.'});
+      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening-strategy',strategyEvidence:hit,retainedStrategy:hit.strategy,
+        proven:false,lossProven:false,forcedLoss:false,proof:null,proofStatus:'UNRESOLVED',assessmentStatus:'ENGINE_STRATEGY',
+        fallback:false,analysisIncomplete:false,timedOut:false,defenseChecked:false,unverifiedDefense:true,
+        modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model,shape:inspect(board,hit.i,p),
+        comparison:{complete:false,selected:hit.i,depth:0,source:'engine-strategy',rootsCompared:0},comparisonSource:'engine-strategy',
+        candidates:[{i:hit.i,pv:[hit.i],score:0,depth:0,comparisonComplete:false,comparisonSource:'engine-strategy'}],rejected:[],
+        analysisWork:{mode:'precomputed',completedDepth:0,nodes:0,elapsedMs:0,source:'engine-strategy',stopReason:'retained-strategy-match'},
+        engineVersion:'opening-strategy-1',reason:`${hit.title} 검증 수순 이어두기 · ${hit.ply}수 · 최초 증명의 상대 응수별 전략 조회`};
+    }
     if(result.kind==='opening-analysis'){
       const source=getOpeningBook(board,p)?.lookup(board,p,rules.firstPlayer);
-      if(source)return openingReply(board,p)||fallbackResult(board,p,{reason:'기존 정석의 반증을 확인해 일반 분석이 필요합니다.'});
+      if(source&&(!retained.hit||source.i===retained.hit.i))return openingReply(board,p,{budget:request?.budget,allowComputed:request?.allowComputed!==false})||fallbackResult(board,p,{reason:'기존 정석의 반증을 확인해 일반 분석이 필요합니다.'});
       const hit=getOpeningAnalysis(board,p)?.lookup(board,p,rules.firstPlayer);
       if(!hit||hit.i!==result.i||hit.id!==result.analysisEvidence?.id)return fallbackResult(board,p,{reason:'엔진 사전분석과 현재 국면이 달라 일반 분석이 필요합니다.'});
+      if(openingRequest?.key===openingRequestKey(board,p)&&openingRequest.allowComputed===false)return fallbackResult(board,p,{reason:'현재 요청은 사전분석 조회를 사용하지 않습니다.'});
+      const requested=openingRequest?.key===openingRequestKey(board,p)?openingRequest.budget:undefined;
+      if(!precomputedBudgetAllows(hit,requested))return fallbackResult(board,p,{reason:'짧은 미증명 사전분석 대신 현재 설정으로 다시 분석해야 합니다.'});
       const immediate=urgent(board,p);if(immediate)return immediate;
       if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 사전분석 후보를 제외하고 일반 분석이 필요합니다.'});
-      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening-analysis',analysisEvidence:hit,
+      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening-analysis',analysisEvidence:hit,...(retained.hit?{retainedStrategy:retained.hit.strategy}:{}),
         proven:false,lossProven:false,forcedLoss:false,proof:null,proofStatus:'UNRESOLVED',assessmentStatus:'ENGINE_PRECOMPUTED',
         fallback:false,analysisIncomplete:false,timedOut:false,defenseChecked:false,unverifiedDefense:true,
         modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model,shape:inspect(board,hit.i,p),
@@ -172,7 +240,7 @@ function createEngine(options={}) {
       if(!hit||hit.i!==result.i||hit.id!==result.openingEvidence?.id)return fallbackResult(board,p,{reason:'초반 정석과 현재 국면이 달라 일반 분석이 필요합니다.'});
       const immediate=urgent(board,p);if(immediate)return immediate;
       if(forest.knownRefutations(board,p).some(m=>m.i===hit.i))return fallbackResult(board,p,{reason:'반증된 정석 후보를 제외하고 일반 분석이 필요합니다.'});
-      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening',openingEvidence:hit,
+      return {i:hit.i,pv:[hit.i],score:0,depth:0,nodes:0,ms:0,kind:'opening',openingEvidence:hit,...(retained.hit?{retainedStrategy:retained.hit.strategy}:{}),
         proven:false,lossProven:false,forcedLoss:false,proof:null,proofStatus:'UNRESOLVED',assessmentStatus:'OPENING_REFERENCE',
         fallback:false,analysisIncomplete:false,timedOut:false,defenseChecked:false,unverifiedDefense:true,
         modelVersion:rules.modelVersion,learnedEvaluation:!!rules.model,shape:inspect(board,hit.i,p),
@@ -285,7 +353,8 @@ function createEngine(options={}) {
       r.retainedComparison?.finalDefenseUnchecked&&!r.defenseChecked?(feature?.cut>0?'BLOCKING_UNCHECKED':'INCOMPLETE'):
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1-defense-horizon-1-closed-nomination-1';
+    r.metricsVersion=2;
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -296,7 +365,7 @@ function createEngine(options={}) {
       r.kind==='lost'?(forbiddenDefense!=null?`상대 5목 방어점 ${forest.coord(forbiddenDefense)}은 3×3 금수 · 강제패배 확인`:'강제패배 확인 · 계속 둘 수 있는 합법 후보'):
       r.kind==='block'?'상대의 다음 5목을 막는 필수 방어':
       r.kind==='incomplete'?'임시 합법 후보 · 추가 계산 중':'공격과 방어를 비교한 추천';
-    return {i,reason,depth:r.depth||0,nodes:r.nodes||0,ms:clockNow()-started,score:first?.score||0,
+    return {i,reason,depth:r.depth||0,proofPlies:r.proofPlies??null,proofSearchDepth:r.proofSearchDepth??null,proofSearchDepthScope:r.proofSearchDepthScope??null,nodes:r.nodes||0,ms:clockNow()-started,score:first?.score||0,
       pv:validPV(board,p,first?.pv),proven:['win','forced'].includes(r.kind),lossProven:r.kind==='lost',forcedLoss:r.kind==='lost',
       threats:r.danger||[],shape:i==null?null:inspect(board,i,p),urgent:r.kind==='win'||!!r.mandatoryDefense||(r.kind==='lost'&&!!r.danger?.length),
       forbiddenDefense,
@@ -577,18 +646,19 @@ function createEngine(options={}) {
   // Check the opponent's ACTUAL next turn, including every legal counter-win
   // and counter-four. A comparison score only schedules this certificate.
   function verifyWinningMove(board,p,i,ms=160){
-    const start=clockNow(),shape=inspect(board,i,p),finish=(complete,proof=null,pv=[],nodes=0,kind=null)=>({complete,proof,pv,nodes,kind,ms:clockNow()-start});
+    const start=clockNow(),shape=inspect(board,i,p),finish=(complete,proof=null,pv=[],nodes=0,kind=null,metrics={})=>({complete,proof,pv,nodes,kind,metricsVersion:2,proofPlies:proof?pv.length:null,proofSearchDepth:null,proofSearchDepthScope:null,...metrics,ms:clockNow()-start});
     if(!shape.legal)return finish(true);
-    if(shape.win.length)return finish(true,{type:'exact-five',move:i,attacker:p,complete:true},[i],0,'win');
+    if(shape.win.length)return finish(true,{type:'exact-five',move:i,attacker:p,complete:true},[i],0,'win',{proofSearchDepth:0,proofSearchDepthScope:'immediate-inspection-no-recursive-proof-work'});
     const after=board.slice();after[i]=p;
     // Ordinary cached proofs may omit their branch details. Build this small
     // certificate locally so its exported all-response tree is self-contained.
     const defender=createReaderEngine(15,after,{...rules,searchMemory:null,counterProofDetails:true}),check=defender.counterLoss(3-p,Math.max(0,ms-(clockNow()-start)),19,1);
-    if(!check.complete||!check.lossProven||!check.branches?.length)return finish(check.complete,null,[],check.nodes||0);
+    const metrics={proofSearchDepth:Number.isInteger(check.proofSearchDepth)?1+check.proofSearchDepth:null,proofSearchDepthScope:'additional-occupied-plies-visited-from-fixed-candidate-entry'};
+    if(!check.complete||!check.lossProven||!check.branches?.length)return finish(check.complete,null,[],check.nodes||0,null,metrics);
     const branch=check.branches[0],pv=[i,branch.i,...branch.proof.pv];
-    if(validPV(board,p,pv).length!==pv.length)return finish(false,null,[],check.nodes||0);
+    if(validPV(board,p,pv).length!==pv.length)return finish(false,null,[],check.nodes||0,null,metrics);
     return finish(true,{type:'all-legal-replies',move:i,attacker:p,defender:3-p,entryBoardKey:board.join(''),replyBoardKey:after.join(''),complete:true,
-      checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced');
+      checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced',metrics);
   }
 // Proof work nomination only. No evaluation value or safety claim is returned.
 function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performance.now()){
@@ -653,7 +723,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
             ...(stage==='preparation'?{preparation:{axes:preparation.axes,threeAxes:preparation.threeAxes,evidence:preparation.evidence}}:{})});
           if(check.proof){
             winner=finalizeResult(board,p,{...r,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,pv:check.pv,proof:check.proof,
-              score:1e8,depth:Math.max(r.depth||0,check.pv.length),analysisIncomplete:false,timedOut:false,
+              score:1e8,depth:r.depth||0,proofPlies:check.proofPlies,proofSearchDepth:check.proofSearchDepth,proofSearchDepthScope:check.proofSearchDepthScope,analysisIncomplete:false,timedOut:false,
               reason:stage==='preparation'?'닫힌 공격 준비 뒤 상대의 모든 합법 응수에서 강제승 확인':'후보 착수 뒤 상대의 모든 합법 응수에서 강제승 확인'});
             if(winner.proven){progress({...decorate(winner),analysisWork:{...r.analysisWork,completedDepth:winner.depth,nodes:(r.nodes||0)+extraNodes,
               elapsedMs:Math.round(clockNow()-start),stopReason:'verified-win'}});throw stop;}
@@ -671,7 +741,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
         const check=verifyWinningMove(board,p,seed.i,ms);extraNodes+=check.nodes||0;attempted.add(seed.i+'|shape');
         checks.push({i:seed.i,stage:'open-three',complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,nomination:seed});
         if(check.complete&&check.proof){
-          const result=finalizeResult(board,p,{i:seed.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,score:1e8,depth:check.pv.length,nodes:0,analysisIncomplete:false,timedOut:false,comparison:{complete:false,selected:seed.i,depth:0,source:'open-three-proof',rootsCompared:0},reason:'열린 셋 후보 뒤 상대의 모든 합법 응수에서 강제승 확인',analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:check.pv.length,source:'open-three-proof',stopReason:'verified-win'}});
+          const result=finalizeResult(board,p,{i:seed.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,score:1e8,depth:0,proofPlies:check.proofPlies,proofSearchDepth:check.proofSearchDepth,proofSearchDepthScope:check.proofSearchDepthScope,nodes:0,analysisIncomplete:false,timedOut:false,comparison:{complete:false,selected:seed.i,depth:0,source:'open-three-proof',rootsCompared:0},reason:'열린 셋 후보 뒤 상대의 모든 합법 응수에서 강제승 확인',analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:0,source:'open-three-proof',stopReason:'verified-win'}});
           if(result.proven){const done=decorate(result);progress(done);return{...done,ms:clockNow()-start};}
         }
       }
@@ -702,10 +772,10 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
           nomination:'independent-closed-preparation',preparation:{axes:nominee.feature.axes,threeAxes:nominee.feature.threeAxes,evidence:nominee.feature.evidence}});
         if(check.complete&&check.proof){
           const result=finalizeResult(board,p,{i:nominee.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,
-            score:1e8,depth:check.pv.length,nodes:0,analysisIncomplete:false,timedOut:false,
+            score:1e8,depth:0,proofPlies:check.proofPlies,proofSearchDepth:check.proofSearchDepth,proofSearchDepthScope:check.proofSearchDepthScope,nodes:0,analysisIncomplete:false,timedOut:false,
             comparison:{complete:false,selected:nominee.i,depth:0,source:'preparation-proof',rootsCompared:0},
             reason:'닫힌 공격 준비 뒤 상대의 모든 합법 응수에서 강제승 확인',
-            analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:check.pv.length,source:'preparation-proof',stopReason:'verified-win'}});
+            analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:0,source:'preparation-proof',stopReason:'verified-win'}});
           if(result.proven){const done=decorate(result);progress(done);return {...done,ms:clockNow()-start};}
         }
       }
@@ -853,7 +923,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
   // configure can rebuild context-sensitive evaluation caches. Forward public
   // Forest methods to the current instance rather than retaining stale closures.
   const api={...forest};for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=(...args)=>forest[name](...args);
-  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,openingReply,openingChoices,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
+  return {...api,configure,getContext,strategyVersion,setRecordBook,recordedReply,openingReply,openingChoices,hasOpeningReply,openingStrategyPinForEvidence,finalizeResult,fallbackResult,inspect,urgent,analyze,verifyWinningMove,suggestBudget,assessMove,reviewMove,validPV,
     getModel:()=>rules.model,
     getModelInfo:()=>({active:!!rules.model,modelVersion:rules.modelVersion,featureVersion:rules.model?.featureVersion||null,scale:rules.model?.scale||0}),
     getSearchMemoryStats:()=>searchMemory?.stats()||null,

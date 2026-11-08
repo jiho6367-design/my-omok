@@ -42,17 +42,18 @@ for(const row of D.entries){
 // Whole-data color/D4 lookup above verifies the other orientations without
 // repeatedly compiling all source lines for every synthetic history.
 const E=create({firstPlayer:1,model:null,recordBook:[],searchMemory:false});
-function policy(moves){const b=board(moves),before=b.slice();E.configure({openingHistory:moves});const hit=E.openingReply(b,1,{budget:{mode:'auto',ms:15000}})||E.urgent(b,1);assert(hit,'No automatic response after '+moves.join(','));assert(R(b).legal(hit.i,1));assert.deepEqual(b,before);return hit;}
-const coverage={fifth:{total:0,source:0,computed:0,urgent:0},seventh:{total:0,source:0,computed:0,urgent:0}};
+const admissionArchive=A.create({inspect,continuationData:native,reductionData:D}),deferredParents=[],changedHistoricalParents=[];assert.deepEqual(admissionArchive.errors,[]);
+function policy(moves){const b=board(moves),before=b.slice();E.configure({openingHistory:moves});const hit=E.urgent(b,1)||E.openingReply(b,1,{budget:{mode:'auto',ms:15000}}),archived=admissionArchive.lookup(b,1,1);if(!hit){assert(archived,'Missing current recommendation must have preserved historical evidence');assert(archived.offline.budgetMs<15000&&!archived.offline.winningMoveVerified,'Eligible historical response cannot silently vanish');assert(!E.openingChoices(b,1,{budget:{mode:'auto',ms:15000}}).some(c=>c.source==='engine-precomputed'&&equivalent(b,c.i,archived.i)));deferredParents.push({moves: moves.slice(),id:archived.id,resultSha256:archived.offline.resultSha256});}else{assert(R(b).legal(hit.i,1));if(hit.kind==='opening-analysis'){assert(hit.analysisEvidence.offline.budgetMs>=15000||hit.analysisEvidence.offline.winningMoveVerified);assert(archived);assert.equal(hit.analysisEvidence.offline.resultSha256,archived.offline.resultSha256);}}assert.deepEqual(b,before);return hit;}
+const coverage={fifth:{total:0,source:0,computed:0,urgent:0,freshRequired:0},seventh:{total:0,source:0,computed:0,urgent:0,freshRequired:0}};
 let causalParents=0;
 for(const sample of scope.families){
  assert.equal(sample.thirdMoves.length,3);assert(sample.thirdMoves.every((i,k)=>i===sample.selectedFifthMoves[k]));assert.equal(sample.selectedFifthMoves.length,5);assert.equal(sample.selectedFourth,sample.selectedFifthMoves[3]);
- const parent=policy(sample.selectedFifthMoves.slice(0,4));assert(equivalent(board(sample.selectedFifthMoves.slice(0,4)),parent.i,sample.selectedFifthMoves[4]),'Selected5 must be the live recommendation');causalParents++;
+ const parent=policy(sample.selectedFifthMoves.slice(0,4));if(parent){assert(equivalent(board(sample.selectedFifthMoves.slice(0,4)),parent.i,sample.selectedFifthMoves[4]),'An eligible selected5 keeps its actual recommendation');causalParents++;}else changedHistoricalParents.push({familyId:sample.familyId,ply:5,historicalMove:sample.selectedFifthMoves[4],currentMove:null,reason:'short-unproved-auto-deferred'});
  for(const [moves,key,expected,terminalExpected]of[[sample.thirdMoves,'fifth',sample.nonterminalFourths,sample.terminalFourths],[sample.selectedFifthMoves,'seventh',sample.nonterminalSixths,sample.terminalSixths]]){
   const before=board(moves);let terminal=0,count=0;
   for(let i=0;i<225;i++)if(R(before).legal(i,2)){
    const b=before.slice();b[i]=2;if(R(b).exact(i,2)){terminal++;continue;}
-   const hit=policy(moves.concat(i)),bucket=coverage[key];bucket.total++;count++;if(hit.kind==='opening')bucket.source++;else if(hit.kind==='opening-analysis')bucket.computed++;else{assert(hit.urgent||hit.proven);bucket.urgent++;}
+   const hit=policy(moves.concat(i)),bucket=coverage[key];bucket.total++;count++;if(!hit)bucket.freshRequired++;else if(hit.kind==='opening')bucket.source++;else if(hit.kind==='opening-analysis')bucket.computed++;else{assert(hit.urgent||hit.proven);bucket.urgent++;}
   }
   assert.equal(count,expected);assert.equal(terminal,terminalExpected);
  }
@@ -63,9 +64,9 @@ for(const branch of scope.laterBranches||[]){
  assert(families.includes(branch.familyId));assert(Array.isArray(branch.moves)&&branch.moves.length>=9);let b=Array(225).fill(0);
  for(let k=0;k<branch.moves.length;k++){
   const i=branch.moves[k],p=k%2?2:1;assert(R(b).legal(i,p));
-  if(k>=4&&p===1){const h=policy(branch.moves.slice(0,k));assert(equivalent(b,h.i,i),'A later branch must follow actual runtime defaults');causalParents++;}
+  if(k>=4&&p===1){const h=policy(branch.moves.slice(0,k));if(h){assert(equivalent(b,h.i,i),'An eligible historical parent keeps its current choice');causalParents++;}else changedHistoricalParents.push({familyId:branch.familyId,ply:k+1,historicalMove:i,currentMove:null,reason:'short-unproved-auto-deferred'});}
   b[i]=p;if(R(b).exact(i,p)){assert.equal(k,branch.moves.length-1,'No continuation after game end');break;}
  }laterPaths++;
 }
 assert(laterPaths>0,'Selected continuations beyond7 must be present');
-console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,scope:'All declared1998 representative fourth replies and1980 selected-parent sixth replies; all published actual-board rows in both colors/D4, preserved historical source/native evidence prefixes and metadata, exact original evidence, current source/urgent priority and causal selected later paths. No guarantee for all future replies.'}));
+console.log(JSON.stringify({test:'opening-reduction-followups',passed:true,entries:D.entries.length,actualLookups,evidenceMappings,byPly,byFamily,coverage,causalParents,laterPaths,deferredParents,changedHistoricalParents,scope:'All published actual-board rows and declared historical scope remain stored in both colours/D4. Current auto15 admits eligible evidence and reports short-unproved positions as requiring fresh analysis, not as automatic continuations or proved-safe moves. Historical parent changes are reported separately; no manual-budget bypass.'}));
