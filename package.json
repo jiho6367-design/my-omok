@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.42",
+  "version": "5.18.43",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -88,7 +88,9 @@
     "test:opening-composed261:integration": "node test/opening-composed261-runtime.cjs",
     "test:opening-composed261:ui": "node test/opening-composed261-ui.cjs",
     "test:opening-late263:integration": "node test/opening-late263-runtime.cjs",
-    "test:opening-late263:ui": "node test/opening-late263-ui.cjs"
+    "test:opening-late263:ui": "node test/opening-late263-ui.cjs",
+    "test:opening-derived264:integration": "node test/opening-derived264-runtime.cjs",
+    "test:opening-derived264:ui": "node test/opening-derived264-ui.cjs"
   },
   "engines": {
     "node": ">=22.13"

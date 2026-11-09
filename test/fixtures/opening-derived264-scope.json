@@ -1,0 +1,1120 @@
+{
+  "schemaVersion": 1,
+  "status": "optional-exact-derived23-profile42-fixture",
+  "rulesId": "15x15-exact5-both33-v1",
+  "sourceModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+  "historicalAnalysisSourceCommit": "b235fa9525003d8ccc7b6c6f44bc104efef81c5b",
+  "dataSha256": "caa428b36cb0f74f9e1d5149138a12fcf1a002a8b82d37d7d478a18bbc9f997d",
+  "dataValueSha256": "00c2e1762f5b6f02e110bdda9fbee2d308d1b1fb7f34f1692fc15137969146c4",
+  "profileUnchanged42": true,
+  "old263Prefix": {
+    "roots": 263,
+    "nodes": 1980,
+    "maxPlies": 42,
+    "dataValueSha256": "393795c13df8acac6df9c846388ea4efeb57d007d8a8dc5bc1ec02118102b54a"
+  },
+  "root": {
+    "key": "derived23E10",
+    "rootId": "I3-user8-op10-97-op12-125-op14-143-op16-93-op18-109-op20-157-op22-153-proof23-07c98fa51ffe",
+    "sourceProofSha256": "07c98fa51ffe063b311f828c3ce3b4b2ad5ccb9dd2fbf88f10cd18f5cf144258",
+    "sourceResultSha256": "74f13cab8db6b15efd5c5a3852c512ebd3e5fcf169b02ef080ca32be97a42f53",
+    "actualParent": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      143,
+      127,
+      93,
+      95,
+      109,
+      172,
+      157,
+      141,
+      153
+    ],
+    "move": 139,
+    "historyBudgetMs": null,
+    "ownPly": 23,
+    "allLegalNextReplies": 202,
+    "derivedSearchMetrics": {
+      "engineCalls": 0,
+      "budgetMs": null,
+      "nodes": null,
+      "depth": null,
+      "score": null,
+      "elapsedMs": null
+    },
+    "sourceOriginalOwnPly": 21,
+    "sourceOriginalHistoricalMetrics": {
+      "declaredBudgetMs": 15000,
+      "nodes": 201896,
+      "actualComparisonDepth": 1,
+      "proofSearchDepth": 12,
+      "proofSearchDepthScope": "additional-occupied-plies-visited-from-fixed-candidate-entry"
+    },
+    "responses": [
+      {
+        "opponent": 0,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 1,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 2,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 3,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 4,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 5,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 6,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 7,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 8,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 9,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 10,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 11,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 12,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 13,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 14,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 15,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 16,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 17,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 18,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 19,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 20,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 21,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 22,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 23,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 24,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 25,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 26,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 27,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 28,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 29,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 30,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 31,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 32,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 33,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 34,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 35,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 36,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 37,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 38,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 39,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 40,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 41,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 42,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 43,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 44,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 45,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 46,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 47,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 48,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 49,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 50,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 51,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 52,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 53,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 54,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 55,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 56,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 57,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 58,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 59,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 60,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 61,
+        "moduleMove": 77,
+        "sourceType": "move"
+      },
+      {
+        "opponent": 62,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 63,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 64,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 65,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 66,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 67,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 68,
+        "moduleMove": 158,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 69,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 70,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 71,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 72,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 73,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 74,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 75,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 76,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 77,
+        "moduleMove": 61,
+        "sourceType": "move"
+      },
+      {
+        "opponent": 78,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 79,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 80,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 81,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 82,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 84,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 85,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 86,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 87,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 88,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 89,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 90,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 91,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 92,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 99,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 100,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 101,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 102,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 103,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 104,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 105,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 106,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 107,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 108,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 113,
+        "moduleMove": 158,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 114,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 115,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 116,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 117,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 118,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 119,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 120,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 121,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 122,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 123,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 124,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 129,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 130,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 131,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 132,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 133,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 134,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 135,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 136,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 137,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 138,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 144,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 145,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 146,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 147,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 148,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 149,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 150,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 151,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 152,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 154,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 155,
+        "moduleMove": 158,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 156,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 158,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 159,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 160,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 161,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 162,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 163,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 164,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 165,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 166,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 167,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 168,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 169,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 170,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 171,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 173,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 174,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 175,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 176,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 177,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 178,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 179,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 180,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 181,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 182,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 183,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 184,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 185,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 186,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 187,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 188,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 189,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 190,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 191,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 192,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 193,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 194,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 195,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 196,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 197,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 198,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 199,
+        "moduleMove": 113,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 200,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 201,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 202,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 203,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 204,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 205,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 206,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 207,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 208,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 209,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 210,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 211,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 212,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 213,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 214,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 215,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 216,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 217,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 218,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 219,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 220,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 221,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 222,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 223,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      },
+      {
+        "opponent": 224,
+        "moduleMove": 129,
+        "sourceType": "vcf"
+      }
+    ],
+    "selectedGenerated33": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      143,
+      127,
+      93,
+      95,
+      109,
+      172,
+      157,
+      141,
+      153,
+      139,
+      77,
+      61,
+      68,
+      158,
+      174,
+      130,
+      129,
+      144,
+      0,
+      116
+    ]
+  },
+  "whole21G10Proven": false,
+  "whole19H12Proven": false,
+  "unresolvedBlack22": [
+    61,
+    77,
+    139
+  ]
+}
