@@ -1,0 +1,5308 @@
+{
+  "schemaVersion": 1,
+  "status": "optional-current261-earliest-complete-proof-and-legacy-path-regression-fixture",
+  "rulesId": "15x15-exact5-both33-v1",
+  "historicalAnalysisSourceCommit": "b235fa9525003d8ccc7b6c6f44bc104efef81c5b",
+  "currentRuntimeBaselineCommit": "acbb501f5b99e94e911115762f04749138517c9a",
+  "sourceModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+  "dataSha256": "9d5df8941fb91c5df4cb2cb72ab6cd02249cf2973100593f8818584ac7d71b43",
+  "dataValueSha256": "db9aca3824b1a1aa72456e04a826ce566d92334198fba9b78f4fa69c09fb5314",
+  "old259Prefix": {
+    "roots": 259,
+    "nodes": 1782,
+    "dataValueSha256": "99c0b1f70acbe003a21586090108ab1f1f9281bcf798459aed03c49afb1e67ea",
+    "rootsSha256": "ae3457836ae76c640c868ad673e90f380b7cc547f2bce82b1affea8ed5c0a476",
+    "nodesSha256": "a9bcc40bd408ebe25ae8f56cdef3b0a28ac2a3836b15fd5a1f6c026304e2fd70"
+  },
+  "old258Prefix": {
+    "roots": 258,
+    "nodes": 1772,
+    "dataValueSha256": "1b99213f84504b0b0035eac684c8b97bf1abd6fe37b411e536fa531640679748",
+    "rootsSha256": "5da322dc6dc1066db9396122644c6ee26a0017ef6db7ce84553621dfe38463a9",
+    "nodesSha256": "1c073fee4c96b98bbd22b6690a81df3edf73e3d05464556ad8b7031c301da753"
+  },
+  "roots": {
+    "composite15": {
+      "key": "composite15",
+      "rootId": "I3-user8-op10-97-op12-125-op14-153-proof15-72a056798c13",
+      "sourceProofSha256": "72a056798c131a7ec8badee08b5dfd882154ac3b746fce9e82fd8a1332e5c392",
+      "sourceResultSha256": "9a64eaab87ffe0f3c77922e5c063c6cdfcb7904ddbd3ac05113d90fba2c4582c",
+      "actualParent": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        153
+      ],
+      "move": 139,
+      "rootOwnPly": 15,
+      "historyBudgetMs": null,
+      "historicalBudgetFieldOmitted": true
+    },
+    "direct17": {
+      "key": "direct17",
+      "rootId": "I3-user8-op10-97-op12-125-op14-153-op16-143-proof17-bc21a6fd841b",
+      "sourceProofSha256": "bc21a6fd841bec02962300f37abb8c855614b3cdb37e9a2a87e6b703f94321e3",
+      "sourceResultSha256": "abda3f4c2e9187a4855363f195e5134a7defb58643322370b2bb643118e80c55",
+      "actualParent": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        153,
+        139,
+        143
+      ],
+      "move": 127,
+      "rootOwnPly": 17,
+      "historyBudgetMs": 25000,
+      "historicalBudgetFieldOmitted": false
+    },
+    "old21": {
+      "key": "old21",
+      "rootId": "I3-user8-op10-97-op12-125-op14-153-op16-143-op18-93-op20-109-proof21-67881f92d339",
+      "sourceProofSha256": "67881f92d33999607532aa7752289dfc89a83f87b767d19c57da452a25f667c1",
+      "sourceResultSha256": "e7a8c11ea3dbe7a2f3fd120f2f99b5a14e0ba6c472996d21b86a02da838f4187",
+      "actualParent": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        153,
+        139,
+        143,
+        127,
+        93,
+        95,
+        109
+      ],
+      "move": 172,
+      "rootOwnPly": 21,
+      "historyBudgetMs": 15000,
+      "historicalBudgetFieldOmitted": false
+    }
+  },
+  "responses": {
+    "composite15": [
+      {
+        "opponent": 0,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 1,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 2,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 3,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 4,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 5,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 6,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 7,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 8,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 9,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 10,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 11,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 12,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 13,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 14,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 15,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 16,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 17,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 18,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 19,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 20,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 21,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 22,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 23,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 24,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 25,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 26,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 27,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 28,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 29,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 30,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 31,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 32,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 33,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 34,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 35,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 36,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 37,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 38,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 39,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 40,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 41,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 42,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 43,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 44,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 45,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 46,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 47,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 48,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 49,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 50,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 51,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 52,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 53,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 54,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 55,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 56,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 57,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 58,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 59,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 60,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 61,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 62,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 63,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 64,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 65,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 66,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 67,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 68,
+        "moduleMove": 114,
+        "acceptedMainMoves": [
+          114
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 69,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 70,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 71,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 72,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 73,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 74,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 75,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 76,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 77,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 78,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 79,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 80,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 81,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 82,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 84,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 85,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 86,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 87,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 88,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 89,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 90,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 91,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 92,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 93,
+        "moduleMove": 95,
+        "acceptedMainMoves": [
+          95
+        ],
+        "category": "block"
+      },
+      {
+        "opponent": 95,
+        "moduleMove": 93,
+        "acceptedMainMoves": [
+          93
+        ],
+        "category": "block"
+      },
+      {
+        "opponent": 99,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 100,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 101,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 102,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 103,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 104,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 105,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 106,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 107,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 108,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 109,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 113,
+        "moduleMove": 114,
+        "acceptedMainMoves": [
+          114
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 114,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 115,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 116,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 117,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 118,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 119,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 120,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 121,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 122,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 123,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 124,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 127,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 129,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 130,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 131,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 132,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 133,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 134,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 135,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 136,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 137,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 138,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 141,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 143,
+        "moduleMove": 127,
+        "acceptedMainMoves": [
+          127
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 144,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 145,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 146,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 147,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 148,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 149,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 150,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 151,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 152,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 154,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 155,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 156,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 157,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 158,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 159,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 160,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 161,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 162,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 163,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 164,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 165,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 166,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 167,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 168,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 169,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 170,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 171,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 172,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 173,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 174,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 175,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 176,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 177,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 178,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 179,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 180,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 181,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 182,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 183,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 184,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 185,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 186,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 187,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 188,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 189,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 190,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 191,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 192,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 193,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 194,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 195,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 196,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 197,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 198,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 199,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 200,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 201,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 202,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 203,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 204,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 205,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 206,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 207,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 208,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 209,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 210,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 211,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 212,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 213,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 214,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 215,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 216,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 217,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 218,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 219,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 220,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 221,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 222,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 223,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 224,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      }
+    ],
+    "direct17": [
+      {
+        "opponent": 0,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 1,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 2,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 3,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 4,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 5,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 6,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 7,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 8,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 9,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 10,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 11,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 12,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 13,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 14,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 15,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 16,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 17,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 18,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 19,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 20,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 21,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 22,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 23,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 24,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 25,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 26,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 27,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 28,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 29,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 30,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 31,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 32,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 33,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 34,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 35,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 36,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 37,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 38,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 39,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 40,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 41,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 42,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 43,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 44,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 45,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 46,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 47,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 48,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 49,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 50,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 51,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 52,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 53,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 54,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 55,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 56,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 57,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 58,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 59,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 60,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 61,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 62,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 63,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 64,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 65,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 66,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 67,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 68,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 69,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 70,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 71,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 72,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 73,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 74,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 75,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 76,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 77,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 78,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 79,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 80,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 81,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 82,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 84,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 85,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 86,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 87,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 88,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 89,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 90,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 91,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 92,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 93,
+        "moduleMove": 95,
+        "acceptedMainMoves": [
+          95
+        ],
+        "category": "block"
+      },
+      {
+        "opponent": 95,
+        "moduleMove": 93,
+        "acceptedMainMoves": [
+          93
+        ],
+        "category": "block"
+      },
+      {
+        "opponent": 99,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 100,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 101,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 102,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 103,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 104,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 105,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 106,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 107,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 108,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 109,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 113,
+        "moduleMove": 84,
+        "acceptedMainMoves": [
+          84
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 114,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 115,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 116,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 117,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 118,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 119,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 120,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 121,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 122,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 123,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 124,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 129,
+        "moduleMove": 113,
+        "acceptedMainMoves": [
+          113
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 130,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 131,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 132,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 133,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 134,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 135,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 136,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 137,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 138,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 141,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 144,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 145,
+        "moduleMove": 84,
+        "acceptedMainMoves": [
+          84
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 146,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 147,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 148,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 149,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 150,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 151,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 152,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 154,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 155,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 156,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 157,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 158,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 159,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 160,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 161,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 162,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 163,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 164,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 165,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 166,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 167,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 168,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 169,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 170,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 171,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 172,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 173,
+        "moduleMove": 158,
+        "acceptedMainMoves": [
+          158
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 174,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 175,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 176,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 177,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 178,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 179,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 180,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 181,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 182,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 183,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 184,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 185,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 186,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 187,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 188,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 189,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 190,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 191,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 192,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 193,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 194,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 195,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 196,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 197,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 198,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 199,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 200,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 201,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 202,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 203,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 204,
+        "moduleMove": 172,
+        "acceptedMainMoves": [
+          172
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 205,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 206,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 207,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 208,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 209,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 210,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 211,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 212,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 213,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 214,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 215,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 216,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 217,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 218,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 219,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 220,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 221,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 222,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 223,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      },
+      {
+        "opponent": 224,
+        "moduleMove": 68,
+        "acceptedMainMoves": [
+          68
+        ],
+        "category": "offline"
+      }
+    ],
+    "old21": [
+      {
+        "opponent": 0,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 1,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 2,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 3,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 4,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 5,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 6,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 7,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 8,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 9,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 10,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 11,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 12,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 13,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 14,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 15,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 16,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 17,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 18,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 19,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 20,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 21,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 22,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 23,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 24,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 25,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 26,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 27,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 28,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 29,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 30,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 31,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 32,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 33,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 34,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 35,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 36,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 37,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 38,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 39,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 40,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 41,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 42,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 43,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 44,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 45,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 46,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 47,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 48,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 49,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 50,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 51,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 52,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 53,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 54,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 55,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 56,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 57,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 58,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 59,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 60,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 61,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 62,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 63,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 64,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 65,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 66,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 67,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 68,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 69,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 70,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 71,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 72,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 73,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 74,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 75,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 76,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 77,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 78,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 79,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 80,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 81,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 82,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 84,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 85,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 86,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 87,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 88,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 89,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 90,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 91,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 92,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 99,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 100,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 101,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 102,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 103,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 104,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 105,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 106,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 107,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 108,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 113,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 114,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 115,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 116,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 117,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 118,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 119,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 120,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 121,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 122,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 123,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 124,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 129,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 130,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 131,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 132,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 133,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 134,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 135,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 136,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 137,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 138,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 141,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 144,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 145,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 146,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 147,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 148,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 149,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 150,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 151,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 152,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 154,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 155,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 156,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 157,
+        "moduleMove": 141,
+        "acceptedMainMoves": [
+          141
+        ],
+        "category": "block"
+      },
+      {
+        "opponent": 158,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 159,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 160,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 161,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 162,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 163,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 164,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 165,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 166,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 167,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 168,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 169,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 170,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 171,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 173,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 174,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 175,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 176,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 177,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 178,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 179,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 180,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 181,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 182,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 183,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 184,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 185,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 186,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 187,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 188,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 189,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 190,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 191,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 192,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 193,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 194,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 195,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 196,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 197,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 198,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 199,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 200,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 201,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 202,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 203,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 204,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 205,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 206,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 207,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 208,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 209,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 210,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 211,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 212,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 213,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 214,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 215,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 216,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 217,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 218,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 219,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 220,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 221,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 222,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 223,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      },
+      {
+        "opponent": 224,
+        "moduleMove": 157,
+        "acceptedMainMoves": [
+          157
+        ],
+        "category": "win"
+      }
+    ]
+  },
+  "selectedNewGame": {
+    "case": "earlier-composite15-hard16I10-and-direct17",
+    "moves": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      153,
+      139,
+      143,
+      127,
+      93,
+      95,
+      109,
+      157,
+      172,
+      158,
+      174,
+      113,
+      68,
+      141,
+      77,
+      61,
+      155,
+      84,
+      70,
+      85,
+      99,
+      82,
+      81,
+      86
+    ],
+    "coordinates": [
+      "H8",
+      "G7",
+      "F8",
+      "G8",
+      "G9",
+      "F10",
+      "H10",
+      "E7",
+      "I9",
+      "H7",
+      "I7",
+      "F9",
+      "I6",
+      "D11",
+      "E10",
+      "I10",
+      "H9",
+      "D7",
+      "F7",
+      "E8",
+      "H11",
+      "H12",
+      "I11",
+      "J12",
+      "I8",
+      "I5",
+      "G10",
+      "C6",
+      "B5",
+      "F11",
+      "J6",
+      "K5",
+      "K6",
+      "J7",
+      "H6",
+      "G6",
+      "L6"
+    ],
+    "firstNaturalCompositePinPly": 17,
+    "firstDirectPinFixturePly": 17,
+    "root15OwnPly": 15,
+    "firstNewPolicy21": 157,
+    "terminal": {
+      "ply": 37,
+      "p": 2,
+      "i": 86,
+      "coordinate": "L6",
+      "acceptedWinningMoves": [
+        86
+      ]
+    },
+    "sameNewConditionalSubgraphForComposite15AndDirect17": true,
+    "currentOpponentRuntimeSourceCommit": "acbb501f5b99e94e911115762f04749138517c9a",
+    "actualOpponentInputsAreOneGameNotTwoFreshGames": true
+  },
+  "selectedOldGame": {
+    "case": "preserved-old259-first21H12",
+    "moves": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      153,
+      139,
+      143,
+      127,
+      93,
+      95,
+      109,
+      172,
+      157,
+      141,
+      77,
+      61,
+      129,
+      113,
+      68,
+      155,
+      99,
+      169
+    ],
+    "coordinates": [
+      "H8",
+      "G7",
+      "F8",
+      "G8",
+      "G9",
+      "F10",
+      "H10",
+      "E7",
+      "I9",
+      "H7",
+      "I7",
+      "F9",
+      "I6",
+      "D11",
+      "E10",
+      "I10",
+      "H9",
+      "D7",
+      "F7",
+      "E8",
+      "H12",
+      "H11",
+      "G10",
+      "C6",
+      "B5",
+      "J9",
+      "I8",
+      "I5",
+      "F11",
+      "J7",
+      "E12"
+    ],
+    "parent": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      153,
+      139,
+      143,
+      127,
+      93,
+      95,
+      109
+    ],
+    "rootOwnPly": 21,
+    "firstProofMove": 172,
+    "terminal": {
+      "ply": 31,
+      "p": 2,
+      "i": 169,
+      "coordinate": "E12",
+      "acceptedWinningMoves": [
+        169
+      ]
+    },
+    "originalSourceProofSha256": "67881f92d33999607532aa7752289dfc89a83f87b767d19c57da452a25f667c1",
+    "earlierUnpinnedDefaultAtParent20NowH11": true
+  },
+  "expectedCounts": {
+    "registryRoots": 261,
+    "newRootBindingsVsReleased258": 3,
+    "rootInitialColorD4Checks": 48,
+    "canonicalAllLegalNextReplies": 622,
+    "root225PointLegalityComparisons": 675,
+    "composite15Replies": 210,
+    "direct17Replies": 208,
+    "old21Replies": 204
+  },
+  "scope": "Current full261 data and explicit model/source lookup regression. New earliest composite15 governs default and first real offline17 pin, direct17 does not steal it, and old259 first21H12 remains valid through full-path fallback when markerless or through its explicit prior pin. Unknown synthetic-composition budget stays unknown; no production raw archive or timed search is required."
+}

@@ -5,7 +5,7 @@ const must=n=>{if(!process.env[n])throw Error('Optional integration requires '+n
 const ROOT=must('OMOK_TEST_ROOT'),scopeFile=must('OMOK_STRATEGY258_SCOPE'),html=must('OMOK_OPENING_HTML'),scope=JSON.parse(fs.readFileSync(scopeFile)),version=process.env.OMOK_EXPECTED_VERSION||require(path.join(ROOT,'package.json')).version;
 const {chromium}=require(process.env.OMOK_PLAYWRIGHT||'playwright');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
-const report={test:'opening-seven258-ui',status:'running',actualHtml:html,htmlSha256:sha(fs.readFileSync(html)),scopeSha256:sha(fs.readFileSync(scopeFile)),version,registryRoots:258,ghostRootClicks:0,boardClicks:0,listClicks:0,undoChecks:0,naturalPinReloads:0,offlineOwnChecks:0,urgentBlockOwnChecks:0,terminalOwnChecks:0,finishedGames:[],recordFollowing:false,manualSettingMs:1000,fullProofTreeReplayExecuted:false,all1457ApiPositionsAreUiGames:false};
+const report={test:'opening-seven258-ui',status:'running',actualHtml:html,htmlSha256:sha(fs.readFileSync(html)),scopeSha256:sha(fs.readFileSync(scopeFile)),version,legacyFixtureRoots:258,ghostRootClicks:0,boardClicks:0,listClicks:0,undoChecks:0,naturalPinReloads:0,offlineOwnChecks:0,urgentBlockOwnChecks:0,terminalOwnChecks:0,finishedGames:[],recordFollowing:false,manualSettingMs:1000,fullProofTreeReplayExecuted:false,all1457ApiPositionsAreUiGames:false};
 let browser;
 function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOString(),first:2,me:2,timer:false,rules:{fivePriority:true},axis:'ascending',cursor:game.parent.length,result:null,remaining:40000,events:game.parent.map((i,k)=>({type:'move',i,p:k%2?1:2,legal:true,time:null,remaining:null,rec:null}))};}
 (async()=>{
@@ -19,7 +19,7 @@ function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOS
   if(await page.locator('#useRecordBook').isChecked())await page.locator('#useRecordBook').uncheck();
   assert((await page.evaluate(()=>versionBadge.textContent)).includes(version));
   assert.equal(await page.locator('#useRecordBook').isChecked(),false);
-  assert.equal(sha(await page.evaluate(()=>JSON.stringify(OmokOpeningStrategyData))),scope.dataValueSha256);
+  assert((await page.evaluate(()=>OmokOpeningStrategyData.roots.length))>=258);report.registryRoots=await page.evaluate(()=>OmokOpeningStrategyData.roots.length);assert.equal(sha(await page.evaluate(()=>JSON.stringify({schemaVersion:OmokOpeningStrategyData.schemaVersion,rulesId:OmokOpeningStrategyData.rulesId,maxPlies:OmokOpeningStrategyData.maxPlies,roots:OmokOpeningStrategyData.roots.slice(0,258),nodes:OmokOpeningStrategyData.nodes.slice(0,1772)}))),scope.dataValueSha256);report.original258And1772PrefixPreserved=true;
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(OmokOpeningStrategyData.roots.slice(0,251)))),scope.old251Prefix.rootsSha256);
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(OmokOpeningStrategyData.nodes.slice(0,1711)))),scope.old251Prefix.nodesSha256);
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(E.getModel()))),scope.sourceModelSha256);

@@ -55,19 +55,22 @@ const OmokOpeningStrategy=(()=>{
    const matches=[];for(const root of ordered){if(root.sourceProofSha256!==sourceProofSha256||openingHistory.length<=root.rootMoves.length)continue;const t=frame(root,openingHistory);if(t===null||openingHistory[root.rootMoves.length]!==tr(root.move,t))continue;matches.push(root);}return matches.length===1?Object.freeze({rootId:matches[0].id,sourceProofSha256}):null;
   }
   function lookup(board,p,firstPlayer,openingHistory,pin=null){const history=position(board,p,firstPlayer,openingHistory);if(!history)return null;
-   let active=null;if(pin!==null&&pin!==undefined){
-    try{keys(pin,['sourceProofSha256','rootId'],[]);if(!Object.keys(pin).length)return null;if(Object.prototype.hasOwnProperty.call(pin,'sourceProofSha256'))digest(pin.sourceProofSha256,64);if(Object.prototype.hasOwnProperty.call(pin,'rootId'))text(pin.rootId,120);}catch{return null;}
-    const matches=[];for(const root of ordered){if(pin.rootId!==undefined&&root.id!==pin.rootId||pin.sourceProofSha256!==undefined&&root.sourceProofSha256!==pin.sourceProofSha256)continue;const t=frame(root,history);if(t===null||history.length<=root.rootMoves.length||history[root.rootMoves.length]!==tr(root.move,t))continue;matches.push({root,t});}if(matches.length!==1)return null;active=matches[0];
-   }else{for(const root of ordered){const t=frame(root,history);if(t===null)continue;if(history.length>root.rootMoves.length&&history[root.rootMoves.length]!==tr(root.move,t))continue;active={root,t};break;}}
-   if(!active)return null;
-   const {root,t}=active;let nodeId=root.node,offset=0,cursor=root.rootMoves.length;const replies=[];
-   while(cursor<history.length){const row=nodes[nodeId],own=row[0]===0?row[1][offset]:row[1];if(!index(own)||history[cursor++]!==tr(own,t))return null;const reply=untr(history[cursor++],t);replies.push(reply);
-    if(row[0]===0){if(row[1][offset+1]!==reply)return null;offset+=2;if(offset>=row[1].length)return null;}
-    else{const group=row[3].find(([,moves])=>moves.includes(reply));if(!group)return null;nodeId=group[0];offset=0;}
+   function follow(root,t){let nodeId=root.node,offset=0,cursor=root.rootMoves.length;const replies=[];
+    while(cursor<history.length){const row=nodes[nodeId],own=row[0]===0?row[1][offset]:row[1];if(!index(own)||history[cursor++]!==tr(own,t))return null;const reply=untr(history[cursor++],t);replies.push(reply);
+     if(row[0]===0){if(row[1][offset+1]!==reply)return null;offset+=2;if(offset>=row[1].length)return null;}
+     else{const group=row[3].find(([,moves])=>moves.includes(reply));if(!group)return null;nodeId=group[0];offset=0;}
+    }
+    const row=nodes[nodeId],move=row[0]===0?row[1][offset]:row[1],i=tr(move,t);if(!index(i)||board[i])return null;try{if(inspect(Array.from(board),i,p)?.legal!==true)return null;}catch{return null;}
+    const strategy=Object.freeze({rootId:root.id,rootOwnPly:root.originalRootOwnPly,sourceCommit:root.sourceCommit,sourceProofSha256:root.sourceProofSha256,sourceResultSha256:root.sourceResultSha256,historicalModelSha256:root.historicalModelSha256,historicalBudgetMs:root.historicalBudgetMs,transform:t,node:nodeId,pvOffset:offset,replyPath:Object.freeze(replies),entryBoardKey:Array.from(board).join('')});
+    return Object.freeze({id:'strategy-'+root.id+'-'+nodeId+'-'+offset,i,ply:history.length+1,familyId:root.familyId,title:root.title,families:Object.freeze([Object.freeze({id:root.familyId,title:root.title})]),source:'engine-strategy',reference:false,proven:false,lossProven:false,proof:null,depth:0,nodes:0,score:0,strategy});
    }
-   const row=nodes[nodeId],move=row[0]===0?row[1][offset]:row[1],i=tr(move,t);if(!index(i)||board[i])return null;try{if(inspect(Array.from(board),i,p)?.legal!==true)return null;}catch{return null;}
-   const strategy=Object.freeze({rootId:root.id,rootOwnPly:root.originalRootOwnPly,sourceCommit:root.sourceCommit,sourceProofSha256:root.sourceProofSha256,sourceResultSha256:root.sourceResultSha256,historicalModelSha256:root.historicalModelSha256,historicalBudgetMs:root.historicalBudgetMs,transform:t,node:nodeId,pvOffset:offset,replyPath:Object.freeze(replies),entryBoardKey:Array.from(board).join('')});
-   return Object.freeze({id:'strategy-'+root.id+'-'+nodeId+'-'+offset,i,ply:history.length+1,familyId:root.familyId,title:root.title,families:Object.freeze([Object.freeze({id:root.familyId,title:root.title})]),source:'engine-strategy',reference:false,proven:false,lossProven:false,proof:null,depth:0,nodes:0,score:0,strategy});
+   if(pin!==null&&pin!==undefined){
+    try{keys(pin,['sourceProofSha256','rootId'],[]);if(!Object.keys(pin).length)return null;if(Object.prototype.hasOwnProperty.call(pin,'sourceProofSha256'))digest(pin.sourceProofSha256,64);if(Object.prototype.hasOwnProperty.call(pin,'rootId'))text(pin.rootId,120);}catch{return null;}
+    const matches=[];for(const root of ordered){if(pin.rootId!==undefined&&root.id!==pin.rootId||pin.sourceProofSha256!==undefined&&root.sourceProofSha256!==pin.sourceProofSha256)continue;const t=frame(root,history);if(t===null||history.length<=root.rootMoves.length||history[root.rootMoves.length]!==tr(root.move,t))continue;matches.push({root,t});}return matches.length===1?follow(matches[0].root,matches[0].t):null;
+   }
+   // An implicit root must match the complete played policy. A selected pin
+   // stays strict; an earlier departed implicit root cannot hide a later one.
+   for(const root of ordered){const t=frame(root,history);if(t===null||history.length>root.rootMoves.length&&history[root.rootMoves.length]!==tr(root.move,t))continue;const hit=follow(root,t);if(hit)return hit;}return null;
   }
   return Object.freeze({roots:roots.length,nodes:nodes.length,edges:edgeCount,bytes,lookup,resolvePin,errors:Object.freeze([])});
  }
