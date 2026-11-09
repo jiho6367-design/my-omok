@@ -1,0 +1,2386 @@
+{
+  "schemaVersion": 1,
+  "status": "optional-exact-two-late19-profile42-fixture",
+  "rulesId": "15x15-exact5-both33-v1",
+  "historicalAnalysisSourceCommit": "b235fa9525003d8ccc7b6c6f44bc104efef81c5b",
+  "currentRuntimeBaselineVersion": "5.18.41",
+  "sourceModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+  "dataSha256": "5bb95e4796cf7fbf06d0f8443d32c204081a1a72965622532c2b9f16e33b077e",
+  "dataValueSha256": "393795c13df8acac6df9c846388ea4efeb57d007d8a8dc5bc1ec02118102b54a",
+  "profile": {
+    "maxPlies": 42,
+    "maximumExplicitOwnPolicyPly": 41,
+    "maximumUrgentTerminalPly": 43,
+    "previousMaxPlies": 40,
+    "old261PrefixHistoricalHeader": 40,
+    "explicitProfileUpgradeRequired": true,
+    "nativeSourceSAndCRemainAt40Cutoff": true
+  },
+  "old261Prefix": {
+    "roots": 261,
+    "nodes": 1892,
+    "maxPlies": 40,
+    "dataValueSha256": "db9aca3824b1a1aa72456e04a826ce566d92334198fba9b78f4fa69c09fb5314"
+  },
+  "roots": [
+    {
+      "key": "F7-D7",
+      "rootId": "I3-user8-op10-97-op12-125-op14-143-op16-95-op18-139-proof19-1378a3006028",
+      "sourceProofSha256": "1378a3006028a9ecf2eb9b3d850a4c9be7616af5da79de314e03f5b6fe082565",
+      "sourceResultSha256": "55cb0e09b8eafaba34140073a8411cd0d4440a5b3240141bfef9a2d53bbb3f2d",
+      "actualParent": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        95,
+        93,
+        139
+      ],
+      "move": 153,
+      "historyBudgetMs": null,
+      "ownPly": 19,
+      "allLegalNextReplies": 206,
+      "sourceOriginal17": {
+        "file": "fixed17-D7-after16-F7-q3-left25-25000.json",
+        "rawSha256": "8f585fd47dbfe6c1e32a8ad40d6ca5a2378de6c3ef62d19e240b345ebd2c52f8",
+        "proofSha256": "146a894bcfec028095b0c2ff9402688168da75a614e45b25c9138a6a5550846f",
+        "sourceCommit": "b235fa9525003d8ccc7b6c6f44bc104efef81c5b",
+        "declaredBudgetMs": 25000,
+        "actualElapsedMs": 9477.0949,
+        "nodes": 634844,
+        "proofSearchDepth": 25,
+        "proofSearchDepthScope": "additional-occupied-plies-visited-from-proof-call-entry",
+        "metricsRemainHistoricalNotDerived19Metrics": true
+      },
+      "derived19EngineCalls": 0,
+      "derived19Metrics": null,
+      "responses": [
+        {
+          "opponent": 0,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 1,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 2,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 3,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 4,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 5,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 6,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 7,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 8,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 9,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 10,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 11,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 12,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 13,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 14,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 15,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 16,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 17,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 18,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 19,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 20,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 21,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 22,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 23,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 24,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 25,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 26,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 27,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 28,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 29,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 30,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 31,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 32,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 33,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 34,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 35,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 36,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 37,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 38,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 39,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 40,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 41,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 42,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 43,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 44,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 45,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 46,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 47,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 48,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 49,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 50,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 51,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 52,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 53,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 54,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 55,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 56,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 57,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 58,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 59,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 60,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 61,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 62,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 63,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 64,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 65,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 66,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 67,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 68,
+          "moduleMove": 84,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 69,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 70,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 71,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 72,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 73,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 74,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 75,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 76,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 77,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 78,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 79,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 80,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 81,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 82,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 84,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 85,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 86,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 87,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 88,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 89,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 90,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 91,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 92,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 99,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 100,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 101,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 102,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 103,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 104,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 105,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 106,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 107,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 108,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 109,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 113,
+          "moduleMove": 84,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 114,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 115,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 116,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 117,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 118,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 119,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 120,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 121,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 122,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 123,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 124,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 129,
+          "moduleMove": 113,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 130,
+          "moduleMove": 68,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 131,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 132,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 133,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 134,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 135,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 136,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 137,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 138,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 141,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 144,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 145,
+          "moduleMove": 84,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 146,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 147,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 148,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 149,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 150,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 151,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 152,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 154,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 155,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 156,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 157,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 158,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 159,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 160,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 161,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 162,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 163,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 164,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 165,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 166,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 167,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 168,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 169,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 170,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 171,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 172,
+          "moduleMove": 68,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 173,
+          "moduleMove": 158,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 174,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 175,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 176,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 177,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 178,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 179,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 180,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 181,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 182,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 183,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 184,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 185,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 186,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 187,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 188,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 189,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 190,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 191,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 192,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 193,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 194,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 195,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 196,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 197,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 198,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 199,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 200,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 201,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 202,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 203,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 204,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 205,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 206,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 207,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 208,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 209,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 210,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 211,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 212,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 213,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 214,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 215,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 216,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 217,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 218,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 219,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 220,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 221,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 222,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 223,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 224,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        }
+      ],
+      "selectedFast27": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        95,
+        93,
+        139,
+        153,
+        113,
+        84,
+        70,
+        172,
+        157,
+        130,
+        158,
+        129
+      ],
+      "selectedProfile43": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        95,
+        93,
+        139,
+        153,
+        68,
+        84,
+        70,
+        129,
+        130,
+        172,
+        157,
+        158,
+        174,
+        85,
+        82,
+        141,
+        40,
+        54,
+        99,
+        86,
+        87,
+        114,
+        100,
+        186,
+        0,
+        156,
+        1,
+        170
+      ]
+    },
+    {
+      "key": "E10-D11",
+      "rootId": "I3-user8-op10-97-op12-125-op14-143-op16-139-op18-95-proof19-d74f494d3f0b",
+      "sourceProofSha256": "d74f494d3f0b3539edcffb1efc1bc6f4d49c7c5ccc5dec9c0d30d46f7d7089a9",
+      "sourceResultSha256": "9a6a8ce3ae930a442462706e646be97ce20c3e8a609e6e5b53f3d2cd09bf2250",
+      "actualParent": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        139,
+        153,
+        95
+      ],
+      "move": 93,
+      "historyBudgetMs": null,
+      "ownPly": 19,
+      "allLegalNextReplies": 206,
+      "sourceOriginal17": {
+        "file": "fixed17-D11-after16-E10-q3-left25-25000.json",
+        "rawSha256": "899508a6b2ca0982efd513ea6c9981e3e66ebf1ba8bb6a73983e88c75134be4e",
+        "proofSha256": "bd8065d9092ac6f7139da13cf2a72914d274a85208a1f62881addd2151e97fa0",
+        "sourceCommit": "b235fa9525003d8ccc7b6c6f44bc104efef81c5b",
+        "declaredBudgetMs": 25000,
+        "actualElapsedMs": 9802.9589,
+        "nodes": 658864,
+        "proofSearchDepth": 25,
+        "proofSearchDepthScope": "additional-occupied-plies-visited-from-proof-call-entry",
+        "metricsRemainHistoricalNotDerived19Metrics": true
+      },
+      "derived19EngineCalls": 0,
+      "derived19Metrics": null,
+      "responses": [
+        {
+          "opponent": 0,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 1,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 2,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 3,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 4,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 5,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 6,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 7,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 8,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 9,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 10,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 11,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 12,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 13,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 14,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 15,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 16,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 17,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 18,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 19,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 20,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 21,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 22,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 23,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 24,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 25,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 26,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 27,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 28,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 29,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 30,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 31,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 32,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 33,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 34,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 35,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 36,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 37,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 38,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 39,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 40,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 41,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 42,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 43,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 44,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 45,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 46,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 47,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 48,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 49,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 50,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 51,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 52,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 53,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 54,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 55,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 56,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 57,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 58,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 59,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 60,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 61,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 62,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 63,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 64,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 65,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 66,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 67,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 68,
+          "moduleMove": 84,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 69,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 70,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 71,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 72,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 73,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 74,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 75,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 76,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 77,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 78,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 79,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 80,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 81,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 82,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 84,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 85,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 86,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 87,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 88,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 89,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 90,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 91,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 92,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 99,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 100,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 101,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 102,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 103,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 104,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 105,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 106,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 107,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 108,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 109,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 113,
+          "moduleMove": 84,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 114,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 115,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 116,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 117,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 118,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 119,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 120,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 121,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 122,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 123,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 124,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 129,
+          "moduleMove": 113,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 130,
+          "moduleMove": 68,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 131,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 132,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 133,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 134,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 135,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 136,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 137,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 138,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 141,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 144,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 145,
+          "moduleMove": 84,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 146,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 147,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 148,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 149,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 150,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 151,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 152,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 154,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 155,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 156,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 157,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 158,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 159,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 160,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 161,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 162,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 163,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 164,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 165,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 166,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 167,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 168,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 169,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 170,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 171,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 172,
+          "moduleMove": 68,
+          "sourceType": "move"
+        },
+        {
+          "opponent": 173,
+          "moduleMove": 158,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 174,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 175,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 176,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 177,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 178,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 179,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 180,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 181,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 182,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 183,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 184,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 185,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 186,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 187,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 188,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 189,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 190,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 191,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 192,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 193,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 194,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 195,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 196,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 197,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 198,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 199,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 200,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 201,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 202,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 203,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 204,
+          "moduleMove": 172,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 205,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 206,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 207,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 208,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 209,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 210,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 211,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 212,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 213,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 214,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 215,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 216,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 217,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 218,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 219,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 220,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 221,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 222,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 223,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        },
+        {
+          "opponent": 224,
+          "moduleMove": 68,
+          "sourceType": "vcf"
+        }
+      ],
+      "selectedFast27": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        139,
+        153,
+        95,
+        93,
+        113,
+        84,
+        70,
+        172,
+        157,
+        130,
+        158,
+        129
+      ],
+      "selectedProfile43": [
+        112,
+        96,
+        110,
+        111,
+        126,
+        140,
+        142,
+        94,
+        128,
+        97,
+        98,
+        125,
+        83,
+        143,
+        127,
+        139,
+        153,
+        95,
+        93,
+        68,
+        84,
+        70,
+        129,
+        130,
+        172,
+        157,
+        158,
+        174,
+        85,
+        82,
+        141,
+        40,
+        54,
+        99,
+        86,
+        87,
+        114,
+        100,
+        186,
+        0,
+        156,
+        1,
+        170
+      ]
+    }
+  ],
+  "oldReleased21": {
+    "rootId": "I3-user8-op10-97-op12-125-op14-143-op16-139-op18-95-op20-113-proof21-e3ebe853ae73",
+    "sourceProofSha256": "e3ebe853ae7396dd3d8f1ec3a5324f4e80a5ec8cfbc58e23b9fb9fb6ea7f6e34",
+    "historyBudgetMs": 15000,
+    "actualParent": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      143,
+      127,
+      139,
+      153,
+      95,
+      93,
+      113
+    ],
+    "move": 114,
+    "selected29": [
+      112,
+      96,
+      110,
+      111,
+      126,
+      140,
+      142,
+      94,
+      128,
+      97,
+      98,
+      125,
+      83,
+      143,
+      127,
+      139,
+      153,
+      95,
+      93,
+      113,
+      114,
+      156,
+      129,
+      130,
+      84,
+      70,
+      99,
+      144,
+      69
+    ]
+  }
+}

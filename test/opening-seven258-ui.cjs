@@ -5,7 +5,7 @@ const must=n=>{if(!process.env[n])throw Error('Optional integration requires '+n
 const ROOT=must('OMOK_TEST_ROOT'),scopeFile=must('OMOK_STRATEGY258_SCOPE'),html=must('OMOK_OPENING_HTML'),scope=JSON.parse(fs.readFileSync(scopeFile)),version=process.env.OMOK_EXPECTED_VERSION||require(path.join(ROOT,'package.json')).version;
 const {chromium}=require(process.env.OMOK_PLAYWRIGHT||'playwright');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
-const report={test:'opening-seven258-ui',status:'running',actualHtml:html,htmlSha256:sha(fs.readFileSync(html)),scopeSha256:sha(fs.readFileSync(scopeFile)),version,legacyFixtureRoots:258,ghostRootClicks:0,boardClicks:0,listClicks:0,undoChecks:0,naturalPinReloads:0,offlineOwnChecks:0,urgentBlockOwnChecks:0,terminalOwnChecks:0,finishedGames:[],recordFollowing:false,manualSettingMs:1000,fullProofTreeReplayExecuted:false,all1457ApiPositionsAreUiGames:false};
+const report={test:'opening-seven258-ui',status:'running',actualHtml:html,htmlSha256:sha(fs.readFileSync(html)),scopeSha256:sha(fs.readFileSync(scopeFile)),version,legacyFixtureRoots:258,ghostRootClicks:0,boardClicks:0,listClicks:0,undoChecks:0,naturalPinReloads:0,offlineOwnChecks:0,urgentBlockOwnChecks:0,terminalOwnChecks:0,finishedGames:[],currentSupersedingDefaults:0,historicalPriorRootRecordsRestored:0,historicalGhostContinuationClicks:0,historicalPriorPinReloads:0,recordFollowing:false,manualSettingMs:1000,fullProofTreeReplayExecuted:false,all1457ApiPositionsAreUiGames:false};
 let browser;
 function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOString(),first:2,me:2,timer:false,rules:{fivePriority:true},axis:'ascending',cursor:game.parent.length,result:null,remaining:40000,events:game.parent.map((i,k)=>({type:'move',i,p:k%2?1:2,legal:true,time:null,remaining:null,rec:null}))};}
 (async()=>{
@@ -19,7 +19,7 @@ function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOS
   if(await page.locator('#useRecordBook').isChecked())await page.locator('#useRecordBook').uncheck();
   assert((await page.evaluate(()=>versionBadge.textContent)).includes(version));
   assert.equal(await page.locator('#useRecordBook').isChecked(),false);
-  assert((await page.evaluate(()=>OmokOpeningStrategyData.roots.length))>=258);report.registryRoots=await page.evaluate(()=>OmokOpeningStrategyData.roots.length);assert.equal(sha(await page.evaluate(()=>JSON.stringify({schemaVersion:OmokOpeningStrategyData.schemaVersion,rulesId:OmokOpeningStrategyData.rulesId,maxPlies:OmokOpeningStrategyData.maxPlies,roots:OmokOpeningStrategyData.roots.slice(0,258),nodes:OmokOpeningStrategyData.nodes.slice(0,1772)}))),scope.dataValueSha256);report.original258And1772PrefixPreserved=true;
+  assert((await page.evaluate(()=>OmokOpeningStrategyData.roots.length))>=258);report.registryRoots=await page.evaluate(()=>OmokOpeningStrategyData.roots.length);assert.equal(sha(await page.evaluate(()=>JSON.stringify({schemaVersion:OmokOpeningStrategyData.schemaVersion,rulesId:OmokOpeningStrategyData.rulesId,maxPlies:40,roots:OmokOpeningStrategyData.roots.slice(0,258),nodes:OmokOpeningStrategyData.nodes.slice(0,1772)}))),scope.dataValueSha256);report.original258And1772PrefixPreserved=true;
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(OmokOpeningStrategyData.roots.slice(0,251)))),scope.old251Prefix.rootsSha256);
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(OmokOpeningStrategyData.nodes.slice(0,1711)))),scope.old251Prefix.nodesSha256);
   assert.equal(sha(await page.evaluate(()=>JSON.stringify(E.getModel()))),scope.sourceModelSha256);
@@ -41,7 +41,31 @@ function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOS
  }
  async function opponent(i){await page.evaluate(i=>{stopWorker();cancelPonder();__sevenWorkers=0;move(i);},i);assert.equal(await page.evaluate(i=>b[i],i),1);}
  await page.goto(pathToFileURL(html).href);await ready();
+ const supersedingRoot={rootId:'I3-user8-op10-97-op12-125-op14-143-op16-139-op18-95-proof19-d74f494d3f0b',sourceProofSha256:'d74f494d3f0b3539edcffb1efc1bc6f4d49c7c5ccc5dec9c0d30d46f7d7089a9'};
+ async function priorI3(game){
+  await page.evaluate(g=>{stopWorker();cancelPonder();__sevenWorkers=0;loadGame(g);},parentGame(game));await resume();
+  const current=await value(84);conditional(current,{...game,...supersedingRoot},84);assert.equal(current.pin??null,null);assert.equal(current.ghosts.includes(game.firstProofMove),false);report.currentSupersedingDefaults++;
+  // Reconstruct the genuine prior258 recommendation from its exact preserved
+  // data. No historical J8 ghost or recommendation is invented in current263.
+  const prior=await page.evaluate(game=>{const data={schemaVersion:OmokOpeningStrategyData.schemaVersion,rulesId:OmokOpeningStrategyData.rulesId,maxPlies:40,roots:OmokOpeningStrategyData.roots.slice(0,258),nodes:OmokOpeningStrategyData.nodes.slice(0,1772)},prior=createEngine({firstPlayer:2,model:E.getModel(),recordBook:[],searchMemory:false,openingHistory:game.parent,openingStrategyData:data}),board=b.slice(),rec=prior.urgent(board,2)||prior.openingReply(board,2,{budget:{mode:'auto',ms:15000}});return JSON.parse(JSON.stringify(rec));},game);
+  assert.equal(prior.i,game.firstProofMove);assert.equal(prior.retainedStrategy.rootId,game.rootId);assert.equal(prior.retainedStrategy.sourceProofSha256,game.sourceProofSha256);assert.equal(prior.proven,false);assert.equal(prior.proof,null);for(const key of['depth','nodes','score','ms'])assert.equal(prior[key],0);
+  const stored=parentGame(game);stored.events.push({type:'move',i:prior.i,p:2,legal:true,time:null,remaining:null,rec:prior});stored.cursor=game.rootOwnPly;
+  await page.evaluate(g=>{stopWorker();cancelPonder();__sevenWorkers=0;loadGame(g);},stored);await resume();assert.equal(await page.evaluate(()=>cursor),21);await assertPin(game);await stop();report.historicalPriorRootRecordsRestored++;
+  await opponent(game.moves[21]);const firstContinuation=game.moves[22];assert.equal(firstContinuation,129);conditional(await value(firstContinuation),game,firstContinuation);await clickOwn(firstContinuation);report.historicalGhostContinuationClicks++;await assertPin(game);
+  await page.locator('#undo').click();assert.equal(await page.evaluate(()=>cursor),22);await assertPin(game);conditional(await value(firstContinuation),game,firstContinuation);report.undoChecks++;
+  await clickOwn(firstContinuation,true);await assertPin(game);await page.evaluate(()=>{stopWorker();cancelPonder();persist();});await page.reload();await ready();
+  await page.evaluate(id=>{const saved=db.games.find(g=>g.id===id);if(!saved)throw Error('Historical selected258 record missing');loadGame(saved);},'seven258-'+game.case);await resume();assert.equal(await page.evaluate(()=>cursor),23);await assertPin(game);await stop();report.historicalPriorPinReloads++;
+  for(let k=23;k<game.moves.length;k++){
+   if(k%2){await opponent(game.moves[k]);continue;}
+   if(k===game.moves.length-1){const won=await value();assert(won.urgent&&won.proven&&won.legal&&won.exact);assert(game.terminal.acceptedWinningMoves.includes(won.i));await clickOwn(won.i);assert.equal(await page.evaluate(()=>g.result?.winner),2);assert.equal(await page.evaluate(()=>cursor),game.terminal.ply);await assertPin(game);report.terminalOwnChecks++;}
+   else{conditional(await value(game.moves[k]),game,game.moves[k]);await clickOwn(game.moves[k]);await assertPin(game);}
+  }
+  report.finishedGames.push({case:game.case,rootId:game.rootId,priorRecordSource:'strict preserved258/profile40',historicalFirstPinPly:21,firstCurrentGhostClickPly:23,terminalPly:game.terminal.ply,sameSourceProofThroughout:true});
+  console.log(JSON.stringify({event:'seven-root-historical-ui-game-complete',case:game.case,currentDefault:84,historicalSelected21:114,firstCurrentGhost:129,terminalPly:game.terminal.ply,rootId:game.rootId}));
+ }
+
  for(const game of scope.selectedGames){
+  if(game.case==='I3-late21'){await priorI3(game);continue;}
   await page.evaluate(g=>{stopWorker();cancelPonder();__sevenWorkers=0;loadGame(g);},parentGame(game));await resume();
   const first=await value(game.firstProofMove);conditional(first,game,game.firstProofMove);assert(first.retained);assert.equal(first.pin??null,null);assert.equal(await page.locator('[data-opening-choice="'+game.firstProofMove+'"]').count(),1);
   await clickOwn(game.firstProofMove);report.ghostRootClicks++;await assertPin(game);
@@ -58,7 +82,7 @@ function parentGame(game){return{id:'seven258-'+game.case,date:new Date().toISOS
   report.finishedGames.push({case:game.case,rootId:game.rootId,firstActualPinPly:game.rootOwnPly,terminalPly:game.terminal.ply,sameSourceProofThroughout:true});
   console.log(JSON.stringify({event:'seven-root-ui-game-complete',case:game.case,terminalPly:game.terminal.ply,rootId:game.rootId}));
  }
- await page.setViewportSize({width:390,height:1000});const sample=scope.selectedGames.at(-1);await page.evaluate(g=>{stopWorker();cancelPonder();__sevenWorkers=0;loadGame(g);},parentGame(sample));await resume();conditional(await value(sample.firstProofMove),sample,sample.firstProofMove);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await stop();
- assert.deepEqual(errors,[]);assert.equal(report.finishedGames.length,7);assert.equal(report.undoChecks,7);assert.equal(report.naturalPinReloads,7);assert.equal(report.ghostRootClicks,7);report.mobileWidth=390;report.pageErrors=errors;report.status='passed';report.scope='Actual explicit258 HTML from the reported current source, seven exact new root parents, real first ghost click and natural recorded pin, undo/list recommit/reload per root, same-source terminal games27/29/29/23/13/23/I3 29, auto/manual1000/recordoff,390 width. Opponent moves replay selected proven-game inputs through the app; this is not a fresh strength test,1457 browser games, or a new strength evaluation.';
+ await page.setViewportSize({width:390,height:1000});const sample=scope.selectedGames.at(-1);await page.evaluate(g=>{stopWorker();cancelPonder();__sevenWorkers=0;loadGame(g);},parentGame(sample));await resume();const mobileGame=sample.case==='I3-late21'?{...sample,rootId:supersedingRoot.rootId,sourceProofSha256:supersedingRoot.sourceProofSha256}:sample,mobileMove=sample.case==='I3-late21'?84:sample.firstProofMove;conditional(await value(mobileMove),mobileGame,mobileMove);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await stop();
+ assert.deepEqual(errors,[]);assert.equal(report.finishedGames.length,7);assert.equal(report.undoChecks,7);assert.equal(report.naturalPinReloads,6);assert.equal(report.historicalPriorPinReloads,1);assert.equal(report.ghostRootClicks,6);assert.equal(report.historicalGhostContinuationClicks,1);assert.equal(report.currentSupersedingDefaults,1);assert.equal(report.historicalPriorRootRecordsRestored,1);report.mobileWidth=390;report.pageErrors=errors;report.status='passed';report.scope='Actual explicit258 HTML from the reported current source, six unchanged current root ghost/pin entries plus the current I3 root19/J6 default at the old21 parent. A separate preserved258 J8 record restores the historical21 pin, then current23 J9 ghost/undo/list/reload continues its29-ply game; the old J8 is never clicked or shown as the current21 ghost. Six natural-root and one historical-continuation undo/list/reload cases reach same-source terminal games27/29/29/23/13/23/I3 29, auto/manual1000/recordoff,390 width. Opponent moves replay selected proven-game inputs through the app; this is not a fresh strength test,1457 browser games, or a new strength evaluation.';
  console.log(JSON.stringify(report));
 })().catch(error=>{console.error(JSON.stringify({...report,status:'failed',error:error.stack}));process.exitCode=1;}).finally(async()=>{await browser?.close();});

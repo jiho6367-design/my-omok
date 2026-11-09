@@ -52,7 +52,7 @@ function createEngine(options={}) {
     if(options.openingBook===false||!openingFactory?.choices||!rules.firstPlayer||p!==rules.firstPlayer)return [];
     if(!board||board.length!==225||!(Array.isArray(board)||ArrayBuffer.isView(board)))return [];
     let own=0,other=0;for(const stone of board){if(stone===p)own++;else if(stone===3-p)other++;else if(stone!==0)return [];}
-    if(own<1||own!==other||own+other>=openingFactory.MAX_PLIES)return [];
+    if(own<1||own!==other)return [];
     const retained=retainedOpeningSelection(board,p,budget);
     if(retained.blocked)return [];
     if(retained.hit){
@@ -61,6 +61,9 @@ function createEngine(options={}) {
       if(forest.knownRefutations(board,p).some(row=>row.i===hit.i))return [];
       return [{i:hit.i,familyId:hit.familyId,title:hit.title,families:hit.families,ply:hit.ply,source:'engine-strategy',reference:false,proven:false,strategy:hit.strategy}];
     }
+    // Retained static strategies use their explicit dataset horizon. Native
+    // source/continuation choices retain their separate40-stone cutoff.
+    if(own+other>=openingFactory.MAX_PLIES)return [];
     const third=openingFactory.choices(board,p,rules.firstPlayer,{inspect,openingHistory:rules.openingHistory});
     const book=third.length?null:getOpeningBook(board,p);
     let rows=third.length?third:book?.choices?.(board,p,rules.firstPlayer)||[];

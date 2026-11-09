@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.41",
+  "version": "5.18.42",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -73,7 +73,7 @@
     "test:opening-hangseong-user8:ui": "node test/opening-hangseong-user8-ui.cjs",
     "test:opening-hangseong-followups": "node test/opening-hangseong-followups.cjs",
     "test:opening-hangseong-followups:ui": "node test/opening-hangseong-followups-ui.cjs",
-    "test:opening-strategy": "node test/opening-strategy.cjs && node test/opening-strategy-engine.cjs && node test/opening-auto-admission.cjs && node test/opening-strategy-branch-fallback.cjs",
+    "test:opening-strategy": "node test/opening-strategy.cjs && node test/opening-strategy-engine.cjs && node test/opening-auto-admission.cjs && node test/opening-strategy-branch-fallback.cjs && node test/opening-strategy-horizon.cjs",
     "test:opening-strategy:integration": "node test/opening-strategy-runtime.cjs && node test/opening-strategy249-runtime.cjs && node test/opening-ancestor251-runtime.cjs",
     "test:opening-strategy:ui": "node test/opening-strategy-ui.cjs",
     "test:proof-metrics": "node test/proof-search-metrics.cjs",
@@ -86,7 +86,9 @@
     "test:opening-seven258:integration": "node test/opening-seven258-runtime.cjs",
     "test:opening-seven258:ui": "node test/opening-seven258-ui.cjs",
     "test:opening-composed261:integration": "node test/opening-composed261-runtime.cjs",
-    "test:opening-composed261:ui": "node test/opening-composed261-ui.cjs"
+    "test:opening-composed261:ui": "node test/opening-composed261-ui.cjs",
+    "test:opening-late263:integration": "node test/opening-late263-runtime.cjs",
+    "test:opening-late263:ui": "node test/opening-late263-ui.cjs"
   },
   "engines": {
     "node": ">=22.13"
