@@ -8,10 +8,9 @@ const root=fs.mkdtempSync(path.join(os.tmpdir(),'omok-publication-fixture-')),ru
 function git(args){return cp.execFileSync('git',args,{cwd:root,encoding:'utf8',windowsHide:true,stdio:['ignore','pipe','pipe']}).trim();}
 function write(relative,value){S.atomic(path.join(root,relative),value);}
 write('src/fixture-engine.js','// immutable tiny engine identity fixture\n');write('tools/learning/fixture-runner.cjs','// immutable tiny runner identity fixture\n');
-write('package.json',{name:'generated-publication-fixture',version:'1.2.3',private:true});
 const baselineNames=['search-memory','gpu-patterns','strategy-engine','reader-engine','forest-engine','unified-engine'],baselineSources=baselineNames.map(name=>'// generated historical identity fixture '+name+'\n');baselineNames.forEach((name,index)=>write('src/'+name+'.js',baselineSources[index]));const baselineHash=S.hash(baselineSources.join('\n'));
-git(['init','-q']);git(['add','--','src/fixture-engine.js','tools/learning/fixture-runner.cjs','package.json',...baselineNames.map(name=>'src/'+name+'.js')]);git(['-c','user.name=Omok fixture','-c','user.email=fixture@example.invalid','commit','-q','-m','Generated publication fixture']);
-const commit=git(['rev-parse','HEAD']),sourceManifest=['src/fixture-engine.js','package.json'].map(name=>({path:name,sha256:S.fileHash(path.join(root,name))})),harnessManifest=[{path:'tools/learning/fixture-runner.cjs',sha256:S.fileHash(path.join(root,'tools/learning/fixture-runner.cjs'))}],runtimeManifest={node:process.versions.node,v8:process.versions.v8,sqlite:process.versions.sqlite??null,platform:process.platform,arch:process.arch};
+git(['init','-q']);git(['add','--','src/fixture-engine.js','tools/learning/fixture-runner.cjs',...baselineNames.map(name=>'src/'+name+'.js')]);git(['-c','user.name=Omok fixture','-c','user.email=fixture@example.invalid','commit','-q','-m','Generated publication fixture']);
+const commit=git(['rev-parse','HEAD']),sourceManifest=[{path:'src/fixture-engine.js',sha256:S.fileHash(path.join(root,'src/fixture-engine.js'))}],harnessManifest=[{path:'tools/learning/fixture-runner.cjs',sha256:S.fileHash(path.join(root,'tools/learning/fixture-runner.cjs'))}],runtimeManifest={node:process.versions.node,v8:process.versions.v8,sqlite:process.versions.sqlite??null,platform:process.platform,arch:process.arch};
 const execution={version:2,sourceManifest,harnessManifest,runtimeManifest,sourceHash:S.hash(sourceManifest),harnessHash:S.hash(harnessManifest),runtimeHash:S.hash(runtimeManifest)},options={root,identityProvider:()=>execution};
 const settings={...S.defaults(),baselineCommit:commit,device:'cpu',workers:1,pairs:40,minPairs:32,python:'C:\\private\\account\\secret-python.exe',secretToken:'never-publish-token'};
 const data='{"isolatedGeneratedFixture":true}\n',dataHash=S.hash(data),training={datasetHash:dataHash,updates:3,trainedOnCuda:false};
@@ -30,13 +29,6 @@ function install(arena=structuredClone(initialArena),candidate=structuredClone(m
  const db=new DatabaseSync(ledger);try{db.exec('CREATE TABLE IF NOT EXISTS trials(reservation TEXT PRIMARY KEY, trial INTEGER NOT NULL, arena TEXT NOT NULL)');db.prepare('INSERT OR REPLACE INTO trials VALUES(?,?,?)').run(reservation,1,JSON.stringify(arena));}finally{db.close();}return {accepted,entry,arena};
 }
 function check(name,fn){fn();checks++;console.log('PASS '+name);}
-check('only the exact captured package.json root path is allowed alongside existing execution paths',()=>{
- assert.equal(P.verifyExecution({},execution,{identityProvider:()=>execution}).audit,null);
- for(const name of ['package-lock.json','package.json.backup','Package.json','nested/package.json','./package.json','package.json/extra','package.json\n']){
-  const unsafe=structuredClone(execution);unsafe.sourceManifest.push({path:name,sha256:S.hash('unapproved root dependency')});unsafe.sourceHash=S.hash(unsafe.sourceManifest);
-  assert.throws(()=>P.verifyExecution({},unsafe,{identityProvider:()=>unsafe}),/Unsafe/);
- }
-});
 check('no adoption emits no files, creates no output directory and does not inspect engine identity',()=>{const result=P.prepare({root,identityProvider:()=>{throw Error('no identity read expected');}});assert.deepEqual(result,{skipped:true,reason:'no-adopted-model',files:[]});assert.equal(fs.existsSync(path.join(root,P.OUTPUT)),false);});
 install();
 check('actual terminal replay, conservative paired statistics and durable deployment yield exactly two bounded files',()=>{const before=S.fileHash(ledger),result=P.prepare(options);assert.equal(result.skipped,false);assert.equal(result.files.length,2);assert.deepEqual(fs.readdirSync(path.join(root,P.OUTPUT,result.artifactHash)).sort(),P.FILES.slice().sort());assert.equal(S.fileHash(ledger),before);const evidence=S.read(path.join(root,result.files[1]));assert.equal(evidence.validation.completedGames,160);assert.equal(evidence.code.verifiedEvaluationGitCommit,commit);assert(evidence.validation.stats.baseline.lowerConfidenceBound>.5);assert(fs.statSync(path.join(root,result.files[0])).size<P.MAX_MODEL_BYTES);assert(fs.statSync(path.join(root,result.files[1])).size<P.MAX_EVIDENCE_BYTES);assert.equal(P.check(options).reason,'verified-adoption-publication');});

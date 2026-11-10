@@ -1,5 +1,4 @@
 'use strict';
-// Audit the legacy source/continuation contract independently of balanced fifths.
 // Coordinate facts and public evidence only; research archives stay optional.
 const create=require('../src/node-engine.cjs'),assert=require('node:assert/strict'),crypto=require('node:crypto'),D=require('../src/opening-data.js'),B=require('../src/opening-book.js'),R=require('../tools/counter-rules.cjs');
 const hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex'),metaKeys=['maxPly','catalog','excluded','continuationRepair','expansion','coverageExpansion','lectureExpansion','supplementalExpansion','fourFamilyExpansion','threeMoreExpansion','remainingExpansion','deeperExpansion'];
@@ -12,7 +11,7 @@ const inspect=(b,i,p)=>({legal:R(b).legal(i,p)}),book=B.create({lines:D.lines,in
 function tr(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;}
 function board(moves,p=1,t=0){const b=Array(225).fill(0);for(let k=0;k<moves.length;k++){const i=tr(moves[k],t),q=k%2?3-p:p;assert(R(b).legal(i,q));b[i]=q;if(k<moves.length-1)assert(!R(b).exact(i,q),'A factual path must not continue after a completed five');}return b;}
 function equivalent(b,a,z){for(let t=0;t<8;t++)if(tr(a,t)===z&&b.every((v,i)=>b[tr(i,t)]===v))return true;return false;}
-const byFamily={},byPly={};let lookups=0,parentChecks=0,sourceTransforms=0,runtimeParentChecks=0,archivedDeferredParentChecks=0;const computedArchive=require('../src/opening-analysis.js').create({inspect,continuationData:require('../src/opening-continuation-data.js')});assert.deepEqual(computedArchive.errors,[]);const engine=create({firstPlayer:1,balancedOpeningBook:false,model:null,recordBook:[],searchMemory:false});
+const byFamily={},byPly={};let lookups=0,parentChecks=0,sourceTransforms=0,runtimeParentChecks=0,archivedDeferredParentChecks=0;const computedArchive=require('../src/opening-analysis.js').create({inspect,continuationData:require('../src/opening-continuation-data.js')});assert.deepEqual(computedArchive.errors,[]);const engine=create({firstPlayer:1,model:null,recordBook:[],searchMemory:false});
 for(const row of fresh){
  assert(D.catalog.some(family=>family.id===row.familyId));assert(D.sources.some(source=>source.id===row.sourceId));assert.equal(row.fromPly,row.moves.length);assert(row.fromPly>=15&&row.fromPly<=39&&row.fromPly%2===1);assert.equal(row.reference,true);assert.equal(row.proven,false);assert.equal(row.preferred,undefined);assert.match(row.librarySha256,/^[0-9a-f]{64}$/);assert(Number.isInteger(row.sourceOffset)&&row.sourceOffset>=20);
  byFamily[row.familyId]=(byFamily[row.familyId]||0)+1;byPly[row.fromPly]=(byPly[row.fromPly]||0)+1;board(row.moves);

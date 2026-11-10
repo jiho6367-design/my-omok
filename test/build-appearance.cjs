@@ -7,7 +7,7 @@ try{
  // normal clean checkouts continue to obtain the same list from Git.
  const listed=process.env.OMOK_BUILD_INPUTS_FILE?JSON.parse(fs.readFileSync(process.env.OMOK_BUILD_INPUTS_FILE,'utf8')):cp.execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:project,encoding:'utf8'}).split('\0').filter(Boolean);
  assert(Array.isArray(listed)&&listed.every(f=>typeof f==='string'&&!path.isAbsolute(f)&&!f.split(/[\\/]/).includes('..')),'Public relative build inputs required');
- const files=listed.filter(f=>(f==='build.cjs'||f==='package.json'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'))&&f!=='src/active-model.json');
+ const files=listed.filter(f=>(f==='build.cjs'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'))&&f!=='src/active-model.json');
  files.push('tools/build-appearance.cjs');
  for(const relative of new Set(files)){if(!fs.existsSync(path.join(project,relative)))continue;const target=path.join(temporary,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(project,relative),target);}
  const build=(...args)=>cp.execFileSync(process.execPath,['build.cjs','--baseline',...args],{cwd:temporary,stdio:'pipe'}),read=f=>fs.readFileSync(path.join(temporary,f),'utf8');

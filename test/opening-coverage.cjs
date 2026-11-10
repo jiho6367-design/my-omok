@@ -1,5 +1,4 @@
 'use strict';
-// Audit the legacy source/continuation contract independently of balanced fifths.
 // Public, independently checked source-coordinate fixtures. No complete-game
 // archive, ignored research files or network access is required by this test.
 const assert=require('node:assert/strict'),B=require('../src/opening-book.js'),D=require('../src/opening-data.js'),R=require('../tools/counter-rules.cjs'),create=require('../src/node-engine.cjs'),fixtures=require('./fixtures/opening-coverage.json');
@@ -20,7 +19,7 @@ for(const fact of fresh){
 }
 let connectedOwnMoves=0,urgentOverrides=0;
 for(const first of[1,2]){
- const engine=create({firstPlayer:first,balancedOpeningBook:false,model:null,searchMemory:false,recordBook:[]});
+ const engine=create({firstPlayer:first,model:null,searchMemory:false,recordBook:[]});
  for(const sample of fixtures.families)for(let orientation=0;orientation<8;orientation++){
   const trace=sample.moves.map(at).map(i=>tr(i,orientation)),b=position(trace.slice(0,4),first);
   for(let k=4;k<trace.length;k++){

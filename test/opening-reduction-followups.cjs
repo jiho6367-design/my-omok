@@ -1,5 +1,4 @@
 'use strict';
-// Audit the legacy source/continuation contract independently of balanced fifths.
 // Published exact-board coverage. Raw searches and private archives are not
 // required; the separate generated schema test covers malformed evidence.
 const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto'),path=require('node:path');
@@ -42,7 +41,7 @@ for(const row of D.entries){
 // Use real runtime policy at every opponent reply in the declared two scopes.
 // Whole-data color/D4 lookup above verifies the other orientations without
 // repeatedly compiling all source lines for every synthetic history.
-const E=create({firstPlayer:1,balancedOpeningBook:false,model:null,recordBook:[],searchMemory:false});
+const E=create({firstPlayer:1,model:null,recordBook:[],searchMemory:false});
 const admissionArchive=A.create({inspect,continuationData:native,reductionData:D}),deferredParents=[],changedHistoricalParents=[];assert.deepEqual(admissionArchive.errors,[]);
 function policy(moves){const b=board(moves),before=b.slice();E.configure({openingHistory:moves});const hit=E.urgent(b,1)||E.openingReply(b,1,{budget:{mode:'auto',ms:15000}}),archived=admissionArchive.lookup(b,1,1);if(!hit){assert(archived,'Missing current recommendation must have preserved historical evidence');assert(archived.offline.budgetMs<15000&&!archived.offline.winningMoveVerified,'Eligible historical response cannot silently vanish');assert(!E.openingChoices(b,1,{budget:{mode:'auto',ms:15000}}).some(c=>c.source==='engine-precomputed'&&equivalent(b,c.i,archived.i)));deferredParents.push({moves: moves.slice(),id:archived.id,resultSha256:archived.offline.resultSha256});}else{assert(R(b).legal(hit.i,1));if(hit.kind==='opening-analysis'){assert(hit.analysisEvidence.offline.budgetMs>=15000||hit.analysisEvidence.offline.winningMoveVerified);assert(archived);assert.equal(hit.analysisEvidence.offline.resultSha256,archived.offline.resultSha256);}}assert.deepEqual(b,before);return hit;}
 const coverage={fifth:{total:0,source:0,computed:0,urgent:0,freshRequired:0},seventh:{total:0,source:0,computed:0,urgent:0,freshRequired:0}};
