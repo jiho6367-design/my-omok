@@ -71,6 +71,42 @@ for(const conflict of[undefined,null,'',{},[]]){
 }
 const stringConflict=plain(data);stringConflict.sources[1].assessmentConflict='Undated overview conflicts with linked source';
 assert.equal(Choices.create({data:stringConflict,inspect}).lines.length,data.lines.length);
+// Specific disagreements belong to their source row. They override a source
+// note without spreading to sibling rows or changing assessment preference.
+const rowConflictData=plain(data),sourceConflict={summary:'Source-wide context'},lineConflict={summary:'Only this exact fifth changed',details:{old:'Black advantage',current:'Equal'}};
+rowConflictData.sources[0].assessmentConflict=plain(sourceConflict);
+rowConflictData.lines[4].assessmentConflict=plain(lineConflict);
+const rowConflictBook=Choices.create({data:rowConflictData,inspect}),conflictRows=rowConflictBook.choices(normal,1,1);
+assert.deepEqual(rowConflictBook.errors,[]);assert.deepEqual(conflictRows.map(row=>row.i),book.choices(normal,1,1).map(row=>row.i));
+assert.deepEqual(conflictRows[0].balancedEvidence.assessmentConflict,lineConflict);
+assert.deepEqual(conflictRows[0].balancedEvidence.sourceReference.assessmentConflict,sourceConflict,'retain the original source context separately');
+assert.deepEqual(conflictRows[0].references.find(row=>row.id==='same-point-source').assessmentConflict,sourceConflict);
+assert.deepEqual(conflictRows.find(row=>row.balancedEvidence.id==='equal-z').balancedEvidence.assessmentConflict,sourceConflict);
+assert.deepEqual(rowConflictBook.lines.find(row=>row.id==='equal-a').assessmentConflict,lineConflict);
+const lineOnly=plain(data);lineOnly.lines[4].assessmentConflict='Only one row has a dated disagreement';
+const lineOnlyRows=Choices.create({data:lineOnly,inspect}).choices(normal,1,1);
+assert.equal(lineOnlyRows[0].balancedEvidence.assessmentConflict,lineOnly.lines[4].assessmentConflict);
+assert(!('assessmentConflict'in lineOnlyRows.find(row=>row.balancedEvidence.id==='equal-z').balancedEvidence));
+assert(!('assessmentConflict'in lineOnlyRows[0].references.find(row=>row.id==='same-point-source')));
+for(const invalid of[undefined,null,'',{},[],false,7]){
+  const fixture=plain(rowConflictData);fixture.lines[4].assessmentConflict=invalid;
+  const compiled=Choices.create({data:fixture,inspect});
+  assert.equal(compiled.lines.length,data.lines.length-1);assert.equal(compiled.errors.length,1);
+  assert.equal(compiled.errors[0].id,'equal-a','a malformed line is quarantined rather than falling back to the source note');
+  assert(compiled.lines.some(row=>row.id==='equal-z'),'malformed row metadata does not suppress its siblings');
+}
+const disputedLineOnly=plain(data);delete disputedLineOnly.sources[1].assessmentConflict;
+disputedLineOnly.lines.find(row=>row.id==='historical').assessmentConflict={summary:'This historical row has a documented conflict'};
+const disputedBook=Choices.create({data:disputedLineOnly,inspect});assert.deepEqual(disputedBook.errors,[]);
+assert.deepEqual(disputedBook.choices(normal,1,1).at(-1).balancedEvidence.assessmentConflict,disputedLineOnly.lines.find(row=>row.id==='historical').assessmentConflict);
+rowConflictData.lines[4].assessmentConflict.details.old='Mutated caller row';
+rowConflictData.sources[0].assessmentConflict.summary='Mutated caller source';
+conflictRows[0].balancedEvidence.assessmentConflict.details.old='Mutated returned evidence';
+conflictRows[0].references.find(row=>row.id==='same-point-source').assessmentConflict.summary='Mutated sibling output';
+rowConflictBook.lines.find(row=>row.id==='equal-a').assessmentConflict.details.old='Mutated exported fact';
+const conflictFresh=rowConflictBook.choices(normal,1,1);
+assert.deepEqual(conflictFresh[0].balancedEvidence.assessmentConflict,lineConflict);
+assert.deepEqual(conflictFresh[0].references.find(row=>row.id==='same-point-source').assessmentConflict,sourceConflict);
 const invalidUrl=plain(data);invalidUrl.sources[1].url='not-a-source-url';
 assert.equal(Choices.create({data:invalidUrl,inspect}).lines.length,data.lines.length-1);
 assert(Choices.create({data:{...data,rulesId:'other-rules'},inspect}).errors.length);
@@ -109,6 +145,9 @@ const originalMethods=Object.values(originalAPI),source=fs.readFileSync(path.joi
 vm.runInContext(source,context);
 const optional=vm.runInContext('OmokBalancedOpeningChoices.create({data,inspect})',context);
 assert.equal(optional.choices(normal,1,1).length,6);
+context.lineOnly=lineOnly;
+const optionalConflict=vm.runInContext('OmokBalancedOpeningChoices.create({data:lineOnly,inspect})',context);
+assert.equal(optionalConflict.choices(normal,1,1)[0].balancedEvidence.assessmentConflict,lineOnly.lines[4].assessmentConflict);
 assert.strictEqual(context.createEngine,originalFactory);assert.equal(context.createEngine.toString(),originalSource);
 assert.strictEqual(context.E,originalAPI);assert.deepEqual(Object.values(context.E),originalMethods);assert.strictEqual(context.rec,defaultRec);
 assert.strictEqual(context.E.openingReply(normal,1),defaultRec);assert.equal(context.E.openingChoices(normal,1)[0].i,ix('J8'));
@@ -116,4 +155,4 @@ assert.strictEqual(context.E.finalizeResult(normal,1,defaultRec),defaultRec);ass
 context.OmokBalancedOpeningData=data;
 assert.equal(vm.runInContext('OmokBalancedOpeningChoices.create({inspect}).choices(data.lines[4].moves.slice(0,4).reduce((b,i,k)=>(b[i]=k%2?2:1,b),Array(225).fill(0)),1,1).length',context),6);
 console.log(JSON.stringify({test:'balanced-opening-choices',passed:true,symmetryCases,generatedSourceRows:data.lines.length,
-  scope:'Pure optional fifth choices; exact whole-board colours and eight symmetries; source transpositions and all alternatives; PDF/web provenance and historical conflict context; fresh legality, urgency/certificate filters and immutable metadata. Actual factory binding, default reply, API methods and rec remain unchanged; no analysis or automatic replacement.'}));
+  scope:'Pure optional fifth choices; exact whole-board colours and eight symmetries; source transpositions and all alternatives; PDF/web provenance, row-specific conflict override, source fallback, malformed-row quarantine and immutable metadata; fresh legality and urgency/certificate filters. Actual factory binding, default reply, API methods and rec remain unchanged; no analysis or automatic replacement.'}));

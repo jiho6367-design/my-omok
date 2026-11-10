@@ -67,7 +67,10 @@ const OmokBalancedOpeningChoices=(()=>{
         if(!Number.isInteger(line.pdfPage)||line.pdfPage<1||!(Number.isInteger(line.printedPage)&&line.printedPage>0||text(line.printedPage,40)))throw Error('A PDF reference requires source page numbers');
         location={pdfPage:line.pdfPage,printedPage:line.printedPage,diagramLabel:line.diagramLabel};
       }
-      if(line.assessment==='historical-equal-disputed'&&!hasConflict(source.assessmentConflict))throw Error('A disputed historical assessment requires its conflict context');
+      const lineHasConflict=Object.prototype.hasOwnProperty.call(line,'assessmentConflict'),
+        resolvedConflict=lineHasConflict?line.assessmentConflict:source.assessmentConflict;
+      if(lineHasConflict&&!hasConflict(resolvedConflict))throw Error('Invalid line assessment conflict');
+      if(line.assessment==='historical-equal-disputed'&&!hasConflict(resolvedConflict))throw Error('A disputed historical assessment requires its conflict context');
       if(!Array.isArray(line.moves)||line.moves.length!==5||line.moves[0]!==CENTER||line.moves.some(i=>!coordinate(i))||
         new Set(line.moves).size!==5||!sameFamily(line.moves,family.moves))throw Error('Invalid source moves or family');
       for(const first of[1,2]){
@@ -79,7 +82,8 @@ const OmokBalancedOpeningChoices=(()=>{
         }
       }
       ids.add(line.id);
-      const fact={id:line.id,familyId:family.id,title:line.title,moves:line.moves.slice(),assessment:line.assessment,sourceId:source.id,...location};
+      const fact={id:line.id,familyId:family.id,title:line.title,moves:line.moves.slice(),assessment:line.assessment,sourceId:source.id,...location,
+        ...(hasConflict(resolvedConflict)?{assessmentConflict:copy(resolvedConflict)}:{})};
       lines.push(copy(fact));
       for(let t=0;t<8;t++){
         const moves=fact.moves.map(i=>transformed(i,t)),board=Array(SIZE).fill(0);
@@ -87,7 +91,6 @@ const OmokBalancedOpeningChoices=(()=>{
         const key=positionKey(board,1),rows=positions.get(key)||[];
         if(!rows.some(row=>row.id===fact.id&&row.i===moves[4]))rows.push({...fact,moves,i:moves[4],transform:t,
           families:[{id:family.id,title:family.title}],source:'balanced-opening-choice-reference',sourceKind:source.kind,sourceReference:copy(source),
-          ...(source.assessmentConflict?{assessmentConflict:copy(source.assessmentConflict)}:{}),
           rulesId:RULES_ID,ruleScope:'source-evaluation-only',ply:5,reference:true,proven:false});
         positions.set(key,rows);
       }

@@ -1,6 +1,6 @@
 // Optional manual fifth choices. Automatic engine recommendations are independent.
 const OmokBalancedOpeningData={
- "version": 2,
+ "version": 3,
  "rulesId": "15x15-exact5-both33-v1",
  "coordinateSystem": "A-O including I; center H8",
  "ruleScope": "source-evaluation-only",
@@ -64,6 +64,17 @@ const OmokBalancedOpeningData={
     "correction": "The companion alternative labeled 7 is K9, not J9. It is not a reply after F8.",
     "summary": "2019 자료는 같은 수를 복잡한 후공 우세로 평가합니다."
    }
+  },
+  {
+   "id": "shuxingge-guide-20260403",
+   "kind": "pdf",
+   "title": "漱星阁开局指南",
+   "author": "漱星阁",
+   "date": "2026-04-03",
+   "url": "https://note.com/api/v2/attachments/download/e92da2a6017b61bfb3ef89437d0f6294",
+   "sha256": "f91cf4ba2d723ba40687efbd84516008e8168780e22a822d62a48214f1c5527a",
+   "pages": 251,
+   "rulesScope": "Published standard Renju position assessments; manual references only, not equality proof under house rules."
   }
  ],
  "catalog": [
@@ -3175,6 +3186,1919 @@ const OmokBalancedOpeningData={
    "section": "board20",
    "diagramLabel": "F8",
    "manualOnly": true
+  },
+  {
+   "id": "shuxingge-20260403-p6-5",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    143,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 6,
+   "printedPage": 4,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "shuxingge-20260403-p7-12",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    144,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 7,
+   "printedPage": 5,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p8-4",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    128,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 8,
+   "printedPage": 6,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "shuxingge-20260403-p11-5",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    113,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 11,
+   "printedPage": 9,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "shuxingge-20260403-p12-12",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    114,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 12,
+   "printedPage": 10,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p20-9",
+   "familyId": "D2",
+   "title": "계월",
+   "moves": [
+    112,
+    127,
+    143,
+    113,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 20,
+   "printedPage": 5,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p22-12",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    158,
+    159
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 22,
+   "printedPage": 1,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p22-13",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    158,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 22,
+   "printedPage": 1,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "shuxingge-20260403-p22-14",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    158,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 22,
+   "printedPage": 1,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p25-6prime",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    143,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 25,
+   "printedPage": 4,
+   "diagramLabel": "6'"
+  },
+  {
+   "id": "shuxingge-20260403-p26-7",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    126,
+    157
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 26,
+   "printedPage": 5,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p27-2",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    128,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 27,
+   "printedPage": 6,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "shuxingge-20260403-p28-5prime",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    129,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 28,
+   "printedPage": 7,
+   "diagramLabel": "5'"
+  },
+  {
+   "id": "shuxingge-20260403-p28-7prime",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    129,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 28,
+   "printedPage": 7,
+   "diagramLabel": "7'"
+  },
+  {
+   "id": "shuxingge-20260403-p28-8",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    129,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 28,
+   "printedPage": 7,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p31-7",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    96,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 31,
+   "printedPage": 10,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p32-11",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    98,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 32,
+   "printedPage": 11,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p36-7",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    143,
+    144
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 36,
+   "printedPage": 2,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p37-13",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    144,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 37,
+   "printedPage": 3,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "shuxingge-20260403-p37-14",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    144,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 37,
+   "printedPage": 3,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p37-15",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    144,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 37,
+   "printedPage": 3,
+   "diagramLabel": "15"
+  },
+  {
+   "id": "shuxingge-20260403-p37-16",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    144,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 37,
+   "printedPage": 3,
+   "diagramLabel": "16"
+  },
+  {
+   "id": "shuxingge-20260403-p38-14",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    125,
+    140
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 38,
+   "printedPage": 4,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p39-13",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    126,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 39,
+   "printedPage": 5,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "shuxingge-20260403-p39-14",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    126,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 39,
+   "printedPage": 5,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p42-8prime",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    114,
+    160
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 42,
+   "printedPage": 8,
+   "diagramLabel": "8'"
+  },
+  {
+   "id": "shuxingge-20260403-p42-11",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    114,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 42,
+   "printedPage": 8,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p44-14",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    158
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p44-15",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "15"
+  },
+  {
+   "id": "shuxingge-20260403-p44-16",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "16"
+  },
+  {
+   "id": "shuxingge-20260403-p44-17",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    85
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "17"
+  },
+  {
+   "id": "shuxingge-20260403-p44-19",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    131
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "19"
+  },
+  {
+   "id": "shuxingge-20260403-p44-20",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    116
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "20"
+  },
+  {
+   "id": "shuxingge-20260403-p44-21",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    100
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "21"
+  },
+  {
+   "id": "shuxingge-20260403-p44-22",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    160
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "22"
+  },
+  {
+   "id": "shuxingge-20260403-p44-23",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    69
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "23"
+  },
+  {
+   "id": "shuxingge-20260403-p44-24",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    159
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 44,
+   "printedPage": 10,
+   "diagramLabel": "24"
+  },
+  {
+   "id": "shuxingge-20260403-p46-11",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    143,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 46,
+   "printedPage": 1,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p48-4prime",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    128,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 48,
+   "printedPage": 3,
+   "diagramLabel": "4'"
+  },
+  {
+   "id": "shuxingge-20260403-p48-5",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    128,
+    144
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 48,
+   "printedPage": 3,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "shuxingge-20260403-p48-6",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    128,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 48,
+   "printedPage": 3,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p53-7",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    143,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 53,
+   "printedPage": 1,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p53-8",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    143,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 53,
+   "printedPage": 1,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p54-8",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    126,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 54,
+   "printedPage": 2,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p56-8",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    129,
+    144
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 56,
+   "printedPage": 4,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p59-11",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    96,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 59,
+   "printedPage": 7,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p62-6prime",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    99,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 62,
+   "printedPage": 10,
+   "diagramLabel": "6'"
+  },
+  {
+   "id": "shuxingge-20260403-p65-6",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    129,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 65,
+   "printedPage": 3,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p67-6",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    114,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 67,
+   "printedPage": 5,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p68-8",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    98,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 68,
+   "printedPage": 6,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p70-4",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    82,
+    68
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 70,
+   "printedPage": 8,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "shuxingge-20260403-p70-4prime",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    82,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 70,
+   "printedPage": 8,
+   "diagramLabel": "4'"
+  },
+  {
+   "id": "shuxingge-20260403-p71-10",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    83,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 71,
+   "printedPage": 9,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p71-11",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    83,
+    67
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 71,
+   "printedPage": 9,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p71-12",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    83,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 71,
+   "printedPage": 9,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p73-9",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    141,
+    95
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 73,
+   "printedPage": 1,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p77-8prime",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    99,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 77,
+   "printedPage": 5,
+   "diagramLabel": "8'"
+  },
+  {
+   "id": "shuxingge-20260403-p77-9",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    99,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 77,
+   "printedPage": 5,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p79-3",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    143,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 79,
+   "printedPage": 2,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "shuxingge-20260403-p81-3",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    126,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 81,
+   "printedPage": 4,
+   "diagramLabel": "3",
+   "assessmentConflict": {
+    "sourceId": "soosyrv-guide-20190701",
+    "date": "2019-07-01",
+    "pdfPage": 14,
+    "printedPage": 8,
+    "diagramLabel": "3",
+    "assessment": "black-advantage",
+    "summary": "2019 자료는 선공 우세, 2026 자료는 같은 수를 평형으로 평가합니다."
+   }
+  },
+  {
+   "id": "shuxingge-20260403-p87-3",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    96,
+    67
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 87,
+   "printedPage": 10,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "shuxingge-20260403-p92-3",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    128,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 92,
+   "printedPage": 5,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "shuxingge-20260403-p97-8",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    98,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 97,
+   "printedPage": 10,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p97-9",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    98,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 97,
+   "printedPage": 10,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p100-8",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    67,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 100,
+   "printedPage": 13,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p100-9",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    67,
+    144
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 100,
+   "printedPage": 13,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p115-10",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    142,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 115,
+   "printedPage": 3,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p131-10",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    160,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 131,
+   "printedPage": 6,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p132-3",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    141,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 132,
+   "printedPage": 7,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "shuxingge-20260403-p134-2",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    143,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 134,
+   "printedPage": 9,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "shuxingge-20260403-p136-3",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    126,
+    156
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 136,
+   "printedPage": 11,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "shuxingge-20260403-p139-9",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    96,
+    116
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 139,
+   "printedPage": 14,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p139-11",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    96,
+    146
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 139,
+   "printedPage": 14,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p145-11",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    98,
+    157
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 145,
+   "printedPage": 6,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p145-12",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    98,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 145,
+   "printedPage": 6,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p147-11",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    100,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 147,
+   "printedPage": 8,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p148-8",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    143,
+    66
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 148,
+   "printedPage": 1,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p148-9",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    143,
+    159
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 148,
+   "printedPage": 1,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p148-10",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    143,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 148,
+   "printedPage": 1,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p151-7",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    129,
+    131
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 151,
+   "printedPage": 4,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p155-6",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    115,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 155,
+   "printedPage": 8,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p155-7",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    115,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 155,
+   "printedPage": 8,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p155-8",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    115,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 155,
+   "printedPage": 8,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p155-9",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    115,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 155,
+   "printedPage": 8,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p155-10",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    115,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 155,
+   "printedPage": 8,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p158-9",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    142,
+    156
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 158,
+   "printedPage": 1,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p158-10",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    142,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 158,
+   "printedPage": 1,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p158-11",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    142,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 158,
+   "printedPage": 1,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p166-8",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    114,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 166,
+   "printedPage": 9,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p168-8",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    84
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 168,
+   "printedPage": 11,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p168-9",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 168,
+   "printedPage": 11,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p168-11",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    158
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 168,
+   "printedPage": 11,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p169-10",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    83,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 169,
+   "printedPage": 12,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p171-8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    141,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 171,
+   "printedPage": 2,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p176-6",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    129,
+    116
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 176,
+   "printedPage": 7,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p176-7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    129,
+    85
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 176,
+   "printedPage": 7,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p178-10",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    110,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 178,
+   "printedPage": 9,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p178-11",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    110,
+    127
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 178,
+   "printedPage": 9,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "shuxingge-20260403-p178-12",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    110,
+    116
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 178,
+   "printedPage": 9,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "shuxingge-20260403-p186-6",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    100,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 186,
+   "printedPage": 17,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "shuxingge-20260403-p186-7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    100,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 186,
+   "printedPage": 17,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p187-5",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    82,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 187,
+   "printedPage": 18,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "shuxingge-20260403-p194-13",
+   "familyId": "I6",
+   "title": "운월",
+   "moves": [
+    112,
+    128,
+    113,
+    98,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 194,
+   "printedPage": 7,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "shuxingge-20260403-p194-14",
+   "familyId": "I6",
+   "title": "운월",
+   "moves": [
+    112,
+    128,
+    113,
+    98,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 194,
+   "printedPage": 7,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "shuxingge-20260403-p199-9",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    158,
+    67
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 199,
+   "printedPage": 1,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "shuxingge-20260403-p202-5",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    126,
+    67
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 202,
+   "printedPage": 4,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "shuxingge-20260403-p204-8",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    129,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 204,
+   "printedPage": 6,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p206-7",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    114,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 206,
+   "printedPage": 8,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "shuxingge-20260403-p212-8",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    114,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 212,
+   "printedPage": 6,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p231-8",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    141,
+    84
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 231,
+   "printedPage": 2,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "shuxingge-20260403-p242-10",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    100,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 242,
+   "printedPage": 13,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "shuxingge-20260403-p246-7",
+   "familyId": "I13",
+   "title": "혜성",
+   "moves": [
+    112,
+    128,
+    80,
+    140,
+    95
+   ],
+   "assessment": "equal",
+   "sourceId": "shuxingge-guide-20260403",
+   "pdfPage": 246,
+   "printedPage": 4,
+   "diagramLabel": "7"
   }
  ],
  "manualChoicesOnly": true,

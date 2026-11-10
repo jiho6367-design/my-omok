@@ -55,7 +55,7 @@
   const before=cursor,p=turn,hit=group==='balanced'?sourceHit(row):null;
   const selection={kind:'manual-opening-choice',group:group==='balanced'?'balanced-source':'legacy-opening',ply:5,i,title:choiceTitle(row)};
   if(typeof row.source==='string')selection.source=row.source;
-  if(hit)for(const key of['id','sourceId','assessment','pdfPage','printedPage','diagramLabel','sourceReference'])if(hit[key]!=null)selection[key]=JSON.parse(JSON.stringify(hit[key]));
+  if(hit)for(const key of['id','sourceId','assessment','pdfPage','printedPage','diagramLabel','section','assessmentConflict','sourceReference'])if(hit[key]!=null)selection[key]=JSON.parse(JSON.stringify(hit[key]));
   if(hit)selection.assessment=sourceGrade(row);
   move(i);
   const event=events[before];
