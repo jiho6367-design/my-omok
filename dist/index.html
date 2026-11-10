@@ -3105,6 +3105,3317 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
     clearSearchMemory:()=>searchMemory?.clear()};
 }
 if(typeof module!=='undefined')module.exports=createEngine;
+
+// Optional manual fifth choices. Automatic engine recommendations are independent.
+const OmokBalancedOpeningData={
+ "version": 2,
+ "rulesId": "15x15-exact5-both33-v1",
+ "coordinateSystem": "A-O including I; center H8",
+ "ruleScope": "source-evaluation-only",
+ "sources": [
+  {
+   "id": "soosyrv-guide-20190701",
+   "title": "索索夫规则 开局指南",
+   "author": "喵声依旧",
+   "date": "2019-07-01",
+   "url": "https://github.com/taotao568685/Renju-files/blob/master/%E7%B4%A2%E7%B4%A2%E5%A4%AB%E5%BC%80%E5%B1%80%E6%8C%87%E5%8D%972019-07-01-CHS.pdf",
+   "sha256": "3e6b1c1a719c031a5b2b6828a1812e768c5c8df7b6e7842ac6c80ea7963bbdb2",
+   "rulesScope": "Historical asymmetric Renju with the Soosyrv opening procedure; not equality proof under house rules."
+  },
+  {
+   "id": "tarannikov-yamaguchi-20090829",
+   "kind": "web",
+   "url": "https://www.renju.net/forum/thread/305/",
+   "author": "Yuriy Tarannikov",
+   "title": "Dictionary of Yamaguchi rule",
+   "postedDate": "2008-02-23",
+   "date": "2009-08-29",
+   "dateKind": "last-stated-revision",
+   "section": "board20",
+   "embeddedMoveString": "h8i9i7g9f8",
+   "assessment": "equal",
+   "coordinateSystem": "A-O including I; H8 center",
+   "rules": "Historical standard Renju with asymmetric black-only restrictions",
+   "assessmentConflict": {
+    "sourceId": "soosyrv-guide-20190701",
+    "sourceKind": "pdf",
+    "date": "2019-07-01",
+    "url": "https://github.com/taotao568685/Renju-files/blob/master/%E7%B4%A2%E7%B4%A2%E5%A4%AB%E5%BC%80%E5%B1%80%E6%8C%87%E5%8D%972019-07-01-CHS.pdf",
+    "pdfSha256": "3e6b1c1a719c031a5b2b6828a1812e768c5c8df7b6e7842ac6c80ea7963bbdb2",
+    "pdfPage": 25,
+    "printedPage": 19,
+    "section": "I7",
+    "diagramLocation": "I7 detail r1c1 / page lower-left",
+    "diagramLabel": "6",
+    "fourth": "G9",
+    "fifth": "F8",
+    "assessment": "complex-white-better",
+    "sourceGroupAlternatives": [
+     {
+      "diagramLabel": "6",
+      "fifth": "F8",
+      "offsetFromH8": [
+       -2,
+       0
+      ]
+     },
+     {
+      "diagramLabel": "7",
+      "fifth": "K9",
+      "offsetFromH8": [
+       3,
+       1
+      ]
+     }
+    ],
+    "alternativesNotContinuation": true,
+    "correction": "The companion alternative labeled 7 is K9, not J9. It is not a reply after F8.",
+    "summary": "2019 자료는 같은 수를 복잡한 후공 우세로 평가합니다."
+   }
+  }
+ ],
+ "catalog": [
+  {
+   "id": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142
+   ]
+  },
+  {
+   "id": "D2",
+   "title": "계월",
+   "moves": [
+    112,
+    127,
+    143
+   ]
+  },
+  {
+   "id": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144
+   ]
+  },
+  {
+   "id": "D4",
+   "title": "화월",
+   "moves": [
+    112,
+    127,
+    128
+   ]
+  },
+  {
+   "id": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129
+   ]
+  },
+  {
+   "id": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113
+   ]
+  },
+  {
+   "id": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114
+   ]
+  },
+  {
+   "id": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97
+   ]
+  },
+  {
+   "id": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98
+   ]
+  },
+  {
+   "id": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99
+   ]
+  },
+  {
+   "id": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82
+   ]
+  },
+  {
+   "id": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83
+   ]
+  },
+  {
+   "id": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84
+   ]
+  },
+  {
+   "id": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144
+   ]
+  },
+  {
+   "id": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129
+   ]
+  },
+  {
+   "id": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114
+   ]
+  },
+  {
+   "id": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99
+   ]
+  },
+  {
+   "id": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84
+   ]
+  },
+  {
+   "id": "I6",
+   "title": "운월",
+   "moves": [
+    112,
+    128,
+    113
+   ]
+  },
+  {
+   "id": "I7",
+   "title": "포월",
+   "moves": [
+    112,
+    128,
+    98
+   ]
+  },
+  {
+   "id": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83
+   ]
+  },
+  {
+   "id": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97
+   ]
+  },
+  {
+   "id": "I10",
+   "title": "명성",
+   "moves": [
+    112,
+    128,
+    82
+   ]
+  },
+  {
+   "id": "I11",
+   "title": "사월",
+   "moves": [
+    112,
+    128,
+    96
+   ]
+  },
+  {
+   "id": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81
+   ]
+  },
+  {
+   "id": "I13",
+   "title": "혜성",
+   "moves": [
+    112,
+    128,
+    80
+   ]
+  }
+ ],
+ "lines": [
+  {
+   "id": "D1-p7-J8-J11",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    114,
+    159
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 7,
+   "printedPage": 1,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D1-p7-J9-J8",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    129,
+    114
+   ],
+   "assessment": "equal-slight-black",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 7,
+   "printedPage": 1,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D1-p7-J10-J7",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    144,
+    99
+   ],
+   "assessment": "complex-equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 7,
+   "printedPage": 1,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D1-p7-J10-F10",
+   "familyId": "D1",
+   "title": "한성",
+   "moves": [
+    112,
+    127,
+    142,
+    144,
+    140
+   ],
+   "assessment": "complex-equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 7,
+   "printedPage": 1,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D2-p8-J7-J8",
+   "familyId": "D2",
+   "title": "계월",
+   "moves": [
+    112,
+    127,
+    143,
+    99,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 8,
+   "printedPage": 2,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D2-p8-J9-K10",
+   "familyId": "D2",
+   "title": "계월",
+   "moves": [
+    112,
+    127,
+    143,
+    129,
+    145
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 8,
+   "printedPage": 2,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D3-p9-G7-I9",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    96,
+    128
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 9,
+   "printedPage": 3,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D3-p9-I7-K7",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    98,
+    100
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 9,
+   "printedPage": 3,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D3-p9-J8-K9",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    114,
+    130
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 9,
+   "printedPage": 3,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D3-p9-I9-G9",
+   "familyId": "D3",
+   "title": "소성",
+   "moves": [
+    112,
+    127,
+    144,
+    128,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 9,
+   "printedPage": 3,
+   "diagramLabel": "1"
+  },
+  {
+   "id": "D4-p10-G7-I7",
+   "familyId": "D4",
+   "title": "화월",
+   "moves": [
+    112,
+    127,
+    128,
+    96,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D4-p10-G7-G8",
+   "familyId": "D4",
+   "title": "화월",
+   "moves": [
+    112,
+    127,
+    128,
+    96,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D4-p10-I8-H6",
+   "familyId": "D4",
+   "title": "화월",
+   "moves": [
+    112,
+    127,
+    128,
+    113,
+    82
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D4-p10-I8-K6",
+   "familyId": "D4",
+   "title": "화월",
+   "moves": [
+    112,
+    127,
+    128,
+    113,
+    85
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D5-p10-G7-G6",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    96,
+    81
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D5-p10-G7-F7",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    96,
+    95
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D5-p10-G7-H10",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    96,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D5-p10-G7-J10",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    96,
+    144
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D5-p10-I7-G6",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "D5-p10-I7-F9",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    98,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "D5-p10-J7-K6",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    99,
+    85
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D5-p10-J7-H10",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    99,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D5-p10-G8-G7",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    111,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "D5-p10-G8-J8",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    111,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D5-p10-G8-I9",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    111,
+    128
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D5-p10-J8-G6",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    114,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D5-p10-J8-H6",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    114,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D5-p10-I10-I9",
+   "familyId": "D5",
+   "title": "잔월",
+   "moves": [
+    112,
+    127,
+    129,
+    143,
+    128
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 10,
+   "printedPage": 4,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D6-p11-G7-F7",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    96,
+    95
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D6-p11-G7-K8",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    96,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D6-p11-H7-F6",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    97,
+    80
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D6-p11-I7-G9",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    98,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D6-p11-G8-G7",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    111,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D6-p11-J8-I6",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    114,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D6-p11-J8-G7",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    114,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D6-p11-J8-J7",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    114,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D6-p11-J8-G8",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    114,
+    111
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D6-p11-J8-K9",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    114,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D6-p11-G9-F8",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    126,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D6-p11-I9-G7",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    128,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D6-p11-J9-F9",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    129,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "D6-p11-J9-I11",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    129,
+    158
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "D6-p11-J9-J11",
+   "familyId": "D6",
+   "title": "우월",
+   "moves": [
+    112,
+    127,
+    113,
+    129,
+    159
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 11,
+   "printedPage": 5,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D7-p12-G7-J7",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    96,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D7-p12-G7-G9",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    96,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D7-p12-J7-I10",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    99,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "D7-p12-G8-J9",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    111,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "D7-p12-K8-J6",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    115,
+    84
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "D7-p12-K8-G7",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    115,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D7-p12-I9-G8",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    128,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D7-p12-I9-K9",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    128,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D7-p12-I9-G10",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    128,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D7-p12-J9-G8",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    129,
+    111
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D7-p12-J9-F10",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    129,
+    140
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D7-p12-J9-H10",
+   "familyId": "D7",
+   "title": "금성",
+   "moves": [
+    112,
+    127,
+    114,
+    129,
+    142
+   ],
+   "assessment": "equal-slight-black",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 12,
+   "printedPage": 6,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D8-p13-H5-I5",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    67,
+    68
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D8-p13-I6-I8",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    83,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D8-p13-I7-G6",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    98,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D8-p13-I7-F8",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    98,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D8-p13-I7-I10",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    98,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D8-p13-J8-G10",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    114,
+    141
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D8-p13-I9-J9",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    128,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D8-p13-J9-J7",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    129,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D8-p13-I10-I9",
+   "familyId": "D8",
+   "title": "송월",
+   "moves": [
+    112,
+    127,
+    97,
+    143,
+    128
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 13,
+   "printedPage": 7,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "D9-p14-J7-I6",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    99,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D9-p14-G9-G8",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    126,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "D9-p14-G9-I9",
+   "familyId": "D9",
+   "title": "구월",
+   "moves": [
+    112,
+    127,
+    98,
+    126,
+    128
+   ],
+   "assessment": "equal-slight-black",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "D10-p14-G7-J8",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    96,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D10-p14-F9-I7",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    125,
+    98
+   ],
+   "assessment": "equal-slight-black",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "D10-p14-J9-H7",
+   "familyId": "D10",
+   "title": "신월",
+   "moves": [
+    112,
+    127,
+    99,
+    129,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 14,
+   "printedPage": 8,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D11-p15-H5-K8",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    67,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D11-p15-H5-K9",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    67,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D11-p15-I6-G8",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    83,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D11-p15-I6-I8",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    83,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "D11-p15-I7-F6",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    98,
+    80
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D11-p15-I7-G6",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    98,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D11-p15-J8-J9",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    114,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D11-p15-I9-J6",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    128,
+    84
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D11-p15-I10-I6",
+   "familyId": "D11",
+   "title": "서성",
+   "moves": [
+    112,
+    127,
+    82,
+    143,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 15,
+   "printedPage": 9,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "D12-p16-F7-I9",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    95,
+    128
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D12-p16-J7-H6",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    99,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D12-p16-J7-I7",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    99,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "D12-p16-J7-G8",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    99,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D12-p16-J7-G9",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    99,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D12-p16-J7-G10",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    99,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "D12-p16-F8-G7",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    110,
+    96
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "D12-p16-F8-F9",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    110,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D12-p16-J9-G10",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    129,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D12-p16-I10-H6",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    143,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 16,
+   "printedPage": 10,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "D12-p17-G6-K6",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    81,
+    85
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D12-p17-G6-K8",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    81,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D12-p17-G7-H6",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    96,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D12-p17-G7-H7",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    96,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "D12-p17-G7-F9",
+   "familyId": "D12",
+   "title": "산월",
+   "moves": [
+    112,
+    127,
+    83,
+    96,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "D13-p17-J8-K8",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    114,
+    115
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D13-p17-J8-I9",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    114,
+    128
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 17,
+   "printedPage": 11,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D13-p18-G7-H6",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    96,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "D13-p18-I7-I9",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    98,
+    128
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "D13-p18-I9-H6",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    128,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "D13-p18-I9-J8",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    128,
+    114
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "D13-p18-H10-I9",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    142,
+    128
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "D13-p18-G11-I8",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    156,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "D13-p18-G11-G10",
+   "familyId": "D13",
+   "title": "직접 유성",
+   "moves": [
+    112,
+    127,
+    84,
+    156,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 18,
+   "printedPage": 12,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-G7-H7",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    96,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-G7-J7",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    96,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-F9-I8",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    125,
+    113
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-G9-I11",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    126,
+    158
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-F10-K8",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    140,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-F10-F9",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    140,
+    125
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-H10-J8",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    142,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 19,
+   "printedPage": 13,
+   "diagramLabel": "1"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-I10-I8",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    143,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-I10-I11",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    143,
+    158
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "1"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-I11-I8",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    158,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I1-I11-G9",
+   "familyId": "I1",
+   "title": "장성",
+   "moves": [
+    112,
+    128,
+    144,
+    158,
+    126
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I2-I7-H6",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    98,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I2-K7-K6",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    100,
+    85
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I2-K7-J7",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    100,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I2-J8-J7",
+   "familyId": "I2",
+   "title": "협월",
+   "moves": [
+    112,
+    128,
+    129,
+    114,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 20,
+   "printedPage": 14,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-J7-H6",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    99,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-J7-K9",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    99,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-G9-G10",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    126,
+    141
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-G9-H11",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    126,
+    157
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-J9-H7",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    129,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-J9-I7",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    129,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-K9-G8",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    130,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-K9-L9",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    130,
+    131
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-K9-I11",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    130,
+    158
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I3-I10-F7",
+   "familyId": "I3",
+   "title": "항성",
+   "moves": [
+    112,
+    128,
+    114,
+    143,
+    95
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 21,
+   "printedPage": 15,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-K7-I6",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-K7-L6",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    86
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-K7-J9",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    100,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-J8-J9",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    114,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-G9-H9",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    126,
+    127
+   ],
+   "assessment": "equal-slight-black",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-H9-I8",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    127,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I4-J9-H7",
+   "familyId": "I4",
+   "title": "수월",
+   "moves": [
+    112,
+    128,
+    99,
+    129,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 22,
+   "printedPage": 16,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-H6-K9",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    82,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-H6-I10",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    82,
+    143
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "5"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-G7-I7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    96,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-J7-H7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    99,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-J7-K8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    99,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "9"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-K7-I8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    100,
+    113
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-J8-K9",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    114,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-G9-J9",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    126,
+    129
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 23,
+   "printedPage": 17,
+   "diagramLabel": "1"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-I5-F8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    68,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-K6-J7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    85,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-K6-F8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    85,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-K6-J9",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    85,
+    129
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "13"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-K6-K9",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    85,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "14"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-G10-G8",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    141,
+    111
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "6"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I5-I11-H7",
+   "familyId": "I5",
+   "title": "간접 유성",
+   "moves": [
+    112,
+    128,
+    84,
+    158,
+    97
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 24,
+   "printedPage": 18,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I6-J9-K8",
+   "familyId": "I6",
+   "title": "운월",
+   "moves": [
+    112,
+    128,
+    113,
+    129,
+    115
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 25,
+   "printedPage": 19,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I8-G9-G6",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    126,
+    81
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 26,
+   "printedPage": 20,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I8-I10-H6",
+   "familyId": "I8",
+   "title": "람월",
+   "moves": [
+    112,
+    128,
+    83,
+    143,
+    82
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 26,
+   "printedPage": 20,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I9-H6-I7",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    82,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 27,
+   "printedPage": 21,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I9-J8-H10",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    114,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 27,
+   "printedPage": 21,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I9-J9-J7",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    129,
+    99
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 27,
+   "printedPage": 21,
+   "diagramLabel": "10"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I9-J9-J8",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    129,
+    114
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 27,
+   "printedPage": 21,
+   "diagramLabel": "12"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I9-J9-K9",
+   "familyId": "I9",
+   "title": "은월",
+   "moves": [
+    112,
+    128,
+    97,
+    129,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 27,
+   "printedPage": 21,
+   "diagramLabel": "11"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I10-J9-K9",
+   "familyId": "I10",
+   "title": "명성",
+   "moves": [
+    112,
+    128,
+    82,
+    129,
+    130
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 28,
+   "printedPage": 22,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I10-I10-I6",
+   "familyId": "I10",
+   "title": "명성",
+   "moves": [
+    112,
+    128,
+    82,
+    143,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 28,
+   "printedPage": 22,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I11-I10-G9",
+   "familyId": "I11",
+   "title": "사월",
+   "moves": [
+    112,
+    128,
+    96,
+    143,
+    126
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 28,
+   "printedPage": 22,
+   "diagramLabel": "3"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I12-J7-I7",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    99,
+    98
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 29,
+   "printedPage": 23,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I12-J9-I7",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    129,
+    98
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 29,
+   "printedPage": 23,
+   "diagramLabel": "8"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I12-J9-H10",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    129,
+    142
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 29,
+   "printedPage": 23,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I12-G10-I8",
+   "familyId": "I12",
+   "title": "명월",
+   "moves": [
+    112,
+    128,
+    81,
+    141,
+    113
+   ],
+   "assessment": "equal-slight-white",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 29,
+   "printedPage": 23,
+   "diagramLabel": "7"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I13-J10-I6",
+   "familyId": "I13",
+   "title": "혜성",
+   "moves": [
+    112,
+    128,
+    80,
+    144,
+    83
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 30,
+   "printedPage": 24,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I13-G11-F8",
+   "familyId": "I13",
+   "title": "혜성",
+   "moves": [
+    112,
+    128,
+    80,
+    156,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 30,
+   "printedPage": 24,
+   "diagramLabel": "4"
+  },
+  {
+   "id": "soosyrv-guide-20190701-I13-I11-F8",
+   "familyId": "I13",
+   "title": "혜성",
+   "moves": [
+    112,
+    128,
+    80,
+    158,
+    110
+   ],
+   "assessment": "equal",
+   "sourceId": "soosyrv-guide-20190701",
+   "pdfPage": 30,
+   "printedPage": 24,
+   "diagramLabel": "2"
+  },
+  {
+   "id": "tarannikov-20090829-I7-G9-F8-disputed",
+   "familyId": "I7",
+   "title": "포월",
+   "moves": [
+    112,
+    128,
+    98,
+    126,
+    110
+   ],
+   "assessment": "historical-equal-disputed",
+   "sourceId": "tarannikov-yamaguchi-20090829",
+   "section": "board20",
+   "diagramLabel": "F8",
+   "manualOnly": true
+  }
+ ],
+ "manualChoicesOnly": true,
+ "policy": "Additional manual fifth choices; the existing automatic opening recommendation is unchanged."
+};
+
+
+/* Optional UI choices from published opening assessments. This module only
+ * reads positions; it never installs or replaces an engine recommendation. */
+const OmokBalancedOpeningChoices=(()=>{
+  const RULES_ID='15x15-exact5-both33-v1',SIZE=225,CENTER=112;
+  const ASSESSMENTS=Object.freeze(['equal','equal-slight-white','complex-equal','equal-slight-black','historical-equal-disputed']);
+  const player=p=>p===1||p===2,coordinate=i=>Number.isInteger(i)&&i>=0&&i<SIZE;
+  const text=(value,max=160)=>typeof value==='string'&&!!value.trim()&&value.length<=max;
+  const copy=value=>JSON.parse(JSON.stringify(value));
+  function transformed(i,t){
+    let x=i%15,y=i/15|0;
+    if(t>=4)x=14-x;
+    for(let k=0;k<t%4;k++){const old=x;x=14-y;y=old;}
+    return y*15+x;
+  }
+  function positionKey(board,p){
+    if(!player(p)||!board||board.length!==SIZE||!(Array.isArray(board)||ArrayBuffer.isView(board)))return null;
+    const tokens=[];let own=0,other=0;
+    for(let i=0;i<SIZE;i++){
+      if(board[i]===p){own++;tokens.push(i*2);}
+      else if(board[i]===3-p){other++;tokens.push(i*2+1);}
+      else if(board[i]!==0)return null;
+    }
+    return own===2&&other===2&&board[CENTER]===p?tokens.join(','):null;
+  }
+  function defaultData(){
+    if(typeof OmokBalancedOpeningData!=='undefined')return OmokBalancedOpeningData;
+    if(typeof require==='function')try{return require('./balanced-opening-data.js');}catch(error){if(error.code!=='MODULE_NOT_FOUND')throw error;}
+    return {rulesId:RULES_ID,sources:[],catalog:[],lines:[]};
+  }
+  const compare=(a,b)=>ASSESSMENTS.indexOf(a.assessment)-ASSESSMENTS.indexOf(b.assessment)||
+    (a.id<b.id?-1:a.id>b.id?1:0)||a.i-b.i||a.transform-b.transform;
+  const sameFamily=(moves,family)=>Array.from({length:8},(_,t)=>t).some(t=>family.every((i,k)=>transformed(i,t)===moves[k]));
+  const hasConflict=value=>text(value,4000)||!!value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length>0;
+  // The optional callback is the existing certificate API. A risk flag or
+  // principal variation alone does not establish a verified refutation.
+  const verifiedRefutation=row=>!!row&&!row.riskOnly&&(row.verifiedRefutation===true||row.verified===true||
+    coordinate(row.attack)||row.proof?.complete===true||row.replyTrap?.complete===true);
+  function create({data=defaultData(),inspect,urgent=null,knownRefutations=null}={}){
+    if(typeof inspect!=='function')throw Error('Balanced opening choices require a rules inspector');
+    for(const callback of[urgent,knownRefutations])if(callback!==null&&typeof callback!=='function')throw Error('Invalid balanced choice safety callback');
+    const errors=[],lines=[],positions=new Map(),sources=new Map(),catalog=new Map();
+    const fail=(id,error)=>errors.push({id:id||null,error:String(error.message||error)});
+    if(!data||data.rulesId!==RULES_ID||!Array.isArray(data.sources)||!Array.isArray(data.catalog)||!Array.isArray(data.lines)){
+      fail(null,'Invalid balanced opening choices dataset');return {lines,errors,choices:()=>[]};
+    }
+    for(const source of data.sources)try{
+      const kind=source?.kind??'pdf';
+      if(!source||!text(source.id)||sources.has(source.id)||!['pdf','web'].includes(kind)||
+        kind==='web'&&(!text(source.url,2048)||!/^https?:\/\//.test(source.url)))throw Error('Invalid or duplicate source');
+      sources.set(source.id,{...copy(source),kind});
+    }catch(error){fail(source?.id,error);}
+    for(const family of data.catalog)try{
+      if(!family||!text(family.id)||!text(family.title)||catalog.has(family.id)||!Array.isArray(family.moves)||family.moves.length!==3||
+        family.moves[0]!==CENTER||family.moves.some(i=>!coordinate(i))||new Set(family.moves).size!==3)throw Error('Invalid opening family');
+      catalog.set(family.id,{id:family.id,title:family.title,moves:family.moves.slice()});
+    }catch(error){fail(family?.id,error);}
+    const ids=new Set();
+    for(const line of data.lines)try{
+      const family=catalog.get(line?.familyId),source=sources.get(line?.sourceId);
+      if(!line||!text(line.id)||ids.has(line.id)||!text(line.title)||!family||!source||!ASSESSMENTS.includes(line.assessment))throw Error('Invalid balanced opening choice');
+      if(!text(line.diagramLabel))throw Error('A source diagram label is required');
+      let location;
+      if(source.kind==='web'){
+        if(!text(line.section,300)||line.pdfPage!==undefined||line.printedPage!==undefined)throw Error('Web references require a section, without PDF page numbers');
+        location={section:line.section,diagramLabel:line.diagramLabel};
+      }else{
+        if(!Number.isInteger(line.pdfPage)||line.pdfPage<1||!(Number.isInteger(line.printedPage)&&line.printedPage>0||text(line.printedPage,40)))throw Error('A PDF reference requires source page numbers');
+        location={pdfPage:line.pdfPage,printedPage:line.printedPage,diagramLabel:line.diagramLabel};
+      }
+      if(line.assessment==='historical-equal-disputed'&&!hasConflict(source.assessmentConflict))throw Error('A disputed historical assessment requires its conflict context');
+      if(!Array.isArray(line.moves)||line.moves.length!==5||line.moves[0]!==CENTER||line.moves.some(i=>!coordinate(i))||
+        new Set(line.moves).size!==5||!sameFamily(line.moves,family.moves))throw Error('Invalid source moves or family');
+      for(const first of[1,2]){
+        const board=Array(SIZE).fill(0);
+        for(let k=0;k<5;k++){
+          const i=line.moves[k],p=k%2?3-first:first;
+          if(inspect(board.slice(),i,p)?.legal!==true)throw Error('Illegal source move '+(k+1));
+          board[i]=p;
+        }
+      }
+      ids.add(line.id);
+      const fact={id:line.id,familyId:family.id,title:line.title,moves:line.moves.slice(),assessment:line.assessment,sourceId:source.id,...location};
+      lines.push(copy(fact));
+      for(let t=0;t<8;t++){
+        const moves=fact.moves.map(i=>transformed(i,t)),board=Array(SIZE).fill(0);
+        for(let k=0;k<4;k++)board[moves[k]]=k%2?2:1;
+        const key=positionKey(board,1),rows=positions.get(key)||[];
+        if(!rows.some(row=>row.id===fact.id&&row.i===moves[4]))rows.push({...fact,moves,i:moves[4],transform:t,
+          families:[{id:family.id,title:family.title}],source:'balanced-opening-choice-reference',sourceKind:source.kind,sourceReference:copy(source),
+          ...(source.assessmentConflict?{assessmentConflict:copy(source.assessmentConflict)}:{}),
+          rulesId:RULES_ID,ruleScope:'source-evaluation-only',ply:5,reference:true,proven:false});
+        positions.set(key,rows);
+      }
+    }catch(error){fail(line?.id,error);}
+    for(const rows of positions.values())rows.sort(compare);
+    function choices(board,p,firstPlayer){
+      if(!player(firstPlayer)||p!==firstPlayer)return [];
+      const key=positionKey(board,p);if(key===null)return [];
+      let rejected=new Set();
+      try{
+        if(urgent?.(Array.from(board),p))return [];
+        if(knownRefutations){
+          const rows=knownRefutations(Array.from(board),p);if(!Array.isArray(rows))return [];
+          rejected=new Set(rows.filter(verifiedRefutation).map(row=>row.i));
+        }
+      }catch{return [];}
+      const groups=new Map();
+      for(const row of positions.get(key)||[]){
+        if(rejected.has(row.i))continue;
+        let legal=false;try{legal=inspect(Array.from(board),row.i,p)?.legal===true;}catch{}
+        if(!legal)continue;
+        const rows=groups.get(row.i)||[];rows.push(row);groups.set(row.i,rows);
+      }
+      return [...groups.values()].map(rows=>{
+        const evidence=copy(rows[0]),families=[...new Map(rows.flatMap(row=>row.families).map(f=>[f.id,f])).values()];
+        evidence.references=rows.map(copy);evidence.families=copy(families);
+        return {i:evidence.i,familyId:evidence.familyId,title:evidence.title,families:copy(families),assessment:evidence.assessment,
+          ply:5,choiceType:'balanced-reference',source:evidence.source,reference:true,proven:false,
+          balancedEvidence:evidence,references:copy(evidence.references)};
+      }).sort((a,b)=>compare(a.balancedEvidence,b.balancedEvidence));
+    }
+    return {lines,errors,choices};
+  }
+  return {RULES_ID,ASSESSMENTS,create,transformed,verifiedRefutation};
+})();
+
 </script>
 <script>// Shared mode and turn-clock policy. Existing version-1 preferences stay valid.
 (function(root){
@@ -3514,7 +6825,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.43';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.43');
+versionBadge.textContent='통합 v5.18.45';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.45');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -4031,31 +7342,93 @@ if(activeGame)loadGame(activeGame);else{render();$('setup').showModal();}
  .opening-choice-panel{margin-top:12px;padding:11px 12px;border:1px solid #3f6954;border-radius:11px;background:#142f25;color:#e9f8ef}.opening-choice-panel[hidden]{display:none}
  .opening-choice-panel h3{font-size:14px;margin:0 0 3px}.opening-choice-panel p{font-size:12px;margin:0 0 8px;color:#c1d8ca}.opening-choice-list{display:flex;gap:6px;flex-wrap:wrap}
  .opening-choice-list button{padding:5px 8px;font-size:12px;line-height:1.3;border-color:#4b6758;border-radius:7px}.opening-choice-list button[data-default="true"]{border-color:#8be5ae;box-shadow:inset 0 0 0 1px #8be5ae}
+ .opening-choice-panel h4{font-size:13px;margin:10px 0 5px}.opening-choice-balanced-name{top:-1px;bottom:auto;background:#3c3153ee;border-color:#ccb8e9}.opening-choice-source{font-size:11px!important;margin:3px 0 0!important;overflow-wrap:anywhere}.opening-choice-source a{color:#b5dffc;text-underline-offset:2px}.opening-choice-reference{max-width:100%}.opening-choice-grade{display:inline-block;margin-left:4px;padding:0 3px;border-radius:3px;background:#314c43;color:#d8f5e4;font-size:10px}.opening-choice-grade[data-assessment="historical-equal-disputed"]{background:#624525;color:#ffe0aa}
  @media(max-width:550px){.opening-choice-name{font-size:8px;padding:0 1px}.opening-choice-list{gap:5px}.opening-choice-list button{padding:6px 7px;font-size:11px}.opening-choice-panel{padding:10px}}
  `;document.head.append(choiceStyle);
  const choicePanel=document.createElement('section');choicePanel.id='openingChoices';choicePanel.className='opening-choice-panel';choicePanel.hidden=true;choicePanel.setAttribute('aria-labelledby','openingChoicesHeading');
  const choiceHeading=document.createElement('h3');choiceHeading.id='openingChoicesHeading';choiceHeading.textContent='주형 수순 선택';
  const choiceHelp=document.createElement('p');choiceHelp.id='openingChoicesHelp';
- const choiceList=document.createElement('div');choiceList.id='openingChoiceList';choiceList.className='opening-choice-list';choicePanel.append(choiceHeading,choiceHelp,choiceList);$('board').closest('.boardbox').after(choicePanel);
+ const legacyHeading=document.createElement('h4');legacyHeading.id='openingLegacyHeading';legacyHeading.textContent='기존 무적수 · 정석/분석';legacyHeading.hidden=true;
+ const choiceList=document.createElement('div');choiceList.id='openingChoiceList';choiceList.className='opening-choice-list';
+ const legacyEmpty=document.createElement('p');legacyEmpty.id='openingLegacyEmpty';legacyEmpty.hidden=true;legacyEmpty.textContent='이 배치에 등록된 기존 정석 후보가 없습니다. 기본 추천은 기존 엔진이 계산합니다.';
+ const balancedGroup=document.createElement('section');balancedGroup.id='openingBalancedGroup';balancedGroup.hidden=true;balancedGroup.setAttribute('aria-labelledby','openingBalancedHeading');
+ const balancedHeading=document.createElement('h4');balancedHeading.id='openingBalancedHeading';balancedHeading.textContent='동등 자료';
+ const balancedHelp=document.createElement('p');balancedHelp.id='openingBalancedHelp';balancedHelp.textContent='원자료의 평가이며 우리 규칙의 동등 증명은 아닙니다. 직접 선택할 때만 착수하며, 평가가 상충하는 과거 자료는 따로 표시합니다.';
+ const balancedList=document.createElement('div');balancedList.id='openingBalancedChoiceList';balancedList.className='opening-choice-list';
+ const balancedEmpty=document.createElement('p');balancedEmpty.id='openingBalancedEmpty';balancedEmpty.textContent='현재 4수 배치에 등록된 동등 자료가 없습니다. 기존 추천은 그대로 유지합니다.';
+ balancedGroup.append(balancedHeading,balancedHelp,balancedList,balancedEmpty);choicePanel.append(choiceHeading,choiceHelp,legacyHeading,choiceList,legacyEmpty,balancedGroup);$('board').closest('.boardbox').after(choicePanel);
  let choiceListKey='';
+ let balancedBook,balancedData;
+ function choicesVisible(){return !!(hints&&g&&!reviewing&&!g.result&&cursor>=2&&g.me===g.first&&turn===g.me&&!$('setup').open&&!$('modal').open);}
  function availableChoices(){
-  if(!hints||!g||reviewing||g.result||cursor<2||g.me!==g.first||turn!==g.me||$('setup').open||$('modal').open)return [];
+  if(!choicesVisible())return [];
   const available=paused||g.timer===false?40000:Math.max(0,deadline-Date.now()),budget=typeof configuredOwnBudget==='function'?configuredOwnBudget(b,turn,available).budget:undefined;
   return E.openingChoices?.(b,turn,{budget})||[];
  }
  function choiceTitle(row){return row.families?.length?row.families.map(f=>f.title).join(' / '):row.title;}
+ // The source's black/white refer to first/second roles, independent of app stone colour.
+ const balancedLabels={equal:'동등','equal-slight-white':'후공 약우','complex-equal':'복잡한 동등','equal-slight-black':'선공 약우','historical-equal-disputed':'과거 동등 · 평가 상충'};
+ const sourceHit=row=>row.balancedEvidence||row.references?.[0]||row;
+ const sourceGrade=row=>row.assessment||sourceHit(row).assessment;
+ const sourceLabel=row=>balancedLabels[sourceGrade(row)]||'평가 미확인';
+ const legacyLabel=row=>row.source==='engine-precomputed'?'기존 엔진 사전분석':'기존 무적수·정석';
+ function availableGroups(){
+  const legacy=availableChoices(),fifth=choicesVisible()&&b.filter(Boolean).length===4;
+  if(!fifth)return {legacy,balanced:[],fifth:false};
+  let balanced=[];
+  if(typeof OmokBalancedOpeningChoices!=='undefined'&&typeof OmokBalancedOpeningData!=='undefined')try{
+   if(!balancedBook||balancedData!==OmokBalancedOpeningData){balancedData=OmokBalancedOpeningData;balancedBook=OmokBalancedOpeningChoices.create({data:balancedData,inspect:E.inspect,urgent:E.urgent?.bind(E),knownRefutations:E.knownRefutations?.bind(E)});}
+   balanced=balancedBook.choices(b,turn,g.first)||[];
+  }catch{}
+  return {legacy,balanced,fifth:true};
+ }
+ function selectFifth(i,group){
+  if(paused)return;
+  const groups=availableGroups();if(!groups.fifth)return;
+  const row=(group==='balanced'?groups.balanced:groups.legacy).find(row=>row.i===i);if(!row)return;
+  const before=cursor,p=turn,hit=group==='balanced'?sourceHit(row):null;
+  const selection={kind:'manual-opening-choice',group:group==='balanced'?'balanced-source':'legacy-opening',ply:5,i,title:choiceTitle(row)};
+  if(typeof row.source==='string')selection.source=row.source;
+  if(hit)for(const key of['id','sourceId','assessment','pdfPage','printedPage','diagramLabel','sourceReference'])if(hit[key]!=null)selection[key]=JSON.parse(JSON.stringify(hit[key]));
+  if(hit)selection.assessment=sourceGrade(row);
+  move(i);
+  const event=events[before];
+  if(cursor===before+1&&event?.type==='move'&&event.p===p&&event.i===i){event.openingChoice=selection;if(typeof persist==='function')persist();}
+ }
+ $('board').addEventListener('click',event=>{
+  const cell=event.target.closest?.('.cell');if(!cell||cell.dataset.openingChoicePly!=='5')return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const i=Number(cell.dataset.openingChoice),groups=availableGroups();
+  selectFifth(i,groups.legacy.some(row=>row.i===i)?'legacy':'balanced');
+ },true);
+ function appendSource(parent,row){
+  const hit=sourceHit(row),source=hit.sourceReference||{},note=document.createElement('p');note.className='opening-choice-source';
+  if(typeof source.url==='string'&&/^https?:\/\//.test(source.url)){const link=document.createElement('a');link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent=source.title||'원자료';note.append(link);}else note.append(source.title||'원자료');
+  const details=[source.date||'평가 날짜 미상',hit.pdfPage?'PDF '+hit.pdfPage+'쪽':'',hit.printedPage?'책 '+hit.printedPage+'쪽':'',hit.diagramLabel?'도표 '+hit.diagramLabel:''].filter(Boolean);note.append(' · '+details.join(' · '));parent.append(note);
+  const conflict=hit.assessmentConflict||source.assessmentConflict;
+  if(conflict?.summary){const warning=document.createElement('p');warning.className='opening-choice-source';warning.textContent='평가 상충 · '+[conflict.date,conflict.pdfPage?'PDF '+conflict.pdfPage+'쪽':'',conflict.printedPage?'책 '+conflict.printedPage+'쪽':'',conflict.summary].filter(Boolean).join(' · ');parent.append(warning);}
+ }
  function renderOpeningChoices(){
   const cells=$('board').children;
-  for(const cell of cells)if(cell.dataset.openingChoice){delete cell.dataset.openingChoice;delete cell.dataset.openingFamily;cell.removeAttribute('title');}
-  const rows=availableChoices();choicePanel.hidden=!rows.length;choicePanel.dataset.choiceCount=String(rows.length);
-  if(!rows.length){choiceListKey='';choiceList.replaceChildren();return;}
+  for(const cell of cells)if(cell.dataset.openingChoice){delete cell.dataset.openingChoice;delete cell.dataset.openingFamily;delete cell.dataset.openingChoicePly;cell.removeAttribute('title');}
+  const groups=availableGroups(),rows=groups.legacy,balanced=groups.balanced,fifth=groups.fifth;
+  choicePanel.hidden=!fifth&&!rows.length;choicePanel.dataset.choiceCount=String(new Set([...rows,...balanced].map(row=>row.i)).size);choicePanel.dataset.ply=fifth?'5':'';
+  legacyHeading.hidden=!fifth;balancedGroup.hidden=!fifth;legacyEmpty.hidden=!fifth||!!rows.length;balancedEmpty.hidden=!!balanced.length;
+  if(!fifth&&!rows.length){choiceListKey='';choiceList.replaceChildren();balancedList.replaceChildren();return;}
   const ply=b.reduce((count,stone)=>count+!!stone,1);choiceHeading.textContent=ply+'수 · 주형 수순 선택';
   choiceHelp.textContent=(paused?'재개한 뒤 저장된 수순으로 이어지는 위치를 선택하세요.':'반투명 돌이나 아래 수순을 눌러 이어 두세요.')+' 이름은 저장된 후속 수순의 주형입니다.';
-  for(const row of rows){const cell=cells[row.i],title=choiceTitle(row),ghost=sprite(turn),label=document.createElement('span');ghost.setAttribute('aria-hidden','true');label.className='opening-choice-name';label.textContent=row.families?.[0]?.title||row.title;
-   cell.replaceChildren(ghost,label);cell.classList.add('opening-choice');cell.dataset.openingChoice=String(row.i);cell.dataset.openingFamily=(row.families||[{id:row.familyId}]).map(f=>f.id).join(' ');cell.title=title+' 수순 · '+E.coord(row.i)+' · '+ply+'수 선택';cell.setAttribute('aria-label',E.coord(row.i)+' '+title+' 수순으로 '+ply+'수 이어 두기');
+  if(fifth){choiceHeading.textContent='5수 · 기존 추천과 동등 자료 선택';choiceHelp.textContent='기본 추천과 분석 상태는 그대로 유지합니다. 반투명 돌이나 각 그룹의 수를 눌러 직접 선택하세요.'+(paused?' 재개한 뒤 선택할 수 있습니다.':'');}
+  const positions=new Map();for(const [kind,list] of[['legacy',rows],['balanced',balanced]])for(const row of list){const position=positions.get(row.i)||{};position[kind]=row;positions.set(row.i,position);}
+  for(const [i,position] of positions){const row=position.legacy||position.balanced,cell=cells[i],title=choiceTitle(row),ghost=sprite(turn),label=document.createElement('span'),balancedTag=position.balanced&&sourceGrade(position.balanced)==='historical-equal-disputed'?'과거':'동등';ghost.setAttribute('aria-hidden','true');label.className='opening-choice-name';label.textContent=fifth?(position.legacy?(position.legacy.source==='engine-precomputed'?'분석':'기존'):balancedTag):(row.families?.[0]?.title||row.title);
+   cell.replaceChildren(ghost,label);if(position.legacy&&position.balanced){const other=document.createElement('span');other.className='opening-choice-name opening-choice-balanced-name';other.textContent=balancedTag;cell.append(other);}
+   cell.classList.add('opening-choice');cell.dataset.openingChoice=String(i);cell.dataset.openingFamily=(row.families||[{id:row.familyId}]).map(f=>f.id).join(' ');if(fifth)cell.dataset.openingChoicePly='5';
+   const description=fifth?[(position.legacy?legacyLabel(position.legacy)+' '+choiceTitle(position.legacy):''),(position.balanced?'동등 자료 '+choiceTitle(position.balanced)+' · '+sourceLabel(position.balanced):'')].filter(Boolean).join(' / '):title+' 수순';
+   cell.title=description+' · '+E.coord(i)+' · '+ply+'수 선택';cell.setAttribute('aria-label',E.coord(i)+' '+description+' 수순으로 '+ply+'수 이어 두기');
   }
-  const key=turn+'|'+paused+'|'+b.join('')+'|'+rows.map(row=>row.i+':'+choiceTitle(row)).join(',');
-  if(key!==choiceListKey){choiceListKey=key;choiceList.replaceChildren();for(const row of rows){const button=document.createElement('button');button.type='button';button.dataset.i=String(row.i);button.textContent=choiceTitle(row)+' 수순 · '+E.coord(row.i);button.disabled=paused;button.onclick=()=>{if(!paused&&availableChoices().some(current=>current.i===row.i))move(row.i);};choiceList.append(button);}}
+  const key=turn+'|'+paused+'|'+b.join('')+'|'+rows.map(row=>row.i+':'+choiceTitle(row)+':'+row.source).join(',')+'|'+JSON.stringify(balanced);
+  if(key!==choiceListKey){choiceListKey=key;choiceList.replaceChildren();balancedList.replaceChildren();for(const row of rows){const button=document.createElement('button');button.type='button';button.dataset.i=String(row.i);button.textContent=choiceTitle(row)+' 수순 · '+E.coord(row.i)+(fifth&&row.source==='engine-precomputed'?' · 엔진 사전분석':'');button.disabled=paused;button.onclick=()=>{if(fifth)selectFifth(row.i,'legacy');else if(!paused&&availableChoices().some(current=>current.i===row.i))move(row.i);};choiceList.append(button);}
+   for(const row of balanced){const item=document.createElement('div'),button=document.createElement('button'),grade=document.createElement('span');item.className='opening-choice-reference';button.type='button';button.dataset.i=String(row.i);button.dataset.assessment=sourceGrade(row);button.dataset.default='false';button.textContent=choiceTitle(row)+' · '+E.coord(row.i);grade.className='opening-choice-grade';grade.dataset.assessment=sourceGrade(row);grade.textContent=sourceLabel(row);button.append(grade);button.disabled=paused;button.setAttribute('aria-label',button.textContent+' · 자료를 직접 선택해 5수 착수');button.onclick=()=>selectFifth(row.i,'balanced');item.append(button);appendSource(item,row);balancedList.append(item);}
+  }
   for(const button of choiceList.children){const isDefault=Number(button.dataset.i)===rec?.i;button.dataset.default=String(isDefault);button.setAttribute('aria-label',button.textContent+' · '+ply+'수 이어 두기'+(isDefault?' · 현재 기본 추천':''));}
  }
  function explainMissingContinuation(){
@@ -4104,8 +7477,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.43 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.43');
+versionBadge.textContent='통합 v5.18.45 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.45');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){
