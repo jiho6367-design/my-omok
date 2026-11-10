@@ -1,4 +1,5 @@
 'use strict';
+// Audit the legacy source/continuation contract independently of balanced fifths.
 // Literal facts from the linked source diagrams/libraries, not a private game.
 // Exercise live selected moves and exact-board transpositions, not just a count.
 const assert=require('node:assert/strict'),Book=require('../src/opening-book.js'),data=require('../src/opening-data.js'),create=require('../src/node-engine.cjs'),R=require('../tools/counter-rules.cjs');
@@ -30,7 +31,7 @@ const traces=[
 ].map(coords);
 let connectedOwnMoves=0,urgentOverrides=0;
 for(const first of[1,2]){
- const engine=create({firstPlayer:first,model:null,searchMemory:false,recordBook:[]});
+ const engine=create({firstPlayer:first,balancedOpeningBook:false,model:null,searchMemory:false,recordBook:[]});
  // After two stones, reflected thirds can be geometrically equivalent. The
  // separate third-move test covers that policy; start each oriented source
  // branch at four stones, then put every actually selected own move.

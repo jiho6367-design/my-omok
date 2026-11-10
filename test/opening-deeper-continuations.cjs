@@ -1,4 +1,5 @@
 'use strict';
+// Audit the legacy source/continuation contract independently of balanced fifths.
 // Public data contracts; no local search archive or network is required.
 const assert=require('node:assert/strict'),crypto=require('node:crypto'),D=require('../src/opening-continuation-data.js'),A=require('../src/opening-analysis.js'),R=require('../tools/counter-rules.cjs'),create=require('../src/node-engine.cjs'),scope=require('./fixtures/opening-deeper-scope.json');
 const families='D1 D2 D4 D5 D6 D7 D8 D9 D10 D11 D12 I2 I3 I4 I6 I7 I8 I9 I10 I11 I12'.split(' '),hash=value=>crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex'),plain=value=>JSON.parse(JSON.stringify(value));
@@ -38,5 +39,5 @@ for(const family of families)for(const count of[10,12,14]){
 }
 // Complete archival rows above remain unchanged. Current automatic admission
 // and retained-strategy priority are tested separately below.
-const current=require('./helpers/opening-current-admission.cjs')({create,R,A,D,entries,scope,board,tr,equivalent,primaryLength:10,followupMinimum:12});
+const current=require('./helpers/opening-current-admission.cjs')({create:options=>create({...options,balancedOpeningBook:false}),R,A,D,entries,scope,board,tr,equivalent,primaryLength:10,followupMinimum:12});
 console.log(JSON.stringify({test:'opening-deeper-continuations',passed:true,newEntries:entries.length,byFamily,byPly,lookups,scopedChecks,partialGuards,current,scope:'Every archived row and original evidence in both colours/D4; current auto15 admission and priorities on the exact historical scope, with blocked comparisons and changed parents reported separately. No claim that every historical parent remains the current default.'}));

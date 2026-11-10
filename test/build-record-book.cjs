@@ -2,10 +2,12 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process'),Build=require('../tools/build-record-book.cjs'),Book=require('../src/record-book.js');
 const root=path.resolve(__dirname,'..'),temporary=fs.mkdtempSync(path.join(os.tmpdir(),'omok-record-book-'));
 try{
- const files=cp.execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(f=>f==='build.cjs'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'));
+ const listed=process.env.OMOK_BUILD_INPUTS_FILE?JSON.parse(fs.readFileSync(process.env.OMOK_BUILD_INPUTS_FILE,'utf8')):cp.execFileSync('git',['ls-files','--cached','--others','--exclude-standard','-z'],{cwd:root,encoding:'utf8'}).split('\0');
+ assert(Array.isArray(listed)&&listed.every(f=>typeof f==='string'&&!path.isAbsolute(f)&&!f.split(/[\\/]/).includes('..')),'Public relative build inputs required');
+ const files=listed.filter(f=>f==='build.cjs'||f==='package.json'||f.startsWith('src/')||f.startsWith('tools/')||f.startsWith('test/reader/'));
  for(const relative of new Set(files)){if(!fs.existsSync(path.join(root,relative)))continue;const target=path.join(temporary,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.copyFileSync(path.join(root,relative),target);}
  const build=(...args)=>cp.execFileSync(process.execPath,['build.cjs','--baseline',...args],{cwd:temporary,stdio:'pipe'}),read=file=>fs.readFileSync(path.join(temporary,file),'utf8');
- build();const publicHtml=read('dist/index.html');assert.equal(read('outputs/omok.html'),publicHtml);assert(!publicHtml.includes('synthetic-private-record-canary'));
+ build();const publicHtml=read('dist/index.html');assert(publicHtml.includes('통합 v'+JSON.parse(read('package.json')).version),'built badge follows release package');assert.equal(read('outputs/omok.html'),publicHtml);assert(!publicHtml.includes('synthetic-private-record-canary'));
  const ix=s=>(+s.slice(1)-1)*15+s.charCodeAt(0)-65,record={schemaVersion:1,rulesId:Book.RULES_ID,id:'synthetic-private-record-canary',title:'Synthetic local fixture',firstPlayer:2,winner:1,moves:'H8 I9 A1 J9 C1 K9 E1 L9 G1 M9'.split(' ').map(ix)};
  fs.mkdirSync(path.join(temporary,'.local'));const file=path.join(temporary,'.local/record-book.json'),raw=JSON.stringify({schemaVersion:1,records:[record]});fs.writeFileSync(file,raw);
  build();const local=read('outputs/omok.html');assert(local.includes(record.id));assert.equal(read('dist/index.html'),publicHtml,'personal complete records never alter the public build');assert.equal(fs.readFileSync(file,'utf8'),raw);

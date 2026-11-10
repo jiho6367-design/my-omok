@@ -1,4 +1,5 @@
 'use strict';
+// Audit the legacy source/continuation contract independently of balanced fifths.
 const assert=require('node:assert/strict'),create=require('../src/node-engine.cjs'),Book=require('../src/opening-book.js'),data=require('../src/opening-data.js'),R=require('../tools/counter-rules.cjs');
 const allowed='D1 D2 D4 D5 D6 D7 D8 D9 D10 D11 D12 I2 I3 I4 I6 I7 I8 I9 I10 I11 I12'.split(' '),excluded='D3 D13 I1 I5 I13'.split(' ');
 assert.deepEqual(data.catalog.map(x=>x.id),allowed);assert.deepEqual(data.excluded.map(x=>x.id),excluded);assert.equal(data.lines.slice(0,49583).length,49583);
@@ -11,7 +12,7 @@ function board(line,p,t=0){const b=Array(225).fill(0);line.moves.slice(0,-1).for
 let cases=0;const samples=[];
 for(const family of allowed){
  const line=data.lines.find(l=>l.familyId===family&&l.moves.length===5&&book.lookup(board(l,1),1,1));assert(line,'favorable family has a real unambiguous fifth-move reference: '+family);samples.push({family,id:line.id,prefix:line.moves.slice(0,-1)});
- for(const p of[1,2]){const e=create({firstPlayer:p,model:null,optimized:true,searchMemory:false,recordBook:[]});for(let t=0;t<8;t++){
+ for(const p of[1,2]){const e=create({firstPlayer:p,balancedOpeningBook:false,model:null,optimized:true,searchMemory:false,recordBook:[]});for(let t=0;t<8;t++){
   const b=board(line,p,t),saved=b.slice(),r=e.openingReply(b,p);assert(r&&r.kind==='opening',family+' has a live source lookup');assert.equal(r.assessmentStatus,'OPENING_REFERENCE');assert.equal(r.proven,false);assert.equal(r.lossProven,false);assert.equal(r.proof,null);assert.equal(r.depth,0);assert.equal(r.comparison.complete,false);assert(R(b).legal(r.i,p));assert.equal(e.openingReply(b,3-p),null);assert.deepEqual(b,saved);cases++;
  }}
 }
