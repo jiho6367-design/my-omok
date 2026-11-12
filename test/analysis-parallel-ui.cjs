@@ -10,14 +10,19 @@ const report={scope:'Actual application/native Workers with navigator concurrenc
   Object.defineProperty(navigator,'hardwareConcurrency',{value:8});
   localStorage.setItem('omok-compute-mode','optimized');localStorage.setItem('omok-analysis-settings',JSON.stringify({version:1,mode:'deep',manualMs:1000}));
   window.__poolInputs=[];window.__activeWorkers=new Set();let id=0;const NativeWorker=Worker;
-  window.Worker=class extends NativeWorker{constructor(...args){super(...args);this.testId=++id;__activeWorkers.add(this.testId);}postMessage(data,...args){if(data?.type==='plan'||data?.type==='compare')__poolInputs.push({id:this.testId,type:data.type,depth:data.depth,roots:data.roots?.length});return super.postMessage(data,...args);}terminate(){__activeWorkers.delete(this.testId);return super.terminate();}};
+  // Track analysis jobs; GPU setup and retained-proof verification have their
+  // own lifecycles and are not cancelled by changing the analysis mode.
+  window.Worker=class extends NativeWorker{constructor(...args){super(...args);this.testId=++id;}postMessage(data,...args){if(data?.b&&data?.p||['plan','compare','guard','win-check'].includes(data?.type))__activeWorkers.add(this.testId);if(data?.type==='plan'||data?.type==='compare')__poolInputs.push({id:this.testId,type:data.type,depth:data.depth,roots:data.roots?.length});return super.postMessage(data,...args);}terminate(){__activeWorkers.delete(this.testId);return super.terminate();}};
  });
  await page.goto(pathToFileURL(path.resolve('outputs/omok.html')).href);await page.waitForFunction(()=>globalThis.omokComputeReady===true);
  if(await page.locator('#setup').evaluate(d=>d.open))await page.locator('#cancelSetup').click();
  await page.getByText('분석 시간',{exact:true}).click();
  assert.equal(await page.locator('#manualSeconds').getAttribute('max'),'25');
- const game={id:'parallel-ui-fixture',first:2,me:2,timer:false,rules:{fivePriority:true},axis:'descending',events:fixture.coords.slice(0,6).map((c,k)=>({type:'move',i:fixture.idx(c),p:k%2?1:2,legal:true,remaining:40000,time:new Date().toISOString()})),cursor:6,result:null};
- await page.evaluate(g=>loadGame(g),game);await page.waitForFunction(()=>__poolInputs.some(x=>x.type==='compare'));
+ // The original six-stone board now has a source-book continuation. Add two
+ // generated remote stones so this test still exercises general CPU search.
+ const moves=[...fixture.coords.slice(0,6).map(fixture.idx),0,1];
+ const game={id:'parallel-ui-fixture',first:2,me:2,timer:false,rules:{fivePriority:true},axis:'descending',events:moves.map((i,k)=>({type:'move',i,p:k%2?1:2,legal:true,remaining:40000,time:new Date().toISOString()})),cursor:moves.length,result:null};
+ await page.evaluate(g=>loadGame(g),game);assert.equal(await page.evaluate(()=>E.hasOpeningReply(b,turn,{budget:{mode:'deep',ms:25000}})),false,'general-search fixture must not resolve through the source book');await page.waitForFunction(()=>__poolInputs.some(x=>x.type==='compare'));
  const previous=await page.evaluate(()=>[...__activeWorkers]);await page.selectOption('#budget','fast');
  await page.waitForFunction(()=>rec?.analysisPolicy?.mode==='fast'&&!worker,{timeout:8000});
  const canceled=await page.evaluate(ids=>({allStopped:ids.every(id=>!__activeWorkers.has(id)),mode:rec.analysisPolicy.mode}),previous);assert(canceled.allStopped);report.steps.push({step:'changing-mode-cancels-proof-and-pool-workers',...canceled});
@@ -25,9 +30,9 @@ const report={scope:'Actual application/native Workers with navigator concurrenc
  const automatic=await page.evaluate(()=>({result:rec,active:[...__activeWorkers]}));assert(automatic.result.automatic);assert(automatic.result.externalBudgetMs<=15000);assert(automatic.result.rootWork.compared>=24);assert.deepEqual(automatic.active,[]);assert(Date.now()-autoStarted<17000);
  report.steps.push({step:'automatic-parallel-comparison-within-15-second-policy',elapsedMs:Date.now()-autoStarted,depth:automatic.result.depth,roots:automatic.result.rootWork.compared,workers:automatic.result.parallel.workers});
  const started=Date.now();await page.selectOption('#budget','deep');await page.waitForFunction(()=>rec?.parallel?.depth>0&&!worker,{timeout:28000});
- const result=await page.evaluate(()=>({result:rec,model:E.getModelInfo(),validPV:E.validPV(b,turn,rec.pv).length===rec.pv.length,legal:E.inspect(b,rec.i,turn).legal,activeWorkers:[...__activeWorkers],poolJobs:__poolInputs.length,plan:document.getElementById('analysisPlan').textContent}));
+  const result=await page.evaluate(()=>({result:rec,model:E.getModelInfo(),validPV:E.validPV(b,turn,rec.pv).length===rec.pv.length,legal:E.inspect(b,rec.i,turn).legal,activeWorkers:[...__activeWorkers],poolJobs:__poolInputs.length,plan:document.getElementById('analysisPlan').textContent}));report.final=result;
  assert(Date.now()-started<26000);assert(result.legal&&result.validPV);assert.equal(result.result.externalBudgetMs,25000);assert.equal(result.result.parallel.workers,3);assert(result.result.depth>0);assert.equal(result.result.proofStatus,'UNRESOLVED');assert.deepEqual(result.activeWorkers,[]);assert.match(result.plan,/25/);
- assert.equal(result.result.modelVersion,result.model.modelVersion);assert.equal(result.result.rootWork.compared,32);assert(result.result.candidateChecks?.length,'actual parallel finalists receive reserved reply checks');
+ assert.equal(result.result.modelVersion,result.model.modelVersion);assert.equal(result.result.rootWork.compared,32);assert(result.result.candidateChecks?.some(c=>c.started&&c.nodes>0),'actual parallel finalist checking must start and report real work within the move clock');
  report.steps.push({step:'deep-25-second-result-from-complete-parallel-round',move:result.result.i,elapsedMs:Date.now()-started,depth:result.result.depth,workers:3,roots:result.result.rootWork,parallel:result.result.parallel,candidateChecks:result.result.candidateChecks,modelVersion:result.model.modelVersion,legal:true,validPV:true,remainingWorkers:0});
  assert.deepEqual(errors,[]);report.status='passed';await page.screenshot({path:path.join(out,'parallel-analysis.png'),fullPage:true});console.log(JSON.stringify(report));
 })().catch(error=>{report.status='failed';report.error=error.stack;console.error(error);process.exitCode=1;}).finally(async()=>{fs.writeFileSync(path.join(out,'parallel-analysis.json'),JSON.stringify(report,null,2)+'\n');await browser?.close();});

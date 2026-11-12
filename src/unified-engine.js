@@ -357,7 +357,7 @@ function createEngine(options={}) {
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
     r.metricsVersion=2;
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-2-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
     return r;
   }
   function convert(board,p,r,started) {
@@ -817,7 +817,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
         const m=rows[k];if(!inspect(board,m.i,p).legal)continue;const after=board.slice();after[m.i]=p;
         const checkStart=clockNow(),remaining=started+limit-checkStart-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=checkStart+slice;
         const check=forest.forbiddenTrap(after,p,Math.max(1,Math.min(250,slice*.25)),19,1),preparation=check.proof||clockNow()>=end||!forest.preparationTrap?null:
-          forest.preparationTrap(after,p,Math.max(1,end-clockNow()),25),proof=check.proof||preparation?.proof;
+          forest.preparationTrap(after,p,Math.max(1,end-clockNow()),25,3),proof=check.proof||preparation?.proof;
         guardNodes+=(check.nodes||0)+(preparation?.nodes||0);checks.push({i:m.i,complete:!!proof||check.complete&&(!forest.preparationTrap||!!preparation?.complete),refuted:!!proof,ms:clockNow()-checkStart,nodes:(check.nodes||0)+(preparation?.nodes||0),preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,scope:preparation.scope}:null});
         if(proof){rejected.push({i:m.i,pv:proof.pv,...(check.proof?{forbiddenTrap:check}:{}),...(preparation?.proof?{preparationTrap:preparation}:{}),verifiedRefutation:true,reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':'3×3 금수 유도 수순 확인 · 함정 후보 제외'});
           result=finalizeResult(board,p,{...result,rejected});progress(describe({...result,nodes:baseNodes+guardNodes,forbiddenChecks:checks.slice()}));}
@@ -849,7 +849,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       const direct=forest.forcing(after,3-p,25,Math.max(1,Math.min(1000,slice*.25)));
       const forbidden=direct.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(600,(end-clockNow())*.4)),19,1);
       const preparation=direct.proof||forbidden?.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
-        forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),25);
+        forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),25,3);
       const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||clockNow()>=end?null:
         inspect(board,m.i,p).fours.length?
           forest.forcedReplyTrap(after,p,Math.max(1,Math.min(500,end-clockNow())),null,25,true):

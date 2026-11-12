@@ -176,13 +176,15 @@ function createForestEngine(options={}){
   return factory(N,board,{strategy:false,optimized:true,counterProofDetails:options.counterProofDetails===true}).forbiddenTrap(3-p,budget,maxPlies,quiet);
  }
  // The opponent is to move after the defender's candidate. Mixed fours,
- // compulsory counter-four blocks and two quiet preparations share a single
- // bounded all-response proof search. A completed negative is not safety.
- function preparationTrap(board,defender,budget=500,maxPlies=25){
+ // compulsory counter-four blocks and bounded quiet preparations share one
+ // all-response proof search. Two preparations remain the default; finalist
+ // guards explicitly include a third. A completed negative is not safety.
+ function preparationTrap(board,defender,budget=500,maxPlies=25,quietLimit=2){
   if(![1,2].includes(defender)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid preparation-trap position');
   const start=clockNow(),end=start+Math.max(0,Number.isFinite(budget)?budget:0),attacker=3-defender;
   maxPlies=Number.isFinite(maxPlies)?Math.max(1,Math.floor(maxPlies)):25;
-  const result=(extra={})=>({scope:'two-preparation-counterattack',entryBoardKey:board.join(''),attacker,defender,quiet:2,maxPlies,complete:false,proof:null,nodes:0,...extra,ms:clockNow()-start});
+  const quiet=quietLimit===3?3:2,scope=quiet===3?'three-preparation-counterattack':'two-preparation-counterattack';
+  const result=(extra={})=>({scope,entryBoardKey:board.join(''),attacker,defender,quiet,maxPlies,complete:false,proof:null,nodes:0,...extra,ms:clockNow()-start});
   if(clockNow()>=end)return result({reason:'deadline'});
   const factory=typeof createReaderEngine==='function'?createReaderEngine:typeof require==='function'?require('./reader-engine.js').createEngine:null;
   if(!factory)return result({reason:'reader-unavailable'});
@@ -191,7 +193,7 @@ function createForestEngine(options={}){
   // opponent a hypothetical extra turn to refute that winning candidate.
   if(checker.state().winners.includes(defender))return result({complete:true,ownWin:true});
   const remaining=end-clockNow();if(remaining<=0)return result({reason:'deadline'});
-  const checked=checker.counterCertificate(attacker,remaining,maxPlies,2);
+  const checked=checker.counterCertificate(attacker,remaining,maxPlies,quiet);
   return result({complete:checked.complete===true,proof:checked.complete===true?checked.proof:null,nodes:checked.nodes});
  }
  function assessMove(board,p,i){

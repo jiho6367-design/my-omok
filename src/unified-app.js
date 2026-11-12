@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.51';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.51');
+versionBadge.textContent='통합 v5.18.52';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.52');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -233,7 +233,8 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
 function acceptResult(result,partial=false){
   if(result&&E.finalizeResult)result=E.finalizeResult(b,turn,result);
   if(!result||(result.i!=null&&!E.inspect(b,result.i,turn).legal))return false;
-  result={...result,analysisPolicy:result.analysisPolicy||currentAnalysisPolicy};rec=result;lastProgress=result;
+  result={...result,analysisPolicy:result.analysisPolicy||currentAnalysisPolicy,
+    analysisDelivery:{phase:partial?'interim':'complete',receivedAt:new Date().toISOString()}};rec=result;lastProgress=result;
   if(partial)setAnalysisStatus('분석 중','현재 표시는 임시 후보입니다. 계산이 끝나면 최종 추천으로 바뀝니다.','thinking');
   else if(result.proven)setAnalysisStatus('분석 완료 · 강제승','확인한 강제승 수순입니다. 추천 좌표를 두세요.','urgent');
   else if(result.lossProven)setAnalysisStatus('분석 완료 · 강제패배',result.forbiddenDefense!=null?
@@ -328,7 +329,7 @@ commit=function(i,s){const task=i==null?null:ponderBranches.get(i)||(ponder?.opp
 $('budget').onchange=()=>updateAnalysisSettings({...analysisSettings,mode:$('budget').value});
 $('manualSeconds').onchange=()=>{const ms=Number($('manualSeconds').value)*1000;if(!Number.isFinite(ms)||ms<settingsPolicy.MIN_MS||ms>settingsPolicy.MAX_MS){msg('직접 설정은 0.9~25초 범위로 입력하세요.');syncAnalysisSettingsUI();return;}updateAnalysisSettings({...analysisSettings,manualMs:ms});};
 $('rethink').textContent='이 국면 다시 분석';$('rethink').onclick=()=>analyze();
-const stopButton=button($('budget').closest('details'),'현재 후보로 계산 종료',()=>{stopWorker();setAnalysisStatus(rec?'현재 후보 유지':'계산 종료',rec?'현재 후보는 합법적입니다. 더 깊은 비교는 멈췄습니다.':'분석할 국면이 없습니다.','stopped');if(rec){rec.reason+=' · 사용자가 계산 종료';render();}});stopButton.id='stopAnalysis';
+const stopButton=button($('budget').closest('details'),'현재 후보로 계산 종료',()=>{stopWorker();setAnalysisStatus(rec?'현재 후보 유지':'계산 종료',rec?'현재 후보는 합법적입니다. 더 깊은 비교는 멈췄습니다.':'분석할 국면이 없습니다.','stopped');if(rec){if(rec.analysisDelivery?.phase!=='complete')rec={...rec,analysisDelivery:{phase:'stopped',receivedAt:new Date().toISOString()},reason:rec.reason+' · 사용자가 계산 종료'};render();}});stopButton.id='stopAnalysis';
 const recalc=button($('budget').closest('details'),'다시 분석',()=>analyze());recalc.id='analyzeAgain';
 const baseTickDisplay=tickDisplay;tickDisplay=function(){baseTickDisplay();if(g?.timer===false){$('timer').textContent='∞';$('timer').classList.remove('warn');$('timebar').style.width='100%';}};
 const unifiedRender=render;
@@ -338,6 +339,8 @@ render=function(){unifiedRender();
   [...$('axisy').children].forEach((el,i)=>el.textContent=descending?15-i:i+1);
   const lines=document.querySelector('.threat-lines');if(lines)lines.style.transform=descending?'scaleY(-1)':'';
   ruleLabel.textContent=g?`정확한 5목 우선 (현재 고정 규칙) · ${g.timer===false?'시간 제한 없음':'40초 초과 PASS'}`:'';
+  if(rec?.i!=null&&rec.analysisDelivery?.phase==='interim')$('recommend').textContent=E.coord(rec.i)+' · 계산 중';
+  if(rec?.i!=null&&rec.analysisDelivery?.phase==='stopped')$('recommend').textContent=E.coord(rec.i)+' · 중단 후보';
   candidateList.replaceChildren();
   for(const [k,m] of (rec?.candidates||[]).slice(0,3).entries()){
     const el=document.createElement('span');el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}`;candidateList.append(el);

@@ -15,18 +15,23 @@ const OmokParallel=(()=>{
    candidates:result.moves.map(m=>({...m,depth:result.depth||0,comparisonSource:'reader'})),
    rejected:result.rejectedMoves||[],rootWork:result.rootWork};
  }
- function checkFinalists(engine,board,p,rows,ms,onCheck=()=>{}){
+ function checkFinalists(engine,board,p,rows,ms,onCheck=()=>{},onWork=()=>{}){
   const deadline=performance.now()+Math.max(1,ms),checks=[];
   for(let k=0;k<rows.length&&performance.now()<deadline-20;k++){
    const m=rows[k],after=board.slice();if(!engine.inspect(board,m.i,p).legal)continue;after[m.i]=p;
-   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=start+slice;
+   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
+   const work=(phase,nodes=0)=>onWork({i:m.i,started:true,finished:false,complete:false,refuted:false,phase,startedAtEpochMs,ms:performance.now()-start,nodes});
+   work('started');
    const direct=engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3)));
+   work('forcing',direct.nodes||0);
    const forbidden=direct.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
+   if(forbidden)work('forbidden',(direct.nodes||0)+(forbidden.nodes||0));
    const preparation=direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
-    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.8),25);
+    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.8),25,3);
+   if(preparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
    const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||performance.now()>=end?null:engine.inspect(board,m.i,p).fours.length?
     engine.forcedReplyTrap(after,p,Math.max(1,end-performance.now()),null,25,true):engine.quietTrap(after,p,Math.max(1,end-performance.now()),14,25,true);
-   const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof,check={i:m.i,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!engine.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:performance.now()-start,nodes:(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0),
+   const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof,check={i:m.i,started:true,finished:true,phase:'finished',startedAtEpochMs,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!engine.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:performance.now()-start,nodes:(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0),
     ...(forbidden?{forbiddenTrap:{complete:forbidden.complete,nominated:forbidden.nominated,checked:forbidden.checked}}:{}),
     ...(preparation?{preparationTrap:{complete:preparation.complete,quiet:preparation.quiet,scope:preparation.scope}}:{}),
     ...(proof?{rejection:{i:m.i,pv:direct.proof?.pv||forbidden?.proof?.pv||preparation?.proof?.pv||[],replyTrap:trap?.proof||null,
@@ -50,7 +55,7 @@ const OmokParallel=(()=>{
  let reader=null,memory=null;
  onmessage=e=>{const m=e.data;try{
   if(m.type==='win-check'){const check=createEngine(m.base.options).verifyWinningMove(m.base.b,m.base.p,m.i,m.ms);postMessage({type:'win-check',round:m.round,i:m.i,check});return;}
-  if(m.type==='guard'){const engine=createEngine(m.base.options);const checks=checkFinalists(engine,m.base.b,m.base.p,m.roots,m.ms,check=>postMessage({type:'guard-progress',check}));postMessage({type:'guard',checks});return;}
+  if(m.type==='guard'){postMessage({type:'guard-started',startedAtEpochMs:Date.now()});const engine=createEngine(m.base.options),remaining=Math.max(0,Math.min(m.ms,m.deadlineEpochMs-Date.now()));postMessage({type:'guard-ready',readyAtEpochMs:Date.now(),remainingMs:remaining});const checks=remaining>20?checkFinalists(engine,m.base.b,m.base.p,m.roots,remaining,check=>postMessage({type:'guard-progress',check}),check=>postMessage({type:'guard-work',check})):[];postMessage({type:'guard',checks});return;}
   if(!reader){memory=typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:m.base.searchMemory}):null;
    reader=createReaderEngine(15,m.base.b,{...m.base.options,forbiddenGuard:true,searchMemory:memory,memoryManaged:true,exportRootFrontier:true});}
   if(m.type==='plan'){const result=reader.analyze(m.base.p,700);postMessage({type:'plan',result});}
@@ -62,15 +67,17 @@ const OmokParallel=(()=>{
   const exportNativeProof=base.options?.proofDetails===true&&base.options?.counterProofDetails===true;
   let actualWorkerSourceBlob=null;const nativeRequests=new Map(),snapshotRequest=(type,ms)=>{if(!exportNativeProof)return;try{nativeRequests.set(type,structuredClone({board:base.b,p:base.p,firstPlayer:base.options.firstPlayer??null,model:base.options.model??null,rules:{fivePriority:base.options.fivePriority!==false},ms}));}catch{nativeRequests.delete(type);}};
   const proofSource=(sourceKind,messageType,result,declaredWorkerBudgetMs)=>{if(exportNativeProof)try{onProofSource({schemaVersion:1,source:sourceKind,messageType,declaredWorkerBudgetMs,result,requestSnapshot:nativeRequests.get(messageType)??null,workerSourceBlob:actualWorkerSourceBlob});}catch{}};
-  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),deadline=guardDeadline-Math.min(1200,budget*.12),count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
-  let stopped=false,guarding=false,guardReason=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
+  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),guardReserve=Math.min(2200,budget*.2),deadline=guardDeadline-guardReserve,count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
+  let stopped=false,guarding=false,guardReason=null,guardWork=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
+  const saveCheck=check=>{const at=checks.findIndex(c=>c.i===check.i),previous=at<0?{}:checks[at];if(previous.rejection&&!check.rejection||previous.finished&&!check.finished)return previous;const next={...previous,...check};if(at<0)checks.push(next);else checks[at]=next;return next;};
   const close=()=>{if(stopped)return;stopped=true;clearTimeout(timer);for(const w of workers)w.terminate();};
   const fail=error=>{if(stopped)return;close();onError(error,serial);};
-  const finish=reason=>{if(stopped)return;const rows=lastRows.filter(r=>!bad.has(r.i)),first=rows[0],result=latest&&first?{...latest,i:first.i,score:first.score,pv:first.pv,comparison:{...latest.comparison,selected:first.i},nodes:latest.nodes+[...checks,...winChecks].reduce((n,c)=>n+(c.nodes||0),0),candidates:rows.slice(0,3),candidateChecks:checks,candidateWinChecks:winChecks,rejected:[...(seed?.rejectedMoves||[]),...checks.filter(c=>c.rejection).map(c=>c.rejection)]}:null;close();if(result)onDone({...result,parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:reason},analysisWork:{...result.analysisWork,elapsedMs:Math.round(performance.now()-started),nodes:result.nodes,checkedCandidates:checks.filter(c=>c.complete).length,stopReason:reason},analysisIncomplete:reason==='time-limit'||reason==='incomplete-round'||reason==='guard-time-limit'||!checks.some(c=>c.i===result.i&&c.complete)});else onError('병렬 비교 깊이 미완료',serial);};
+  const finish=reason=>{if(stopped)return;const rows=lastRows.filter(r=>!bad.has(r.i)),first=rows[0],result=latest&&first?{...latest,i:first.i,score:first.score,pv:first.pv,comparison:{...latest.comparison,selected:first.i},nodes:latest.nodes+[...checks,...winChecks].reduce((n,c)=>n+(c.nodes||0),0),candidates:rows.slice(0,3),candidateChecks:checks,candidateWinChecks:winChecks,rejected:[...(seed?.rejectedMoves||[]),...checks.filter(c=>c.rejection).map(c=>c.rejection)]}:null;close();if(result)onDone({...result,parallel:{...result.parallel,elapsedMs:Math.round(performance.now()-started),stopReason:reason,...(guardWork?{guard:{...guardWork,startedCandidates:checks.filter(c=>c.started).length,finishedCandidates:checks.filter(c=>c.finished).length,workingCandidates:checks.filter(c=>c.nodes>0).length}}:{})},analysisWork:{...result.analysisWork,elapsedMs:Math.round(performance.now()-started),nodes:result.nodes,checkedCandidates:checks.filter(c=>c.complete).length,stopReason:reason},analysisIncomplete:reason==='time-limit'||reason==='incomplete-round'||reason==='guard-time-limit'||!checks.some(c=>c.i===result.i&&c.complete)});else onError('병렬 비교 깊이 미완료',serial);};
   const done=reason=>{if(stopped||guarding)return;guarding=true;guardReason=reason;clearTimeout(timer);for(const w of workers)w.terminate();
    const defensive=latest&&!latest.proven&&!latest.lossProven&&latest.score<0,
-    finalDeadline=defensive?guardDeadline:Math.min(guardDeadline,performance.now()+1200),remaining=finalDeadline-performance.now()-30,candidates=lastRows.filter(r=>!bad.has(r.i)).slice(0,3);if(!candidates.length||remaining<=0){finish(reason);return;}
-   try{const url=URL.createObjectURL(new Blob([source+'\n'+workerCode],{type:'text/javascript'}));let w;try{w=new Worker(url);workers.push(w);}finally{URL.revokeObjectURL(url);}w.onmessage=e=>receive(-1,e.data);w.onerror=e=>{if(!stopped)finish('guard-time-limit');};timer=setTimeout(()=>finish('guard-time-limit'),Math.max(1,finalDeadline-performance.now()));w.postMessage({type:'guard',base,roots:candidates,ms:remaining});}catch{finish('guard-time-limit');}
+    finalDeadline=defensive?guardDeadline:Math.min(guardDeadline,performance.now()+guardReserve),remaining=finalDeadline-performance.now()-30,candidates=lastRows.filter(r=>!bad.has(r.i)).slice(0,3);if(!candidates.length||remaining<=0){finish(reason);return;}
+   const dispatchedAtEpochMs=Date.now(),deadlineEpochMs=dispatchedAtEpochMs+remaining;guardWork={dispatchedAtEpochMs,deadlineEpochMs,reserveMs:guardReserve,requestedMs:remaining,scheduledCandidates:candidates.length};for(const m of candidates)saveCheck({i:m.i,scheduled:true,started:false,finished:false,phase:'scheduled',complete:false,refuted:false,nodes:0,dispatchedAtEpochMs,deadlineEpochMs});
+   try{const url=URL.createObjectURL(new Blob([source+'\n'+workerCode],{type:'text/javascript'}));let w;try{w=new Worker(url);workers.push(w);}finally{URL.revokeObjectURL(url);}w.onmessage=e=>receive(-1,e.data);w.onerror=e=>{if(!stopped)finish('guard-time-limit');};timer=setTimeout(()=>finish('guard-time-limit'),Math.max(1,finalDeadline-performance.now()));w.postMessage({type:'guard',base,roots:candidates,ms:remaining,deadlineEpochMs});}catch{finish('guard-time-limit');}
   };
   const dispatch=()=>{
    const ms=deadline-performance.now()-30;if(ms<=0){done('time-limit');return;}
@@ -82,9 +89,12 @@ const OmokParallel=(()=>{
    if(depth>=16){done('depth-limit');return;}depth++;dispatch();
   };
   const receive=(k,data)=>{
-   if(stopped)return;if(data.error){if(guarding)finish('guard-time-limit');else fail(data.error);return;}
-   if(data.type==='guard-progress'){if(!checks.some(c=>c.i===data.check.i))checks.push(data.check);if(data.check.refuted){bad.add(data.check.i);onProgress({...latest,rejected:checks.filter(c=>c.rejection).map(c=>c.rejection)});}return;}
-   if(data.type==='guard'){finish(guardReason);return;}if(guarding)return;
+   if(stopped||guarding&&k!==-1)return;if(data.error){if(guarding)finish('guard-time-limit');else fail(data.error);return;}
+   if(data.type==='guard-started'){guardWork={...guardWork,workerStartedAtEpochMs:data.startedAtEpochMs,startupMs:data.startedAtEpochMs-guardWork.dispatchedAtEpochMs};return;}
+   if(data.type==='guard-ready'){guardWork={...guardWork,workerReadyAtEpochMs:data.readyAtEpochMs,executionBudgetMs:data.remainingMs};return;}
+   if(data.type==='guard-work'){saveCheck(data.check);return;}
+   if(data.type==='guard-progress'){const check=saveCheck({...data.check,started:true,finished:true,phase:'finished'});if(check.refuted){bad.add(check.i);onProgress({...latest,candidateChecks:checks.slice(),rejected:checks.filter(c=>c.rejection).map(c=>c.rejection)});}return;}
+   if(data.type==='guard'){let refuted=false;for(const check of data.checks||[]){saveCheck({...check,started:true,finished:true,phase:'finished'});if(check.refuted){refuted=true;bad.add(check.i);}}if(refuted)onProgress({...latest,candidateChecks:checks.slice(),rejected:checks.filter(c=>c.rejection).map(c=>c.rejection)});finish(guardReason);return;}if(guarding)return;
    if(data.type==='win-check'){
     if(!pendingWin||data.round!==round||data.i!==pendingWin.i)return;
     const check=data.check,nativeWorkerBudgetMs=pendingWin.ms;pendingWin=null;winMs+=check.ms||0;winChecks.push({i:data.i,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0});
@@ -131,7 +141,7 @@ const OmokParallel=(()=>{
   };
   try{
    actualWorkerSourceBlob=new Blob([source+'\n'+workerCode],{type:'text/javascript'});const url=URL.createObjectURL(actualWorkerSourceBlob);
-   try{for(let k=0;k<count;k++){const w=new Worker(url);w.onmessage=e=>receive(k,e.data);w.onerror=e=>fail(e.message||'병렬 Worker 오류');workers.push(w);}}finally{URL.revokeObjectURL(url);}
+   try{for(let k=0;k<count;k++){const w=new Worker(url);w.onmessage=e=>receive(k,e.data);w.onerror=e=>{if(!guarding)fail(e.message||'병렬 Worker 오류');};workers.push(w);}}finally{URL.revokeObjectURL(url);}
    timer=setTimeout(()=>done('time-limit'),Math.max(1,deadline-performance.now()));snapshotRequest('plan',700);workers[0].postMessage({type:'plan',base});
   }catch(error){fail(String(error));return null;}
   return {terminate:close,observe(result){serial=result;for(const m of result?.rejected||[])if(!m.riskOnly&&(m.verifiedRefutation||m.pv?.length||m.line?.length||m.replyTrap))bad.add(m.i);},get latest(){return latest;}};

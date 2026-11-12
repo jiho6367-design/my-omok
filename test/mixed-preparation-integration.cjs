@@ -12,7 +12,7 @@ let proofDefenses=0,maxGuardMs=0;
 for(const p of [2,1]){
  const b=position(p),saved=b.slice(),start=performance.now(),checks=parallel.checkFinalists(engine,b,p,shortlist,1600);maxGuardMs=Math.max(maxGuardMs,performance.now()-start);
  const bad=checks.find(c=>c.i===ix('G9'));assert(bad?.complete&&bad.refuted);assert(bad.rejection?.verifiedRefutation);const cert=bad.rejection.preparationTrap;
- assert(cert?.complete&&cert.proof);assert.equal(cert.scope,'two-preparation-counterattack');assert.equal(cert.quiet,2);assert.equal(cert.attacker,3-p);assert.equal(cert.defender,p);assert.equal(cert.maxPlies,25);
+ assert(cert?.complete&&cert.proof);assert.equal(cert.scope,'three-preparation-counterattack');assert.equal(cert.quiet,3);assert.equal(cert.attacker,3-p);assert.equal(cert.defender,p);assert.equal(cert.maxPlies,25);
  const after=b.slice();after[ix('G9')]=p;assert.equal(cert.entryBoardKey,after.join(''));assert.equal(cert.proof.pv[0],ix('H6'));assert.deepEqual(bad.rejection.pv,cert.proof.pv);
  const dag=serialize(cert.proof,{attacker:3-p}),checked=verify(after,dag,{loss:false,limitMs:3000});assert(checked.verified,checked.error);assert(checked.boardRestored);assert(checked.stats.defenses>200);proofDefenses+=checked.stats.defenses;
  assert(dag.nodes.some(n=>n.type==='move'&&!n.forced&&n.branches.length>200),'quiet attacks cover every legal defense');
@@ -21,7 +21,7 @@ for(const p of [2,1]){
 }
 console.log('PASS real finalist guard rejects G9 through full mixed-preparation certificates and retains legal alternatives, both colours');
 const controlled={inspect:engine.inspect,forcing:()=>({complete:true,proof:null,nodes:1}),forbiddenTrap:()=>({complete:true,proof:null,nodes:1}),
- preparationTrap:()=>({complete:false,proof:null,nodes:3,quiet:2,scope:'two-preparation-counterattack'}),quietTrap:()=>({complete:true,proof:null,nodes:1}),forcedReplyTrap:()=>({complete:true,proof:null,nodes:1})};
+ preparationTrap:(_b,_p,_ms,maxPlies,quiet)=>{assert.equal(maxPlies,25);assert.equal(quiet,3);return {complete:false,proof:null,nodes:3,quiet:3,scope:'three-preparation-counterattack'};},quietTrap:()=>({complete:true,proof:null,nodes:1}),forcedReplyTrap:()=>({complete:true,proof:null,nodes:1})};
 const timed=parallel.checkFinalists(controlled,position(),2,[shortlist[0]],100);
 assert.equal(timed.length,1);assert(!timed[0].complete&&!timed[0].refuted&&!timed[0].rejection);assert.equal(timed[0].preparationTrap.complete,false);
 // Exhaust the first candidate's budget before the new preparation check can
