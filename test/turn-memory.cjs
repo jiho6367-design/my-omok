@@ -1,9 +1,9 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),Memory=require('../src/search-memory.js');
 {
- const cache=Memory.create(),current=Memory.scope('reader',15,{}),legacy=current.replace('node-v4','node-v3');
+ const cache=Memory.create(),current=Memory.scope('reader',15,{}),legacy='reader|node-v4-opening-junction-1|15|exact5-both33|unknown|initiative-3-opening-junction-1|0|false|true|false|baseline';
  assert.notEqual(current,legacy);cache.put(legacy,'position',{score:123,pv:[112]});
- const imported=Memory.create({snapshot:cache.snapshot()});assert.equal(imported.get(current,'position'),undefined,'pre-connection search entries cannot answer the revised engine');
+ const imported=Memory.create({snapshot:cache.snapshot()});assert.deepEqual(imported.get(legacy,'position'),{score:123,pv:[112]});assert.equal(imported.get(current,'position'),undefined,'previous candidate-policy entries cannot answer the revised engine');
 }
 const context={performance,Date,console};vm.createContext(context);
 for(const f of ['search-memory.js','gpu-patterns.js','strategy-engine.js','reader-engine.js','search-engine.js','unified-engine.js']){
@@ -35,7 +35,11 @@ const force=require('../tools/performance/positions.cjs').find(p=>p.id==='forcin
 const first=context.createReaderEngine(15,force.board,{strategy:false,searchMemory:memory}).probe(force.p,3,5);
 memory.begin();const shifted=context.createReaderEngine(15,force.board,{strategy:false,searchMemory:memory}).probe(force.p,3,7);
 const fresh=context.createReaderEngine(15,force.board,{strategy:false}).probe(force.p,3,7);
-assert(first.score>9999000);assert.equal(shifted.score,first.score-2);assert.equal(shifted.score,fresh.score);assert.equal(shifted.nodes,1);
+assert(first.score>9999000);assert.equal(shifted.score,first.score-2);assert.equal(shifted.score,fresh.score);assert.deepEqual(plain(shifted.pv),plain(fresh.pv));
+assert(shifted.nodes>1,'absolute ply is part of the current search subproblem and must be recomputed');
+const reusedBefore=memory.stats().reused;memory.begin();
+const samePly=context.createReaderEngine(15,force.board,{strategy:false,searchMemory:memory}).probe(force.p,3,7);
+assert.equal(samePly.score,fresh.score);assert.deepEqual(plain(samePly.pv),plain(fresh.pv));assert.equal(samePly.nodes,1);assert(memory.stats().reused>reusedBefore,'the identical ply/horizon still reuses a completed result');
 assert.equal(Memory.fromStored(Memory.toStored(-9999995,3,10000000),1,10000000),-9999997);
 // Scope and horizon mismatches must not use the stored exact result.
 memory.begin();const other=context.createReaderEngine(15,force.board,{strategy:false,firstPlayer:2,searchMemory:memory}).probe(force.p,3,7);

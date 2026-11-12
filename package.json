@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.47",
+  "version": "5.18.48",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -22,7 +22,7 @@
     "test:recommendation-policy": "node test/recommendation-policy.cjs",
     "test:worker-lifecycle": "node test/worker-lifecycle.cjs && node test/ponder-lifecycle.cjs",
     "test:gpu": "node test/local-gpu.cjs",
-    "test:strategy": "node test/strategy-manifest.cjs && node test/strategy-manifest-replay.cjs && node test/strategy-engine.cjs && node test/strategy-preparation.cjs && node test/strategy-context.cjs && node test/strategy-policy.cjs && node test/strategy-proof.cjs",
+    "test:strategy": "node test/strategy-manifest.cjs && node test/strategy-manifest-replay.cjs && node test/strategy-engine.cjs && node test/strategy-distant-connections.cjs && node test/strategy-preparation.cjs && node test/strategy-context.cjs && node test/strategy-policy.cjs && node test/strategy-proof.cjs",
     "verify:strategy": "node tools/strategy/compare.cjs",
     "arena:strategy": "node tools/strategy/arena.cjs",
     "test:strategy-ui": "node tools/strategy-ui-check.cjs",
@@ -91,7 +91,8 @@
     "test:opening-late263:integration": "node test/opening-late263-runtime.cjs",
     "test:opening-late263:ui": "node test/opening-late263-ui.cjs",
     "test:opening-derived264:integration": "node test/opening-derived264-runtime.cjs",
-    "test:opening-derived264:ui": "node test/opening-derived264-ui.cjs"
+    "test:opening-derived264:ui": "node test/opening-derived264-ui.cjs",
+    "test:haengma": "node test/strategy-distant-connections.cjs && node test/opening-connections.cjs && node test/strategy-preparation.cjs"
   },
   "engines": {
     "node": ">=22.13"

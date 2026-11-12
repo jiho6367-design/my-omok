@@ -15,7 +15,8 @@ for(const p of [1,2]){
 }
 console.log('PASS optional first-player constructor/configure, alias and unknown context');
 
-const app=fs.readFileSync('src/app.js','utf8'),rebuild=app.slice(app.indexOf('function rebuild('),app.indexOf('function render('));
+// Replay uses the shipped retained-policy helper as well as rebuild().
+const app=fs.readFileSync('src/app.js','utf8'),rebuild=app.slice(app.indexOf('function retainedStrategyPin('),app.indexOf('function render('));
 let configured;
 const replay={g:{first:2,rules:{fivePriority:true}},b:blank(),turn:1,winCells:[],cursor:2,
  events:[{type:'timeout',p:2,i:null},{type:'move',p:1,i:112}],

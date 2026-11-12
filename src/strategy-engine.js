@@ -4,7 +4,7 @@
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-opening-junction-1';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-distant-junction-1';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -13,7 +13,7 @@ function createStrategyEngine(N,rules,options={}){
   windows.push({axis,cells:Array.from({length:5},(_,k)=>(y+k*dy)*N+x+k*dx),pre:inside(x-dx,y-dy)?(y-dy)*N+x-dx:-1,post:inside(x+5*dx,y+5*dy)?(y+5*dy)*N+x+5*dx:-1});
  }geometry.set(N,windows);}
  if(!windows.byPoint){windows.byPoint=Array.from({length:N*N},()=>[]);for(const w of windows)for(const i of w.cells)windows.byPoint[i].push(w);}
- const structures=new Map(),features=new Map(),connections=new Map();
+ const structures=new Map(),features=new Map(),connections=new Map(),distantPoints=new Map();
  let workLimit=Infinity,workMs=0,skipped=0;
  const noConnection=()=>({connection:0,pairAxes:[],pairExtensions:[],pairAnchors:[],pairEvidence:[]});
  const empty=i=>({i,legal:true,attack:0,cut:0,dual:0,score:0,axes:[],anchors:[],legalExtensions:[],invalidExtensions:[],invalidThreeAxes:[],usableThreeAxes:[],...noConnection(),forcing:false,tentative:true,incomplete:true});
@@ -24,19 +24,38 @@ function createStrategyEngine(N,rules,options={}){
  const connectionValue=anchors=>Math.max(1,Math.min(32,32-4*anchors.reduce((n,a)=>n+distance(a.i,a.anchor)-1,0)));
  // An opening junction can join two separate single-stone axes even though
  // no existing two-stone window contains the candidate. Keep this hint apart
- // from attack/cut scores and forcing thresholds. Dense middle-game ordering
- // retains its existing policy; 12 stones matches the ordinary early window.
+ // from attack/cut scores and forcing thresholds. After the early window,
+ // retain only separated supports: an adjacent own stone already has the
+ // ordinary local nomination. These hints alone never add score or proof.
+ const hasAdjacentOwn=(board,i,p)=>{const x=i%N,y=i/N|0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if((dx||dy)&&inside(x+dx,y+dy)&&board[(y+dy)*N+x+dx]===p)return true;return false;};
  function connectionHints(board,p){
-  const key=board.join('')+'|'+p,cached=connections.get(key);if(cached)return cached;
-  const count=board.reduce((n,v)=>n+!!v,0);if(count>12||board.filter(v=>v===p).length<2){const empty=new Map();if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,empty);return empty;}
-  const points=new Map();
-  for(const w of windows){if(board[w.pre]===p||board[w.post]===p)continue;let anchor=-1,blocked=false;
-   for(const j of w.cells){if(board[j]===3-p){blocked=true;break;}if(board[j]===p){if(anchor!==-1){blocked=true;break;}anchor=j;}}
-   if(blocked||anchor===-1)continue;
-   for(const i of w.cells)if(!board[i]){let point=points.get(i);if(!point){point={i,anchors:new Map()};points.set(i,point);}const previous=point.anchors.get(w.axis);if(previous===undefined||distance(i,anchor)<distance(i,previous))point.anchors.set(w.axis,anchor);}
+  const position=board.join(''),key=position+'|'+p,cached=connections.get(key);if(cached)return cached;
+  const counts=[0,0,0],maps=[new Map(),new Map()];let count=0;for(const v of board){count+=!!v;if(v===1||v===2)counts[v]++;}
+  // A usable single-anchor window contains exactly one coloured stone.
+  // Build both colours in the same window order; the per-colour insertion
+  // and tie order are unchanged, as are the bounded position caches.
+  if(counts[1]>=2||counts[2]>=2)for(const w of windows){let colour=0,anchor=-1,blocked=false;
+   for(const j of w.cells)if(board[j]===1||board[j]===2){if(anchor!==-1){blocked=true;break;}colour=board[j];anchor=j;}
+   if(blocked||anchor===-1||counts[colour]<2||board[w.pre]===colour||board[w.post]===colour)continue;
+   const points=maps[colour-1];for(const i of w.cells)if(!board[i]){let point=points.get(i);if(!point){point={i,anchors:new Map()};points.set(i,point);}const previous=point.anchors.get(w.axis);if(previous===undefined||distance(i,anchor)<distance(i,previous))point.anchors.set(w.axis,anchor);}
   }
-  for(const [i,point]of points){if(point.anchors.size<2){points.delete(i);continue;}point.pairAxes=[...point.anchors.keys()];point.connection=connectionValue([...point.anchors.values()].map(anchor=>({i,anchor})));}
-  if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(key,points);return points;
+  for(const colour of [1,2]){const points=maps[colour-1];
+   for(const [i,point]of points){if(point.anchors.size<2||count>12&&hasAdjacentOwn(board,i,colour)){points.delete(i);continue;}point.pairAxes=[...point.anchors.keys()];point.connection=connectionValue([...point.anchors.values()].map(anchor=>({i,anchor})));}
+   const colourKey=position+'|'+colour;if(!connections.has(colourKey)){if(connections.size>=128)connections.delete(connections.keys().next().value);connections.set(colourKey,points);}
+  }return maps[p-1];
+ }
+ // A cross-axis pair may be farther than the ordinary two-cell pool and
+ // still lack an existing two-stone window. Nominate at most four geometric
+ // representatives per colour. Full legality and future paths are checked
+ // by move()/connectionFeature before a representative receives a quota.
+ // Nomination depends only on this board, never on elapsed work or budgets.
+ function distantConnectionPoints(board,p){
+  const key=board.join('')+'|'+p,cached=distantPoints.get(key);if(cached)return cached;
+  const hints=connectionHints(board,p);if(!hints.size){const empty=[];if(distantPoints.size>=128)distantPoints.delete(distantPoints.keys().next().value);distantPoints.set(key,empty);return empty;}
+  const nearby=new Set();for(let j=0;j<board.length;j++)if(board[j]){const x=j%N,y=j/N|0;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)if(inside(x+dx,y+dy))nearby.add((y+dy)*N+x+dx);}
+  const center=(N-1)/2,central=i=>Math.abs(i%N-center)+Math.abs((i/N|0)-center);
+  const rows=[...hints].filter(([i])=>!nearby.has(i)).sort(([a,x],[b,y])=>y.connection-x.connection||y.pairAxes.length-x.pairAxes.length||central(a)-central(b)||a-b).slice(0,4).map(([i])=>i);
+  if(distantPoints.size>=128)distantPoints.delete(distantPoints.keys().next().value);distantPoints.set(key,rows);return rows;
  }
  function connectionFeature(board,i,p,hint){
   if(!hint)return noConnection();const pairEvidence=[];board[i]=p;
@@ -108,7 +127,7 @@ function createStrategyEngine(N,rules,options={}){
   return keep(structures,key,{points,score,components:components.size,commonAnchors,axes:[...new Set(nodes.map(n=>n.axis))]});
  }
  function move(board,i,p,shape,pointData){
-  const key=board.join('')+'|'+p+'|'+i,cached=features.get(key);if(cached)return cached;
+  const lazyConnections=pointData?.lazyConnections===true,key=board.join('')+'|'+p+'|'+i+'|'+(lazyConnections?'lazy':'full'),cached=features.get(key);if(cached)return cached;
   if(!Number.isInteger(i)||board[i]!==0)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
   shape=shape||rules.inspect(board,i,p);
   if(!shape.legal)return {i,legal:false,score:0,attack:0,cut:0,dual:0,axes:[],legalExtensions:[],invalidExtensions:[],...noConnection()};
@@ -123,7 +142,7 @@ function createStrategyEngine(N,rules,options={}){
   const axes=[...new Set([...(own?.axes||[]),...(shape.fours||[]),...usableThreeAxes])];
   const attack=(own?.score||0)+(shape.fours?.length||0)*900+usableThreeAxes.length*180+Math.max(0,axes.length-1)*45;
   const cut=enemy?.score||0,dual=attack&&cut?Math.min(attack,cut):0,
-    connection=shape.win?.length||shape.fours?.length?noConnection():connectionFeature(board,i,p,connectionHints(board,p).get(i));
+    connection=shape.win?.length||shape.fours?.length||lazyConnections&&board.reduce((n,v)=>n+!!v,0)>12?noConnection():connectionFeature(board,i,p,connectionHints(board,p).get(i));
   // Opening order only breaks quiet strategic preferences. It never fixes a
   // colour to permanent defence and never participates in the position value.
   const early=board.reduce((n,v)=>n+!!v,0)<8,opening=early&&firstPlayer!=null?(firstPlayer===p?Math.min(20,attack*.08):Math.min(20,(cut+dual)*.08)):0;
@@ -139,13 +158,20 @@ function createStrategyEngine(N,rules,options={}){
  // the full legal-extension descriptor before they are added to the search.
  function makeHint(i,own,enemy){const attack=own?.score||0,cut=enemy?.score||0;return {i,attack,cut,dual:attack&&cut?Math.min(attack,cut):0,score:0,axes:own?.axes||[],legalExtensions:[],usableThreeAxes:[],forcing:false,tentative:true};}
  function hint(board,i,p){return makeHint(i,structure(board,p,false).points.get(i),structure(board,3-p,false).points.get(i));}
- function points(board,p){return [...new Set([...structure(board,p,false).points.keys(),...structure(board,3-p,false).points.keys()])];}
+ function points(board,p){return [...new Set([...structure(board,p,false).points.keys(),...structure(board,3-p,false).points.keys(),...distantConnectionPoints(board,p),...distantConnectionPoints(board,3-p)])];}
  function appendConnections(board,p,rows,out,seen,capacity,pointData){
   if(capacity<12||out.length>=capacity)return;const hints=connectionHints(board,p);let added=0,attempts=0;
-  for(const m of rows.filter(m=>hints.has(m.i)).slice().sort((a,b)=>hints.get(b.i).connection-hints.get(a.i).connection||hints.get(b.i).pairAxes.length-hints.get(a.i).pairAxes.length||(b.score??b.s??0)-(a.score??a.s??0))){
-   if(added>=2||out.length>=capacity||attempts>=8)break;if(seen.has(m.i))continue;attempts++;
-   const feature=move(board,m.i,p,m.a,pointData);if(feature.legal&&feature.connection>0&&feature.pairAxes.length>=2){seen.add(m.i);out.push({...m,strategy:feature});added++;}
-  }
+  const distant=new Set(distantConnectionPoints(board,p)),ranked=rows.filter(m=>hints.has(m.i)).slice().sort((a,b)=>hints.get(b.i).connection-hints.get(a.i).connection||hints.get(b.i).pairAxes.length-hints.get(a.i).pairAxes.length||(b.score??b.s??0)-(a.score??a.s??0)),remote=ranked.filter(m=>distant.has(m.i));
+  // One distant representative may use an existing connection slot; retain
+  // the second slot for the normal ordering. Neither width nor forcing
+  // priority grows, and a blocked/forbidden path cannot claim this slot.
+  const attempted=new Set(),append=m=>{
+   if(added>=2||out.length>=capacity||attempts>=8||seen.has(m.i)||attempted.has(m.i))return false;attempts++;attempted.add(m.i);
+   const feature=move(board,m.i,p,m.a,pointData);if(!feature.legal||feature.connection<=0||feature.pairAxes.length<2)return false;
+   seen.add(m.i);out.push({...m,strategy:feature});added++;return true;
+  };
+  for(const m of remote){if(append(m))break;if(out.length>=capacity||attempts>=8)break;}
+  for(const m of ranked){append(m);if(added>=2||out.length>=capacity||attempts>=8)break;}
  }
  // A close three-axis pair can prepare open fours in several directions.
  // These consecutive own additions are potential, never a forcing proof.
@@ -339,7 +365,7 @@ function createStrategyEngine(N,rules,options={}){
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.
   searchSelect:(board,p,ranked,width,reserve=6,forcing=new Set(),state,filter)=>select(board,p,ranked,width,reserve,forcing,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points,state,filter}),
-  searchPoints:(board,p)=>[...new Set([...structure(board,p,false,true).points.keys(),...structure(board,3-p,false,true).points.keys()])],
+  searchPoints:(board,p)=>[...new Set([...structure(board,p,false,true).points.keys(),...structure(board,3-p,false,true).points.keys(),...distantConnectionPoints(board,p),...distantConnectionPoints(board,3-p)])],
   searchMove:(board,i,p)=>move(board,i,p,undefined,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points}),
   evaluate:measured(evaluate,()=>0),positionValue:evaluate,
   probe:measured(probe,(board,p)=>({...lightProfile(board,p),checks:[],complete:false,ms:0})),

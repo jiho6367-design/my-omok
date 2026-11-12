@@ -8,7 +8,7 @@ function createEngine(options={}) {
     if(!Array.isArray(value)||value.length>225)return null;const history=Array.from(value);
     return history.every(i=>Number.isInteger(i)&&i>=0&&i<225)&&new Set(history).size===history.length?history:null;
   };
-  const strategyVersion='initiative-3-opening-junction-1';
+  const strategyVersion='initiative-3-distant-junction-1';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
