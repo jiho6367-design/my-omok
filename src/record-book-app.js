@@ -20,7 +20,7 @@
  for(const record of valid(seeds)){
   const marker='record-book-seed:'+record.id;if(db.appliedUpdates.includes(marker))continue;
   if(db.recordBook.length<128&&!db.recordBook.some(r=>r.id===record.id))db.recordBook.push(copy(record));
-  const game=asGame(record);if(db.games.length<300&&!db.games.some(g=>g.id===game.id))db.games.push(game);
+  const game=asGame(record);if(!db.games.some(g=>g.id===game.id))db.games.push(game);
   db.appliedUpdates.push(marker);changed=true;
  }
  const row=document.createElement('div');row.className='row';row.id='recordBookControls';
@@ -31,14 +31,14 @@
  toggle.onchange=()=>{db.recordBookEnabled=toggle.checked;saveAndAnalyze();};
  $('file').onchange=async()=>{
   try{
-   const file=$('file').files[0];if(!file)return;if(file.size>10000000)throw Error('10MB 이하 JSON만 지원합니다');
+   const file=$('file').files[0];if(!file)return;if(file.size>200*1024*1024)throw Error('200MiB 이하 JSON만 지원합니다');
    const incoming=validate(JSON.parse(await file.text())),imported=incoming.recordBook===undefined?[]:incoming.recordBook;
    const checked=OmokRecordBook.create(imported,{inspect:E.inspect});if(checked.errors.length)throw Error('잘못된 승리 기보: '+checked.errors[0].message);
    const games=[...db.games],lessons=[...db.lessons],records=[...db.recordBook];
    for(const game of incoming.games)if(!games.some(g=>g.id===game.id))games.push(game);
    for(const lesson of incoming.lessons)if(!lessons.some(l=>l.key===lesson.key&&l.bad===lesson.bad&&l.good===lesson.good))lessons.push(lesson);
    for(const record of checked.records)if(!records.some(r=>r.id===record.id))records.push(copy(record));
-   if(games.length>300||lessons.length>2000||records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
+   if(records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
    db.games=games;db.lessons=lessons;db.recordBook=records;
    if(incoming.recordBookModeVersion===2&&typeof incoming.recordBookEnabled==='boolean')db.recordBookEnabled=incoming.recordBookEnabled;
    toggle.checked=db.recordBookEnabled;saveAndAnalyze();msg('기보·학습 기록·후공 승리 수순을 가져왔습니다. 기존 기록은 유지했습니다.');
@@ -59,7 +59,7 @@
   if(!db.recordBook.length)paragraph(body,'등록한 기보가 없습니다. 후공이 5목으로 이긴 기보에서 「이 기보 등록」을 누르세요.');
   for(const record of db.recordBook){
    const item=document.createElement('div');item.className='entry';body.append(item);paragraph(item,record.title+' · '+record.moves.length+'수');
-   button(item,'기보 열기',()=>{const game=asGame(record);if(!db.games.some(g=>g.id===game.id)){if(db.games.length>=300){msg('저장 기보가 가득 찼습니다.');return;}db.games.push(game);}persist();$('modal').close();loadGame(db.games.find(g=>g.id===game.id));});
+   button(item,'기보 열기',()=>{const game=asGame(record);if(!db.games.some(g=>g.id===game.id)){db.games.push(game);}persist();$('modal').close();loadGame(db.games.find(g=>g.id===game.id));});
    button(item,'수순 삭제',()=>{db.recordBook=db.recordBook.filter(r=>r.id!==record.id);saveAndAnalyze();item.remove();});
   }
  }).id='showRecordBook';

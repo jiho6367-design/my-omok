@@ -18,7 +18,7 @@
 
 <main class="layout"><section><div class="card"><div class="boardhead"><div class="turn"><span id="turnSprite"></span><div><strong id="turnName">게임 준비</strong><div class="muted" id="turnInfo">돌와 선공을 선택하세요</div></div></div><div><span id="timer" class="timer">40</span><small> 초</small></div></div><div class="bar"><div id="timebar" style="width:100%"></div></div><div class="boardbox"><div class="axisx" id="axisx"></div><div class="axisy" id="axisy"></div><div id="board" class="board" aria-label="15 곱하기 15 오목판"></div></div><div class="toolbar"><button id="new" class="primary">새 게임</button><button id="undo">↶ 한 턴 무르기</button><button id="redo">↷ 다시 진행</button><button id="pause">일시 정지</button><button id="hint" aria-pressed="true">추천 켜짐</button><button id="review">복기</button></div><div id="message" class="message" role="status" aria-live="polite"></div><div id="reviewPanel" class="review"><div class="row"><button id="first">처음</button><button id="prev">이전</button><button id="next">다음</button><button id="last">끝</button><button id="play">▶ 재생</button><select id="speed" aria-label="복기 속도"><option value="1200">보통</option><option value="600">빠르게</option><option value="2400">느리게</option></select><button id="leaveReview">복기 나가기</button></div><p id="reviewInfo"></p><button id="rethink">이 국면 깊이 분석</button></div></div><div class="foot">정확한 5목 승리 · 양측 3×3 금지 · 4×4 허용 · 6목 이상 비승리<br>사용자 한 명이 양쪽 돌을 직접 놓습니다. 분석기는 자동으로 착수하지 않습니다.</div></section>
 <aside class="sidebar"><section class="card next-move-card" id="nextMovePanel" aria-labelledby="nextMoveHeading"><div class="row between"><h2 id="nextMoveHeading">다음 한 수</h2><span class="analysis-state" id="analysisState" data-mode="ready" aria-live="polite">분석 준비</span></div><p class="analysis-detail" id="analysisDetail" aria-live="polite">착수 후 자동으로 추천을 계산합니다.</p><div class="rec" id="recommend">—</div><p id="reason">시작하면 합법적인 다음 수를 분석합니다.</p><p class="muted" id="metrics">제한 탐색 · 승리 보장 아님</p><p class="muted" id="sequence"></p><p id="memoryWarning" class="message"></p><details><summary>분석 시간</summary><label>빠른 추천 후 추가 탐색<select id="budget"><option value="900">빠르게 · 약 1초</option><option value="2800">정밀하게 · 약 3초</option><option value="7000">깊게 · 약 7초</option></select></label><label>직접 설정 시간 (초)<input id="manualSeconds" type="number" min="0.9" max="25" step="0.1" value="1" disabled></label><p id="analysisSelection" class="muted"></p><p class="muted">즉시 승리·방어를 먼저 확인합니다. 4-3 위협도 상대의 대응을 탐색하되, 모든 국면의 필승을 보장하지는 않습니다.</p></details></section>
-<div class="card"><div class="row between"><h2>착수 기록</h2><span id="count" class="badge">0턴</span></div><div class="row"><button id="history">저장된 게임</button><button id="export">기록 내보내기</button><button id="import">가져오기</button></div><input type="file" id="file" accept=".json,application/json" hidden><div id="log" class="log"></div><button id="copy" style="margin-top:10px">기보 텍스트</button></div>
+<div class="card"><div class="row between"><h2>착수 기록</h2><span id="count" class="badge">0턴</span></div><div class="row"><button id="history">저장된 게임</button><button id="export">기록 내보내기</button><button id="import">가져오기</button></div><input type="file" id="file" accept=".json,application/json" hidden><p id="recordSaveStatus" class="muted" role="status" aria-live="polite" data-state="loading">저장된 게임 불러오는 중…</p><div id="log" class="log"></div><button id="copy" style="margin-top:10px">기보 텍스트</button></div>
 <div class="card"><h2>실수를 다음 실력으로</h2><p class="muted">복기에서 위험했던 수와 대안을 저장하세요. 같은 국면의 회전·대칭도 기억합니다.</p><div class="toolbar"><button id="postmortem">패배 복기 분석</button><button id="learn">현재 수를 학습 기록에</button><button id="lessons">패배 방지 기록</button></div><details><summary>규칙과 저장 안내</summary><p>열린 3은 한 수로 양끝이 빈 연속 4가 되는 세 돌입니다. 중간 한 칸이 빈 형태도 포함합니다. 서로 다른 2개 축에 동시에 만들면 양쪽 모두 3×3 금지입니다. 정확한 5목 완성은 우선 허용합니다.</p><p>40초가 지나면 돌 없이 턴이 넘어갑니다. 잘못된 착수는 시간을 초기화하지 않습니다. 설정·복기 중에는 정지하며, 무르기·다시 진행은 40초를 부여합니다. 앱을 다시 열면 일시 정지 상태로 복원합니다.</p><p>기록은 이 브라우저에 저장됩니다. 파일 이동·다른 브라우저·브라우저 데이터 삭제 시 접근하지 못할 수 있으므로 JSON으로 백업하세요. 패배 기록은 유사한 전체 판 상태의 참고 자료이며 자동으로 알고리즘 소스를 바꾸지 않습니다.</p></details></div></aside></main></div>
 <dialog id="setup"><h2>새로운 한 판</h2><p class="muted">상대 돌까지 직접 입력하며 나의 다음 수를 연구합니다.</p><label>내 돌<select id="my"><option value="2">백돌</option><option value="1">흑돌</option></select></label><label>누가 먼저 둘까요?<select id="starter"><option value="me">내가 먼저</option><option value="other">상대가 먼저</option></select></label><p class="muted">선후공에 관계없이 두 돌의 규칙은 같습니다.</p><div class="modal-actions"><button id="cancelSetup">취소</button><button id="start" class="primary">게임 시작</button></div></dialog>
 <dialog id="modal"><h2 id="modalTitle"></h2><div id="modalBody"></div><div class="modal-actions"><button id="closeModal">닫기</button></div></dialog>
@@ -8370,7 +8370,7 @@ const OmokBalancedOpeningChoices=(()=>{
 })();
 
 </script>
-<script>// Shared mode and turn-clock policy. Existing version-1 preferences stay valid.
+<script id="appSource" type="text/plain">// Shared mode and turn-clock policy. Existing version-1 preferences stay valid.
 (function(root){
   const KEY='omok-analysis-settings',COMPUTE_KEY='omok-compute-mode';
   const MIN_MS=900,MAX_MS=25000,labels={fast:'아주 빠르게 · 약 1초',auto:'자동 · 최대 15초',deep:'심층 · 최대 25초',custom:'직접 설정'};
@@ -8553,9 +8553,17 @@ if(typeof module!=='undefined')module.exports=OmokParallel;
 const E=createEngine(),$=id=>document.getElementById(id),names=["","흑돌","백돌"],SOURCE=null,STORAGE_KEY="my-omok-v1";
 const sprite=p=>{let a=document.createElement('span');a.className='sprite s'+p;a.setAttribute('role','img');a.setAttribute('aria-label',names[p]);if(SOURCE){let im=new Image();im.src=SOURCE;im.alt=names[p];a.append(im);}return a;};
 let db={version:1,games:[],lessons:[]},g=null,b=Array(225).fill(0),turn=2,events=[],cursor=0,paused=true,remaining=40000,deadline=0,rec=null,worker=null,job=0,reviewing=false,autoplay=null,hints=true,winCells=[],resumeAfterModal=false,analysisBefore=null;
-try{let saved=localStorage.getItem(STORAGE_KEY);if(saved)db=validate(JSON.parse(saved));}catch(e){$('message').textContent='저장 기록을 읽지 못했습니다. JSON 백업을 가져올 수 있습니다.';}
-function persist(){try{if(g){db.activeId=g.id;let saved={...g,events,cursor:reviewing?analysisBefore.cursor:cursor,remaining:reviewing?analysisBefore.remaining:(paused?remaining:Math.max(0,deadline-Date.now())),result:reviewing?analysisBefore.result:g.result};let n=db.games.findIndex(a=>a.id===g.id);if(n<0)db.games.unshift(saved);else db.games[n]=saved;}localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){msg('브라우저 저장 공간을 사용할 수 없습니다. JSON을 내보내 주세요.');}}
-function validate(d){if(!d||d.version!==1||!Array.isArray(d.games)||!Array.isArray(d.lessons)||d.games.length>300||d.lessons.length>2000)throw Error('지원하지 않는 기록 형식');for(let x of d.games){if(typeof x.id!=='string'||x.id.length>100||![1,2].includes(x.first)||![1,2].includes(x.me)||!Array.isArray(x.events)||x.events.length>3000)throw Error('게임 정보 오류');const ruleEngine=createEngine(x.rules||{});let board=Array(225).fill(0),p=x.first,ended=false;for(let v of x.events){if(ended||v.p!==p||!['move','timeout'].includes(v.type))throw Error('턴 순서 오류');if(v.type==='move'){let s=ruleEngine.inspect(board,v.i,p);if(!s.legal)throw Error('불법 착수가 포함된 기보');board[v.i]=p;if(s.win.length)ended=true;}p=3-p;}if(!Number.isInteger(x.cursor)||x.cursor<0||x.cursor>x.events.length)throw Error('기보 위치 오류');}for(let l of d.lessons)if(typeof l.key!=='string'||!/^[012]{225}$/.test(l.key)||!Number.isInteger(l.bad)||l.bad<0||l.bad>=225||!Number.isInteger(l.good)||l.good<0||l.good>=225)throw Error('학습 데이터 오류');return d;}
+try{const store=globalThis.omokGamePersistence,saved=store?store.initial:JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved)db=restoreSavedData(saved);}catch(e){$('message').textContent='저장 기록을 읽지 못했습니다. 원본을 유지합니다.';globalThis.omokGamePersistence?.reportError?.(e);}
+function persist(){try{if(g){db.activeId=g.id;let saved={...g,events,cursor:reviewing?analysisBefore.cursor:cursor,remaining:reviewing?analysisBefore.remaining:(paused?remaining:Math.max(0,deadline-Date.now())),result:reviewing?analysisBefore.result:g.result};let n=db.games.findIndex(a=>a.id===g.id);if(n<0)db.games.unshift(saved);else db.games[n]=saved;}const store=globalThis.omokGamePersistence;if(store){store.save(db).catch(()=>{});}else localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(e){globalThis.omokGamePersistence?.reportError?.(e);msg('브라우저 저장 공간을 사용할 수 없습니다. JSON을 내보내 주세요.');}}
+function validate(d){if(!d||d.version!==1||!Array.isArray(d.games)||!Array.isArray(d.lessons))throw Error('지원하지 않는 기록 형식');for(let x of d.games){if(typeof x.id!=='string'||x.id.length>100||![1,2].includes(x.first)||![1,2].includes(x.me)||!Array.isArray(x.events)||x.events.length>3000)throw Error('게임 정보 오류');const ruleEngine=createEngine(x.rules||{});let board=Array(225).fill(0),p=x.first,ended=false;for(let v of x.events){if(ended||v.p!==p||!['move','timeout'].includes(v.type))throw Error('턴 순서 오류');if(v.type==='move'){let s=ruleEngine.inspect(board,v.i,p);if(!s.legal)throw Error('불법 착수가 포함된 기보');board[v.i]=p;if(s.win.length)ended=true;}p=3-p;}if(!Number.isInteger(x.cursor)||x.cursor<0||x.cursor>x.events.length)throw Error('기보 위치 오류');}for(let l of d.lessons)if(typeof l.key!=='string'||!/^[012]{225}$/.test(l.key)||!Number.isInteger(l.bad)||l.bad<0||l.bad>=225||!Number.isInteger(l.good)||l.good<0||l.good>=225)throw Error('학습 데이터 오류');return d;}
+function restoreSavedData(data){
+ if(!data||data.version!==1||!Array.isArray(data.games)||!Array.isArray(data.lessons))throw Error('지원하지 않는 기록 형식');
+ const restored={...data,games:[],lessons:[],unreadableGames:[...(Array.isArray(data.unreadableGames)?data.unreadableGames:[])],unreadableLessons:[...(Array.isArray(data.unreadableLessons)?data.unreadableLessons:[])]};
+ for(const game of data.games){try{validate({version:1,games:[game],lessons:[]});restored.games.push(game);}catch(error){restored.unreadableGames.push({game,error:String(error)});}}
+ for(const lesson of data.lessons){try{validate({version:1,games:[],lessons:[lesson]});restored.lessons.push(lesson);}catch(error){restored.unreadableLessons.push({lesson,error:String(error)});}}
+ if(restored.unreadableGames.length||restored.unreadableLessons.length){const note=document.createElement('p');note.id='recordRecoveryNotice';note.className='muted';note.textContent='읽지 못한 일부 기록은 원본을 별도로 보존했습니다. 정상 기보는 계속 사용할 수 있습니다.';$('recordSaveStatus')?.after(note);}
+ return restored;
+}
 function msg(t){$('message').textContent=t;}
 function stopWorker(){job++;if(worker){worker.terminate();worker=null;}}
 function freeze(){if(!paused)remaining=Math.max(0,deadline-Date.now());paused=true;}
@@ -8601,7 +8609,7 @@ function leaveReview(){clearInterval(autoplay);autoplay=null;$('play').textConte
 function openModal(title){freeze();stopWorker();$('modalTitle').textContent=title;$('modalBody').replaceChildren();$('modal').showModal();render();return $('modalBody');}
 function paragraph(parent,t){let p=document.createElement('p');p.textContent=t;parent.append(p);return p;}
 function button(parent,t,fn){let z=document.createElement('button');z.textContent=t;z.onclick=fn;parent.append(z);return z;}
-function loadGame(x){stopWorker();clearInterval(autoplay);autoplay=null;g=JSON.parse(JSON.stringify(x));events=g.events;cursor=g.cursor;remaining=Number.isFinite(g.remaining)?Math.max(0,Math.min(40000,g.remaining)):40000;paused=true;reviewing=false;rec=null;rebuild();render();analyze();}
+function loadGame(x){stopWorker();clearInterval(autoplay);autoplay=null;g=JSON.parse(JSON.stringify(x));events=g.events;cursor=g.cursor;remaining=Number.isFinite(g.remaining)?Math.max(0,Math.min(40000,g.remaining)):40000;paused=true;reviewing=false;rec=null;rebuild();render();persist();analyze();}
 function exportDB(){persist();let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='omok-records-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);msg('JSON 기록을 내보냈습니다.');}
 function learn(){if(!g||!cursor){msg('복기에서 기록할 수를 선택하세요.');return;}let ev=events[cursor-1];if(ev.type!=='move'){msg('시간 초과 대신 실제 착수 턴을 선택하세요.');return;}let pre=Array(225).fill(0);for(let v of events.slice(0,cursor-1))if(v.type==='move')pre[v.i]=v.p;let can=E.canonical(pre,ev.p);let body=openModal('패배 방지 기록 추가');paragraph(body,`${cursor}턴 ${E.coord(ev.i)}를 위험 수로 기록합니다. 검증한 대안을 입력하세요.`);let input=document.createElement('input');input.placeholder='대안 좌표 예: H8';input.value=ev.review?.i!=null?E.coord(ev.review.i):ev.rec?.i!=null?E.coord(ev.rec.i):'';input.setAttribute('aria-label','안전한 대안 좌표');body.append(input);button(body,'대안 검증 후 저장',()=>{let m=/^([A-O])(1[0-5]|[1-9])$/i.exec(input.value.trim()),i=m?(+m[2]-1)*15+m[1].toUpperCase().charCodeAt(0)-65:-1;if(i===ev.i||!E.inspect(pre,i,ev.p).legal){paragraph(body,'실제 수와 다른 합법적인 좌표를 입력하세요.');return;}db.lessons.push({key:can.key,bad:E.transformed(ev.i,can.t),good:E.transformed(i,can.t),game:g.id,turn:cursor,date:new Date().toISOString(),type:ev.annotation||'사용자 복기',verified:false});persist();$('modal').close();msg('패배 방지 기록을 저장했습니다. 동일 국면에서 다시 탐색해 참고합니다.');});}
 async function postmortem(){
@@ -8637,9 +8645,9 @@ $('new').onclick=()=>{freeze();stopWorker();$('setup').showModal();render();};$(
 $('pause').onclick=()=>{if(reviewing||g?.result)return;paused?resume():freeze();render();persist();};$('undo').onclick=()=>navigate(cursor-1);$('redo').onclick=()=>navigate(cursor+1);$('hint').onclick=()=>{hints=!hints;render();};$('review').onclick=()=>enterReview();$('leaveReview').onclick=leaveReview;$('first').onclick=()=>navigate(0);$('prev').onclick=()=>navigate(cursor-1);$('next').onclick=()=>navigate(cursor+1);$('last').onclick=()=>navigate(events.length);$('rethink').onclick=()=>analyze(7000);$('budget').onchange=()=>analyze();$('play').onclick=()=>{if(autoplay){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';return;}if(cursor===events.length)navigate(0);$('play').textContent='■ 정지';autoplay=setInterval(()=>{if(cursor>=events.length){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';}else navigate(cursor+1);},+$('speed').value);};
 $('closeModal').onclick=()=>$('modal').close();$('modal').addEventListener('close',()=>{render();if(g&&!g.result&&!reviewing)analyze();});$('history').onclick=()=>{persist();let body=openModal('저장된 게임');if(!db.games.length)paragraph(body,'저장된 게임이 없습니다.');for(let x of db.games){let item=document.createElement('div');item.className='entry';paragraph(item,new Date(x.date).toLocaleString()+' · '+x.events.length+'턴');button(item,'불러오기',()=>{loadGame(x);$('modal').close();});button(item,'삭제',()=>{if(confirm('이 게임 기록을 삭제할까요? JSON 백업이 없다면 복구할 수 없습니다.')){db.games=db.games.filter(a=>a.id!==x.id);if(g?.id===x.id){g=null;events=[];cursor=0;b.fill(0);paused=true;rec=null;}persist();item.remove();render();}});body.append(item);}};
 $('lessons').onclick=()=>{let body=openModal('패배 방지 기록');paragraph(body,db.lessons.length+'개 · 대칭/회전 포함 전체 판 일치 방식');for(let l of db.lessons){let item=document.createElement('div');item.className='entry';paragraph(item,`${l.turn}턴 · ${l.type} · ${new Date(l.date).toLocaleDateString()}`);button(item,'원본 기보',()=>{let x=db.games.find(a=>a.id===l.game);if(x){loadGame(x);$('modal').close();enterReview(l.turn);}else paragraph(item,'원본 기보가 삭제되었습니다.');});button(item,'삭제',()=>{if(confirm('이 학습 기록을 삭제할까요?')){db.lessons=db.lessons.filter(a=>a!==l);persist();item.remove();}});body.append(item);}};
-$('export').onclick=exportDB;$('import').onclick=()=>{freeze();render();$('file').click();};$('file').onchange=async()=>{try{let f=$('file').files[0];if(!f)return;if(f.size>10000000)throw Error('10MB 이하 JSON만 지원합니다');let x=validate(JSON.parse(await f.text()));for(let a of x.games)if(!db.games.some(v=>v.id===a.id))db.games.push(a);for(let a of x.lessons)if(!db.lessons.some(v=>v.key===a.key&&v.bad===a.bad&&v.good===a.good))db.lessons.push(a);persist();msg('기록을 가져왔습니다. 기존 기록은 유지했습니다.');}catch(e){msg('가져오기 실패: '+e.message);}finally{$('file').value='';}};
+$('export').onclick=exportDB;$('import').onclick=()=>{freeze();render();$('file').click();};$('file').onchange=async()=>{try{let f=$('file').files[0];if(!f)return;if(f.size>200*1024*1024)throw Error('200MiB 이하 JSON만 지원합니다');let x=validate(JSON.parse(await f.text()));for(let a of x.games)if(!db.games.some(v=>v.id===a.id))db.games.push(a);for(let a of x.lessons)if(!db.lessons.some(v=>v.key===a.key&&v.bad===a.bad&&v.good===a.good))db.lessons.push(a);persist();msg('기록을 가져왔습니다. 기존 기록은 유지했습니다.');}catch(e){msg('가져오기 실패: '+e.message);}finally{$('file').value='';}};
 $('copy').onclick=()=>{let body=openModal('기보 텍스트 · 선택하여 복사'),area=document.createElement('textarea');area.readOnly=true;area.value=events.map((e,k)=>`${k+1}. ${names[e.p]} ${e.type==='timeout'?'PASS(40초 초과)':E.coord(e.i)}`).join('\n');body.append(area);area.select();};$('learn').onclick=learn;$('postmortem').onclick=postmortem;
-setInterval(()=>{if(g&&g.timer!==false&&!paused&&!reviewing&&!g.result&&Date.now()>=deadline)commit(null);tickDisplay();},100);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!paused&&g&&g.timer!==false&&!g.result&&Date.now()>=deadline)commit(null);});window.addEventListener('beforeunload',()=>{freeze();persist();});
+setInterval(()=>{if(g&&g.timer!==false&&!paused&&!reviewing&&!g.result&&Date.now()>=deadline)commit(null);tickDisplay();},100);document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!paused&&g&&g.timer!==false&&!g.result&&Date.now()>=deadline)commit(null);});window.addEventListener('beforeunload',event=>{freeze();persist();if(globalThis.omokGamePersistence?.status().unprotected){event.preventDefault();event.returnValue='';}});
 // 상대 4-3 생성 시 바로 앞 수를 복기 대상으로 남긴다.
 const originalCommit=commit;commit=function(i,s){if(s?.fork43&&cursor&&events[cursor-1].type==='move'){events[cursor-1].annotation='4-3 방어 실패 · 다음 턴 상대 위협 형성';}originalCommit(i,s);};
 // 새 게임 시작 시 이전 게임의 분석 완료 배지가 잠깐 남지 않도록 한다.
@@ -8778,7 +8786,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.50';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.50');
+versionBadge.textContent='통합 v5.18.51';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.51');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -9266,7 +9274,7 @@ if(activeGame)loadGame(activeGame);else{render();$('setup').showModal();}
  for(const record of valid(seeds)){
   const marker='record-book-seed:'+record.id;if(db.appliedUpdates.includes(marker))continue;
   if(db.recordBook.length<128&&!db.recordBook.some(r=>r.id===record.id))db.recordBook.push(copy(record));
-  const game=asGame(record);if(db.games.length<300&&!db.games.some(g=>g.id===game.id))db.games.push(game);
+  const game=asGame(record);if(!db.games.some(g=>g.id===game.id))db.games.push(game);
   db.appliedUpdates.push(marker);changed=true;
  }
  const row=document.createElement('div');row.className='row';row.id='recordBookControls';
@@ -9277,14 +9285,14 @@ if(activeGame)loadGame(activeGame);else{render();$('setup').showModal();}
  toggle.onchange=()=>{db.recordBookEnabled=toggle.checked;saveAndAnalyze();};
  $('file').onchange=async()=>{
   try{
-   const file=$('file').files[0];if(!file)return;if(file.size>10000000)throw Error('10MB 이하 JSON만 지원합니다');
+   const file=$('file').files[0];if(!file)return;if(file.size>200*1024*1024)throw Error('200MiB 이하 JSON만 지원합니다');
    const incoming=validate(JSON.parse(await file.text())),imported=incoming.recordBook===undefined?[]:incoming.recordBook;
    const checked=OmokRecordBook.create(imported,{inspect:E.inspect});if(checked.errors.length)throw Error('잘못된 승리 기보: '+checked.errors[0].message);
    const games=[...db.games],lessons=[...db.lessons],records=[...db.recordBook];
    for(const game of incoming.games)if(!games.some(g=>g.id===game.id))games.push(game);
    for(const lesson of incoming.lessons)if(!lessons.some(l=>l.key===lesson.key&&l.bad===lesson.bad&&l.good===lesson.good))lessons.push(lesson);
    for(const record of checked.records)if(!records.some(r=>r.id===record.id))records.push(copy(record));
-   if(games.length>300||lessons.length>2000||records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
+   if(records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
    db.games=games;db.lessons=lessons;db.recordBook=records;
    if(incoming.recordBookModeVersion===2&&typeof incoming.recordBookEnabled==='boolean')db.recordBookEnabled=incoming.recordBookEnabled;
    toggle.checked=db.recordBookEnabled;saveAndAnalyze();msg('기보·학습 기록·후공 승리 수순을 가져왔습니다. 기존 기록은 유지했습니다.');
@@ -9305,7 +9313,7 @@ if(activeGame)loadGame(activeGame);else{render();$('setup').showModal();}
   if(!db.recordBook.length)paragraph(body,'등록한 기보가 없습니다. 후공이 5목으로 이긴 기보에서 「이 기보 등록」을 누르세요.');
   for(const record of db.recordBook){
    const item=document.createElement('div');item.className='entry';body.append(item);paragraph(item,record.title+' · '+record.moves.length+'수');
-   button(item,'기보 열기',()=>{const game=asGame(record);if(!db.games.some(g=>g.id===game.id)){if(db.games.length>=300){msg('저장 기보가 가득 찼습니다.');return;}db.games.push(game);}persist();$('modal').close();loadGame(db.games.find(g=>g.id===game.id));});
+   button(item,'기보 열기',()=>{const game=asGame(record);if(!db.games.some(g=>g.id===game.id)){db.games.push(game);}persist();$('modal').close();loadGame(db.games.find(g=>g.id===game.id));});
    button(item,'수순 삭제',()=>{db.recordBook=db.recordBook.filter(r=>r.id!==record.id);saveAndAnalyze();item.remove();});
   }
  }).id='showRecordBook';
@@ -9465,8 +9473,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.50 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.50');
+versionBadge.textContent='통합 v5.18.51 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.51');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){
@@ -9799,12 +9807,349 @@ const OmokLiveProofWorkerSource="'use strict';\nconst liveAssert=(v,m)=>{if(!v)t
  const panel=document.createElement('section');panel.className='opening-choice-panel';panel.id='liveProofChoices';panel.hidden=true;const choice=document.createElement('button');choice.type='button';panel.append(choice);$('board').closest('.boardbox').after(panel);choice.onclick=()=>{if(rec?.retainedLiveStrategy&&!paused)move(rec.i);};
  const baseRender=render;render=function(){baseRender();for(const cell of $('board').children)cell.classList.remove('live-proof-choice');const active=!!rec?.retainedLiveStrategy;panel.hidden=!active;if(g&&firstSelected()?.kind==='generic'&&turn===g.me){if($('openingChoices'))$('openingChoices').hidden=true;for(const cell of $('board').children)if(cell.dataset.openingChoice){delete cell.dataset.openingChoice;delete cell.dataset.openingFamily;cell.classList.remove('opening-choice');if(!b[Number(cell.dataset.i)]&&!cell.classList.contains('hint'))cell.replaceChildren();}}if(!active)return;const cell=$('board').children[rec.i];if(cell&&!b[rec.i]){cell.classList.add('live-proof-choice');cell.dataset.liveProofChoice=String(rec.i);cell.title='검증 수순 계속 · '+E.coord(rec.i);}choice.textContent='검증 수순 계속 · '+E.coord(rec.i);choice.disabled=paused||reviewing;$('metrics').textContent='원 증명의 조건부 전략 · 현재 조회 깊이 0 · 0노드 · 0ms';$('sequence').textContent=(cursor+1)+'수: '+E.coord(rec.i);strategyNote.textContent='첫 승리 증명을 유지하며 상대의 실제 응수별 분기를 조회합니다.'+(rec.durable?'':' · 저장 미완료: 현재 창에서 유지');};
  const baseExport=exportDB;
- exportDB=async function(){persist();try{const store=await storePromise,proofs=store?await store.exportForGames(db.games.map(x=>x.id)):[];if(!proofs.length)return baseExport();const payload={...db,liveProofArtifacts:proofs},text=JSON.stringify(payload,null,2);if(new TextEncoder().encode(text).length>10000000)throw Error('증명 포함 백업이 10MB를 넘습니다. 원 기록과 증명은 브라우저에 유지됩니다.');const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='omok-records-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);msg('기보와 검증 수순 원본을 내보냈습니다.');}catch(error){msg('증명 백업 실패: '+error.message);}};
+ exportDB=async function(){persist();try{const store=await storePromise,proofs=store?await store.exportForGames(db.games.map(x=>x.id)):[];if(!proofs.length)return baseExport();const payload={...db,liveProofArtifacts:proofs},text=JSON.stringify(payload,null,2);if(new TextEncoder().encode(text).length>200*1024*1024)throw Error('증명 포함 백업이 200MiB를 넘습니다. 원 기록과 증명은 브라우저에 유지됩니다.');const url=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='omok-records-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);msg('기보와 검증 수순 원본을 내보냈습니다.');}catch(error){msg('증명 백업 실패: '+error.message);}};
  $('export').onclick=exportDB;
  const baseImport=$('file').onchange;
- $('file').onchange=async function(...args){const file=$('file').files[0];if(!file)return;let packs=[];try{if(file.size<=10000000){const x=JSON.parse(await file.text());packs=Array.isArray(x.liveProofArtifacts)?x.liveProofArtifacts:[];if(packs.length>32)throw Error('한 번에 검증 수순은 최대 32개입니다.');}}catch(error){msg('기록 확인 실패: '+error.message);return;}await baseImport.apply(this,args);if(!packs.length)return;try{const store=await storePromise;if(!store)throw Error('증명 저장소를 사용할 수 없습니다.');for(const pack of packs)await store.importArtifact(pack);unavailableSelections.clear();msg('기보와 검증 수순을 다시 검사해 가져왔습니다.');if(g&&!g.result)analyze();}catch(error){msg('기보는 유지했습니다. 검증 수순 가져오기 실패: '+error.message);}};
+ $('file').onchange=async function(...args){const file=$('file').files[0];if(!file)return;let packs=[];try{if(file.size<=200*1024*1024){const x=JSON.parse(await file.text());packs=Array.isArray(x.liveProofArtifacts)?x.liveProofArtifacts:[];if(packs.length>32)throw Error('한 번에 검증 수순은 최대 32개입니다.');}}catch(error){msg('기록 확인 실패: '+error.message);return;}await baseImport.apply(this,args);if(!packs.length)return;try{const store=await storePromise;if(!store)throw Error('증명 저장소를 사용할 수 없습니다.');for(const pack of packs)await store.importArtifact(pack);unavailableSelections.clear();msg('기보와 검증 수순을 다시 검사해 가져왔습니다.');if(g&&!g.result)analyze();}catch(error){msg('기보는 유지했습니다. 검증 수순 가져오기 실패: '+error.message);}};
  const beforeKeeperRebuild=rebuild;rebuild=function(...args){const result=beforeKeeperRebuild(...args);storePromise.then(async store=>{if(!store)return;await store.activateGame(g?.id??null);for(const[id,job]of issuedJobs)if(job.request.gameId!==g?.id&&job.operation){const op=await job.operation;if(op?.released){issuedJobs.delete(id);offers.delete(id);job.original=null;job.originalCanonicalBytes=null;job.rawScopes=[];job.nativeRequestSnapshot=null;}}}).catch(error=>{storeError=String(error);});return result;};
  // Test access exposes status and references, never grants an imported proof capability.
  globalThis.omokLiveProof={ready:storePromise,context,offers,issuedJobs,firstSelected:()=>g&&firstSelected(),status:()=>({error:storeError,offers:offers.size,pendingOwn:pendingOwn.size}),rethink:()=>analyze()};
+})();
+</script>
+<script>// Durable, lossless game snapshots. The old localStorage value remains an
+// untouched migration source whenever IndexedDB is available.
+(function(root){
+ 'use strict';
+ const own=(value,key)=>Object.prototype.hasOwnProperty.call(value,key);
+ const empty=()=>({version:1,games:[],lessons:[]});
+ const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
+ const same=(a,b)=>a===b||JSON.stringify(a)===JSON.stringify(b);
+ const message=error=>error?.message||String(error||'기록 저장 오류');
+ function parse(text){
+  const value=JSON.parse(text);
+  if(!value||value.version!==1||!Array.isArray(value.games)||!Array.isArray(value.lessons))throw Error('지원하지 않는 기록 형식입니다. 원본은 보존했습니다.');
+  return value;
+ }
+ function fingerprint(text){
+  let a=2166136261,b=2246822519;
+  for(let k=0;k<text.length;k++){const n=text.charCodeAt(k);a=Math.imul(a^n,16777619);b=Math.imul(b^n,3266489917);}
+  return text.length+':'+(a>>>0).toString(16)+':'+(b>>>0).toString(16);
+ }
+ function identity(field,value){
+  if((field==='games'||field==='recordBook')&&typeof value?.id==='string')return JSON.stringify(['id',value.id]);
+  if(field==='lessons'&&value&&typeof value.key==='string')return JSON.stringify(['lesson',value.key,value.bad,value.good]);
+  return JSON.stringify(['value',value]);
+ }
+ function entries(field,array){
+  const seen=new Map();return (array||[]).map(value=>{const id=identity(field,value),n=seen.get(id)||0;seen.set(id,n+1);return{key:JSON.stringify([id,n]),value};});
+ }
+ function missingOnly(current,legacy){
+  const result={...current};
+  for(const key of Object.keys(legacy)){
+   if(!own(result,key)){result[key]=legacy[key];continue;}
+   if(!Array.isArray(result[key])||!Array.isArray(legacy[key]))continue;
+   const present=new Set(entries(key,result[key]).map(e=>e.key));
+   result[key]=result[key].concat(entries(key,legacy[key]).filter(e=>!present.has(e.key)).map(e=>e.value));
+  }
+  return result;
+ }
+ function merge(latest,base,incoming){
+  const result={...latest},conflicts=[];
+  for(const key of new Set([...Object.keys(base),...Object.keys(incoming)])){
+   if(same(base[key],incoming[key])&&own(base,key)===own(incoming,key))continue;
+   if(Array.isArray(incoming[key])&&(base[key]===undefined||Array.isArray(base[key]))&&(latest[key]===undefined||Array.isArray(latest[key]))){
+    const oldRows=entries(key,base[key]),newRows=entries(key,incoming[key]),remoteRows=entries(key,latest[key]);
+    const before=new Map(oldRows.map(e=>[e.key,e.value])),local=new Map(newRows.map(e=>[e.key,e.value])),remote=new Map(remoteRows.map(e=>[e.key,e.value]));
+    const additions=[];
+    for(const id of new Set([...before.keys(),...local.keys()])){
+     if(before.has(id)===local.has(id)&&same(before.get(id),local.get(id)))continue;
+     const changedRemotely=before.has(id)!==remote.has(id)||!same(before.get(id),remote.get(id));
+     if(changedRemotely&&(local.has(id)!==remote.has(id)||!same(local.get(id),remote.get(id)))){
+      conflicts.push({field:key,id,deleted:!local.has(id)});
+      // A stale tab must not delete a game another tab has just changed.
+      if(!local.has(id)&&remote.has(id))continue;
+     }
+     if(!local.has(id)){remote.delete(id);continue;}
+     if(!remote.has(id))additions.push(id);remote.set(id,local.get(id));
+    }
+    const added=new Set(additions),existing=remoteRows.filter(e=>remote.has(e.key)&&!added.has(e.key)).map(e=>remote.get(e.key));
+    const fresh=newRows.filter(e=>added.has(e.key)).map(e=>remote.get(e.key));
+    result[key]=key==='games'?fresh.concat(existing):existing.concat(fresh);
+   }else{
+    const remoteChanged=own(base,key)!==own(latest,key)||!same(base[key],latest[key]);
+    if(remoteChanged&&(own(incoming,key)!==own(latest,key)||!same(incoming[key],latest[key])))conflicts.push({field:key,deleted:!own(incoming,key)});
+    if(!own(incoming,key)){
+     if(!remoteChanged)delete result[key];
+    }else result[key]=incoming[key];
+   }
+  }
+  return{data:result,conflicts};
+ }
+ const absent=Symbol('absent');
+ const stamp=value=>value===absent?'absent':fingerprint(JSON.stringify(value));
+ function difference(before,after,depth=0,field=''){
+  if(before!==absent&&after!==absent&&same(before,after))return null;
+  if(after===absent)return{kind:'delete',before:stamp(before)};
+  if(before===absent)return{kind:'set',before:'absent',value:after};
+  if(Array.isArray(before)&&Array.isArray(after)){
+   if(depth===1&&['games','lessons','recordBook'].includes(field)){
+    const old=new Map(entries(field,before).map(e=>[e.key,e.value])),next=new Map(entries(field,after).map(e=>[e.key,e.value])),rows=[];
+    for(const key of new Set([...old.keys(),...next.keys()])){
+     const a=old.has(key)?old.get(key):absent,b=next.has(key)?next.get(key):absent,patch=difference(a,b,depth+1);if(!patch)continue;
+     const row={key,before:stamp(a),after:stamp(b),patch};
+     // A small complete row also preserves a divergent move sequence. Large
+     // unchanged certificates stay in IDB and are represented only by hashes.
+     if(b!==absent&&JSON.stringify(b).length<=65536)row.complete=b;
+     rows.push(row);
+    }
+    return{kind:'records',field,rows};
+   }
+   const items=[];for(let index=0;index<Math.max(before.length,after.length);index++){
+    const patch=difference(index<before.length?before[index]:absent,index<after.length?after[index]:absent,depth+1);if(patch)items.push({index,patch});
+   }
+   return{kind:'array',beforeLength:before.length,length:after.length,items};
+  }
+  if(before&&after&&typeof before==='object'&&typeof after==='object'&&!Array.isArray(before)&&!Array.isArray(after)){
+   const fields={};for(const key of new Set([...Object.keys(before),...Object.keys(after)])){
+    const patch=difference(own(before,key)?before[key]:absent,own(after,key)?after[key]:absent,depth+1,key);if(patch)fields[key]=patch;
+   }
+   return{kind:'object',fields};
+  }
+  return{kind:'set',before:stamp(before),value:after};
+ }
+ function applyDifference(value,patch,conflicts,path=[]){
+  if(patch.kind==='set'){
+   if(value!==absent&&same(value,patch.value))return value;
+   if(stamp(value)!==patch.before)conflicts.push(path);return patch.value;
+  }
+  if(patch.kind==='delete'){
+   if(value===absent)return absent;if(stamp(value)!==patch.before){conflicts.push(path);return value;}return absent;
+  }
+  if(patch.kind==='object'){
+   if(value===absent||!value||typeof value!=='object'||Array.isArray(value))throw Error('복구 변경의 기준 기록을 찾지 못했습니다.');
+   const result={...value};for(const[key,child]of Object.entries(patch.fields)){
+    const next=applyDifference(own(result,key)?result[key]:absent,child,conflicts,path.concat(key));if(next===absent)delete result[key];else result[key]=next;
+   }
+   return result;
+  }
+  if(patch.kind==='array'){
+   if(!Array.isArray(value))throw Error('복구 변경의 기준 목록을 찾지 못했습니다.');
+   if(patch.length<patch.beforeLength&&value.length!==patch.beforeLength&&value.length!==patch.length){conflicts.push(path);return value;}
+   const result=value.slice();for(const item of patch.items){const next=applyDifference(item.index<result.length?result[item.index]:absent,item.patch,conflicts,path.concat(item.index));if(next===absent)delete result[item.index];else result[item.index]=next;}
+   if(value.length===patch.beforeLength||patch.length>value.length)result.length=patch.length;return result;
+  }
+  if(patch.kind==='records'){
+   if(!Array.isArray(value))throw Error('복구 변경의 기준 기보 목록을 찾지 못했습니다.');
+   const oldRows=entries(patch.field,value),rows=new Map(oldRows.map(e=>[e.key,e.value])),added=[];
+   for(const row of patch.rows){
+    const current=rows.has(row.key)?rows.get(row.key):absent,actual=stamp(current);if(actual===row.after)continue;
+    let next;
+    if(actual!==row.before){
+     conflicts.push(path.concat(row.key));
+     if(row.patch.kind==='delete')continue;
+     if(!own(row,'complete'))throw Error('큰 기보의 동시 변경이 충돌해 원문 변경 기록을 보존했습니다.');
+     next=row.complete;
+    }else next=applyDifference(current,row.patch,conflicts,path.concat(row.key));
+    if(next===absent)rows.delete(row.key);else{if(!rows.has(row.key))added.push(row.key);rows.set(row.key,next);}
+   }
+   const existing=oldRows.filter(e=>rows.has(e.key)).map(e=>rows.get(e.key)),fresh=added.map(key=>rows.get(key));return patch.field==='games'?fresh.concat(existing):existing.concat(fresh);
+  }
+  throw Error('알 수 없는 기록 복구 변경입니다.');
+ }
+ function connection(factory,name){
+  return new Promise((resolve,reject)=>{
+   let request,settled=false;
+   const fail=error=>{if(settled)return;settled=true;reject(error||Error('기록 저장소를 열 수 없습니다.'));};
+   try{request=factory.open(name,1);}catch(error){fail(error);return;}
+   request.onupgradeneeded=()=>{
+    const db=request.result;if(!db.objectStoreNames.contains('state'))db.createObjectStore('state');
+    if(!db.objectStoreNames.contains('archive'))db.createObjectStore('archive',{autoIncrement:true});
+   };
+   request.onerror=()=>fail(request.error);
+   request.onblocked=()=>fail(Error('다른 창에서 기록 저장소를 사용하고 있어 열지 못했습니다.'));
+   request.onsuccess=()=>{if(settled){request.result.close();return;}settled=true;const db=request.result;db.onversionchange=()=>db.close();resolve(db);};
+  });
+ }
+ function transaction(db,work){
+  return new Promise((resolve,reject)=>{
+   let tx,result,failure;
+   try{tx=db.transaction(['state','archive'],'readwrite');}catch(error){reject(error);return;}
+   tx.oncomplete=()=>resolve(result);
+   tx.onabort=()=>reject(failure||tx.error||Error('기록 저장이 중단됐습니다.'));
+   tx.onerror=()=>{failure=failure||tx.error;};
+   const abort=error=>{failure=error;try{tx.abort();}catch{reject(error);}};
+   try{work(tx,value=>{result=value;},abort);}catch(error){abort(error);}
+  });
+ }
+ async function open(options={}){
+  const key=options.key;if(typeof key!=='string'||!key)throw Error('기록 저장 키가 필요합니다.');
+  let state={state:'loading'},storage,factory,storageReadError=null,raw=null,legacy=null,legacyError=null;
+  const emit=next=>{state={...next};try{options.onStatus?.({...state});}catch{}};
+  emit({state:'loading'});
+  try{storage=own(options,'localStorage')?options.localStorage:root.localStorage;}catch(error){storageReadError=error;}
+  try{factory=own(options,'indexedDB')?options.indexedDB:root.indexedDB;}catch{}
+  if(storage)try{raw=storage.getItem(key);}catch(error){storageReadError=error;}
+  if(raw!=null)try{legacy=parse(raw);}catch(error){legacyError=error;}
+  const now=()=>Date.now(),clientId=(()=>{try{return root.crypto.randomUUID();}catch{return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);}})();
+  const journalPrefix=key+'.pending.';
+  let journalSequence=0,unprotected=false,latestFailure=null,steps=[];
+  const uncovered=new Set(),localJournals=new Map();
+  const journals=[];
+  if(storage)try{for(let index=0;index<storage.length;index++){const name=storage.key(index);if(typeof name==='string'&&name.startsWith(journalPrefix)){const text=storage.getItem(name);if(text!=null)journals.push({key:name,text});}}}catch{}
+  const clearJournal=row=>{try{if(storage?.getItem(row.key)===row.text)storage.removeItem(row.key);}catch{}};
+  const parseJournal=row=>{const value=JSON.parse(row.text);if(value?.schemaVersion!==1||value.key!==key||!Array.isArray(value.steps)&&!value.patch||typeof value.createdAt!=='number'||typeof value.clientId!=='string'||!Number.isInteger(value.sequence)||value.sequence<1)throw Error('복구 변경 기록 형식이 올바르지 않습니다.');return value;};
+  journals.sort((a,b)=>{try{const x=parseJournal(a),y=parseJournal(b);return x.clientId===y.clientId?x.sequence-y.sequence:x.createdAt-y.createdAt||x.clientId.localeCompare(y.clientId);}catch{return 0;}});
+  let db=null,initial=null,backend='localStorage',blocked=null,revision=0,recovery=[],lastLocal=empty(),tail=Promise.resolve(),pending=0;
+  const archive=(store,kind,text,extra={})=>store.add({kind,text,at:now(),clientId,...extra});
+  if(factory&&typeof factory.open==='function')try{
+   db=await connection(factory,key+'-records-v1');backend='indexeddb';
+   const loaded=await transaction(db,(tx,done,abort)=>{
+    const values=tx.objectStore('state'),archives=tx.objectStore('archive'),request=values.get('current');
+    request.onsuccess=()=>{try{
+     const record=request.result,hasCurrent=!!record&&record.text!=null;let current=null,problem=null;
+     if(hasCurrent)try{current=parse(record.text);}catch(error){problem=error;archive(archives,'unreadable-current',typeof record.text==='string'?record.text:JSON.stringify(record));}
+     if(problem){for(const row of journals)archive(archives,'unreplayed-pending',row.text,{storageKey:row.key});done({initial:legacy,revision:Number(record.revision)||0,blocked:problem,recovery:['unreadable-current']});return;}
+     const firstMigration=!record||record.legacyMigrated!==true,fp=raw==null?null:fingerprint(raw);
+     if(raw!=null&&record?.legacyFingerprint!==fp){archive(archives,legacyError?'unreadable-legacy':'legacy-original',raw);}
+     let text=record?.text??null;
+     if(firstMigration&&legacy){current=current?missingOnly(current,legacy):legacy;text=current===legacy?raw:JSON.stringify(current);}
+     const recovered=[],warnings=legacyError?['unreadable-legacy']:[],acknowledged={...(record?.acknowledged||{})};let nextRevision=Number(record?.revision)||0,lastWriterClientId=record?.lastWriterClientId??null,lastWriterSequence=Number(record?.lastWriterSequence)||0;
+     for(const row of journals){
+      try{const packet=parseJournal(row),accepted=Number(acknowledged[packet.clientId])||(lastWriterClientId===packet.clientId?lastWriterSequence:0);
+       if(accepted>=packet.sequence){recovered.push(row);continue;}
+       const conflicts=[],previous=text??JSON.stringify(current||empty());let next=current||empty();
+       for(const step of packet.steps||[{sequence:packet.sequence,patch:packet.patch}])if(step.sequence>accepted)next=applyDifference(next,step.patch,conflicts);
+       parse(JSON.stringify(next));archive(archives,'pending-original',row.text,{storageKey:row.key,baseRevision:packet.baseRevision});
+       if(conflicts.length)archive(archives,'pending-concurrent-remote',previous,{conflicts});
+       current=next;text=JSON.stringify(current);nextRevision++;acknowledged[packet.clientId]=packet.sequence;lastWriterClientId=packet.clientId;lastWriterSequence=packet.sequence;recovered.push(row);
+      }catch(error){archive(archives,'unreplayed-pending',row.text,{storageKey:row.key,error:message(error)});warnings.push('unreplayed-pending');}
+     }
+     const envelope={schemaVersion:1,text,revision:nextRevision,updatedAt:record?.updatedAt??now(),legacyMigrated:record?.legacyMigrated===true||!storageReadError,legacyFingerprint:fp??record?.legacyFingerprint??null,acknowledged,lastWriterClientId,lastWriterSequence};
+     if(!record||firstMigration||recovered.length||record.legacyFingerprint!==envelope.legacyFingerprint)values.put(envelope,'current');
+     done({initial:current,revision:envelope.revision,recovery:warnings,recovered});
+    }catch(error){abort(error);}};
+   });
+   initial=loaded.initial;revision=loaded.revision;blocked=loaded.blocked||null;recovery=loaded.recovery||[];for(const row of loaded.recovered||[])clearJournal(row);
+  }catch(error){if(db)try{db.close();}catch{}db=null;backend='localStorage';recovery.push('indexeddb-unavailable');initial=legacy;}
+  else initial=legacy;
+  if(!db){
+   blocked=legacyError||storageReadError||(!storage?Error('브라우저 기록 저장 공간을 사용할 수 없습니다.'):null);
+   if(!blocked&&journals.length){
+    let current=initial||empty();const recovered=[],acceptedByClient=new Map();
+    for(const row of journals)try{
+     const packet=parseJournal(row),accepted=acceptedByClient.get(packet.clientId)||0;
+     if(accepted>=packet.sequence||packet.snapshotFingerprint===fingerprint(JSON.stringify(current))){acceptedByClient.set(packet.clientId,Math.max(accepted,packet.sequence));recovered.push(row);continue;}
+     const conflicts=[],previous=current;let next=current;
+     for(const step of packet.steps||[{sequence:packet.sequence,patch:packet.patch}])if(step.sequence>accepted)next=applyDifference(next,step.patch,conflicts);
+     parse(JSON.stringify(next));
+     if(conflicts.length){const original={...previous};delete original.storageConflicts;next.storageConflicts=[...(next.storageConflicts||[]),{at:now(),clientId:packet.clientId,conflicts,previous:original,pendingPacket:row.text}];}
+     current=next;acceptedByClient.set(packet.clientId,packet.sequence);recovered.push(row);
+    }catch{recovery.push('unreplayed-pending');}
+    if(recovered.length)try{storage.setItem(key,JSON.stringify(current));initial=current;for(const row of recovered)clearJournal(row);}catch(error){initial=current;blocked=error;}
+   }
+  }
+  lastLocal=clone(initial)||empty();let scheduledSnapshot=lastLocal;
+  const savedStatus=extra=>({state:'saved',backend,revision,...(recovery.length?{recovery:recovery.slice()}:{}),...extra});
+  const errorStatus=error=>({state:'error',backend,error:message(error),pending,unprotected});
+  if(blocked)emit(errorStatus(blocked));else emit(savedStatus());
+  async function writeIdb(snapshot,text,sequence){
+   const base=lastLocal;
+   const written=await transaction(db,(tx,done,abort)=>{
+    const values=tx.objectStore('state'),archives=tx.objectStore('archive'),request=values.get('current');
+    request.onsuccess=()=>{try{
+     const record=request.result,latest=record?.text!=null?parse(record.text):empty(),merged=merge(latest,record?base:empty(),snapshot),next=(Number(record?.revision)||0)+1;
+     if(merged.conflicts.length){archive(archives,'concurrent-remote',record?.text??JSON.stringify(latest),{revision:Number(record?.revision)||0,conflicts:merged.conflicts});archive(archives,'concurrent-local',text,{conflicts:merged.conflicts});}
+     values.put({...record,schemaVersion:1,text:JSON.stringify(merged.data),revision:next,updatedAt:now(),legacyMigrated:record?.legacyMigrated===true,legacyFingerprint:record?.legacyFingerprint??null,acknowledged:{...(record?.acknowledged||{}),[clientId]:sequence},lastWriterClientId:clientId,lastWriterSequence:sequence},'current');
+     done({revision:next,conflicts:merged.conflicts.length});
+    }catch(error){abort(error);}};
+   });
+   lastLocal=snapshot;revision=written.revision;return written;
+  }
+  async function writeFallback(snapshot){
+   const perform=()=>{
+    const latestRaw=storage.getItem(key),latest=latestRaw==null?empty():parse(latestRaw),merged=merge(latest,latestRaw==null?empty():lastLocal,snapshot);
+    if(merged.conflicts.length){
+     // Without IDB, preserve conflicting values in the same atomic setItem.
+     // The full legacy source was never changed on the IndexedDB path.
+     const recoveries=Array.isArray(merged.data.storageConflicts)?merged.data.storageConflicts.slice():[];
+     const previous={...latest},incoming={...snapshot};
+     // Do not recursively duplicate an existing recovery history.
+     delete previous.storageConflicts;delete incoming.storageConflicts;
+     recoveries.push({at:now(),clientId,conflicts:merged.conflicts,previous,incoming});
+     merged.data.storageConflicts=recoveries;
+    }
+    storage.setItem(key,JSON.stringify(merged.data));lastLocal=snapshot;revision++;
+    return{revision,conflicts:merged.conflicts.length};
+   };
+   let locks;try{if(root.document)locks=root.navigator?.locks;}catch{}
+   return locks?.request?locks.request(key+'-records-v1-fallback',perform):perform();
+  }
+  const store={initial:clone(initial),
+   save(data){
+    const sequence=++journalSequence;latestFailure=null;
+    let text,snapshot;try{text=JSON.stringify(data);snapshot=parse(text);}catch(error){uncovered.add(sequence);unprotected=true;latestFailure={sequence,error};emit(errorStatus(error));const rejected=Promise.reject(error);rejected.catch(()=>{});return rejected;}
+    let journal=null;
+    try{
+     if(!storage||blocked)throw blocked||Error('즉시 복구 기록을 저장할 수 없습니다.');
+     const patch=difference(scheduledSnapshot,snapshot);if(patch)steps.push({sequence,patch});
+     if(steps.length){const packet={schemaVersion:1,key,clientId,sequence,createdAt:now(),baseRevision:revision,snapshotFingerprint:fingerprint(text),steps:steps.slice()},value=JSON.stringify(packet),name=journalPrefix+clientId+'.'+sequence;storage.setItem(name,value);journal={key:name,text:value};localJournals.set(sequence,journal);}
+    }catch{uncovered.add(sequence);}
+    scheduledSnapshot=snapshot;unprotected=uncovered.size>0;
+    pending++;emit({state:'pending',backend,pending,unprotected});
+    const operation=tail.catch(()=>{}).then(async()=>{
+     if(blocked)throw blocked;
+     return db?writeIdb(snapshot,text,sequence):writeFallback(snapshot);
+    }).then(result=>{
+     // Full snapshot N makes every older local request durable. Remove old
+     // immutable journals first, so an interrupted cleanup cannot replay only
+     // an obsolete move after a later undo has already been committed.
+     for(const n of [...localJournals.keys()].filter(n=>n<=sequence).sort((a,b)=>a-b)){clearJournal(localJournals.get(n));localJournals.delete(n);}
+     steps=steps.filter(step=>step.sequence>sequence);for(const n of uncovered)if(n<=sequence)uncovered.delete(n);
+     pending--;unprotected=uncovered.size>0;
+     if(latestFailure&&latestFailure.sequence<=sequence)latestFailure=null;
+     if(latestFailure)emit(errorStatus(latestFailure.error));else emit(pending?{state:'pending',backend,pending,revision,unprotected}:savedStatus({conflicts:result.conflicts,unprotected}));return result;
+    },error=>{pending--;if(sequence===journalSequence)latestFailure={sequence,error};unprotected=uncovered.size>0;if(latestFailure)emit(errorStatus(latestFailure.error));else emit({state:'pending',backend,pending,revision,unprotected});throw error;});
+    operation.catch(()=>{});tail=operation;return operation;
+   },
+   flush(){return tail.then(value=>{if(latestFailure)throw latestFailure.error;return value;},error=>{throw latestFailure?.error||error;});},
+   status(){return{...state,...(Array.isArray(state.recovery)?{recovery:state.recovery.slice()}: {})};},
+   reportError(error){const sequence=++journalSequence;uncovered.add(sequence);unprotected=true;latestFailure={sequence,error};emit(errorStatus(error));}
+  };
+  return store;
+ }
+ const api={open};root.OmokGameStorage=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+// Read durable records before any application seed or startup write runs.
+(async()=>{
+  globalThis.omokComputeReady=false;
+  const state=document.getElementById('recordSaveStatus');
+  const show=value=>{
+    globalThis.omokRecordSaveStatus=value;
+    state.dataset.state=value.state;
+    state.textContent=value.state==='loading'?'저장된 게임 불러오는 중…':value.state==='pending'?'게임 기록 저장 중…':value.state==='saved'?'게임 기록 저장 완료':'게임 기록을 저장하지 못했습니다. 화면을 닫기 전에 「기록 내보내기」로 백업하세요.';
+    state.setAttribute('role',value.state==='error'?'alert':'status');
+    state.title=value.error||'';
+    if(value.recovery?.some(item=>['unreplayed-pending','unreadable-current','unreadable-legacy'].includes(item))){
+      let notice=document.getElementById('recordRecoveryNotice');
+      if(!notice){notice=document.createElement('p');notice.id='recordRecoveryNotice';notice.className='muted';state.after(notice);}
+      notice.textContent='일부 이전 기록을 자동으로 복원하지 못해 원본을 별도로 보관했습니다. 복원된 기보와 저장 상태를 확인해 주세요.';
+    }
+  };
+  show({state:'loading'});
+  const source=document.getElementById('appSource').textContent,match=source.match(/\bSTORAGE_KEY\s*=\s*("(?:\\.|[^"\\])*")/);
+  if(!match){show({state:'error',error:'저장 키를 확인할 수 없습니다.'});return;}
+  const key=JSON.parse(match[1]);let store;
+  try{store=await OmokGameStorage.open({key,onStatus:show});}
+  catch(error){
+    // An unexpected storage failure must never prevent reading an intact
+    // legacy backup or overwrite it with an empty startup library.
+    let initial=null;try{initial=JSON.parse(localStorage.getItem(key)||'null');}catch{}
+    const reportError=value=>show({state:'error',error:String(value)});
+    store={initial,status:()=>({state:'error',error:String(error)}),reportError,save:()=>{reportError(error);return Promise.reject(error);},flush:()=>Promise.reject(error)};
+    reportError(error);
+  }
+  globalThis.omokGamePersistence=store;
+  const script=document.createElement('script');script.textContent=source;document.body.append(script);
 })();
 </script></html>
