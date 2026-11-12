@@ -82,32 +82,29 @@ for(const change of ['stop','new-game','settings']){
 }
 for(const change of ['stop','new-game','settings']){
  const f=fixture();f.c.spawnAnalysis.health={blockedUntil:1000,healthySince:0,lastLag:200};f.predict();
- assert.equal(f.jobs.length,1,'Cooldown defers the speculative job');
+ const reply=f.jobs.at(-1);assert.equal(f.jobs.length,2,'A prior UI delay does not defer the single background calculation');
+ assert.equal(reply.budget.background,true);assert.equal(f.timers.size,0,'No separate cooldown timer is scheduled');
  if(change==='new-game')f.c.g={...f.c.g,id:'new-game'};
  else if(change==='settings')f.c.settingsRevision++;
- f.c.stopWorker();f.advance(12000);
- assert.equal(f.jobs.length,1,change+': a deferred speculative job never starts after cancellation');assert.equal(f.c.ponder,null);
+ f.c.stopWorker();const accepted=f.accepted.length;f.deliver(reply,f.result(101),true);f.advance(30000);
+ assert(reply.stopped,change+': the background job is cancelled even after earlier UI lag');
+ assert.equal(f.accepted.length,accepted,change+': cancelled background results remain isolated');
+ assert.equal(f.jobs.length,2,change+': no cooldown timer can restart cancelled work');assert.equal(f.c.ponder,null);assert.equal(f.timers.size,0);
 }
-{
- const f=fixture();f.c.spawnAnalysis.health={blockedUntil:1000,healthySince:0,lastLag:200};
- f.predict();assert.equal(f.jobs.length,1,'Input remains responsive during the lag cooldown');
- f.advance(12000);assert.equal(f.jobs.length,2,'The visible prediction resumes reply calculation after cooldown without any placement');assert.equal(f.jobs.at(-1).board[100],2);
+for(const promoteBeforeCompletion of [false,true]){
+ const f=fixture();f.c.analysisSettings={mode:'auto',manualMs:15000};
+ f.c.spawnAnalysis.health={blockedUntil:10000,healthySince:0,lastLag:700};const prediction=f.predict(),reply=f.jobs.at(-1),task=f.c.ponder;
+ assert.equal(f.jobs.length,2,'Automatic reply analysis starts before any click despite an existing lag marker');
+ assert.equal(reply.p,1);assert.equal(reply.board[100],2);assert.equal(reply.budget.background,true);
+ assert.equal(reply.budget.mode,'auto');assert.equal(reply.budget.ms,15000,'The selected automatic ceiling is preserved');
+ assert.equal(f.timers.size,0,'Single-Worker background work needs no deferred restart');
+ f.deliver(reply,f.result(101));assert.equal(task.partial.i,101);assert.equal(f.c.rec.i,100,'Background progress stays separate from the visible opponent prediction');
+ f.deliver(prediction,f.result(100),true);assert.equal(f.c.ponder,task);assert(!reply.stopped);
+ if(promoteBeforeCompletion){f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));assert.equal(f.c.rec.i,101,'The existing partial result is usable on the real turn');}
+ f.advance(6000);assert.equal(f.c.ponder,task);assert(!reply.stopped,'The same background Worker remains available without a cooldown restart');
+ f.deliver(reply,f.result(102),true);assert.equal(task.result.i,102);
+ if(!promoteBeforeCompletion)f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
+ assert.equal(f.c.rec.i,102);assert.equal(f.c.ponder,task);assert.equal(f.jobs.length,2,'Matching placement reuses the single running or completed reply');
+ f.advance(30000);assert.equal(f.jobs.length,2,'Completion never schedules duplicate background work');assert.equal(f.timers.size,0);
 }
-{
- const f=fixture();f.c.spawnAnalysis.health={blockedUntil:10000,healthySince:0,lastLag:200};f.predict();assert.equal(f.jobs.length,1);
- f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
- assert.equal(f.jobs.length,2,'Matching actual placement immediately starts a response deferred only for background cooldown');
- assert.equal(f.jobs.at(-1).p,1);f.deliver(f.jobs.at(-1),f.result(101),true);assert.equal(f.c.rec.i,101);
- f.advance(12000);assert.equal(f.jobs.length,2,'The old cooldown timer cannot start duplicate foreground work');
-}
-for(const promoteDuringCooldown of [false,true]){
- const f=fixture();f.predict();const paused=f.jobs.at(-1);f.deliver(paused,f.result(101));
- f.c.spawnAnalysis.health={blockedUntil:1000,healthySince:0,lastLag:200};f.c.ponder.suspend();assert(paused.stopped,'Lag pauses the running background job');
- assert.equal(f.jobs.length,2);assert.equal(f.c.ponder.partial.i,101,'Completed progress survives a background pause');
- if(promoteDuringCooldown){f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));assert.equal(f.c.rec.i,101,'A paused partial reply is usable immediately on the real turn');}
- else f.advance(12000);
- assert.equal(f.jobs.length,3,'The response restarts after recovery or real-turn promotion');const resumed=f.jobs.at(-1);assert.equal(resumed.board[100],2);
- if(!promoteDuringCooldown)f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
- f.deliver(resumed,f.result(102),true);assert.equal(f.c.rec.i,102);f.advance(12000);assert.equal(f.jobs.length,3,'No duplicate work starts after the resumed response completes');
-}
-console.log('PASS visible-prediction precomputation, stable work, matching partial/final promotion, changed-move cancellation, stale isolation and automatic cooldown recovery');
+console.log('PASS visible-prediction precomputation, stable work, matching partial/final promotion, changed-move cancellation, stale isolation and immediate background calculation after prior UI lag');

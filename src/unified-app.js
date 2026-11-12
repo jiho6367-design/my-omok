@@ -14,7 +14,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.48';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.48');
+versionBadge.textContent='통합 v5.18.49';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.49');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -114,7 +114,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   const heartbeat=setInterval(()=>{
     const now=performance.now(),lag=Math.max(0,now-tickAt-100);tickAt=now;health.lastLag=lag;
     if(lag>120){health.blockedUntil=now+10000;health.healthySince=0;
-      if(typeof ponder!=='undefined'&&ponder?.worker===w&&!ponder.promoted){if(ponder.suspend)ponder.suspend();else cancelPonder();}
+      if(!budget?.background&&typeof ponder!=='undefined'&&ponder?.worker===w&&!ponder.promoted){if(ponder.suspend)ponder.suspend();else cancelPonder();}
     }else if(lag<30){if(!health.healthySince)health.healthySince=now;}else health.healthySince=0;
   },100);
   const terminate=w.terminate.bind(w);
@@ -220,7 +220,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   const model=E.getModel?.()??null,firstPlayer=g?.first??null,patternTable=globalThis.omokAcceleration?.table,optimized=globalThis.omokAcceleration?.optimized,searchMemory=session?.store.snapshot();
   try{proofObserver?.jobStart?.({engineSource,workerSourceBlob,sourceAPI:'createEngine.analyze',board:board.slice(),p,firstPlayer,model,ms:searchBudget,rules:g?.rules||{},lessons:db.lessons});}catch{}
   w.postMessage({model,firstPlayer,patternTable,optimized,b:board,p,ms:searchBudget,lessons:db.lessons,rules:g?.rules||{},searchMemory});
-  if(typeof OmokParallel!=='undefined')parallel=OmokParallel.start({source:engineSource,budget:searchLimit,mode:budget?.mode||(budget?.automatic?'auto':null),
+  if(!budget?.background&&typeof OmokParallel!=='undefined')parallel=OmokParallel.start({source:engineSource,budget:searchLimit,mode:budget?.mode||(budget?.automatic?'auto':null),
     base:{b:board,p,options:{...(g?.rules||{}),openingBook:false,model,firstPlayer,patternTable,optimized,proofDetails:true,counterProofDetails:true},modelInfo:E.getModelInfo?.(),searchMemory},
     onProofSource:source=>{try{proofObserver?.proofSource?.(source);}catch{}},
     onProgress:(r,memory)=>w.onmessage({data:{progress:true,result:r,searchMemory:memory,parallel:true}}),onDone:r=>finish(r),
@@ -254,34 +254,30 @@ function prepareReply(){
   const sourceKey=positionKey(b,turn),opponent=rec.i;
   // Progress and final prediction reports often select the same stone. Keep
   // its running reply instead of repeatedly discarding completed work.
-  if(ponder?.sourceKey===sourceKey&&ponder.opponent===opponent&&!ponder.promoted)return;
+  if(ponder?.sourceKey===sourceKey&&ponder.opponent===opponent&&!ponder.promoted){ponder.showState?.();return;}
   cancelPonder();
   if(!E.inspect(b,opponent,turn).legal)return;
   const board=b.slice(),p=3-turn;board[opponent]=turn;if(E.win(board,opponent,turn).length)return;
-  const own=configuredOwnBudget(board,p,40000),budget=own.budget;
-  const task={opponent,key:positionKey(board,p),sourceKey,started:Date.now(),worker:null,timer:null,result:null,partial:null,promoted:false,policy:{...own.policy,role:'ponder'}};ponder=task;
+  const own=configuredOwnBudget(board,p,40000),budget={...own.budget,background:true};
+  const task={opponent,key:positionKey(board,p),sourceKey,started:Date.now(),worker:null,result:null,partial:null,promoted:false,policy:{...own.policy,role:'ponder'}};ponder=task;
   const current=()=>ponder===task&&g&&!g.result&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
-  const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;};
+  const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;task.showState();};
+  task.showState=()=>{
+    if(!current()||task.promoted)return;
+    setAnalysisStatus(task.result?'상대 차례 · 내 응수 준비 완료':'상대 차례 · 내 응수 사전 계산 중',task.result?'상대가 반투명 예상 돌에 두면 준비한 내 응수를 바로 사용합니다.':'반투명 예상 돌을 상대가 두었다고 가정하고 내 다음 수를 미리 계산하고 있습니다.',task.result?'complete':'thinking');
+  };
   task.resume=()=>{
     if(!current()||task.result||task.worker)return;
-    clearTimeout(task.timer);task.timer=null;
-    const health=spawnAnalysis.health,now=performance.now();
-    if(!task.promoted&&health?.blockedUntil&&(now<health.blockedUntil||!health.healthySince||now-health.healthySince<2000)){
-      predictionNote.textContent='화면 응답 회복 대기 · 사전 계산 자동 재개 예정';
-      // The foreground Worker may already be finished. Observe recovery here
-      // too, so a cooldown never requires another stone or button press.
-      task.timer=setTimeout(()=>{
-        task.timer=null;if(!current())return;
-        const tick=performance.now(),lag=Math.max(0,tick-now-100);health.lastLag=lag;
-        if(lag>120){health.blockedUntil=tick+10000;health.healthySince=0;}
-        else if(lag<30){if(!health.healthySince)health.healthySince=tick;}else health.healthySince=0;
-        task.resume();
-      },100);return;
-    }
+    // One serial Worker keeps the selected analysis budget and runs while the
+    // opponent is thinking. Pool startup/final-guard lag must not discard it.
     predictionNote.textContent=task.promoted?'예측 일치 · 사전 계산 이어서 완료 중':`상대 ${E.coord(opponent)} 예상 · 내 응수 ${settingsPolicy.label(analysisSettings)}으로 사전 계산 중`;
-    try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){task.partial={...r,analysisPolicy:task.policy};if(task.promoted&&!task.liveProofGatePending)acceptResult(task.partial,true);}},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){if(current()){cancelPonder();if(task.promoted)analyze();}}
+    task.showState();
+    try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){
+      task.partial={...r,analysisPolicy:task.policy};
+      if(task.promoted){if(!task.liveProofGatePending)acceptResult(task.partial,true);}
+      else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 내 응수 사전 계산 중 · ${((Date.now()-task.started)/1000).toFixed(1)}초 · 완료 비교 ${r.depth||0}반수 · ${(r.nodes||0).toLocaleString()}노드`;
+    }},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){if(current()){cancelPonder();if(task.promoted)analyze();}}
   };
-  task.suspend=()=>{if(!current()||task.promoted)return;const running=task.worker;task.worker=null;running?.terminate();task.resume();};
   const immediate=E.urgent(board,p);if(immediate){finish(immediate);return;}
   task.resume();
 }
