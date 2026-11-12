@@ -50,7 +50,7 @@
   if(!hasGenericMarker&&!hasOwnPending)return baseAnalyze(explicit,onDone);
   const selectedRegistered=selected?.kind==='registered'?E.openingReply?.(b,turn,{budget}):null,registeredStrategy=selectedRegistered?.retainedStrategy||selectedRegistered?.strategyEvidence?.strategy;
   if(E.urgent(b,turn)||registeredStrategy&&selected?.pin&&registeredStrategy.sourceProofSha256===selected.pin.sourceProofSha256&&registeredStrategy.rootId===selected.pin.rootId)return baseAnalyze(explicit,onDone);
-  const generation=++revision,position=key(local),waitingPonder=explicit==null&&ponder?.key===positionKey(b,turn)?ponder:null;if(waitingPonder){waitingPonder.promoted=true;waitingPonder.liveProofGatePending=true;}const previousKeep=keepPonder;keepPonder=!!waitingPonder;try{stopWorker();}finally{keepPonder=previousKeep;}
+  const generation=++revision,position=key(local),waitingPonder=explicit==null?matchingPonder():null;if(waitingPonder){selectPonder(waitingPonder);waitingPonder.promoted=true;waitingPonder.liveProofGatePending=true;}const previousKeep=keepPonder;keepPonder=!!waitingPonder;try{stopWorker();}finally{keepPonder=previousKeep;}
   const pending=[...pendingOwn.values()].find(r=>r.after.gameId===local.gameId&&same(local.events.slice(0,r.after.events.length),r.after.events));if(pending){rec=null;render();setAnalysisStatus('검증 수순 보존 중','처음 선택한 원 증명의 저장을 기다립니다.','ready');return;}
   storePromise.then(async store=>{if(!store)return null;await store.activateGame(g?.id??null);if(g?.id!==local.gameId)return null;return store.active(local);}).then(hit=>{
    if(generation!==revision||position!==key(context()))return;

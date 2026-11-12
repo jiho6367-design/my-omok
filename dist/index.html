@@ -8778,7 +8778,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.49';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.49');
+versionBadge.textContent='통합 v5.18.50';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.50');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -8827,7 +8827,10 @@ persist=function(){
   normalizeForestRules();persistWithRules();
 };
 const baseStopWorker=stopWorker;
-function cancelPonder(){const task=ponder;ponder=null;clearTimeout(task?.timer);task?.worker?.terminate();predictionNote.textContent='';}
+const ponderBranches=new Map();
+function cancelPonder(){const tasks=new Set([...ponderBranches.values(),ponder].filter(Boolean));ponderBranches.clear();ponder=null;for(const task of tasks){clearTimeout(task.timer);task.worker?.terminate();}predictionNote.textContent='';}
+function matchingPonder(board=b,p=turn){const key=positionKey(board,p);return ponder?.key===key&&!ponder.error?ponder:[...ponderBranches.values()].find(task=>task.key===key&&!task.error)||null;}
+function selectPonder(task){const others=new Set([...ponderBranches.values(),ponder].filter(other=>other&&other!==task));ponderBranches.clear();ponderBranches.set(task.opponent,task);ponder=task;for(const other of others){clearTimeout(other.timer);other.worker?.terminate();}return task;}
 stopWorker=function(){if(!keepPonder)cancelPonder();baseStopWorker();};
 const positionKey=(board,p)=>[g?.id,g?.first??'unknown',p,g?.rules?.fivePriority!==false,
   E.getContext?.().strategyVersion||E.strategyVersion||'legacy',globalThis.omokAcceleration?.mode||'cpu',settingsRevision,analysisSettings.mode,analysisSettings.manualMs,board.join('')].join('|');
@@ -9015,41 +9018,54 @@ function acceptResult(result,partial=false){
 }
 function prepareReply(){
   if(!g||g.result||reviewing||turn===g.me||rec?.i==null){cancelPonder();return;}
-  const sourceKey=positionKey(b,turn),opponent=rec.i;
-  // Progress and final prediction reports often select the same stone. Keep
-  // its running reply instead of repeatedly discarding completed work.
-  if(ponder?.sourceKey===sourceKey&&ponder.opponent===opponent&&!ponder.promoted){ponder.showState?.();return;}
-  cancelPonder();
-  if(!E.inspect(b,opponent,turn).legal)return;
-  const board=b.slice(),p=3-turn;board[opponent]=turn;if(E.win(board,opponent,turn).length)return;
-  const own=configuredOwnBudget(board,p,40000),budget={...own.budget,background:true};
-  const task={opponent,key:positionKey(board,p),sourceKey,started:Date.now(),worker:null,result:null,partial:null,promoted:false,policy:{...own.policy,role:'ponder'}};ponder=task;
-  const current=()=>ponder===task&&g&&!g.result&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
-  const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;if(task.promoted){acceptResult(r);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';task.onDone?.(r);}else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 응수 ${r.i==null?'없음':E.coord(r.i)} 준비 완료`;task.showState();};
-  task.showState=()=>{
-    if(!current()||task.promoted)return;
-    setAnalysisStatus(task.result?'상대 차례 · 내 응수 준비 완료':'상대 차례 · 내 응수 사전 계산 중',task.result?'상대가 반투명 예상 돌에 두면 준비한 내 응수를 바로 사용합니다.':'반투명 예상 돌을 상대가 두었다고 가정하고 내 다음 수를 미리 계산하고 있습니다.',task.result?'complete':'thinking');
-  };
-  task.resume=()=>{
-    if(!current()||task.result||task.worker)return;
-    // One serial Worker keeps the selected analysis budget and runs while the
-    // opponent is thinking. Pool startup/final-guard lag must not discard it.
-    predictionNote.textContent=task.promoted?'예측 일치 · 사전 계산 이어서 완료 중':`상대 ${E.coord(opponent)} 예상 · 내 응수 ${settingsPolicy.label(analysisSettings)}으로 사전 계산 중`;
-    task.showState();
-    try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){
-      task.partial={...r,analysisPolicy:task.policy};
-      if(task.promoted){if(!task.liveProofGatePending)acceptResult(task.partial,true);}
-      else predictionNote.textContent=`상대 ${E.coord(opponent)} 예상 · 내 응수 사전 계산 중 · ${((Date.now()-task.started)/1000).toFixed(1)}초 · 완료 비교 ${r.depth||0}반수 · ${(r.nodes||0).toLocaleString()}노드`;
-    }},finish,()=>{if(current()){cancelPonder();if(task.promoted)analyze();}});}catch(e){if(current()){cancelPonder();if(task.promoted)analyze();}}
-  };
-  const immediate=E.urgent(board,p);if(immediate){finish(immediate);return;}
-  task.resume();
+  const sourceKey=positionKey(b,turn),opponents=[...new Set([rec.i,...(rec.candidates||[]).slice(0,3).map(m=>m.i)])]
+    .filter(i=>Number.isInteger(i)&&i>=0&&i<b.length&&E.inspect(b,i,turn).legal).slice(0,3),wanted=new Set(opponents);
+  // Preserve work by coordinate when rankings change; remove only predictions
+  // that disappeared or belong to a different board/settings context.
+  if(ponder&&!ponderBranches.has(ponder.opponent)){ponder.worker?.terminate();ponder=null;}
+  for(const [i,task] of ponderBranches)if(task.sourceKey!==sourceKey||!wanted.has(i)||task.promoted){ponderBranches.delete(i);task.worker?.terminate();}
+  for(const [index,opponent] of opponents.entries()){
+    const existing=ponderBranches.get(opponent);if(existing){existing.rank=index+1;continue;}
+    const board=b.slice(),p=3-turn;board[opponent]=turn;if(E.win(board,opponent,turn).length)continue;
+    const own=configuredOwnBudget(board,p,40000),budget={...own.budget,background:true};
+    const task={opponent,rank:index+1,key:positionKey(board,p),sourceKey,started:Date.now(),worker:null,result:null,partial:null,promoted:false,error:null,policy:{...own.policy,role:'ponder'}};
+    ponderBranches.set(opponent,task);
+    const current=()=>ponderBranches.get(opponent)===task&&g&&!g.result&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
+    task.showState=showPonderStatus;
+    const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;
+      if(task.promoted){acceptResult(r);predictionNote.textContent=`예측 일치 · ${task.rank}순위 사전 계산 결과 사용`;task.onDone?.(r);}else showPonderStatus();};
+    const failed=error=>{if(!current())return;task.worker=null;task.error=String(error||'계산 오류');
+      if(task.promoted){cancelPonder();analyze();}else showPonderStatus();};
+    task.resume=()=>{
+      if(!current()||task.result||task.worker||task.error)return;
+      if(task.promoted)predictionNote.textContent=`예측 일치 · ${task.rank}순위 사전 계산 이어서 완료 중`;
+      // At most three independent serial Workers; never nest a root pool in
+      // a predicted board or discard its work because of a UI heartbeat delay.
+      try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){
+        task.partial={...r,analysisPolicy:task.policy};
+        if(task.promoted){if(!task.liveProofGatePending)acceptResult(task.partial,true);}else showPonderStatus();
+      }},finish,failed);}catch(e){failed(e.message);}
+    };
+    const immediate=E.urgent(board,p);if(immediate)finish(immediate);else task.resume();
+  }
+  ponder=ponderBranches.get(opponents[0])||[...ponderBranches.values()][0]||null;showPonderStatus();
+}
+function showPonderStatus(){
+  if(!g||g.result||reviewing||turn===g.me)return;
+  const sourceKey=positionKey(b,turn),tasks=[...ponderBranches.values()].filter(t=>!t.promoted&&t.sourceKey===sourceKey).sort((a,b)=>a.rank-b.rank);if(!tasks.length)return;
+  const ready=tasks.filter(t=>t.result?.i!=null).length,done=tasks.every(t=>t.result||t.error),single=tasks.length===1;
+  predictionNote.textContent=tasks.map(t=>`${t.rank}순위 ${E.coord(t.opponent)}: ${t.error?'계산 중단':t.result?t.result.i==null?'계산 완료 · 추천 없음':'응수 '+E.coord(t.result.i)+' 준비 완료':'내 응수 사전 계산 중'+(t.partial?' · '+(t.partial.depth||0)+'반수':'')}`).join(' · ');
+  const label=done?(ready===tasks.length?'상대 차례 · 내 응수 준비 완료':'상대 차례 · 응수 계산 완료 · 일부 추천 없음'):'상대 차례 · 내 응수 사전 계산 중';
+  setAnalysisStatus(label+(single?'':` · ${tasks.length}개 병렬 · ${ready}/${tasks.length} 준비`),
+    done?'상대가 표시된 예상 후보에 두면 해당 응수를 바로 사용합니다.':'표시된 상대 후보별로 내 다음 응수를 따로 미리 계산하고 있습니다.',done?(ready===tasks.length?'complete':'warning'):'thinking');
 }
 analyze=function(explicit,onDone){
   // Historical study buttons now use the one selected analysis policy.
   if(g&&!g.result&&!globalThis.omokComputeReady){stopWorker();setAnalysisStatus('연산 준비 중','선택한 분석 모드를 유지하고 연산 준비 완료 후 시작합니다.','ready');return;}
   if(!g||g.result){stopWorker();rec=null;render();const winner=g?.result?.winner,outcome=winner?(winner===g.me?'내 승리':'내 패배'):'';setAnalysisStatus(winner?`대국 종료 · ${names[winner]} 승리 · ${outcome}`:g?.result?'대국 종료 · 무승부':'분석 준비',winner?`정확한 5목 완성: ${winCells.map(E.coord).join(' → ')}`:g?.result?'빈칸 없이 종료되었습니다.':'착수 후 자동으로 추천을 계산합니다.',winner?'complete':g?.result?'stopped':'ready');return;}
-  if(explicit==null&&!reviewing&&turn===g.me&&ponder?.key===positionKey(b,turn)){
+  const prepared=explicit==null&&!reviewing&&turn===g.me?matchingPonder():null;
+  if(prepared){
+    selectPonder(prepared);
     // Resolve actual-history source references and exact actual-board offline
     // responses before promoting a generic result for the predicted reply.
     const available=paused||g?.timer===false?40000:Math.max(0,deadline-Date.now()),
@@ -9060,7 +9076,8 @@ analyze=function(explicit,onDone){
     }
     const task=ponder;task.promoted=true;task.onDone=onDone;currentAnalysisPolicy=task.policy;activePlan=formatAnalysisPlan(task.policy);
     analysisPlan.textContent=activePlan+' · 사전 계산 이어받음';
-    if(task.result){acceptResult(task.result);predictionNote.textContent='예측 일치 · 사전 계산 결과 사용';onDone?.(task.result);}else if(task.partial)acceptResult(task.partial,true);
+    predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 사전 계산 이어서 완료 중`;
+    if(task.result){acceptResult(task.result);predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 사전 계산 결과 사용`;onDone?.(task.result);}else if(task.partial)acceptResult(task.partial,true);
     else setAnalysisStatus('분석 중','상대 예상 수가 일치했습니다. 앞서 시작한 계산을 이어서 완료합니다.','thinking');
     task.resume?.();return;
   }
@@ -9071,7 +9088,7 @@ analyze=function(explicit,onDone){
   try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job&&acceptResult(r,true)&&p!==g?.me)prepareReply();},r=>{if(token!==job)return;worker=null;acceptResult(r);onDone?.(r);prepareReply();},failed);}catch(e){failed(e.message);}
 };
 const unifiedCommit=commit;
-commit=function(i,s){keepPonder=!!(g&&i!=null&&ponder?.opponent===i&&ponder.sourceKey===positionKey(b,turn));try{unifiedCommit(i,s);}finally{keepPonder=false;}};
+commit=function(i,s){const task=i==null?null:ponderBranches.get(i)||(ponder?.opponent===i?ponder:null);keepPonder=!!(g&&task&&!task.error&&task.sourceKey===positionKey(b,turn));if(keepPonder)selectPonder(task);try{unifiedCommit(i,s);}finally{keepPonder=false;}};
 $('budget').onchange=()=>updateAnalysisSettings({...analysisSettings,mode:$('budget').value});
 $('manualSeconds').onchange=()=>{const ms=Number($('manualSeconds').value)*1000;if(!Number.isFinite(ms)||ms<settingsPolicy.MIN_MS||ms>settingsPolicy.MAX_MS){msg('직접 설정은 0.9~25초 범위로 입력하세요.');syncAnalysisSettingsUI();return;}updateAnalysisSettings({...analysisSettings,manualMs:ms});};
 $('rethink').textContent='이 국면 다시 분석';$('rethink').onclick=()=>analyze();
@@ -9448,8 +9465,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.49 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.49');
+versionBadge.textContent='통합 v5.18.50 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.50');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){
@@ -9740,7 +9757,7 @@ const OmokLiveProofWorkerSource="'use strict';\nconst liveAssert=(v,m)=>{if(!v)t
   if(!hasGenericMarker&&!hasOwnPending)return baseAnalyze(explicit,onDone);
   const selectedRegistered=selected?.kind==='registered'?E.openingReply?.(b,turn,{budget}):null,registeredStrategy=selectedRegistered?.retainedStrategy||selectedRegistered?.strategyEvidence?.strategy;
   if(E.urgent(b,turn)||registeredStrategy&&selected?.pin&&registeredStrategy.sourceProofSha256===selected.pin.sourceProofSha256&&registeredStrategy.rootId===selected.pin.rootId)return baseAnalyze(explicit,onDone);
-  const generation=++revision,position=key(local),waitingPonder=explicit==null&&ponder?.key===positionKey(b,turn)?ponder:null;if(waitingPonder){waitingPonder.promoted=true;waitingPonder.liveProofGatePending=true;}const previousKeep=keepPonder;keepPonder=!!waitingPonder;try{stopWorker();}finally{keepPonder=previousKeep;}
+  const generation=++revision,position=key(local),waitingPonder=explicit==null?matchingPonder():null;if(waitingPonder){selectPonder(waitingPonder);waitingPonder.promoted=true;waitingPonder.liveProofGatePending=true;}const previousKeep=keepPonder;keepPonder=!!waitingPonder;try{stopWorker();}finally{keepPonder=previousKeep;}
   const pending=[...pendingOwn.values()].find(r=>r.after.gameId===local.gameId&&same(local.events.slice(0,r.after.events.length),r.after.events));if(pending){rec=null;render();setAnalysisStatus('검증 수순 보존 중','처음 선택한 원 증명의 저장을 기다립니다.','ready');return;}
   storePromise.then(async store=>{if(!store)return null;await store.activateGame(g?.id??null);if(g?.id!==local.gameId)return null;return store.active(local);}).then(hit=>{
    if(generation!==revision||position!==key(context()))return;
