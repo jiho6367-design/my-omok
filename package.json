@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.52",
+  "version": "5.18.53",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "node build.cjs",
     "test:opening-choice-groups": "node test/balanced-opening-choices.cjs && node test/opening-choice-groups-data.cjs && node test/opening-choice-groups-ui.cjs",
     "test": "node build.cjs && node test/build-model.cjs && node test/build-appearance.cjs && node test/game-storage.cjs && npm run test:opening-choice-groups && npm run test:opening-book && npm run test:record-book && npm run test:turn-memory && npm run test:search-budget && node test/search-quiet-state.cjs && node test/search-work-state.cjs && node test/initiative-pool.cjs && node test/initiative-guard.cjs && npm run test:initiative && npm run test:opening && node test/five-priority.cjs && node test/performance-cache.cjs && node test/recommendation-policy.cjs && node test/reader/test.cjs && node test/reader-loss-contract.cjs && node test/reader-proof-output.cjs && node test/unified.cjs && node test/historical.cjs && node test/historical-progress.cjs && node test/proof-certificate.cjs && node test/root-screen.cjs && node test/known-refutations.cjs && node test/vcf-prefilter.cjs && npm run test:strategy && node test/worker-lifecycle.cjs && node test/ponder-lifecycle.cjs && node test/ponder-background.cjs && node test/ponder-branches.cjs && npm run test:g13-counter && npm run test:learning && npm run test:live-proof-keeper",
-    "test:search-budget": "node test/search-budget.cjs && node test/analysis-settings.cjs && node test/analysis-mode-engine.cjs && node test/parallel-analysis.cjs && node test/parallel-guard-deadline.cjs && node test/proven-win-latency.cjs && node test/forbidden-trap.cjs && node test/candidate-win.cjs && node test/preparation-win.cjs && node test/resistance-policy.cjs && node test/local-fallback.cjs && node test/mandatory-four.cjs && node test/defensive-budget.cjs && node test/analysis-record.cjs && node test/opening-budget.cjs && node test/reader-legal-rays.cjs && npm run test:open-three-proof && npm run test:second-player-defense",
+    "test:search-budget": "node test/search-budget.cjs && node test/analysis-settings.cjs && node test/analysis-mode-engine.cjs && node test/parallel-analysis.cjs && node test/parallel-guard-deadline.cjs && node test/parallel-guard-reserve.cjs && node test/proven-win-latency.cjs && node test/forbidden-trap.cjs && node test/candidate-win.cjs && node test/preparation-win.cjs && node test/resistance-policy.cjs && node test/local-fallback.cjs && node test/mandatory-four.cjs && node test/defensive-budget.cjs && node test/analysis-record.cjs && node test/opening-budget.cjs && node test/reader-legal-rays.cjs && npm run test:open-three-proof && npm run test:second-player-defense && node test/reader-open-four-end-blocks.cjs && node test/reader-principal-scout.cjs && node test/reader-long-model-memory.cjs && node test/assessment-view.cjs && node test/reader-closed-three-frontier.cjs && node test/strategy-closed-three-equivalence.cjs && node test/reader-budget-profile.cjs",
     "test:reader-neural": "node test/reader-neural-sync.cjs",
     "test:turn-memory": "node test/turn-memory.cjs && node test/turn-memory-search.cjs && node test/turn-memory-worker.cjs",
     "verify:opening": "node tools/verify-session.cjs reports/i7-loss-certificate.json 6",
@@ -22,7 +22,7 @@
     "test:recommendation-policy": "node test/recommendation-policy.cjs",
     "test:worker-lifecycle": "node test/worker-lifecycle.cjs && node test/ponder-lifecycle.cjs && node test/ponder-background.cjs && node test/ponder-branches.cjs",
     "test:gpu": "node test/local-gpu.cjs",
-    "test:strategy": "node test/strategy-manifest.cjs && node test/strategy-manifest-replay.cjs && node test/strategy-engine.cjs && node test/strategy-distant-connections.cjs && node test/strategy-preparation.cjs && node test/strategy-context.cjs && node test/strategy-policy.cjs && node test/strategy-proof.cjs",
+    "test:strategy": "node test/strategy-manifest.cjs && node test/strategy-manifest-replay.cjs && node test/strategy-engine.cjs && node test/strategy-distant-connections.cjs && node test/strategy-open-threes.cjs && node test/strategy-preparation.cjs && node test/strategy-context.cjs && node test/strategy-policy.cjs && node test/strategy-proof.cjs && node test/strategy-closed-three-equivalence.cjs",
     "verify:strategy": "node tools/strategy/compare.cjs",
     "arena:strategy": "node tools/strategy/arena.cjs",
     "test:strategy-ui": "node tools/strategy-ui-check.cjs",
@@ -31,7 +31,7 @@
     "test:learning:cpu": "python tools/learning/test_train.py",
     "test:learning:ui": "node test/learning-dashboard-ui.cjs && node test/learning-dashboard-resume-budget-ui.cjs && node test/learning-dashboard-recovery.cjs --ui && node test/learning-dashboard-monitor.cjs --ui && node test/learning-model-ui.cjs",
     "learning:plan": "node tools/learning/experiment-plan.cjs",
-    "test:analysis:ui": "node test/analysis-parallel-ui.cjs && node test/proven-win-ui.cjs && node test/forbidden-trap-ui.cjs && node test/candidate-win-ui.cjs && node test/resistance-timeout-ui.cjs && node test/mandatory-four-ui.cjs && node test/ponder-auto-ui.cjs && node test/ponder-branches-ui.cjs && node test/game-persistence-ui.cjs && node test/analysis-delivery-ui.cjs",
+    "test:analysis:ui": "node test/analysis-parallel-ui.cjs && node test/proven-win-ui.cjs && node test/forbidden-trap-ui.cjs && node test/candidate-win-ui.cjs && node test/resistance-timeout-ui.cjs && node test/mandatory-four-ui.cjs && node test/ponder-auto-ui.cjs && node test/ponder-branches-ui.cjs && node test/game-persistence-ui.cjs && node test/analysis-delivery-ui.cjs && node test/assessment-view-ui.cjs",
     "test:preparation-guard": "node test/mixed-preparation-guard.cjs && node test/mixed-preparation-integration.cjs && node test/three-preparation-guard.cjs",
     "benchmark:parallel": "node tools/performance/parallel-roots.cjs",
     "test:opening": "node test/opening-opponent-junction.cjs && node test/opening-connections.cjs && node test/opening-ring.cjs && node test/offcenter-opening.cjs && node test/native-opening-arena.cjs && node test/opening-report.cjs && node tools/strategy/opening-loss-audit.cjs --self-test && node test/mixed-preparation-guard.cjs && node test/mixed-preparation-integration.cjs && node test/three-preparation-guard.cjs",
@@ -95,7 +95,8 @@
     "test:opening-derived264:ui": "node test/opening-derived264-ui.cjs",
     "test:haengma": "node test/strategy-distant-connections.cjs && node test/opening-connections.cjs && node test/strategy-preparation.cjs",
     "test:game-storage": "node test/game-storage.cjs",
-    "test:game-storage:ui": "node test/game-persistence-ui.cjs"
+    "test:game-storage:ui": "node test/game-persistence-ui.cjs",
+    "test:early-preparation": "node test/strategy-open-threes.cjs && node test/reader-open-four-end-blocks.cjs && node test/reader-principal-scout.cjs && node test/reader-long-model-memory.cjs && node test/assessment-view.cjs && node test/parallel-guard-reserve.cjs && node test/reader-closed-three-frontier.cjs && node test/strategy-closed-three-equivalence.cjs && node test/reader-budget-profile.cjs"
   },
   "engines": {
     "node": ">=22.13"

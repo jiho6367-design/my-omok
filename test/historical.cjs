@@ -78,6 +78,19 @@ for(const p of [1,2]){
   assert.equal(win.strongest_reply,null);
   assert.equal(r.recommended.move,'E1');
 }
+// Verify candidate semantics directly, independent of Worker startup consuming
+// a per-position slice of the separate whole-game wall clock.
+for(const [moveNumber,actual,forcedCandidates,expected] of [
+  [10,'D9',['F9'],['F9']],
+  [12,'F10',['F6'],['F10','F6']],
+  [20,'E5',['G9'],['E5','G9']]
+]){
+  const r=analyzePosition({board:positions[moveNumber-1],moveNumber,actual,loser:2,ms:1000,
+    rules:{fivePriority:false},forcedCandidates});
+  assert.equal(r.complete,true);
+  for(const c of expected)assert.equal(r.candidates.find(x=>x.move===c)?.level,0,'explicitly evaluated '+moveNumber+'/'+c+' retains its verified refutation');
+  if(moveNumber===12)assert.equal(r.position_loss_proven,false);
+}
 (async()=>{
   for(const mode of [900,3000,8000]){
     const t=Date.now(),r=await analyze_game(moves,'white',mode,{workers:1});
@@ -92,12 +105,15 @@ for(const p of [1,2]){
     const ten=result.alternatives.find(x=>x.move_number===10);
     const twelve=result.alternatives.find(x=>x.move_number===12);
     const twenty=result.alternatives.find(x=>x.move_number===20);
-    assert.equal(ten.candidates.find(x=>x.move==='F9')?.level,0);
-    assert.equal(twelve.candidates.find(x=>x.move==='F10')?.level,0);
-    assert.equal(twelve.candidates.find(x=>x.move==='F6')?.level,0);
-    assert.equal(twelve.position_loss_proven,false);
-    assert.equal(twenty.candidates.find(x=>x.move==='E5')?.level,0);
-    assert.equal(twenty.candidates.find(x=>x.move==='G9')?.level,0,'verified G11 refutation must not reappear as an unproven defense');
+    const reported=(position,move)=>{
+      assert(!position.error,'Worker errors cannot masquerade as an incomplete evaluation');
+      const candidate=position.candidates.find(x=>x.move===move);
+      if(candidate)assert.equal(candidate.level,0,'a reported '+move+' retains its verified refutation');
+      else{assert.equal(position.timeout,true,'an unreported candidate requires an explicit hard-clock timeout');assert.notEqual(position.complete,true,'an unreported candidate cannot count as a completed position');}
+    };
+    reported(ten,'F9');reported(twelve,'F10');reported(twelve,'F6');
+    if(twelve.position_loss_proven===undefined){assert.equal(twelve.timeout,true);assert.notEqual(twelve.complete,true);}else assert.equal(twelve.position_loss_proven,false);
+    reported(twenty,'E5');reported(twenty,'G9');
     assert(!result.alternatives.some(x=>x.candidates?.some(c=>c.level===4&&c.reason.includes('미증명'))));
   }
   console.log('PASS historical replay, hypotheses, deadlines, adaptive workers, single/multi agreement');

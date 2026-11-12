@@ -19,7 +19,8 @@ const OmokParallel=(()=>{
   const deadline=performance.now()+Math.max(1,ms),checks=[];
   for(let k=0;k<rows.length&&performance.now()<deadline-20;k++){
    const m=rows[k],after=board.slice();if(!engine.inspect(board,m.i,p).legal)continue;after[m.i]=p;
-   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
+   // Check the actual recommendation first; incomplete checks never clear it.
+   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.8:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
    const work=(phase,nodes=0)=>onWork({i:m.i,started:true,finished:false,complete:false,refuted:false,phase,startedAtEpochMs,ms:performance.now()-start,nodes});
    work('started');
    const direct=engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3)));
@@ -27,7 +28,7 @@ const OmokParallel=(()=>{
    const forbidden=direct.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
    if(forbidden)work('forbidden',(direct.nodes||0)+(forbidden.nodes||0));
    const preparation=direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
-    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.8),25,3);
+    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),25,3);
    if(preparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
    const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||performance.now()>=end?null:engine.inspect(board,m.i,p).fours.length?
     engine.forcedReplyTrap(after,p,Math.max(1,end-performance.now()),null,25,true):engine.quietTrap(after,p,Math.max(1,end-performance.now()),14,25,true);
@@ -67,7 +68,9 @@ const OmokParallel=(()=>{
   const exportNativeProof=base.options?.proofDetails===true&&base.options?.counterProofDetails===true;
   let actualWorkerSourceBlob=null;const nativeRequests=new Map(),snapshotRequest=(type,ms)=>{if(!exportNativeProof)return;try{nativeRequests.set(type,structuredClone({board:base.b,p:base.p,firstPlayer:base.options.firstPlayer??null,model:base.options.model??null,rules:{fivePriority:base.options.fivePriority!==false},ms}));}catch{nativeRequests.delete(type);}};
   const proofSource=(sourceKind,messageType,result,declaredWorkerBudgetMs)=>{if(exportNativeProof)try{onProofSource({schemaVersion:1,source:sourceKind,messageType,declaredWorkerBudgetMs,result,requestSnapshot:nativeRequests.get(messageType)??null,workerSourceBlob:actualWorkerSourceBlob});}catch{}};
-  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),guardReserve=Math.min(2200,budget*.2),deadline=guardDeadline-guardReserve,count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
+  // Worker startup and the final counterattack search share this reserve;
+  // short requests retain most of their budget for complete comparison rounds.
+  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),guardReserve=Math.min(5000,budget*.36),deadline=guardDeadline-guardReserve,count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
   let stopped=false,guarding=false,guardReason=null,guardWork=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
   const saveCheck=check=>{const at=checks.findIndex(c=>c.i===check.i),previous=at<0?{}:checks[at];if(previous.rejection&&!check.rejection||previous.finished&&!check.finished)return previous;const next={...previous,...check};if(at<0)checks.push(next);else checks[at]=next;return next;};
   const close=()=>{if(stopped)return;stopped=true;clearTimeout(timer);for(const w of workers)w.terminate();};

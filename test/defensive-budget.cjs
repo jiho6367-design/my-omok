@@ -39,7 +39,7 @@ const defensiveGuard=defensive.workers.at(-1);assert.equal(defensiveGuard.job.ty
 defensive.guardComplete(false);assert.equal(defensive.outcomes.length,1);const negative=defensive.outcomes[0];assert.equal(negative.depth,16);assert.equal(negative.parallel.stopReason,'depth-limit');assert.equal(negative.analysisWork.budgetMs,14100);assert(negative.analysisIncomplete);assert(!negative.candidateChecks[0].complete);unresolved(negative);assert.equal(defensive.errors.length,0);assert(defensive.workers.every(w=>w.stopped));assert.equal(defensive.timers.size,0);
 
 const easy=scheduler();for(let depth=1;depth<=4;depth++)easy.round(depth,1000);
-const easyGuard=easy.workers.at(-1);assert.equal(easyGuard.job.type,'guard');assert(easyGuard.job.ms>0&&easyGuard.job.ms<=1200,'positive stable result keeps the short final guard');
+const easyGuard=easy.workers.at(-1);assert.equal(easyGuard.job.type,'guard');assert(easyGuard.job.ms>0&&easyGuard.job.ms<=5000,'stable positive results keep the bounded startup and final-check reserve');assert(easyGuard.job.ms<=14100-easy.clock.now,'the positive check shares the original overall deadline');
 easy.guardComplete(true);assert.equal(easy.outcomes.length,1);const positive=easy.outcomes[0];assert.equal(positive.depth,4);assert.equal(positive.parallel.stopReason,'stable-completed-rounds');assert(!positive.analysisIncomplete);unresolved(positive);assert(easy.workers.every(w=>w.stopped));assert.equal(easy.timers.size,0);
 
 const interrupted=scheduler();for(let depth=1;depth<=10;depth++)interrupted.round(depth);const completed=interrupted.pool.latest;

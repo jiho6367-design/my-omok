@@ -14,7 +14,7 @@ function scenario({startupMs=1500,initMs=200,interrupt=false,finalArrayOnly=fals
  workers[0].onmessage({data:{type:'plan',result:{rootFrontier:[{i:1},{i:2},{i:3}]}}});
  for(let k=0;k<3;k++)workers[k].onmessage({data:{type:'round',round:workers[k].job.round,result:{complete:true,nodes:1,rows:[{i:k+1,score:30-k,pv:[k+1],depth:1,comparisonComplete:true}]}}});
  const comparisonTimer=[...timers.values()][0];now=comparisonTimer.at;comparisonTimer.fn();const guard=workers.at(-1),request=guard.job;
- assert.equal(request.type,'guard');assert(request.ms>2000&&request.ms<=2200,'startup reserve is inside the existing total deadline');assert.equal(request.deadlineEpochMs,now+request.ms);
+ assert.equal(request.type,'guard');assert(request.ms>4900&&request.ms<=5000,'startup reserve is inside the existing total deadline');assert.equal(request.deadlineEpochMs,now+request.ms);
  if(lateComparisonError){workers[0].onmessage({data:{error:'terminated comparison message'}});workers[1].onerror({message:'terminated comparison event'});assert.equal(result,null,'errors from terminated comparison Workers cannot finish the active guard');assert(!guard.stopped);}
  now+=startupMs;
  const worker={Date:DateClock,performance:{now:()=>700000+now-epoch},postMessage:message=>{posts.push(message);if(!finalArrayOnly||message.type!=='guard-progress')guard.onmessage({data:message});},
@@ -23,10 +23,10 @@ function scenario({startupMs=1500,initMs=200,interrupt=false,finalArrayOnly=fals
  assert(result);assert(workers.every(w=>w.stopped));assert(result.candidateChecks.length===3);assert(!result.proven&&!result.lossProven);
  return {result,request,posts,forceBudgets,progress};
 }
-const delayed=scenario();assert(delayed.forceBudgets.length>0);assert(delayed.forceBudgets[0]<200,'source/engine startup is deducted before any tactical search');
+const delayed=scenario();assert(delayed.forceBudgets.length>0);assert(delayed.forceBudgets[0]<=500,'direct forcing remains capped inside the startup-adjusted guard budget');
 assert.equal(delayed.result.parallel.guard.startupMs,1500);assert.equal(delayed.result.parallel.guard.executionBudgetMs,delayed.request.ms-1700);assert(delayed.result.parallel.guard.workingCandidates>0);
 assert(delayed.result.candidateChecks.some(c=>c.started&&c.finished&&c.nodes>0));assert(delayed.posts.some(m=>m.type==='guard-work'&&m.check.phase==='forcing'&&m.check.nodes===7));
-const expired=scenario({startupMs:2400});assert.equal(expired.forceBudgets.length,0);assert.equal(expired.result.parallel.guard.executionBudgetMs,0);assert(expired.result.candidateChecks.every(c=>c.scheduled&&!c.started&&!c.finished&&!c.complete&&!c.refuted&&c.nodes===0));assert(expired.result.analysisIncomplete);
+const expired=scenario({startupMs:5200});assert.equal(expired.forceBudgets.length,0);assert.equal(expired.result.parallel.guard.executionBudgetMs,0);assert(expired.result.candidateChecks.every(c=>c.scheduled&&!c.started&&!c.finished&&!c.complete&&!c.refuted&&c.nodes===0));assert(expired.result.analysisIncomplete);
 const interrupted=scenario({interrupt:true});const partial=interrupted.result.candidateChecks.find(c=>c.started);assert(partial&&!partial.finished&&!partial.complete&&!partial.refuted&&partial.nodes===7);assert.equal(partial.phase,'forcing');assert(interrupted.result.analysisIncomplete);
 const finalOnly=scenario({finalArrayOnly:true});assert(finalOnly.result.candidateChecks.every(c=>c.finished&&c.complete&&c.nodes===10),'final returned checks replace scheduled and work-in-progress metadata');
 const finalProof=scenario({finalArrayOnly:true,proof:true});assert.equal(finalProof.result.i,2);assert(finalProof.result.rejected.some(r=>r.i===1&&r.verifiedRefutation));assert(finalProof.progress.some(r=>r.rejected?.some(m=>m.i===1&&m.verifiedRefutation)),'final-array refutations also reach the outer watchdog');

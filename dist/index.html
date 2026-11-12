@@ -671,9 +671,9 @@ const OmokRecordBook=(()=>{
  * only records published before cancellation survive in the page session. */
 const OmokSearchMemory=(()=>{
  const VERSION=1,DEFAULT_ENTRIES=4096,DEFAULT_BYTES=6*1024*1024;
-  const scope=(engine,N,o={})=>[engine,'node-v5-distant-junction-1',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
-  o.strategy!==false?'initiative-3-distant-junction-1':'no-strategy',o.optimized?1:0,!!o.patternTable,
-  o.vcfPrefilter!==false,!!o.counterProofDetails,o.modelVersion||'baseline'].join('|');
+  const scope=(engine,N,o={})=>[engine,'node-v6-pl2',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
+  o.strategy!==false?'s3-dj1-pl2':'no-strategy',o.optimized?1:0,!!o.patternTable,
+  o.vcfPrefilter!==false,!!o.counterProofDetails,o.fixedWork===true?'fw1':'fw0',o.modelVersion||'baseline'].join('|');
  const toStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?ply:-ply):v;
  const fromStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?-ply:ply):v;
  function create(options={}){
@@ -796,7 +796,7 @@ const OmokGPU = (() => {
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-distant-junction-1';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-distant-junction-1-preparatory-lines-2';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -1054,6 +1054,72 @@ function createStrategyEngine(N,rules,options={}){
   // search. They add no score, forcing flag or winning claim.
   return keep(preparations,key,{eligible:axes.length>=2&&threeAxes.length>0,legal:true,axes,threeAxes,evidence});
  }
+ // A different legal three can survive a different counter-block. Retain
+ // distinct placements, including opposite ends of the same supporting pair.
+ // These are bounded search nominations, without a score or proof bonus.
+ function searchThrees(board,p,ranked,limit=4,skip=new Set(),pointData){
+  limit=Number.isFinite(limit)?Math.max(0,Math.min(4,Math.floor(limit))):4;
+  if(!limit)return [];
+  const data={...pointData,own:pointData?.own||structure(board,p,false,true).points,enemy:pointData?.enemy||structure(board,3-p,false,true).points},out=[],seen=new Set(skip);
+  const at=(x,y)=>inside(x,y)?board[y*N+x]:3;
+  for(const m of ranked){
+   if(out.length>=limit)break;const i=m.i;if(seen.has(i)||board[i])continue;seen.add(i);
+   const hint=m.strategy||makeHint(i,data.own.get(i),data.enemy.get(i));if(!hint.attack)continue;
+   const x=i%N,y=i/N|0,groups=[];
+   for(let axis=0;axis<4;axis++){const [dx,dy]=D[axis];for(let start=-3;start<=0;start++){
+    if(at(x+(start-1)*dx,y+(start-1)*dy)||at(x+(start+4)*dx,y+(start+4)*dy))continue;
+    const support=[],empty=[];let blocked=false;
+    for(let k=start;k<start+4;k++){const xx=x+k*dx,yy=y+k*dy,j=yy*N+xx;if(j===i)continue;const v=at(xx,yy);if(v===p)support.push(j);else if(v===0)empty.push(j);else blocked=true;}
+    if(!blocked&&support.length===2&&empty.length===1)groups.push({axis,support,extension:empty[0]});
+   }}
+   if(!groups.length)continue;
+   const feature=move(board,i,p,m.a,{...data,lazyConnections:true});
+   if(!feature.legal||feature.forcing)continue;
+   const evidence=groups.filter(g=>feature.usableThreeAxes.includes(g.axis)&&feature.legalExtensions.includes(g.extension));
+   if(evidence.length)out.push({...m,strategy:feature,threeEvidence:evidence});
+  }return out;
+ }
+ // A closed three can still prepare a legal four on its only remaining end.
+ // Preserve a few witnessed placements without giving them a score or proof.
+ function searchClosedThrees(board,p,ranked,limit=2){
+ limit=Number.isFinite(limit)?Math.max(0,Math.min(2,Math.floor(limit))):2;
+ const out=[],seen=new Set();if(!limit||![1,2].includes(p))return out;
+ for(const m of ranked){
+  if(out.length>=limit)break;const i=m.i;
+  if(seen.has(i)||!Number.isInteger(i)||i<0||i>=N*N||board[i])continue;seen.add(i);
+  const choices=[];
+  for(const w of windows.byPoint[i]){
+   if(board[w.pre]===p||board[w.post]===p)continue;
+   let own=0,blocked=false;for(const j of w.cells){if(board[j]===3-p){blocked=true;break;}own+=board[j]===p;}
+   if(!blocked&&own===2)choices.push(w);
+  }
+  if(!choices.length)continue;
+  const shape=rules.inspect(board,i,p);
+  if(!shape.legal||shape.win?.length||shape.fours?.length||shape.threes?.length)continue;
+  let evidence=null;board[i]=p;
+  try{
+   for(const w of choices){
+    for(const four of w.cells)if(!board[four]){
+     const next=rules.inspect(board,four,p);if(!next.legal||next.win?.length||!next.fours?.includes(w.axis))continue;
+     board[four]=p;
+     try{
+      // The prefiltered window has three stones after the candidate and
+      // exactly one empty winning point after this fourth stone.
+      const end=w.cells.find(j=>!board[j]);if(end===undefined)continue;
+      const finish=rules.inspect(board,end,p);if(!finish.legal||!finish.win?.length)continue;
+      board[end]=p;
+      try{if(w.cells.every(j=>board[j]===p)&&board[w.pre]!==p&&board[w.post]!==p)evidence={axis:w.axis,stones:3,prepare:null,four,ends:[end]};}
+      finally{board[end]=0;}
+     }finally{board[four]=0;}
+     if(evidence)break;
+    }
+    if(evidence)break;
+   }
+  }finally{board[i]=0;}
+  if(evidence)out.push({...m,closedThreeEvidence:[evidence]});
+ }
+ return out;
+}
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -1065,6 +1131,7 @@ function createStrategyEngine(N,rules,options={}){
   const quota=state==='own'?[Math.ceil(q/2),Math.floor(q/6),q-Math.ceil(q/2)-Math.floor(q/6)]:state==='opponent'?[Math.floor(q/6),Math.ceil(q/2),q-Math.ceil(q/2)-Math.floor(q/6)]:[Math.ceil(q/3),Math.floor(q/3),q-Math.ceil(q/3)-Math.floor(q/3)];
   for(const [category,n] of ['attack','cut','dual'].map((category,k)=>[category,quota[k]])){let used=0,attempts=0;for(const m of rows.slice().sort((a,b)=>b.strategy[category]-a.strategy[category]||(b.score??b.s??0)-(a.score??a.s??0))){if(used>=n||out.length>=capacity||attempts>=Math.max(4,n*4))break;if(m.strategy[category]>0&&!seen.has(m.i)){attempts++;if(m.strategy.tentative)m.strategy=move(board,m.i,p,m.a,pointData);if(m.strategy.legal&&m.strategy[category]>0){add(m);used++;}}}}
   appendConnections(board,p,rows,out,seen,capacity,pointData);
+  if(options.preserveOpenThrees!==false)for(const m of searchThrees(board,p,rows,Math.min(4,capacity-out.length),seen,{...pointData,own:ownPoints,enemy:enemyPoints}))add(m);
   for(const m of rows){if(out.length>=capacity)break;add(m);}return out;
  }
  function evaluate(board,p){return structure(board,p).score-structure(board,3-p).score;}
@@ -1156,7 +1223,8 @@ function createStrategyEngine(N,rules,options={}){
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.
-  searchSelect:(board,p,ranked,width,reserve=6,forcing=new Set(),state,filter)=>select(board,p,ranked,width,reserve,forcing,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points,state,filter}),
+  searchSelect:(board,p,ranked,width,reserve=6,forcing=new Set(),state,filter)=>select(board,p,ranked,width,reserve,forcing,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points,state,filter}),searchClosedThrees,
+  searchThrees:(board,p,ranked,limit=4)=>searchThrees(board,p,ranked,limit),
   searchPoints:(board,p)=>[...new Set([...structure(board,p,false,true).points.keys(),...structure(board,3-p,false,true).points.keys(),...distantConnectionPoints(board,p),...distantConnectionPoints(board,3-p)])],
   searchMove:(board,i,p)=>move(board,i,p,undefined,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points}),
   evaluate:measured(evaluate,()=>0),positionValue:evaluate,
@@ -1172,13 +1240,13 @@ function createReaderEngine(N, board, options={}) {
   if(![15,19].includes(N)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid board');
   const b=Array.from(board),dirs=[[1,0],[0,1],[1,1],[1,-1]],M=10000000;
   const initialCounts=[0,0,0];for(const v of b)initialCounts[v]++;
-  const openingContext=initialCounts[1]<=2&&initialCounts[2]<=2,quietProfile=openingContext?'opening-ply4':'all-ply';
+  const openingContext=initialCounts[1]<=2&&initialCounts[2]<=2,quietProfile=openingContext?'opening-ply4':'all-ply',preparatoryLines=options.preparatoryLines!==false;
   const neuralFactory=options.model?(typeof OmokNeural!=='undefined'?OmokNeural:typeof require==='function'?require('./neural-evaluator.js'):null):null;
   if(options.model&&!neuralFactory)throw Error('Learning evaluator is required for this model');
   const neural=options.model?neuralFactory.createEvaluator(options.model,N,options.firstPlayer):null;
   let neuralPosition=null;
   const neuralDirty=neural?new Uint8Array(N*N):null,neuralDirtyIndices=neural?[]:null;
-  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion})+'|defense-horizon:1|'+quietProfile:'';
+  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion})+'|dh1|'+quietProfile+'|ofc2|'+(preparatoryLines?'pl2':'pl0'):'';
   const inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N, at=(x,y)=>inside(x,y)?b[y*N+x]:3;
   let legalRays=READER_LEGAL_RAYS.get(N);
   if(!legalRays){legalRays=Array.from({length:N*N},(_,i)=>{
@@ -1192,7 +1260,7 @@ function createReaderEngine(N, board, options={}) {
   const strategyFactory=typeof createStrategyEngine==='function'?createStrategyEngine:typeof require==='function'?require('./strategy-engine.js'):null;
   const forestFactory=typeof createForestEngine==='function'?createForestEngine:typeof require==='function'?require('./search-engine.js'):null;
   const ruleAdapter=options.strategy!==false&&N===15&&strategyFactory&&forestFactory?forestFactory({strategy:false,patternTable:options.patternTable}):null;
-  const strategy=ruleAdapter?strategyFactory(N,{inspect:ruleAdapter.inspect,legal:(board,i,p)=>ruleAdapter.inspect(board,i,p).legal,winning:ruleAdapter.winning},options):null;
+  const strategy=ruleAdapter?strategyFactory(N,{inspect:ruleAdapter.inspect,legal:(board,i,p)=>ruleAdapter.inspect(board,i,p).legal,winning:ruleAdapter.winning},{...options,preserveOpenThrees:preparatoryLines}):null;
   let resistanceAdapter=ruleAdapter;
 
  const patternIndices=options.patternTable?Array.from({length:N*N},(_,i)=>dirs.map(([dx,dy])=>Array.from({length:11},(_,k)=>{const x=i%N+(k-5)*dx,y=(i/N|0)+(k-5)*dy;return x>=0&&y>=0&&x<N&&y<N?y*N+x:-1;}))):null;
@@ -1280,24 +1348,28 @@ function createReaderEngine(N, board, options={}) {
       if(inside(leftX,leftY)&&inside(rightX,rightY)&&at(leftX,leftY)===0&&at(rightX,rightY)===0)return true;
     }return false;
   }
-  // Keep both legal ways to stop an opponent's next open four. A single
-  // cut representative can discard the end with the better counterplay.
+  // Keep legal extension cells and both ends of a genuine future open four.
+  // Blocking either end can stop the fork while building different counterplay.
   // Cheap virtual geometry runs before legality and incremental rule probes.
   function quietOpenFourCuts(p,ranked){
-    const q=3-p,result=[];
+    const q=3-p,result=[],extensions=new Set(),ends=new Set();
     for(const move of ranked){tick();const i=move.i;
       if(!quietOpenContiguousShape(i,q,4)||!legal(i,q))continue;set(i,q);
-      try{const winning=new Set(wins(q));if(winning.size<2)continue;
+      try{if(exact(i,q))continue;const winning=new Set(wins(q));if(winning.size<2)continue;
         const x=i%N,y=i/N|0;
         for(const [dx,dy]of dirs){let negative=0,positive=0;
           while(at(x-(negative+1)*dx,y-(negative+1)*dy)===q)negative++;
           while(at(x+(positive+1)*dx,y+(positive+1)*dy)===q)positive++;
           if(negative+positive+1!==4)continue;
           const left=[x-(negative+1)*dx,y-(negative+1)*dy],right=[x+(positive+1)*dx,y+(positive+1)*dy];
-          if([left,right].every(([xx,yy])=>inside(xx,yy)&&winning.has(yy*N+xx))){result.push(move);break;}
+          if([left,right].every(([xx,yy])=>inside(xx,yy)&&winning.has(yy*N+xx))){result.push(move);extensions.add(i);for(const [xx,yy]of[left,right])ends.add(yy*N+xx);break;}
         }
       }finally{set(i,0);}
-    }return result;
+    }
+    // `ranked` already contains only moves legal for the actual defender now.
+    // Append new ends after every legacy extension; do not displace those cuts.
+    if(preparatoryLines)for(const move of ranked)if(ends.has(move.i)&&!extensions.has(move.i)){result.push(move);extensions.add(move.i);}
+    return result;
   }
   function quietContiguousThree(p,ranked){
     for(const move of ranked){tick();const i=move.i;if(!dirs.some((_,axis)=>nearbyOwn[p][i*4+axis]>=2))continue;if(!quietOpenContiguousShape(i,p))continue;set(i,p);
@@ -1512,7 +1584,7 @@ function createReaderEngine(N, board, options={}) {
       // Window hints nominate fours/cuts, while geometric threes include
       // shapes omitted by exact-five windows. Full descriptors decide below.
       const potential=m=>{if(m.strategy.attack>=120||m.strategy.cut>=120)return true;b[m.i]=p;try{return openThrees(m.i,p)>0;}finally{b[m.i]=0;}};
-      const all=rank(p),protectedFours=quietActualFours(p,all),protectedThree=quietContiguousThree(p,all),protectedCuts=quietOpenFourCuts(p,all);
+      const all=rank(p),protectedFours=quietActualFours(p,all),protectedThree=quietContiguousThree(p,all),protectedCuts=quietOpenFourCuts(p,all),protectedThrees=preparatoryLines?(strategy.searchThrees?.(b,p,all,4)||[]):[],protectedClosedThrees=preparatoryLines?(strategy.searchClosedThrees?.(b,p,all,2)||[]):[];
       const prepared=strategy.searchSelect(b,p,all,4,4,new Set(),'unknown',potential).map(m=>({...m,strategy:strategy.searchMove(b,m.i,p)}));
       const attack=m=>m.strategy.legalExtensions.length&&(m.strategy.forcing||m.strategy.usableThreeAxes.length||m.strategy.axes.length>1),
         cut=m=>m.strategy.cut>=120;
@@ -1530,6 +1602,10 @@ function createReaderEngine(N, board, options={}) {
       for(const m of protectedFours)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
       if(protectedThree&&!chosen.some(c=>c.i===protectedThree.i))chosen.push(protectedThree);
       for(const m of protectedCuts)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
+      // Distinct legal open-three preparations on other axes survive the
+      // single legacy attack representative, including broken threes.
+      for(const m of protectedThrees)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
+      for(const m of protectedClosedThrees)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
       quietMoves=chosen;tick();
       // A completed pure nomination is identified by the board, side and
       // this Reader's fixed constructor profile. Eligibility remains outside
@@ -1567,7 +1643,15 @@ function createReaderEngine(N, board, options={}) {
         spentQuiet=quietMoves?.length&&!wins(p).length?quietExtension&~(1<<(p-1)):quietExtension,
         rearmed=danger.length===1&&i===danger[0]?((~spentQuiet)&3)&(spentQuiet>>2):0,
         nextQuiet=(spentQuiet|rearmed)&~(rearmed<<2);
-      child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
+      // Later moves first test whether they improve alpha. Fractional learned
+      // values still require full re-search for ANY improvement below beta.
+      const scoutBeta=options.pvs===false||best.score===-Infinity||!Number.isFinite(alpha)?null:
+        Math.min(beta,alpha+Math.max(1e-6,Math.abs(alpha)*Number.EPSILON*4));
+      if(scoutBeta!==null&&scoutBeta>alpha&&scoutBeta<beta){
+        child=search(3-p,depth-1,-scoutBeta,-alpha,ply+1,nextExtension,nextQuiet);
+        const scoutScore=-child.score;
+        if(scoutScore>alpha&&scoutScore<beta)child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
+      }else child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
     }finally{set(i,0);}const score=-child.score;if(score>best.score)best={score,pv:[i,...child.pv]};alpha=Math.max(alpha,score);if(alpha>=beta)break;}
     const bound=best.score<=a0?'upper':best.score>=b0?'lower':'exact';
     if(tt.size>50000)tt.clear();tt.set(key,{...best,depth,extension,quietExtension,bound});
@@ -1957,7 +2041,7 @@ function createForestEngine(options={}){
  const windows=[];
  for(let y=0;y<15;y++)for(let x=0;x<15;x++)for(let [axis,[dx,dy]]of D.entries()){if(!inside(x+4*dx,y+4*dy))continue;windows.push({axis,cells:Array.from({length:5},(_,k)=>(y+k*dy)*15+x+k*dx),before:inside(x-dx,y-dy)?(y-dy)*15+x-dx:-1,after:inside(x+5*dx,y+5*dy)?(y+5*dy)*15+x+5*dx:-1});}
  const strategyFactory=typeof createStrategyEngine==='function'?createStrategyEngine:typeof require==='function'?require('./strategy-engine.js'):null;
- const strategy=options.strategy!==false&&strategyFactory?strategyFactory(15,{inspect,legal:(b,i,p)=>inspect(b,i,p).legal,winning},options):null;
+ const strategy=options.strategy!==false&&strategyFactory?strategyFactory(15,{inspect,legal:(b,i,p)=>inspect(b,i,p).legal,winning},{...options,preserveOpenThrees:false}):null;
  const strategicPreparation=(b,i,p)=>strategy?.preparation(b,i,p)||null;
  const strategicMove=(b,i,p)=>strategy?.move(b,i,p)||null,strategicScore=(b,i,p)=>strategy?.move(b,i,p).score||0,strategicProfile=(b,p)=>strategy?.profile(b,p)||null;
  function evaluateUncached(b,p){
@@ -2207,7 +2291,7 @@ function createEngine(options={}) {
     if(!Array.isArray(value)||value.length>225)return null;const history=Array.from(value);
     return history.every(i=>Number.isInteger(i)&&i>=0&&i<225)&&new Set(history).size===history.length?history:null;
   };
-  const strategyVersion='initiative-3-distant-junction-1';
+  const strategyVersion='initiative-3-distant-junction-1-preparatory-lines-2';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
@@ -2215,7 +2299,7 @@ function createEngine(options={}) {
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
-  const fast=b=>createReaderEngine(15,b,rules);
+  const fast=(b,enhanced=true)=>createReaderEngine(15,b,enhanced?rules:{...rules,preparatoryLines:false,pvs:false});
   const inspect=(b,i,p)=>![1,2].includes(p)?{legal:false,reason:'돌 색 오류',threes:[],fours:[],win:[]}:forest.inspect(b,i,p);
   const recordFactory=typeof OmokRecordBook!=='undefined'?OmokRecordBook:null;
   let recordBook=recordFactory?recordFactory.create(options.recordBook||[],{inspect}):null;
@@ -2598,12 +2682,12 @@ function createEngine(options={}) {
   function analyzeCore(board,p,budget='auto',lessons=[],progress=()=>{},profile={}) {
     lessons=lessons.filter(l=>(l.rules?.fivePriority!==false)===rules.fivePriority);
     const started=clockNow(),automatic=budget==='auto'||budget?.automatic===true;
-    const limit=automatic?(budget?.ms||8000):Math.max(30,Number(budget)||1000);
+    const limit=automatic?(budget?.ms||8000):Math.max(30,Number(budget?.ms??budget)||1000);
     const immediate=urgent(board,p);if(immediate)return immediate;
     const certified=forest.certifiedLoss(board,p);if(certified)return certified;
     // A historical pattern is a hint, not a proof or a replacement for comparison.
     const deep=limit>8000;
-    const e=fast(board);
+    const e=fast(board,budget?.mode!=='custom');
     const ensureLegalCandidate=result=>finalizeResult(board,p,result);
     const known=forest.knownRefutations(board,p),knownBad=new Set(known.map(m=>m.i));
     const excludeKnown=result=>{
@@ -3008,7 +3092,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       screeningComplete:r.screeningComplete===true,
       stopReason:r.proven?'verified-win':r.lossProven?'verified-loss':r.kind==='terminal'?'terminal':clockNow()-started>=limit*.96?'time-limit':r.autoReason||'bounded-comparison-complete'}};};
     if(!staged){
-      const request=automatic?{automatic:true,ms:comparisonBudget}:comparisonBudget;
+      const request=automatic?{automatic:true,ms:comparisonBudget}:mode==='custom'?{mode:'custom',ms:comparisonBudget}:comparisonBudget;
       let result=analyzeCore(board,p,request,lessons,r=>progress(describe(r)));
       if(limit<3000||result.proven||result.lossProven||result.urgent||result.kind==='terminal'||result.i==null)return describe(result);
       const checks=[],rejected=[...(result.rejected||[])],seen=new Set(),baseNodes=result.nodes||0,rows=[{i:result.i},...(result.candidates||[])].filter(m=>!seen.has(m.i)&&seen.add(m.i)).slice(0,3);let guardNodes=0;
@@ -3027,7 +3111,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
     let compared=[];
     // Retain complete rounds through final checks; different engine scores
     // are never mixed. Deep expands Forest's root/branch/depth profile.
-    let best=analyzeCore(board,p,comparisonBudget,lessons,r=>{
+    let best=analyzeCore(board,p,mode==='custom'?{mode:'custom',ms:comparisonBudget}:comparisonBudget,lessons,r=>{
       if(r.depth>0&&r.candidates?.length>1)compared=r.candidates.slice();
       progress(describe(r));
     },{deep:true});
@@ -8408,6 +8492,27 @@ const OmokBalancedOpeningChoices=(()=>{
   if(typeof module!=='undefined')module.exports=root.OmokAnalysisSettings;
 })(globalThis);
 
+// A finite comparison score describes its completed search, not a win rate.
+const OmokAssessment=(()=>{
+ const ownScore=(score,p,me)=>Number.isFinite(score)&&[1,2].includes(p)&&[1,2].includes(me)?(p===me?score:-score):null;
+ const formatScore=(score,p,me)=>{const value=ownScore(score,p,me);if(value===null)return null;const rounded=Math.round(value)||0;return (rounded>0?'+':'')+rounded;};
+ function describe(result,p,me){
+  if(!result)return {kind:'empty',text:'판세: 분석 전'};
+  const own=p===me;
+  if(result.proven&&!result.lossProven)return {kind:'proof',text:'판세: '+(own?'내 강제승 확인':'상대 강제승 확인')};
+  if(result.lossProven&&!result.proven)return {kind:'proof',text:'판세: '+(own?'내 강제패배 확인':'상대 강제패배 확인')};
+  if(['OPENING_REFERENCE','ENGINE_STRATEGY','ENGINE_PRECOMPUTED','RECORDED_LINE'].includes(result.assessmentStatus))return {kind:'reference',text:'판세: 등록 자료 조회 · 현재 판세 비교와 구분'};
+  const c=result.comparison,row=result.candidates?.find(m=>m.i===result.i),complete=c?.complete===true&&c.selected===result.i&&c.depth===result.depth&&c.source===result.comparisonSource&&['reader','forest'].includes(c.source)&&Number.isInteger(c.rootsCompared)&&c.rootsCompared>0||
+    c===undefined&&row?.comparisonComplete===true&&row.depth===result.depth&&row.score===result.score&&row.pv?.[0]===result.i&&row.comparisonSource===result.comparisonSource&&['reader','forest'].includes(row.comparisonSource);
+  const score=ownScore(result.score,p,me);
+  if(!complete||!Number.isInteger(result.depth)||!(result.depth>0)||result.pv?.[0]!==result.i||score===null)return {kind:'incomplete',text:'판세: 유불리 비교 미완료'};
+  const rounded=Math.round(score)||0,trend=rounded>0?'내쪽 우세 추정':rounded<0?'상대쪽 우세 추정':'평가 차이 없음';
+  return {kind:rounded<0?'unfavourable':rounded>0?'favourable':'balanced',text:'판세: '+trend+' · 평가 '+formatScore(result.score,p,me)+' · 완료 비교 '+result.depth+'반수'+(Math.abs(score)>=5e6?' · 제한 탐색에서 승패 진행 발견':'' )};
+ }
+ return {ownScore,formatScore,describe};
+})();
+if(typeof module!=='undefined')module.exports=OmokAssessment;
+
 // CPU root parallelism. Only a complete equal-depth round may replace the
 // recommendation. The ordinary engine continues to discover forcing proofs.
 const OmokParallel=(()=>{
@@ -8429,7 +8534,8 @@ const OmokParallel=(()=>{
   const deadline=performance.now()+Math.max(1,ms),checks=[];
   for(let k=0;k<rows.length&&performance.now()<deadline-20;k++){
    const m=rows[k],after=board.slice();if(!engine.inspect(board,m.i,p).legal)continue;after[m.i]=p;
-   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
+   // Check the actual recommendation first; incomplete checks never clear it.
+   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.8:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
    const work=(phase,nodes=0)=>onWork({i:m.i,started:true,finished:false,complete:false,refuted:false,phase,startedAtEpochMs,ms:performance.now()-start,nodes});
    work('started');
    const direct=engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3)));
@@ -8437,7 +8543,7 @@ const OmokParallel=(()=>{
    const forbidden=direct.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
    if(forbidden)work('forbidden',(direct.nodes||0)+(forbidden.nodes||0));
    const preparation=direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
-    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.8),25,3);
+    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),25,3);
    if(preparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
    const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||performance.now()>=end?null:engine.inspect(board,m.i,p).fours.length?
     engine.forcedReplyTrap(after,p,Math.max(1,end-performance.now()),null,25,true):engine.quietTrap(after,p,Math.max(1,end-performance.now()),14,25,true);
@@ -8477,7 +8583,9 @@ const OmokParallel=(()=>{
   const exportNativeProof=base.options?.proofDetails===true&&base.options?.counterProofDetails===true;
   let actualWorkerSourceBlob=null;const nativeRequests=new Map(),snapshotRequest=(type,ms)=>{if(!exportNativeProof)return;try{nativeRequests.set(type,structuredClone({board:base.b,p:base.p,firstPlayer:base.options.firstPlayer??null,model:base.options.model??null,rules:{fivePriority:base.options.fivePriority!==false},ms}));}catch{nativeRequests.delete(type);}};
   const proofSource=(sourceKind,messageType,result,declaredWorkerBudgetMs)=>{if(exportNativeProof)try{onProofSource({schemaVersion:1,source:sourceKind,messageType,declaredWorkerBudgetMs,result,requestSnapshot:nativeRequests.get(messageType)??null,workerSourceBlob:actualWorkerSourceBlob});}catch{}};
-  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),guardReserve=Math.min(2200,budget*.2),deadline=guardDeadline-guardReserve,count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
+  // Worker startup and the final counterattack search share this reserve;
+  // short requests retain most of their budget for complete comparison rounds.
+  const started=performance.now(),guardDeadline=started+Math.max(30,budget-100),guardReserve=Math.min(5000,budget*.36),deadline=guardDeadline-guardReserve,count=Math.min(3,hardware-2),workers=[],bad=new Set(),rounds=[];
   let stopped=false,guarding=false,guardReason=null,guardWork=null,roots=null,seed=null,round=0,depth=1,parts=[],latest=null,lastRows=[],timer,serial=null,pendingWin=null,winMs=0;const checks=[],winChecks=[],winAttempted=new Set();
   const saveCheck=check=>{const at=checks.findIndex(c=>c.i===check.i),previous=at<0?{}:checks[at];if(previous.rejection&&!check.rejection||previous.finished&&!check.finished)return previous;const next={...previous,...check};if(at<0)checks.push(next);else checks[at]=next;return next;};
   const close=()=>{if(stopped)return;stopped=true;clearTimeout(timer);for(const w of workers)w.terminate();};
@@ -8788,6 +8896,7 @@ stopWorker();
 const analysisPlan=document.createElement('p');analysisPlan.id='analysisPlan';analysisPlan.className='muted';$('sequence').after(analysisPlan);
 const predictionNote=document.createElement('p');predictionNote.id='predictionNote';predictionNote.className='muted';analysisPlan.after(predictionNote);
 const strategyNote=document.createElement('p');strategyNote.id='strategyEvidence';strategyNote.className='muted';predictionNote.after(strategyNote);
+const assessmentNote=document.createElement('p');assessmentNote.id='positionAssessment';assessmentNote.title='같은 깊이에서 완료한 제한 비교입니다. 평가 점수는 검증된 승률 백분율이 아닙니다.';strategyNote.before(assessmentNote);
 const candidateList=document.createElement('div');candidateList.className='row';candidateList.id='candidates';$('reason').after(candidateList);
 const ruleLabel=document.createElement('p');ruleLabel.className='muted';$('turnInfo').after(ruleLabel);
 function setAnalysisStatus(label,detail,mode='ready'){
@@ -8798,7 +8907,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.52';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.52');
+versionBadge.textContent='통합 v5.18.53';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.53');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -9127,9 +9236,10 @@ render=function(){unifiedRender();
   if(rec?.i!=null&&rec.analysisDelivery?.phase==='stopped')$('recommend').textContent=E.coord(rec.i)+' · 중단 후보';
   candidateList.replaceChildren();
   for(const [k,m] of (rec?.candidates||[]).slice(0,3).entries()){
-    const el=document.createElement('span');el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}`;candidateList.append(el);
+    const el=document.createElement('span'),score=m.comparisonComplete?OmokAssessment.formatScore(m.score,turn,g?.me):null;el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}${score===null?'':' · 평가 '+score}`;candidateList.append(el);
   }
   analysisPlan.textContent=formatAnalysisPlan(rec?.analysisPolicy||currentAnalysisPolicy,rec)||activePlan;
+  const assessment=OmokAssessment.describe(rec,turn,g?.me);assessmentNote.textContent=assessment.text;assessmentNote.dataset.assessment=assessment.kind;
   if(rec?.lossProven||rec?.proven)$('metrics').textContent=(rec.proven?'강제승 확인':'강제패배 확인 · 합법 후보 유지')+` · 완료 비교 ${rec.depth||0}반수 · ${Number.isInteger(rec.proofSearchDepth)?'증명 탐색 최대 '+rec.proofSearchDepth+'수':'증명 탐색 깊이 미계측'}${Number.isInteger(rec.proofPlies)?' · 표시 수순 '+rec.proofPlies+'수':''} · ${(rec.nodes||0).toLocaleString()}노드 · ${rec.ms||0}ms`;
   if(rec?.i!=null&&!rec.proven&&!rec.lossProven)$('metrics').textContent=`완료 비교 깊이 ${rec.depth||0}반수 · ${rec.ms||0}ms · ${(rec.nodes||0).toLocaleString()}노드 · 제한 탐색`;
   if(rec?.searchMemory?.reused)$('metrics').textContent+=` · 이전 계산 ${rec.searchMemory.reused.toLocaleString()}회 재사용`;
@@ -9488,8 +9598,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.52 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.52');
+versionBadge.textContent='통합 v5.18.53 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.53');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict'),A=require('../src/assessment-view.js');
+const base={i:112,depth:4,score:-300,pv:[112],comparisonSource:'reader',comparison:{complete:true,selected:112,depth:4,source:'reader',rootsCompared:24}};
+assert.equal(A.describe(base,1,1).kind,'unfavourable');assert(A.describe(base,1,1).text.includes('-300'));
+assert.equal(A.describe(base,2,1).kind,'favourable');assert(A.describe(base,2,1).text.includes('+300'));
+for(const result of [{...base,depth:0},{...base,comparison:{...base.comparison,selected:113}},{...base,comparison:{...base.comparison,complete:false}},{...base,score:Infinity},{...base,depth:4.5,comparison:{...base.comparison,depth:4.5}},{...base,comparison:{...base.comparison,rootsCompared:0}},{...base,comparison:undefined,comparisonSource:undefined,candidates:[{i:112,pv:[112],comparisonComplete:true,depth:4,score:-300}]}])assert.equal(A.describe(result,1,1).kind,'incomplete');
+for(const score of [-.2,.2])assert.equal(A.describe({...base,score},1,1).kind,'balanced');
+assert.equal(A.describe({...base,assessmentStatus:'OPENING_REFERENCE',score:0},1,1).kind,'reference');
+const finiteLoss=A.describe({...base,score:-9999984},1,1);assert.equal(finiteLoss.kind,'unfavourable');assert(finiteLoss.text.includes('제한 탐색'));assert(!finiteLoss.text.includes('강제패배 확인'));
+assert(A.describe({...base,lossProven:true},1,1).text.includes('내 강제패배 확인'));
+assert(A.describe({...base,proven:true},2,1).text.includes('상대 강제승 확인'));
+assert(!A.describe(base,1,1).text.includes('%'));assert.equal(A.formatScore(NaN,1,1),null);
+console.log('PASS perspective-consistent completed comparisons, reference/incomplete separation, finite loss versus certificate and no invented win percentage');

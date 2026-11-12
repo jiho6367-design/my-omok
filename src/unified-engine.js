@@ -8,7 +8,7 @@ function createEngine(options={}) {
     if(!Array.isArray(value)||value.length>225)return null;const history=Array.from(value);
     return history.every(i=>Number.isInteger(i)&&i>=0&&i<225)&&new Set(history).size===history.length?history:null;
   };
-  const strategyVersion='initiative-3-distant-junction-1';
+  const strategyVersion='initiative-3-distant-junction-1-preparatory-lines-2';
   const searchMemory=options.searchMemory===false?null:options.searchMemory||
     (typeof OmokSearchMemory!=='undefined'?OmokSearchMemory.create({snapshot:options.memorySnapshot}):null);
   const rules={fivePriority:true,patternTable:options.patternTable,optimized:options.optimized,
@@ -16,7 +16,7 @@ function createEngine(options={}) {
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
-  const fast=b=>createReaderEngine(15,b,rules);
+  const fast=(b,enhanced=true)=>createReaderEngine(15,b,enhanced?rules:{...rules,preparatoryLines:false,pvs:false});
   const inspect=(b,i,p)=>![1,2].includes(p)?{legal:false,reason:'돌 색 오류',threes:[],fours:[],win:[]}:forest.inspect(b,i,p);
   const recordFactory=typeof OmokRecordBook!=='undefined'?OmokRecordBook:null;
   let recordBook=recordFactory?recordFactory.create(options.recordBook||[],{inspect}):null;
@@ -399,12 +399,12 @@ function createEngine(options={}) {
   function analyzeCore(board,p,budget='auto',lessons=[],progress=()=>{},profile={}) {
     lessons=lessons.filter(l=>(l.rules?.fivePriority!==false)===rules.fivePriority);
     const started=clockNow(),automatic=budget==='auto'||budget?.automatic===true;
-    const limit=automatic?(budget?.ms||8000):Math.max(30,Number(budget)||1000);
+    const limit=automatic?(budget?.ms||8000):Math.max(30,Number(budget?.ms??budget)||1000);
     const immediate=urgent(board,p);if(immediate)return immediate;
     const certified=forest.certifiedLoss(board,p);if(certified)return certified;
     // A historical pattern is a hint, not a proof or a replacement for comparison.
     const deep=limit>8000;
-    const e=fast(board);
+    const e=fast(board,budget?.mode!=='custom');
     const ensureLegalCandidate=result=>finalizeResult(board,p,result);
     const known=forest.knownRefutations(board,p),knownBad=new Set(known.map(m=>m.i));
     const excludeKnown=result=>{
@@ -809,7 +809,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       screeningComplete:r.screeningComplete===true,
       stopReason:r.proven?'verified-win':r.lossProven?'verified-loss':r.kind==='terminal'?'terminal':clockNow()-started>=limit*.96?'time-limit':r.autoReason||'bounded-comparison-complete'}};};
     if(!staged){
-      const request=automatic?{automatic:true,ms:comparisonBudget}:comparisonBudget;
+      const request=automatic?{automatic:true,ms:comparisonBudget}:mode==='custom'?{mode:'custom',ms:comparisonBudget}:comparisonBudget;
       let result=analyzeCore(board,p,request,lessons,r=>progress(describe(r)));
       if(limit<3000||result.proven||result.lossProven||result.urgent||result.kind==='terminal'||result.i==null)return describe(result);
       const checks=[],rejected=[...(result.rejected||[])],seen=new Set(),baseNodes=result.nodes||0,rows=[{i:result.i},...(result.candidates||[])].filter(m=>!seen.has(m.i)&&seen.add(m.i)).slice(0,3);let guardNodes=0;
@@ -828,7 +828,7 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
     let compared=[];
     // Retain complete rounds through final checks; different engine scores
     // are never mixed. Deep expands Forest's root/branch/depth profile.
-    let best=analyzeCore(board,p,comparisonBudget,lessons,r=>{
+    let best=analyzeCore(board,p,mode==='custom'?{mode:'custom',ms:comparisonBudget}:comparisonBudget,lessons,r=>{
       if(r.depth>0&&r.candidates?.length>1)compared=r.candidates.slice();
       progress(describe(r));
     },{deep:true});

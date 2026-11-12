@@ -5,13 +5,13 @@ function createEngine(N, board, options={}) {
   if(![15,19].includes(N)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid board');
   const b=Array.from(board),dirs=[[1,0],[0,1],[1,1],[1,-1]],M=10000000;
   const initialCounts=[0,0,0];for(const v of b)initialCounts[v]++;
-  const openingContext=initialCounts[1]<=2&&initialCounts[2]<=2,quietProfile=openingContext?'opening-ply4':'all-ply';
+  const openingContext=initialCounts[1]<=2&&initialCounts[2]<=2,quietProfile=openingContext?'opening-ply4':'all-ply',preparatoryLines=options.preparatoryLines!==false;
   const neuralFactory=options.model?(typeof OmokNeural!=='undefined'?OmokNeural:typeof require==='function'?require('./neural-evaluator.js'):null):null;
   if(options.model&&!neuralFactory)throw Error('Learning evaluator is required for this model');
   const neural=options.model?neuralFactory.createEvaluator(options.model,N,options.firstPlayer):null;
   let neuralPosition=null;
   const neuralDirty=neural?new Uint8Array(N*N):null,neuralDirtyIndices=neural?[]:null;
-  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion})+'|defense-horizon:1|'+quietProfile:'';
+  const memory=options.searchMemory||null,memScope=memory?OmokSearchMemory.scope('reader',N,{...options,modelVersion:neural?.modelId||options.modelVersion})+'|dh1|'+quietProfile+'|ofc2|'+(preparatoryLines?'pl2':'pl0'):'';
   const inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N, at=(x,y)=>inside(x,y)?b[y*N+x]:3;
   let legalRays=READER_LEGAL_RAYS.get(N);
   if(!legalRays){legalRays=Array.from({length:N*N},(_,i)=>{
@@ -25,7 +25,7 @@ function createEngine(N, board, options={}) {
   const strategyFactory=typeof createStrategyEngine==='function'?createStrategyEngine:typeof require==='function'?require('./strategy-engine.js'):null;
   const forestFactory=typeof createForestEngine==='function'?createForestEngine:typeof require==='function'?require('./search-engine.js'):null;
   const ruleAdapter=options.strategy!==false&&N===15&&strategyFactory&&forestFactory?forestFactory({strategy:false,patternTable:options.patternTable}):null;
-  const strategy=ruleAdapter?strategyFactory(N,{inspect:ruleAdapter.inspect,legal:(board,i,p)=>ruleAdapter.inspect(board,i,p).legal,winning:ruleAdapter.winning},options):null;
+  const strategy=ruleAdapter?strategyFactory(N,{inspect:ruleAdapter.inspect,legal:(board,i,p)=>ruleAdapter.inspect(board,i,p).legal,winning:ruleAdapter.winning},{...options,preserveOpenThrees:preparatoryLines}):null;
   let resistanceAdapter=ruleAdapter;
 
  const patternIndices=options.patternTable?Array.from({length:N*N},(_,i)=>dirs.map(([dx,dy])=>Array.from({length:11},(_,k)=>{const x=i%N+(k-5)*dx,y=(i/N|0)+(k-5)*dy;return x>=0&&y>=0&&x<N&&y<N?y*N+x:-1;}))):null;
@@ -113,24 +113,28 @@ function createEngine(N, board, options={}) {
       if(inside(leftX,leftY)&&inside(rightX,rightY)&&at(leftX,leftY)===0&&at(rightX,rightY)===0)return true;
     }return false;
   }
-  // Keep both legal ways to stop an opponent's next open four. A single
-  // cut representative can discard the end with the better counterplay.
+  // Keep legal extension cells and both ends of a genuine future open four.
+  // Blocking either end can stop the fork while building different counterplay.
   // Cheap virtual geometry runs before legality and incremental rule probes.
   function quietOpenFourCuts(p,ranked){
-    const q=3-p,result=[];
+    const q=3-p,result=[],extensions=new Set(),ends=new Set();
     for(const move of ranked){tick();const i=move.i;
       if(!quietOpenContiguousShape(i,q,4)||!legal(i,q))continue;set(i,q);
-      try{const winning=new Set(wins(q));if(winning.size<2)continue;
+      try{if(exact(i,q))continue;const winning=new Set(wins(q));if(winning.size<2)continue;
         const x=i%N,y=i/N|0;
         for(const [dx,dy]of dirs){let negative=0,positive=0;
           while(at(x-(negative+1)*dx,y-(negative+1)*dy)===q)negative++;
           while(at(x+(positive+1)*dx,y+(positive+1)*dy)===q)positive++;
           if(negative+positive+1!==4)continue;
           const left=[x-(negative+1)*dx,y-(negative+1)*dy],right=[x+(positive+1)*dx,y+(positive+1)*dy];
-          if([left,right].every(([xx,yy])=>inside(xx,yy)&&winning.has(yy*N+xx))){result.push(move);break;}
+          if([left,right].every(([xx,yy])=>inside(xx,yy)&&winning.has(yy*N+xx))){result.push(move);extensions.add(i);for(const [xx,yy]of[left,right])ends.add(yy*N+xx);break;}
         }
       }finally{set(i,0);}
-    }return result;
+    }
+    // `ranked` already contains only moves legal for the actual defender now.
+    // Append new ends after every legacy extension; do not displace those cuts.
+    if(preparatoryLines)for(const move of ranked)if(ends.has(move.i)&&!extensions.has(move.i)){result.push(move);extensions.add(move.i);}
+    return result;
   }
   function quietContiguousThree(p,ranked){
     for(const move of ranked){tick();const i=move.i;if(!dirs.some((_,axis)=>nearbyOwn[p][i*4+axis]>=2))continue;if(!quietOpenContiguousShape(i,p))continue;set(i,p);
@@ -345,7 +349,7 @@ function createEngine(N, board, options={}) {
       // Window hints nominate fours/cuts, while geometric threes include
       // shapes omitted by exact-five windows. Full descriptors decide below.
       const potential=m=>{if(m.strategy.attack>=120||m.strategy.cut>=120)return true;b[m.i]=p;try{return openThrees(m.i,p)>0;}finally{b[m.i]=0;}};
-      const all=rank(p),protectedFours=quietActualFours(p,all),protectedThree=quietContiguousThree(p,all),protectedCuts=quietOpenFourCuts(p,all);
+      const all=rank(p),protectedFours=quietActualFours(p,all),protectedThree=quietContiguousThree(p,all),protectedCuts=quietOpenFourCuts(p,all),protectedThrees=preparatoryLines?(strategy.searchThrees?.(b,p,all,4)||[]):[],protectedClosedThrees=preparatoryLines?(strategy.searchClosedThrees?.(b,p,all,2)||[]):[];
       const prepared=strategy.searchSelect(b,p,all,4,4,new Set(),'unknown',potential).map(m=>({...m,strategy:strategy.searchMove(b,m.i,p)}));
       const attack=m=>m.strategy.legalExtensions.length&&(m.strategy.forcing||m.strategy.usableThreeAxes.length||m.strategy.axes.length>1),
         cut=m=>m.strategy.cut>=120;
@@ -363,6 +367,10 @@ function createEngine(N, board, options={}) {
       for(const m of protectedFours)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
       if(protectedThree&&!chosen.some(c=>c.i===protectedThree.i))chosen.push(protectedThree);
       for(const m of protectedCuts)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
+      // Distinct legal open-three preparations on other axes survive the
+      // single legacy attack representative, including broken threes.
+      for(const m of protectedThrees)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
+      for(const m of protectedClosedThrees)if(!chosen.some(c=>c.i===m.i))chosen.push(m);
       quietMoves=chosen;tick();
       // A completed pure nomination is identified by the board, side and
       // this Reader's fixed constructor profile. Eligibility remains outside
@@ -400,7 +408,15 @@ function createEngine(N, board, options={}) {
         spentQuiet=quietMoves?.length&&!wins(p).length?quietExtension&~(1<<(p-1)):quietExtension,
         rearmed=danger.length===1&&i===danger[0]?((~spentQuiet)&3)&(spentQuiet>>2):0,
         nextQuiet=(spentQuiet|rearmed)&~(rearmed<<2);
-      child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
+      // Later moves first test whether they improve alpha. Fractional learned
+      // values still require full re-search for ANY improvement below beta.
+      const scoutBeta=options.pvs===false||best.score===-Infinity||!Number.isFinite(alpha)?null:
+        Math.min(beta,alpha+Math.max(1e-6,Math.abs(alpha)*Number.EPSILON*4));
+      if(scoutBeta!==null&&scoutBeta>alpha&&scoutBeta<beta){
+        child=search(3-p,depth-1,-scoutBeta,-alpha,ply+1,nextExtension,nextQuiet);
+        const scoutScore=-child.score;
+        if(scoutScore>alpha&&scoutScore<beta)child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
+      }else child=search(3-p,depth-1,-beta,-alpha,ply+1,nextExtension,nextQuiet);
     }finally{set(i,0);}const score=-child.score;if(score>best.score)best={score,pv:[i,...child.pv]};alpha=Math.max(alpha,score);if(alpha>=beta)break;}
     const bound=best.score<=a0?'upper':best.score>=b0?'lower':'exact';
     if(tt.size>50000)tt.clear();tt.set(key,{...best,depth,extension,quietExtension,bound});

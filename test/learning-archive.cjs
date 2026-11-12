@@ -10,7 +10,7 @@ if(localBaselineArgument){const baseline=path.resolve(localBaselineArgument.slic
 fs.mkdirSync(path.join(S.ROOT,'work'),{recursive:true});
 const dir=fs.mkdtempSync(path.join(S.ROOT,'work/archive-contract-')),identity=S.sourceIdentity(),files=Object.fromEntries([...identity.sourceManifest,...identity.harnessManifest].map(row=>[row.path,fs.readFileSync(path.join(S.ROOT,row.path),'utf8')])),snapshot={schemaVersion:2,identity,files,externalDependencies:[]};
 const write=(name,value)=>{const file=path.join(dir,name+'.json');S.atomic(file,value);return file;};
-const requiredDependencies=['src/node-engine.cjs','build.cjs','src/neural-app.js','src/balanced-opening-data.js','src/balanced-opening-choices.js'];
+const requiredDependencies=['src/node-engine.cjs','build.cjs','src/neural-app.js','src/assessment-view.js','src/game-storage.js','src/game-storage-loader.js','src/balanced-opening-data.js','src/balanced-opening-choices.js'];
 const manifested=new Set(identity.sourceManifest.map(row=>row.path));
 for(const dependency of requiredDependencies)assert(manifested.has(dependency),dependency+' must be preserved');
 // Check the actual entry points so adding a read() input cannot silently omit
@@ -19,6 +19,18 @@ for(const entry of ['src/node-engine.cjs','build.cjs'])for(const match of files[
 assert(!manifested.has('package.json'),'the HTML build does not read package metadata');
 assert(!identity.sourceManifest.some(row=>/^(?:\.local|outputs|work)\//.test(row.path)||row.path==='src/active-model.json'),'runtime source identity excludes mutable local data');
 const frozen=archive.frozenRuntime(write('complete',snapshot));assert.deepEqual(frozen.load('tools/learning/state.cjs').sourceIdentity(),identity);
+const assessment=frozen.load('src/assessment-view.js');assert.equal(assessment.describe(null,1,1).kind,'empty');
+// A generated captured UI-only edit must participate in reproducibility even
+// though it does not change the engine, model weights or historical evidence.
+const helperVariation=structuredClone(snapshot);helperVariation.files['src/assessment-view.js']+='\n// generated captured helper variation';
+helperVariation.identity.sourceManifest.find(row=>row.path==='src/assessment-view.js').sha256=S.hash(helperVariation.files['src/assessment-view.js']);
+helperVariation.identity.sourceHash=S.hash(helperVariation.identity.sourceManifest);
+assert.notEqual(helperVariation.identity.sourceHash,identity.sourceHash);assert.notEqual(archive.archiveId(helperVariation.identity),archive.archiveId(identity));
+assert.equal(helperVariation.identity.harnessHash,identity.harnessHash);assert.equal(helperVariation.identity.runtimeHash,identity.runtimeHash);
+const variedHelper=archive.frozenRuntime(write('helper-variation',helperVariation));
+assert.deepEqual(variedHelper.load('tools/learning/state.cjs').sourceIdentity(),helperVariation.identity);
+assert.equal(variedHelper.load('src/assessment-view.js').describe(null,1,1).kind,'empty');
+assert.deepEqual(frozen.load('tools/learning/state.cjs').sourceIdentity(),identity,'the original captured identity stays immutable');
 const factory=frozen.load('src/node-engine.cjs');assert.equal(typeof factory,'function');
 const liveProof=frozen.load('tools/build-live-proof.cjs')(S.ROOT);
 for(const [dependency,sha256] of Object.entries(liveProof.sourceHashes))assert.equal(identity.sourceManifest.find(row=>row.path===dependency)?.sha256,sha256,'live-proof bundle reads preserved bytes');

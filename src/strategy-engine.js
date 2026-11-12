@@ -4,7 +4,7 @@
 function createStrategyEngine(N,rules,options={}){
  const now=options.clock||(()=>typeof performance!=='undefined'?performance.now():Date.now());
  const firstPlayer=[1,2].includes(options.firstPlayer??options.context?.firstPlayer)?(options.firstPlayer??options.context.firstPlayer):null;
- const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-distant-junction-1';
+ const context=Object.freeze({firstPlayer}),strategyVersion='initiative-3-distant-junction-1-preparatory-lines-2';
  const D=[[1,0],[0,1],[1,1],[1,-1]],inside=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
  const geometry=createStrategyEngine.geometry||(createStrategyEngine.geometry=new Map());
  let windows=geometry.get(N);
@@ -262,6 +262,72 @@ function createStrategyEngine(N,rules,options={}){
   // search. They add no score, forcing flag or winning claim.
   return keep(preparations,key,{eligible:axes.length>=2&&threeAxes.length>0,legal:true,axes,threeAxes,evidence});
  }
+ // A different legal three can survive a different counter-block. Retain
+ // distinct placements, including opposite ends of the same supporting pair.
+ // These are bounded search nominations, without a score or proof bonus.
+ function searchThrees(board,p,ranked,limit=4,skip=new Set(),pointData){
+  limit=Number.isFinite(limit)?Math.max(0,Math.min(4,Math.floor(limit))):4;
+  if(!limit)return [];
+  const data={...pointData,own:pointData?.own||structure(board,p,false,true).points,enemy:pointData?.enemy||structure(board,3-p,false,true).points},out=[],seen=new Set(skip);
+  const at=(x,y)=>inside(x,y)?board[y*N+x]:3;
+  for(const m of ranked){
+   if(out.length>=limit)break;const i=m.i;if(seen.has(i)||board[i])continue;seen.add(i);
+   const hint=m.strategy||makeHint(i,data.own.get(i),data.enemy.get(i));if(!hint.attack)continue;
+   const x=i%N,y=i/N|0,groups=[];
+   for(let axis=0;axis<4;axis++){const [dx,dy]=D[axis];for(let start=-3;start<=0;start++){
+    if(at(x+(start-1)*dx,y+(start-1)*dy)||at(x+(start+4)*dx,y+(start+4)*dy))continue;
+    const support=[],empty=[];let blocked=false;
+    for(let k=start;k<start+4;k++){const xx=x+k*dx,yy=y+k*dy,j=yy*N+xx;if(j===i)continue;const v=at(xx,yy);if(v===p)support.push(j);else if(v===0)empty.push(j);else blocked=true;}
+    if(!blocked&&support.length===2&&empty.length===1)groups.push({axis,support,extension:empty[0]});
+   }}
+   if(!groups.length)continue;
+   const feature=move(board,i,p,m.a,{...data,lazyConnections:true});
+   if(!feature.legal||feature.forcing)continue;
+   const evidence=groups.filter(g=>feature.usableThreeAxes.includes(g.axis)&&feature.legalExtensions.includes(g.extension));
+   if(evidence.length)out.push({...m,strategy:feature,threeEvidence:evidence});
+  }return out;
+ }
+ // A closed three can still prepare a legal four on its only remaining end.
+ // Preserve a few witnessed placements without giving them a score or proof.
+ function searchClosedThrees(board,p,ranked,limit=2){
+ limit=Number.isFinite(limit)?Math.max(0,Math.min(2,Math.floor(limit))):2;
+ const out=[],seen=new Set();if(!limit||![1,2].includes(p))return out;
+ for(const m of ranked){
+  if(out.length>=limit)break;const i=m.i;
+  if(seen.has(i)||!Number.isInteger(i)||i<0||i>=N*N||board[i])continue;seen.add(i);
+  const choices=[];
+  for(const w of windows.byPoint[i]){
+   if(board[w.pre]===p||board[w.post]===p)continue;
+   let own=0,blocked=false;for(const j of w.cells){if(board[j]===3-p){blocked=true;break;}own+=board[j]===p;}
+   if(!blocked&&own===2)choices.push(w);
+  }
+  if(!choices.length)continue;
+  const shape=rules.inspect(board,i,p);
+  if(!shape.legal||shape.win?.length||shape.fours?.length||shape.threes?.length)continue;
+  let evidence=null;board[i]=p;
+  try{
+   for(const w of choices){
+    for(const four of w.cells)if(!board[four]){
+     const next=rules.inspect(board,four,p);if(!next.legal||next.win?.length||!next.fours?.includes(w.axis))continue;
+     board[four]=p;
+     try{
+      // The prefiltered window has three stones after the candidate and
+      // exactly one empty winning point after this fourth stone.
+      const end=w.cells.find(j=>!board[j]);if(end===undefined)continue;
+      const finish=rules.inspect(board,end,p);if(!finish.legal||!finish.win?.length)continue;
+      board[end]=p;
+      try{if(w.cells.every(j=>board[j]===p)&&board[w.pre]!==p&&board[w.post]!==p)evidence={axis:w.axis,stones:3,prepare:null,four,ends:[end]};}
+      finally{board[end]=0;}
+     }finally{board[four]=0;}
+     if(evidence)break;
+    }
+    if(evidence)break;
+   }
+  }finally{board[i]=0;}
+  if(evidence)out.push({...m,closedThreeEvidence:[evidence]});
+ }
+ return out;
+}
  function select(board,p,ranked,width,reserve=6,forcingSet=new Set(),pointData){
   const ownPoints=pointData?.own||structure(board,p,false).points,enemyPoints=pointData?.enemy||structure(board,3-p,false).points;
   const rows=ranked.map(m=>({...m,strategy:m.strategy&&!m.strategy.incomplete?m.strategy:makeHint(m.i,ownPoints.get(m.i),enemyPoints.get(m.i))})).filter(m=>!pointData?.filter||pointData.filter(m)),out=[],seen=new Set();
@@ -273,6 +339,7 @@ function createStrategyEngine(N,rules,options={}){
   const quota=state==='own'?[Math.ceil(q/2),Math.floor(q/6),q-Math.ceil(q/2)-Math.floor(q/6)]:state==='opponent'?[Math.floor(q/6),Math.ceil(q/2),q-Math.ceil(q/2)-Math.floor(q/6)]:[Math.ceil(q/3),Math.floor(q/3),q-Math.ceil(q/3)-Math.floor(q/3)];
   for(const [category,n] of ['attack','cut','dual'].map((category,k)=>[category,quota[k]])){let used=0,attempts=0;for(const m of rows.slice().sort((a,b)=>b.strategy[category]-a.strategy[category]||(b.score??b.s??0)-(a.score??a.s??0))){if(used>=n||out.length>=capacity||attempts>=Math.max(4,n*4))break;if(m.strategy[category]>0&&!seen.has(m.i)){attempts++;if(m.strategy.tentative)m.strategy=move(board,m.i,p,m.a,pointData);if(m.strategy.legal&&m.strategy[category]>0){add(m);used++;}}}}
   appendConnections(board,p,rows,out,seen,capacity,pointData);
+  if(options.preserveOpenThrees!==false)for(const m of searchThrees(board,p,rows,Math.min(4,capacity-out.length),seen,{...pointData,own:ownPoints,enemy:enemyPoints}))add(m);
   for(const m of rows){if(out.length>=capacity)break;add(m);}return out;
  }
  function evaluate(board,p){return structure(board,p).score-structure(board,3-p).score;}
@@ -364,7 +431,8 @@ function createStrategyEngine(N,rules,options={}){
   profile:measured(profile,lightProfile),points:measured(points,()=>[]),select:measured(select,fallbackSelect),
   // Search values and TT bounds must use the same candidate rule regardless
   // of work spent on earlier roots. The caller owns the search deadline.
-  searchSelect:(board,p,ranked,width,reserve=6,forcing=new Set(),state,filter)=>select(board,p,ranked,width,reserve,forcing,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points,state,filter}),
+  searchSelect:(board,p,ranked,width,reserve=6,forcing=new Set(),state,filter)=>select(board,p,ranked,width,reserve,forcing,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points,state,filter}),searchClosedThrees,
+  searchThrees:(board,p,ranked,limit=4)=>searchThrees(board,p,ranked,limit),
   searchPoints:(board,p)=>[...new Set([...structure(board,p,false,true).points.keys(),...structure(board,3-p,false,true).points.keys(),...distantConnectionPoints(board,p),...distantConnectionPoints(board,3-p)])],
   searchMove:(board,i,p)=>move(board,i,p,undefined,{own:structure(board,p,false,true).points,enemy:structure(board,3-p,false,true).points}),
   evaluate:measured(evaluate,()=>0),positionValue:evaluate,

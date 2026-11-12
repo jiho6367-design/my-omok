@@ -2,9 +2,9 @@
  * only records published before cancellation survive in the page session. */
 const OmokSearchMemory=(()=>{
  const VERSION=1,DEFAULT_ENTRIES=4096,DEFAULT_BYTES=6*1024*1024;
-  const scope=(engine,N,o={})=>[engine,'node-v5-distant-junction-1',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
-  o.strategy!==false?'initiative-3-distant-junction-1':'no-strategy',o.optimized?1:0,!!o.patternTable,
-  o.vcfPrefilter!==false,!!o.counterProofDetails,o.modelVersion||'baseline'].join('|');
+  const scope=(engine,N,o={})=>[engine,'node-v6-pl2',N,'exact5-both33',o.firstPlayer??o.context?.firstPlayer??'unknown',
+  o.strategy!==false?'s3-dj1-pl2':'no-strategy',o.optimized?1:0,!!o.patternTable,
+  o.vcfPrefilter!==false,!!o.counterProofDetails,o.fixedWork===true?'fw1':'fw0',o.modelVersion||'baseline'].join('|');
  const toStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?ply:-ply):v;
  const fromStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?-ply:ply):v;
  function create(options={}){
