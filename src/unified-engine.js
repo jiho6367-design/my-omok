@@ -649,19 +649,35 @@ function createEngine(options={}) {
   // Check the opponent's ACTUAL next turn, including every legal counter-win
   // and counter-four. A comparison score only schedules this certificate.
   function verifyWinningMove(board,p,i,ms=160){
-    const start=clockNow(),shape=inspect(board,i,p),finish=(complete,proof=null,pv=[],nodes=0,kind=null,metrics={})=>({complete,proof,pv,nodes,kind,metricsVersion:2,proofPlies:proof?pv.length:null,proofSearchDepth:null,proofSearchDepthScope:null,...metrics,ms:clockNow()-start});
+    const start=clockNow(),budget=Math.max(0,Number(ms)||0),end=start+budget,deepEligible=budget>=3000,stages=[];let readerStartupMs=0;
+    const finish=(complete,proof=null,pv=[],nodes=0,kind=null,metrics={})=>{const elapsed=clockNow()-start;return{complete,proof,pv,nodes,kind,metricsVersion:2,proofPlies:proof?pv.length:null,proofSearchDepth:null,proofSearchDepthScope:null,...metrics,verificationWork:{budgetMs:budget,elapsedMs:elapsed,readerStartupMs,deepEligible,stages:stages.slice()},ms:elapsed};};
+    const shape=inspect(board,i,p);
     if(!shape.legal)return finish(true);
     if(shape.win.length)return finish(true,{type:'exact-five',move:i,attacker:p,complete:true},[i],0,'win',{proofSearchDepth:0,proofSearchDepthScope:'immediate-inspection-no-recursive-proof-work'});
     const after=board.slice();after[i]=p;
     // Ordinary cached proofs may omit their branch details. Build this small
     // certificate locally so its exported all-response tree is self-contained.
-    const defender=createReaderEngine(15,after,{...rules,searchMemory:null,counterProofDetails:true}),check=defender.counterLoss(3-p,Math.max(0,ms-(clockNow()-start)),19,1);
-    const metrics={proofSearchDepth:Number.isInteger(check.proofSearchDepth)?1+check.proofSearchDepth:null,proofSearchDepthScope:'additional-occupied-plies-visited-from-fixed-candidate-entry'};
-    if(!check.complete||!check.lossProven||!check.branches?.length)return finish(check.complete,null,[],check.nodes||0,null,metrics);
+    if(clockNow()>=end)return finish(false);
+    const setupStart=clockNow(),defender=createReaderEngine(15,after,{...rules,searchMemory:null,counterProofDetails:true});readerStartupMs=clockNow()-setupStart;
+    const remaining=()=>Math.max(0,end-clockNow()),run=(stage,maxPlies,quiet,requestedMs)=>{
+      const check=defender.counterLoss(3-p,requestedMs,maxPlies,quiet);
+      stages.push({stage,maxPlies,quiet,requestedMs,complete:!!check.complete,proven:!!(check.complete&&check.lossProven&&check.branches?.length),ownImmediateWin:!!check.ownImmediateWin,nodes:check.nodes||0,ms:check.ms||0,proofSearchDepth:check.proofSearchDepth??null});return check;
+    };
+    // Preserve the former two-second fixed-candidate proof opportunity.
+    // Only genuinely longer requests share their remaining time with q3.
+    const quickMs=Math.min(remaining(),deepEligible?Math.min(2000,budget*.5):budget);if(quickMs<=0)return finish(false);
+    let check=run('quick',19,1,quickMs);
+    const certified=()=>!!(check.complete&&check.lossProven&&check.branches?.length);
+    if(deepEligible&&!certified()&&!check.ownImmediateWin){
+      const deepMs=remaining();if(deepMs>0)check=run('preparation',25,3,deepMs);else check={complete:false};
+    }
+    const nodes=stages.reduce((sum,stage)=>sum+stage.nodes,0),visited=stages.map(stage=>stage.proofSearchDepth).filter(Number.isInteger),
+      metrics={proofSearchDepth:visited.length?1+Math.max(...visited):null,proofSearchDepthScope:'additional-occupied-plies-visited-from-fixed-candidate-entry'};
+    if(!certified())return finish(!!check.complete,null,[],nodes,null,metrics);
     const branch=check.branches[0],pv=[i,branch.i,...branch.proof.pv];
-    if(validPV(board,p,pv).length!==pv.length)return finish(false,null,[],check.nodes||0,null,metrics);
+    if(validPV(board,p,pv).length!==pv.length)return finish(false,null,[],nodes,null,metrics);
     return finish(true,{type:'all-legal-replies',move:i,attacker:p,defender:3-p,entryBoardKey:board.join(''),replyBoardKey:after.join(''),complete:true,
-      checkedReplies:check.branches.length,branches:check.branches},pv,check.nodes||0,'forced',metrics);
+      checkedReplies:check.branches.length,branches:check.branches},pv,nodes,'forced',metrics);
   }
 // Proof work nomination only. No evaluation value or safety claim is returned.
 function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performance.now()){
@@ -704,11 +720,13 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
     const recorded=recordedReply(board,p);if(recorded)return recorded;
     const start=clockNow(),requested=budget&&typeof budget==='object'?Number(budget.ms):Number(budget),
       mode=budget&&typeof budget==='object'&&['fast','auto','deep','custom'].includes(budget.mode)?budget.mode:null,
-      automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,proofNomination=automatic||mode==='deep',cap=mode==='fast'?1000:automatic?15000:25000,
+      automatic=mode?mode==='auto':budget==='auto'||budget?.automatic===true,cap=mode==='fast'?1000:automatic?15000:25000,
       limit=Math.max(30,Math.min(cap,Number.isFinite(requested)?requested:automatic?8000:1000)),
-      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,independentPreparationReserve=proofNomination?preparationReserve:0,attempted=new Set(),checks=[],stop={};
-    let spent=0,preparationSpent=0,independentPreparationSpent=0,extraNodes=0,winner=null;
+      proofNomination=automatic||mode==='deep'||mode==='custom'&&limit>=7000&&!budget?.background,
+      reserve=limit>=3000?320:limit>=300?80:0,preparationReserve=automatic||limit>=3000?Math.min(1200,limit*.25):0,independentPreparationReserve=automatic||mode==='deep'?preparationReserve:0,attempted=new Set(),checks=[],stop={};
+    let spent=0,preparationSpent=0,independentPreparationSpent=0,extraNodes=0,winner=null,positiveProofWork=null;
     const decorate=r=>({...r,nodes:(r.nodes||0)+extraNodes,candidateWinChecks:checks.slice(),
+      ...(positiveProofWork?{positiveProofWork:{...positiveProofWork,quickStarted:positiveProofWork.quickStarted.slice(),deepStarted:positiveProofWork.deepStarted.slice()}}:{}),
       analysisWork:r.analysisWork?{...r.analysisWork,budgetMs:limit,guardBudgetMs:(r.analysisWork.guardBudgetMs||0)+Math.max(0,limit-(r.analysisWork.budgetMs??limit)),nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start)}:r.urgent?{mode:mode||(automatic?'auto':limit>=20000?'deep':'custom'),budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:0,completedDepth:r.depth||0,nodes:(r.nodes||0)+extraNodes,elapsedMs:Math.round(clockNow()-start),source:'urgent',stopReason:r.proven?'verified-win':r.lossProven?'verified-loss':'mandatory-defense'}:r.analysisWork});
     const forward=r=>{
       const shape=r.shape,tactical=r.score>=5e6||shape?.threes?.length||shape?.fours?.length,
@@ -736,24 +754,58 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       progress(decorate(r));
     };
     if(proofNomination){const immediate=urgent(board,p);if(immediate)return decorate(immediate);}
-    const threeBudget=proofNomination?Math.min(1200,limit*.08):0,threeStart=clockNow();
+    // Short/background requests retain their small nomination allowance.
+    // Foreground long requests can check the same three-setup horizon used
+    // against us, sharing one reserve across all nominees and both stages.
+    const extendedRequest=proofNomination&&!budget?.background&&limit>=7000,
+      threeBudget=proofNomination?(extendedRequest?Math.min(5000,limit*.5):Math.min(1200,limit*.08)):0,threeStart=clockNow();
     if(threeBudget>=20){
       const nominees=nominateLegalThrees(board,p,inspect,Math.min(start+limit-30,threeStart+Math.min(40,threeBudget*.15)),clockNow);
-      const seed=nominees.complete?nominees.rows[0]:null,ms=Math.min(threeBudget-(clockNow()-threeStart),start+limit-clockNow()-30);
-      if(seed&&ms>=10){
-        const check=verifyWinningMove(board,p,seed.i,ms);extraNodes+=check.nodes||0;attempted.add(seed.i+'|shape');
-        checks.push({i:seed.i,stage:'open-three',complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,nomination:seed});
+      const firstTwo=nominees.complete?nominees.rows.slice(0,2):[],linkedSupport=firstTwo.length===2&&firstTwo[0].axis!==firstTwo[1].axis&&firstTwo[0].anchors.some(i=>firstTwo[1].anchors.includes(i)),
+        extendedPositive=extendedRequest&&linkedSupport,legacyNomination=automatic||mode==='deep',
+        proofReserve=extendedPositive?threeBudget:legacyNomination?Math.min(1200,limit*.08):0,
+        seeds=extendedPositive?firstTwo:legacyNomination?firstTwo.slice(0,1):[],threeEnd=Math.min(start+limit-30,threeStart+proofReserve);
+      // Unrelated preparations retain the original quick/comparison policy.
+      // The expanded positive proof is reserved for two cross-axis plans
+      // sharing an existing stone, rather than every ordinary quiet position.
+      positiveProofWork={reserveMs:proofReserve,extended:extendedPositive,linkedSupport,nominationComplete:nominees.complete,nominees:seeds.map(s=>({i:s.i,anchors:s.anchors.slice(),extensions:s.extensions.length})),quickStarted:[],deepStarted:[],elapsedMs:0};
+      const tryNominee=(seed,ms,phase)=>{
+        const check=verifyWinningMove(board,p,seed.i,ms);extraNodes+=check.nodes||0;
+        // A quick or interrupted probe does not stand in for the broader
+        // fixed-candidate question. The two horizons have distinct records.
+        attempted.add(seed.i+'|open-three-'+phase);
+        if(check.complete&&!check.proof)attempted.add(seed.i+'|shape');
+        positiveProofWork[phase==='quick'?'quickStarted':'deepStarted'].push(seed.i);positiveProofWork.elapsedMs=clockNow()-threeStart;
+        checks.push({i:seed.i,stage:'open-three',phase,complete:check.complete,proven:!!check.proof,ms:check.ms,nodes:check.nodes||0,nomination:seed,...(check.verificationWork?{verificationWork:check.verificationWork}:{})});
         if(check.complete&&check.proof){
           const result=finalizeResult(board,p,{i:seed.i,pv:check.pv,proof:check.proof,proven:true,lossProven:false,forcedLoss:false,kind:check.kind,score:1e8,depth:0,proofPlies:check.proofPlies,proofSearchDepth:check.proofSearchDepth,proofSearchDepthScope:check.proofSearchDepthScope,nodes:0,analysisIncomplete:false,timedOut:false,comparison:{complete:false,selected:seed.i,depth:0,source:'open-three-proof',rootsCompared:0},reason:'열린 셋 후보 뒤 상대의 모든 합법 응수에서 강제승 확인',analysisWork:{mode:mode||'auto',budgetMs:limit,comparisonBudgetMs:0,guardBudgetMs:limit,completedDepth:0,source:'open-three-proof',stopReason:'verified-win'}});
           if(result.proven){const done=decorate(result);progress(done);return{...done,ms:clockNow()-start};}
         }
+        return null;
+      };
+      // Keep the original quick order and give another existing support a
+      // chance before spending the remaining reserve on a harder proof.
+      const quickEnd=Math.min(threeEnd,threeStart+Math.min(1200,limit*.08));
+      for(let k=0;k<seeds.length;k++){
+        const ms=Math.min(k===0?Infinity:480,quickEnd-clockNow(),start+limit-clockNow()-30);
+        if(ms<10)break;const done=tryNominee(seeds[k],ms,'quick');if(done)return done;
       }
+      if(extendedPositive){
+        // More legal future extensions nominate a robust continuation; this
+        // affects proof work only. No positional score or win is assigned.
+        const deepSeeds=seeds.slice().sort((a,b)=>b.extensions.length-a.extensions.length||Number(b.contiguous)-Number(a.contiguous)||a.i-b.i);
+        for(const seed of deepSeeds){
+          const ms=Math.min(threeEnd-clockNow(),start+limit-clockNow()-30);
+          if(ms<3000)break;const done=tryNominee(seed,ms,'deep');if(done)return done;
+        }
+      }
+      positiveProofWork.elapsedMs=clockNow()-threeStart;
     }
     // A deeper defensive leaf must not hide an already available closed
     // preparation win. Nominate independently of the current comparison,
     // using a separate bounded reserve. Preserve the original selected-move
     // preparation reserve; both stages share the same absolute move deadline.
-    if(proofNomination&&board.filter(v=>v===p).length>=3&&independentPreparationReserve>independentPreparationSpent&&checks.length<4){
+    if(proofNomination&&board.filter(v=>v===p).length>=3&&independentPreparationReserve>independentPreparationSpent&&!checks.some(c=>c.nomination==='independent-closed-preparation')&&clockNow()<start+limit-30){
       const nominationStart=clockNow(),nominationEnd=Math.min(start+limit-30,nominationStart+40),nominees=[];
       for(const i of forest.candidates(board)){
         if(clockNow()>=nominationEnd)break;

@@ -1,0 +1,76 @@
+'use strict';
+// Generated geometry + controlled verification/search responses exercise the
+// actual nomination scheduler. Mock certificates here are routing markers,
+// never tactical evidence; own-proof-budget covers real certificate semantics.
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const sourceDir=path.join(__dirname,'../src'),plain=x=>JSON.parse(JSON.stringify(x)),ix=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65;
+const own=['F5','G5','F7'].map(ix),enemy=[ix('D5')],base=Array(225).fill(0);for(const i of own)base[i]=1;for(const i of enemy)base[i]=2;
+// The two axes share an existing anchor. The first support has one legal
+// future extension; the second has two. Disjoint pairs are a separate negative
+// control. No private game or prescribed winning move is used.
+const narrow=ix('H5'),wide=ix('F6'),closed=ix('A15'),disjoint=Array(225).fill(0);for(const c of['F5','G5','K10','L10'])disjoint[ix(c)]=1;disjoint[ix('D5')]=2;
+function transform(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++){const a=x;x=14-y;y=a;}return y*15+x;}
+function position(p=1,t=0){const b=Array(225).fill(0);base.forEach((q,i)=>{if(q)b[transform(i,t)]=p===1?q:3-q;});return b;}
+function replaceOnce(text,needle,replacement){assert.equal(text.split(needle).length,2,'test observation must bind exactly one real function: '+needle);return text.replace(needle,replacement);}
+function harness(config={}){
+ let now=0,E=null;const calls=[],searches=[],finalizations=[],progress=[],board=config.board||position(),p=config.p||1,context={Date,console,navigator:{hardwareConcurrency:2},performance:{now:()=>now}};
+ vm.createContext(context);
+ for(const name of['neural-evaluator.js','record-book.js','search-memory.js','gpu-patterns.js','strategy-engine.js','reader-engine.js','search-engine.js','unified-engine.js']){
+  let text=fs.readFileSync(path.join(sourceDir,name),'utf8');
+  if(name==='reader-engine.js')text=replaceOnce(text,'function createEngine(','function createReaderEngine(');
+  if(name==='unified-engine.js'){
+   text=replaceOnce(text,'return {...api,configure,','return {...api,testNominate:nominateLegalThrees,configure,');
+   text=replaceOnce(text,'function verifyWinningMove(board,p,i,ms=160){','function verifyWinningMove(board,p,i,ms=160){const generated=options.testVerify?.({board:board.slice(),p,i,ms});if(generated)return generated;');
+   text=replaceOnce(text,'function finalizeResult(board,p,result){','function finalizeResult(board,p,result){if(options.testFinalize)return options.testFinalize({board:board.slice(),p,result});');
+   text=replaceOnce(text,"function analyzeSearch(board,p,budget='auto',lessons=[],progress=()=>{}) {","function analyzeSearch(board,p,budget='auto',lessons=[],progress=()=>{}) {const generated=options.testSearch?.({board:board.slice(),p,budget,lessons,progress});if(generated)return generated;");
+  }
+  vm.runInContext(text,context,{filename:name});
+ }
+ // This optional fake strategic feature only tests the already separate closed
+ // nomination reserve. Inspection and open-three geometry remain real.
+ if(config.independentClosed){const factory=context.createForestEngine;context.createForestEngine=(...args)=>{const f=factory(...args);f.candidates=()=>[closed];f.strategicPreparation=(_b,i)=>i===closed?{eligible:true,axes:[0,1],threeAxes:[0],evidence:[{axis:0,generated:true}]}:null;return f;};}
+ const advance=n=>{assert(Number.isFinite(n)&&n>=0);now+=n;},marker=i=>({complete:true,proof:{type:'generated-scheduling-marker',move:i,complete:true},pv:[i],nodes:1,kind:'forced',proofSearchDepth:1}),negative=()=>({complete:false,proof:null,pv:[],nodes:1,kind:null});
+ const options={firstPlayer:p,model:null,strategy:false,recordBook:[],openingBook:false,searchMemory:false,
+  testVerify:q=>{assert.deepEqual(plain(q.board),board);assert.equal(q.p,p);assert(q.ms>0);const call={i:q.i,requestedMs:q.ms,start:now};calls.push(call);const spec=config.verify?.({...q,at:now,index:calls.length-1,advance,marker,negative})||{elapsed:Math.min(20,q.ms),complete:false};if(spec.elapsed!==undefined)advance(spec.elapsed);const elapsed=now-call.start;assert(elapsed<=q.ms+1e-8,'controlled proof work must honor its requested slice');call.elapsedMs=elapsed;const response=spec.response||{...negative(),complete:spec.complete===true};call.complete=response.complete;call.proven=!!response.proof;return{...response,ms:elapsed,verificationWork:{budgetMs:q.ms,elapsedMs:elapsed,deepEligible:q.ms>=3000,stages:[{stage:q.ms>=3000?'generated-preparation':'generated-quick',complete:response.complete,proven:!!response.proof}]}};},
+  testFinalize:q=>{finalizations.push(q);return q.result;},
+  testSearch:q=>{searches.push({at:now,budget:plain(q.budget)});for(const i of config.forward||[]){const shape=E.inspect(board,i,p);assert(shape.legal);q.progress({i,pv:[i],depth:1,score:config.forwardScore??1000,shape,nodes:1,proven:false,lossProven:false,proof:null,comparison:{complete:true,selected:i,depth:1,source:'reader',rootsCompared:2},analysisWork:{budgetMs:Number(q.budget?.ms??q.budget),completedDepth:1,nodes:1}});}return{i:config.resultMove??wide,pv:[config.resultMove??wide],depth:2,score:123,nodes:11,ms:0,kind:'search',proven:false,lossProven:false,proof:null,analysisIncomplete:true,unverifiedDefense:true,comparison:{complete:true,selected:config.resultMove??wide,depth:2,source:'reader',rootsCompared:2},analysisWork:{budgetMs:Number(q.budget?.ms??q.budget),completedDepth:2,nodes:11}};}}
+ E=context.createEngine(options);const run=budget=>{const before=board.slice(),r=E.analyze(board,p,budget,[],r=>progress.push(plain(r)));assert.deepEqual(board,before);const checks=Array.from(r.candidateWinChecks||[]);assert.equal(checks.length,calls.length,'every controlled call has one actual returned check');for(let k=0;k<checks.length;k++){assert.equal(checks[k].i,calls[k].i);assert.equal(checks[k].ms,calls[k].elapsedMs);assert.equal(checks[k].complete,calls[k].complete);assert.equal(checks[k].proven,calls[k].proven);}assert(checks.filter(c=>c.nomination!=='independent-closed-preparation').length<=4);assert(checks.filter(c=>c.nomination==='independent-closed-preparation').length<=1);assert.equal(now,calls.reduce((n,c)=>n+c.elapsedMs,0));return r;};
+ return{E,board,p,calls,searches,finalizations,progress,run,get now(){return now;}};
+}
+let scenarios=0,geometryCases=0;function test(name,fn){fn();scenarios++;console.log('PASS',name);}
+test('actual nomination groups preserve linked legal D4/color supports and witness widths',()=>{const h=harness();for(const p of[1,2])for(let t=0;t<8;t++){const b=position(p,t),before=b.slice(),r=h.E.testNominate(b,p,h.E.inspect,Infinity,()=>0),rows=plain(r.rows);assert(r.complete);assert.equal(rows.length,2);assert.equal(rows[0].i,transform(narrow,t));assert.equal(rows[0].extensions.length,1);assert.equal(rows[1].i,transform(wide,t));assert.equal(rows[1].extensions.length,2);assert.notDeepEqual(rows[0].anchors,rows[1].anchors);assert.notEqual(rows[0].axis,rows[1].axis);assert.equal(rows[0].anchors.filter(i=>rows[1].anchors.includes(i)).length,1);for(const row of rows){assert(row.legal&&!row.proven&&!row.lossProven);assert(!('score'in row));assert(h.E.inspect(b,row.i,p).legal);}assert.deepEqual(b,before);geometryCases++;}});
+for(const[mode,ms]of[['custom',10000],['auto',15000],['deep',25000]])test(mode+' foreground preserves original quick opportunity then widens distinct supports',()=>{
+ const h=harness({verify:q=>({elapsed:Math.min(20,q.ms),complete:true})}),r=h.run({mode,ms}),w=r.positiveProofWork;assert(w.extended);assert.equal(w.reserveMs,Math.min(5000,ms*.5));assert.deepEqual(plain(w.quickStarted),[narrow,wide]);assert.deepEqual(plain(w.deepStarted),[wide,narrow]);assert.equal(h.calls[0].requestedMs,Math.min(1200,ms*.08),'the original first quick allowance is retained');assert(h.calls[1].requestedMs<=480);assert(h.calls.slice(2).every(c=>c.requestedMs>=3000));assert.deepEqual(Array.from(r.candidateWinChecks,c=>c.phase),['quick','quick','deep','deep']);assert(w.elapsedMs<=w.reserveMs);assert.equal(h.searches.length,1);assert.equal(Number(h.searches[0].budget.ms),ms-h.now);assert.equal(r.analysisWork.budgetMs,ms);assert(!r.proven&&!r.lossProven&&!r.proof&&!r.safe);assert.equal(r.score,123,'nomination changes no comparison score');
+});
+for(const[layout,b]of[['linked',position()],['disjoint',disjoint]])for(const[mode,ms]of[['auto',15000],['deep',25000]])test(layout+' '+mode+' legacy first quick certificate needing more than480ms is preserved',()=>{
+ const h=harness({board:b.slice(),verify:q=>q.i===narrow&&q.ms>=900?{elapsed:900,response:q.marker(q.i)}:{elapsed:q.ms,complete:false}}),r=h.run({mode,ms});assert(r.proven);assert.equal(r.i,narrow);assert.equal(h.calls.length,1);assert(h.calls[0].requestedMs>=900);assert.deepEqual(plain(r.positiveProofWork.quickStarted),[narrow]);assert.deepEqual(plain(r.positiveProofWork.deepStarted),[]);assert.equal(h.searches.length,0);assert.equal(h.finalizations.length,1);assert.equal(r.comparison.complete,false);assert.equal(r.analysisWork.source,'open-three-proof');
+});
+for(const quickComplete of[false,true])test('quick '+quickComplete+' cannot block a wider independently supplied mock certificate',()=>{
+ const h=harness({verify:q=>q.ms>=3000&&q.i===wide?{elapsed:1000,response:q.marker(q.i)}:{elapsed:Math.min(20,q.ms),complete:quickComplete}}),r=h.run({mode:'custom',ms:10000});assert(r.proven);assert.equal(r.i,wide);assert.equal(h.calls.length,3);assert.deepEqual(plain(r.positiveProofWork.quickStarted),[narrow,wide]);assert.deepEqual(plain(r.positiveProofWork.deepStarted),[wide]);assert.equal(h.searches.length,0);assert.equal(r.candidateWinChecks.at(-1).phase,'deep');
+});
+test('all nominees share one reserve and an exhausted broad probe remains incomplete',()=>{
+ const h=harness({verify:q=>({elapsed:q.ms>=3000?q.ms:Math.min(20,q.ms),complete:false})}),r=h.run({mode:'auto',ms:15000}),w=r.positiveProofWork;assert.deepEqual(plain(w.quickStarted),[narrow,wide]);assert.deepEqual(plain(w.deepStarted),[wide]);assert.equal(w.elapsedMs,w.reserveMs);assert.equal(h.now,5000);assert.equal(h.searches.length,1);assert.equal(h.searches[0].budget.ms,10000);assert(r.candidateWinChecks.every(c=>!c.complete&&!c.proven));assert(!r.proven&&!r.lossProven&&!r.proof);assert(r.analysisIncomplete);assert.equal(r.comparison.complete,true,'completed comparison status survives bounded no-proof nomination');
+});
+test('an incomplete quick record cannot consume the later selected leader tactical opportunity',()=>{
+ const h=harness({forward:[narrow],verify:q=>({elapsed:q.ms>=3000?q.ms:Math.min(20,q.ms),complete:false})}),r=h.run({mode:'auto',ms:15000}),checks=Array.from(r.candidateWinChecks);assert.equal(checks.length,4);assert.deepEqual(checks.slice(0,3).map(c=>c.phase),['quick','quick','deep']);assert.equal(checks[3].i,narrow);assert.equal(checks[3].stage,'shape');assert.equal(checks[3].phase,undefined);assert(!checks[3].complete&&!checks[3].proven);assert(!r.proven&&!r.lossProven&&!r.proof);
+});
+test('ordinary opportunities stay at four beside one separate independent closed nominee',()=>{
+ const forwards=[ix('A1'),ix('B1'),ix('C1'),ix('D1'),ix('E1')],h=harness({independentClosed:true,forward:forwards,forwardScore:6000000}),r=h.run({mode:'auto',ms:1000}),checks=Array.from(r.candidateWinChecks),independent=checks.filter(c=>c.nomination==='independent-closed-preparation');assert.equal(checks.length,5);assert.equal(independent.length,1);assert.equal(independent[0].i,closed);assert.equal(checks.filter(c=>c.nomination!=='independent-closed-preparation').length,4);assert(r.positiveProofWork.reserveMs<=80);assert(!r.positiveProofWork.extended);assert(!r.proven&&!r.lossProven&&!r.proof);
+});
+test('four upfront long linked opportunities do not hide the separate closed nominee',()=>{
+ const h=harness({independentClosed:true,verify:q=>({elapsed:Math.min(20,q.ms),complete:false})}),r=h.run({mode:'auto',ms:15000}),checks=Array.from(r.candidateWinChecks);assert.equal(checks.filter(c=>c.stage==='open-three').length,4);assert.equal(checks.filter(c=>c.nomination==='independent-closed-preparation').length,1);assert.equal(checks.length,5);assert.equal(checks.at(-1).i,closed);assert(!r.proven&&!r.lossProven&&!r.proof);assert(h.now<15000);
+});
+for(const budget of[{mode:'auto',ms:15000,background:true},{mode:'deep',ms:25000,background:true},{mode:'auto',ms:1000},{mode:'deep',ms:6000}])test('small/background requests retain a small single-nominee reserve '+JSON.stringify(budget),()=>{
+ const h=harness(),r=h.run(budget),w=r.positiveProofWork;assert(w&&!w.extended);assert(w.reserveMs<=1200);assert.equal(w.deepStarted.length,0);assert(h.calls.every(c=>c.requestedMs<=1200));assert.equal(h.searches.length,1);assert(h.now<=budget.ms);assert(!r.proven&&!r.lossProven&&!r.proof);
+ assert.deepEqual(plain(w.quickStarted),[narrow]);
+});
+for(const budget of[{mode:'fast',ms:25000},{mode:'custom',ms:3000},{mode:'custom',ms:6999},{mode:'custom',ms:10000,background:true},1000])test('fast/short/background custom nomination remains disabled '+JSON.stringify(budget),()=>{
+ const h=harness(),r=h.run(budget);assert.equal(r.positiveProofWork,undefined);assert.equal(h.calls.length,0);assert.equal(h.searches.length,1);assert(!r.proven&&!r.lossProven&&!r.proof);
+});
+for(const[mode,ms]of[['auto',15000],['deep',25000],['custom',10000]])test(mode+' disjoint supports do not receive linked proof expansion',()=>{
+ const h=harness({board:disjoint.slice(),resultMove:ix('J10')}),n=plain(h.E.testNominate(h.board,1,h.E.inspect,Infinity,()=>0).rows);assert.equal(n.length,2);assert.equal(n[0].anchors.filter(i=>n[1].anchors.includes(i)).length,0);const r=h.run({mode,ms});assert(!r.positiveProofWork?.extended);assert(r.positiveProofWork?.reserveMs<=1200||r.positiveProofWork===undefined);assert.equal(r.positiveProofWork?.deepStarted.length||0,0);assert.equal(h.calls.length,mode==='custom'?0:1);if(mode!=='custom'){assert.equal(h.calls[0].i,narrow);assert.equal(h.calls[0].requestedMs,Math.min(1200,ms*.08));}assert.equal(h.searches.length,1);assert.equal(h.searches[0].budget.ms,ms-h.now);assert(!r.proven&&!r.lossProven&&!r.proof);
+});
+test('serial low-core/no-Worker fallback gets the remaining whole-clock budget',()=>{
+ const h=harness({verify:q=>({elapsed:q.ms>=3000?q.ms:Math.min(20,q.ms),complete:false})}),r=h.run({mode:'custom',ms:10000});assert.equal(h.now,5000);assert.equal(h.searches.length,1);assert.equal(h.searches[0].budget.ms,5000);assert.equal(r.analysisWork.elapsedMs,5000);assert.equal(r.analysisWork.budgetMs,10000);assert(r.analysisIncomplete&&r.unverifiedDefense);assert(h.E.inspect(h.board,r.i,h.p).legal);assert(!r.proven&&!r.lossProven&&!r.proof&&!r.safe);
+});
+console.log(JSON.stringify({test:'positive-proof-scheduling',passed:true,scenarios,geometryCases,scope:'Generated linked/disjoint two-support geometry and actual nomination/reserve/attempt routing with controlled verifier/finalizer/search responses and a work clock. No real proof or evaluation result is claimed by the mock markers; own-proof-budget separately checks actual certificate semantics and constructor/deadline accounting. No private record, ignored dependency, coordinate preference or strength claim.'}));
