@@ -15,7 +15,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.53';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.53');
+versionBadge.textContent='통합 v5.18.54';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.54');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -222,13 +222,14 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
     }else finish(e.data.result);};
   w.onerror=e=>finish(lastVerified,e.message||'Worker 오류');
   const model=E.getModel?.()??null,firstPlayer=g?.first??null,patternTable=globalThis.omokAcceleration?.table,optimized=globalThis.omokAcceleration?.optimized,searchMemory=session?.store.snapshot();
+  const knownRefutations=(E.knownRefutations?.(board,p)||[]).map(m=>({...m,verifiedRefutation:true}));rememberRefutations({rejected:knownRefutations});
   try{proofObserver?.jobStart?.({engineSource,workerSourceBlob,sourceAPI:'createEngine.analyze',board:board.slice(),p,firstPlayer,model,ms:searchBudget,rules:g?.rules||{},lessons:db.lessons});}catch{}
   w.postMessage({model,firstPlayer,patternTable,optimized,b:board,p,ms:searchBudget,lessons:db.lessons,rules:g?.rules||{},searchMemory});
   if(!budget?.background&&typeof OmokParallel!=='undefined')parallel=OmokParallel.start({source:engineSource,budget:searchLimit,mode:budget?.mode||(budget?.automatic?'auto':null),
-    base:{b:board,p,options:{...(g?.rules||{}),openingBook:false,model,firstPlayer,patternTable,optimized,proofDetails:true,counterProofDetails:true},modelInfo:E.getModelInfo?.(),searchMemory},
+    base:{b:board,p,options:{...(g?.rules||{}),openingBook:false,model,firstPlayer,patternTable,optimized,proofDetails:true,counterProofDetails:true},modelInfo:E.getModelInfo?.(),searchMemory,knownRefutations},
     onProofSource:source=>{try{proofObserver?.proofSource?.(source);}catch{}},
     onProgress:(r,memory)=>w.onmessage({data:{progress:true,result:r,searchMemory:memory,parallel:true}}),onDone:r=>finish(r),
-    onError:()=>{parallel=null;if(serialFinished)finish(serialFinished);}});
+    onError:(error,fallback)=>{parallel=null;if(fallback)rememberRefutations(fallback);const retained=completedComparison(fallback)?fallback:serialFinished;if(retained)finish(retainEvidence(retained),error);}});
   return w;
 }
 function acceptResult(result,partial=false){

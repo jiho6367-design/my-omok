@@ -31,6 +31,7 @@ function scenario(budget,{startupMs=800,initMs=4,requiredPreparationMs=2041,proo
    quietTrap:(_b,_p,ms)=>{consume(Math.min(5,ms));return {complete:true,proof:null,nodes:40};},
    forcedReplyTrap:()=>{throw Error('unexpected four');}};}};
  vm.createContext(worker);vm.runInContext(guard.source,worker);worker.onmessage({data:request});
+ if(!result){const job=workers[0].job;assert.equal(job.type,'win-check');workers[0].onmessage({data:{type:'win-check',round:job.round,i:job.i,check:{complete:false,proof:null,nodes:0}}});}
  assert(result);assert(workers.every(w=>w.stopped));assert.deepEqual(base.b,boardBefore);
  assert.equal(result.parallel.guard.reserveMs,Math.min(5000,budget*.36));
  assert.equal(result.parallel.guard.executionBudgetMs,Math.max(0,request.ms-startupMs-initMs));

@@ -43,9 +43,9 @@ const calls=[],context={Date,console,performance:{now:()=>0},createReaderEngine:
 }};vm.createContext(context);vm.runInContext(['search-memory.js','strategy-engine.js','search-engine.js','unified-engine.js'].map(read).join('\n'),context);
 const seed=Array(225).fill(0);seed[ix(7,7)]=1;seed[ix(6,6)]=2;
 let routingCases=0;
-for(const [budget,custom]of [[{mode:'custom',ms:500},true],[{mode:'custom',ms:10000},true],[{mode:'custom',ms:25000},true],[900,true],[{mode:'fast',ms:1000},false],[{mode:'auto',ms:15000},false],[{mode:'deep',ms:25000},false],['auto',false]]){
+for(const budget of [{mode:'custom',ms:500},{mode:'custom',ms:10000},{mode:'custom',ms:15000},{mode:'custom',ms:25000},900,{mode:'fast',ms:1000},{mode:'auto',ms:15000},{mode:'deep',ms:25000},'auto']){
  calls.length=0;const e=context.createEngine({firstPlayer:1,model:null,openingBook:false,searchMemory:false});e.analyze(seed,1,budget);const analyses=calls.filter(c=>c.type==='analyze');assert(analyses.length);
- for(const c of analyses){assert.equal(c.preparatoryLines===false,custom);assert.equal(c.pvs===false,custom);}
+ for(const c of analyses){assert.notEqual(c.preparatoryLines,false,'every public mode retains the enhanced preparation frontier');assert.notEqual(c.pvs,false,'public custom budgets retain the same Reader search algorithm');}
  assert(calls.some(c=>c.type==='construct'&&c.preparatoryLines!==false),'urgent inspection retains the default profile');routingCases++;
 }
 calls.length=0;const engine=context.createEngine({firstPlayer:1,model:null,openingBook:false,searchMemory:false});engine.urgent(seed,1);engine.assessMove(seed,1,ix(8,7));engine.reviewMove(seed,1,ix(8,7),500);

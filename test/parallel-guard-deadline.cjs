@@ -20,6 +20,9 @@ function scenario({startupMs=1500,initMs=200,interrupt=false,finalArrayOnly=fals
  const worker={Date:DateClock,performance:{now:()=>700000+now-epoch},postMessage:message=>{posts.push(message);if(!finalArrayOnly||message.type!=='guard-progress')guard.onmessage({data:message});},
   createEngine:()=>{now+=initMs;return {inspect:()=>({legal:true,fours:[]}),forcing:(b,_p,_left,ms)=>{forceBudgets.push(ms);now+=40;return {complete:true,proof:proof&&b[1]?{pv:[7,8]}:null,nodes:7};},quietTrap:()=>{if(interrupt){const timeout=[...timers.values()][0];now=timeout.at;timeout.fn();}else now+=20;return {complete:true,proof:null,nodes:3};},forcedReplyTrap:()=>{throw Error('unexpected four');}};}};
  vm.createContext(worker);vm.runInContext(guard.source,worker);worker.onmessage({data:request});
+ // The overlapping guard must wait for the already pending win check.
+ // Returning no certificate now permits settlement without starting a round.
+ if(!result){const job=workers[0].job;assert.equal(job.type,'win-check');workers[0].onmessage({data:{type:'win-check',round:job.round,i:job.i,check:{complete:false,proof:null,nodes:0}}});}
  assert(result);assert(workers.every(w=>w.stopped));assert(result.candidateChecks.length===3);assert(!result.proven&&!result.lossProven);
  return {result,request,posts,forceBudgets,progress};
 }

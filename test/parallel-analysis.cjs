@@ -34,8 +34,11 @@ const compute=data=>new Promise((resolve,reject)=>{const w=new Worker(workerSour
  assert.equal(pool.latest.i,1);assert.equal(pool.latest.depth,1);assert.equal(pool.latest.comparison.complete,true);assert.equal(pool.latest.comparison.selected,1);
  pool.observe({rejected:[{i:1,line:[1,4]}]});
  [...timers.values()][0]();assert.equal(finished,null,'reserve final checks for actual parallel shortlist');const guard=workers.at(-1);assert.equal(guard.job.type,'guard');assert(guard.job.ms>0);
- guard.onmessage({data:{type:'guard-progress',check:{i:2,complete:true,refuted:true,rejection:{i:2,pv:[3,4],verifiedRefutation:true}}}});
- guard.onmessage({data:{type:'guard-progress',check:{i:3,complete:false,refuted:false}}});guard.onmessage({data:{type:'guard'}});
+ const guardId=guard.job.guardId;
+ guard.onmessage({data:{type:'guard-progress',guardId,check:{i:2,complete:true,refuted:true,rejection:{i:2,pv:[3,4],verifiedRefutation:true}}}});
+ guard.onmessage({data:{type:'guard-progress',guardId,check:{i:3,complete:false,refuted:false}}});guard.onmessage({data:{type:'guard',guardId}});
+ assert.equal(finished,null,'a completed guard does not discard the already dispatched comparison round');
+ for(const k of [0,2])workers[k].onmessage({data:result(k,99999,false)});
  assert.equal(finished.i,3);assert.equal(finished.depth,1);assert(finished.analysisIncomplete);assert(finished.rejected.some(r=>r.i===2));assert(workers.every(w=>w.stopped));assert.equal(finished.candidateWinChecks.length,1);assert.equal(finished.nodes,10);
  assert.equal(finished.score,10);assert.equal(finished.comparison.complete,true);assert.equal(finished.comparison.selected,3);assert.equal(finished.comparison.depth,1);assert.equal(finished.comparison.rootsCompared,3);
  assert(finished.candidates.every(m=>m.comparisonSource==='reader'&&m.comparisonComplete&&m.depth===1));

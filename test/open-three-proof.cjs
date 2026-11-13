@@ -13,7 +13,19 @@ for(const[p,t]of[[1,0],[2,5]]){const b=position(p,t,true),before=b.slice(),E=cre
 {const b=position(),E=create({firstPlayer:1,openingBook:false,model:null}),r=E.analyze(b,1,{mode:'deep',ms:15000});assert(r.proven);assert.equal(r.i,at('I4'));certificate(b,1,r.proof);}
 // Failed/incomplete verification does not turn a geometric nominee into a
 // proof. Auto below3 seconds still schedules it; fast remains bounded.
-for(const complete of[false,true]){const b=position(),before=b.slice(),calls=[],E=controlled({firstPlayer:1,openingBook:false,model:null,testVerify:q=>{calls.push(q);return{complete,proof:null,pv:[],nodes:1,ms:1};}}),r=E.analyze(b,1,{mode:'auto',ms:1000});assert(!r.proven&&!r.lossProven&&!r.proof);assert(r.candidateWinChecks.some(c=>c.stage==='open-three'));assert(calls.length<=4&&calls.every(q=>q.ms<=1200));assert.deepEqual(b,before);}
+for(const complete of[false,true]){
+ const b=position(),before=b.slice(),calls=[],E=controlled({firstPlayer:1,openingBook:false,model:null,testVerify:q=>{calls.push(q);return{complete,proof:null,pv:[],nodes:1,ms:1};}}),r=E.analyze(b,1,{mode:'auto',ms:1000}),checks=r.candidateWinChecks,
+  independent=checks.filter(c=>c.nomination==='independent-closed-preparation'),regular=checks.filter(c=>c.nomination!=='independent-closed-preparation');
+ assert(!r.proven&&!r.lossProven&&!r.proof);assert(checks.some(c=>c.stage==='open-three'));
+ // The independent closed nominee has one separate reserve; it does not
+ // consume one of the four ordinary candidate-verification opportunities.
+ assert(regular.length<=4);assert(independent.length<=1);assert.equal(calls.length,checks.length);
+ for(let k=0;k<calls.length;k++){
+  const q=calls[k],check=checks[k];assert.equal(q.i,check.i);assert.equal(check.complete,complete);assert.equal(check.proven,false);assert(q.ms>0&&q.ms<=1200);
+  const reserve=check.stage==='preparation'?250:80;assert(q.ms<=reserve);
+ }
+ assert.deepEqual(b,before);
+}
 for(const budget of[1000,{mode:'fast',ms:1000}]){const E=create({firstPlayer:1,openingBook:false,model:null}),start=performance.now(),r=E.analyze(position(),1,budget);assert(performance.now()-start<1600);assert(!r.candidateWinChecks.some(c=>c.stage==='open-three'));}
 for(const kind of['win','loss','block']){const b=position();for(const s of['N5','N6','N7','N8'])b[at(s)]=kind==='win'?1:2;if(kind==='block')b[at('N9')]=1;let calls=0;const E=controlled({firstPlayer:1,openingBook:false,model:null,testVerify:()=>{calls++;return null;}}),r=E.analyze(b,1,{mode:'auto',ms:15000});assert(r.urgent);assert.equal(calls,0);if(kind==='win')assert(r.proven);else if(kind==='loss')assert(r.lossProven);else{assert.equal(r.i,at('N4'));assert(!r.lossProven);}}
 for(const kind of['four-four','double-three']){const b=Array(225).fill(0);for(const s of['H5','G6','I3','K3','J2','J4',...(kind==='four-four'?['L3','J1']:[])])b[at(s)]=1;b[at('E8')]=2;const E=create({firstPlayer:1,openingBook:false}),after=b.slice();after[at('I4')]=1;assert.equal(E.inspect(after,at('J3'),1).legal,kind==='four-four');const n=E.testNominate(b,1,E.inspect,Infinity,()=>0);assert.equal(!!n.rows.find(r=>r.i===at('I4')),kind==='four-four');}

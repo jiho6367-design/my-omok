@@ -256,7 +256,8 @@ function createForestEngine(options={}){
   // Only certificates reverified under exact-five priority may exclude moves.
   // Evidence: five-priority-revalidation.json and five-priority-certificate-regression.log.
   const validatedUnderFivePriority=new Set(['I7','H5','F6','F10','C6','C8','G9','G11']);
-  const count=board.filter(Boolean).length;if(count!==5&&count!==9&&count!==11&&count!==15&&count!==17&&count!==19)return [];
+  const verifiedProofIds=new Set(['dc465d4366189b5cdd2536b25968382b289f296fd62279ad4cdacef1e3eac12b']);
+  const count=board.filter(Boolean).length;if(count!==5&&count!==9&&count!==11&&count!==15&&count!==17&&count!==19&&count!==22)return [];
   // Entries must have independent all-defense certificates, not just a
   // principal variation or a timeout. F10 uses the verified D7 tree, not
   // the incomplete G10 tree retained as a negative verification fixture.
@@ -268,16 +269,19 @@ function createForestEngine(options={}){
    {prefix:'H8 G7 G6 H6 F8 I7 E8 G8 F7 D9 F9 F10 F5 F6 D7',bad:'C6',attack:'E6'}, // c6-loss-certificate.json
    {prefix:'H8 G7 G6 H6 F8 I7 E8 G8 F7 D9 F9 F10 F5 F6 D7 G10 E6',bad:'C8',attack:'E7'}, // c8-loss-certificate.json
    {prefix:'H8 G7 G6 H6 F8 I7 E8 G8 F7 D9 F9 F10 F5 F6 D7 G10 E6 C8 E7',bad:'G9',attack:'G11'}, // g9-move20-loss-certificate.json
-   {prefix:'H8 G7 G6 H6 F8 I7 E8 G8 F7 D9 F9 F10 F5 F6 D7 G10 E6 C8 E7',bad:'G11',attack:'G9'} // g11-move20-loss-certificate.json
+   {prefix:'H8 G7 G6 H6 F8 I7 E8 G8 F7 D9 F9 F10 F5 F6 D7 G10 E6 C8 E7',bad:'G11',attack:'G9'}, // g11-move20-loss-certificate.json
+   // The SHA-256 binds the exact position, turn, candidate and full reply DAG
+   // in test/fixtures/verified-counter-refutation.json. No alternative is certified.
+   {prefix:'H8 G9 H10 H9 I9 J8 J10 G7 I11 G10 G11 I8 F12 E13 F11 J11 G8 H7 E11 H11 K11 L12',sideToMove:1,bad:'J7',attack:'J9',proofId:'dc465d4366189b5cdd2536b25968382b289f296fd62279ad4cdacef1e3eac12b'}
   ],index=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65,current=canonical(board,p),matches=[];
   for(const spec of specs){
-   if(!validatedUnderFivePriority.has(spec.bad))continue;
+   if(!validatedUnderFivePriority.has(spec.bad)&&!verifiedProofIds.has(spec.proofId))continue;
    const moves=spec.prefix.split(' ');if(moves.length!==count)continue;
    const ref=Array(225).fill(0);moves.forEach((c,k)=>{ref[index(c)]=k%2?2:1;});
-   const source=canonical(ref,2);if(source.key!==current.key)continue;
+   const source=canonical(ref,spec.sideToMove??2);if(source.key!==current.key)continue;
    const i=untransform(transformed(index(spec.bad),source.t),current.t);
    const attack=untransform(transformed(index(spec.attack),source.t),current.t);
-   matches.push({i,attack,reason:`이 수 뒤 상대 ${coord(attack)}부터 모든 합법 응수에 강제승 확인`});
+   matches.push({i,attack,...(spec.proofId?{proofId:spec.proofId}:{}),reason:`이 수 뒤 상대 ${coord(attack)}부터 모든 합법 응수에 강제승 확인`});
   }
   return matches;
  }

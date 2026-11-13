@@ -16,7 +16,7 @@ function createEngine(options={}) {
     model:options.model===undefined?(typeof OmokNeural!=='undefined'?OmokNeural.getDefaultModel():null):options.model};
   rules.modelVersion=typeof OmokNeural!=='undefined'?OmokNeural.identity(rules.model):'baseline';
   let forest=createForestEngine(rules);
-  const fast=(b,enhanced=true)=>createReaderEngine(15,b,enhanced?rules:{...rules,preparatoryLines:false,pvs:false});
+  const fast=b=>createReaderEngine(15,b,rules);
   const inspect=(b,i,p)=>![1,2].includes(p)?{legal:false,reason:'돌 색 오류',threes:[],fours:[],win:[]}:forest.inspect(b,i,p);
   const recordFactory=typeof OmokRecordBook!=='undefined'?OmokRecordBook:null;
   let recordBook=recordFactory?recordFactory.create(options.recordBook||[],{inspect}):null;
@@ -404,7 +404,7 @@ function createEngine(options={}) {
     const certified=forest.certifiedLoss(board,p);if(certified)return certified;
     // A historical pattern is a hint, not a proof or a replacement for comparison.
     const deep=limit>8000;
-    const e=fast(board,budget?.mode!=='custom');
+    const e=fast(board);
     const ensureLegalCandidate=result=>finalizeResult(board,p,result);
     const known=forest.knownRefutations(board,p),knownBad=new Set(known.map(m=>m.i));
     const excludeKnown=result=>{

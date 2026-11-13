@@ -27,7 +27,7 @@ function scheduler(){
   for(let k=0;k<group.length;k++){const job=jobs[k];group[k].onmessage({data:{type:'round',round:job.round,result:{complete:!incomplete||k!==2,nodes:1,rows:job.roots.map(m=>({i:m.i,score:incomplete&&k===1?999999:score-k*200,pv:[m.i,100,101],depth,comparisonComplete:true}))}}});}
   const job=group[0].job;if(job.type==='win-check')group[0].onmessage({data:{type:'win-check',round:job.round,i:job.i,check:{complete:false,proof:null,ms:0,nodes:0}}});
  }
- function guardComplete(complete){const guard=workers.at(-1);assert.equal(guard.job.type,'guard');guard.onmessage({data:{type:'guard-progress',check:{i:1,complete,refuted:false,preparationTrap:{complete,scope:'two-preparation-counterattack'}}}});guard.onmessage({data:{type:'guard'}});}
+ function guardComplete(complete){const guard=workers.at(-1);assert.equal(guard.job.type,'guard');const guardId=guard.job.guardId;guard.onmessage({data:{type:'guard-progress',guardId,check:{i:1,complete,refuted:false,preparationTrap:{complete,scope:'two-preparation-counterattack'}}}});guard.onmessage({data:{type:'guard',guardId}});}
  function fireDeadline(){assert.equal(timers.size,1);const [key,timer]=timers.entries().next().value;timers.delete(key);now=timer.at;timer.fn();}
  return {pool,workers,group,timers,events,outcomes,errors,round,guardComplete,fireDeadline,parallel:context.module.exports,clock:{get now(){return now;},set now(value){now=value;}}};
 }
@@ -43,7 +43,7 @@ const easyGuard=easy.workers.at(-1);assert.equal(easyGuard.job.type,'guard');ass
 easy.guardComplete(true);assert.equal(easy.outcomes.length,1);const positive=easy.outcomes[0];assert.equal(positive.depth,4);assert.equal(positive.parallel.stopReason,'stable-completed-rounds');assert(!positive.analysisIncomplete);unresolved(positive);assert(easy.workers.every(w=>w.stopped));assert.equal(easy.timers.size,0);
 
 const interrupted=scheduler();for(let depth=1;depth<=10;depth++)interrupted.round(depth);const completed=interrupted.pool.latest;
-interrupted.round(11,-1000,true);assert.equal(interrupted.pool.latest,completed);assert.equal(interrupted.events.length,10,'an incomplete depth11 high score cannot publish over completed depth10');
+interrupted.round(11,-1000,true);for(const key of ['i','score','depth','pv','comparison','candidates'])assert.deepEqual(interrupted.pool.latest[key],completed[key],'an incomplete round preserves the completed comparison field '+key);assert.equal(interrupted.events.length,10,'an incomplete depth11 high score cannot publish over completed depth10');
 const pendingGuard=interrupted.workers.at(-1);assert.equal(pendingGuard.job.type,'guard');assert(pendingGuard.job.ms>1200);interrupted.fireDeadline();
 assert.equal(interrupted.outcomes.length,1);const retained=interrupted.outcomes[0];assert.equal(retained.i,completed.i);assert.equal(retained.score,completed.score);assert.equal(retained.depth,10);assert(retained.comparison.complete);assert.equal(retained.comparison.depth,10);assert(retained.candidates.every(m=>m.depth===10&&m.comparisonComplete));assert(retained.analysisIncomplete);assert.equal(retained.parallel.stopReason,'guard-time-limit');assert(retained.parallel.elapsedMs<=14100,'extended defensive guard remains inside original budget');unresolved(retained);assert.equal(interrupted.errors.length,0);assert(interrupted.workers.every(w=>w.stopped));assert.equal(interrupted.timers.size,0);
 
