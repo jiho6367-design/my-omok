@@ -1906,8 +1906,12 @@ function createForestEngine(options={}){
  function value(s){return s.win.length?1e8:s.fours.length>=2?7e5:s.fork43?4e5:s.fours.length?5e4:s.threes.length?2500:0;}
  function ranked(b,p,rich=false,search=false){const pool=strategy?[...new Set([...candidates(b),...(search?strategy.searchPoints(b,p):strategy.points(b,p))])]:candidates(b);return pool.map(i=>{let a=inspect(b,i,p),o=inspect(b,i,3-p),feature=rich&&a.legal?strategy?.move(b,i,p,a,{lazyConnections:true}):null;const ownValue=feature&&a.threes.length&&!a.fours.length&&!feature.usableThreeAxes.length?0:value(a);return {i,a,o,score:ownValue+(o.legal?value(o)*1.1:0)+positional(b,i,p)+(strategy&&!o.legal?0:positional(b,i,3-p)*.9)+(feature?.score||0),...(feature?{strategy:feature}:{})};}).filter(m=>m.a.legal).sort((a,b)=>b.score-a.score||a.i-b.i);}
  function findWinning(b,p){let r=[];for(let i of candidates(b)){b[i]=p;if(win(b,i,p).length)r.push(i);b[i]=0;}return r;}
+ // Only completed forcing subpositions are memoized. A timed-out check is
+ // never remembered as an absence of attack or as a safe defense.
+ const resistanceForcingCache=new Map();
  // Practical ordering after a proved loss (also usable by a last-resort UI
- // fallback). These local threat counts are not a win or safety certificate.
+ // fallback). Prefer cutting the opponent's attack to spending a tempo on a
+ // counter-four. Neither local pressure nor a bounded VCF miss proves safety.
  function resistanceMoves(board,p,indices=null){
   if(![1,2].includes(p)||board.length!==225)return [];
   const b=board.slice(),enemy=3-p,near=new Set(candidates(b));
@@ -1939,9 +1943,46 @@ function createForestEngine(options={}){
    // does not displace a move directly occupying the enemy three's line.
    const improves=setups.has(i)&&(after.forks<before.forks||after.forks===before.forks&&(after.fours<before.fours||after.fours===before.fours&&after.endpoints<before.endpoints));
    const tier=ownWins.includes(i)?5:enemyWins.includes(i)?4:forcingEnds.length&&!counterWins.length?3:improves?2:1;
-   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false}});
+   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',directDefense:improves,forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false,
+    vcf:{status:'not-checked',complete:false,scope:'opponent-turn',maxPlies:21,nodes:0,pv:[],proofPlies:null,proven:false}}});
   }
-  return rows.sort((a,c)=>c.resistance.tier-a.resistance.tier||(a.resistance.tier===3?(Number(c.resistance.forcingTerminal)-Number(a.resistance.forcingTerminal)||c.resistance.forcingContinuations.length-a.resistance.forcingContinuations.length):0)||a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i);
+  const priority=r=>r.tier>=4?r.tier+2:r.forcingTerminal||r.counterWin?.proven?5:r.directDefense?3:r.kind==='forcing-four'?2:1,
+   pressureOrder=(a,c)=>a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints,
+   continuationCount=r=>!r.directDefense&&r.kind==='forcing-four'?r.forcingContinuations.length:0,
+   localOrder=(a,c)=>priority(c.resistance)-priority(a.resistance)||pressureOrder(a,c)||continuationCount(c.resistance)-continuationCount(a.resistance)||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i;
+  rows.sort(localOrder);
+  // Immediate five/block choices require no extra comparison. A real open
+  // four (or forbidden unique block) is already a forced winning counter.
+  if(rows[0]?.resistance.tier>=4||rows[0]?.resistance.forcingTerminal)return rows;
+  const selected=new Map();
+  for(const r of rows.filter(r=>r.resistance.directDefense).slice(0,12))selected.set(r.i,r);
+  for(const r of rows.filter(r=>r.resistance.kind==='forcing-four').slice(0,6))selected.set(r.i,r);
+  if(!selected.size)return rows;
+  const end=clockNow()+180;
+  if(resistanceForcingCache.size>4096)resistanceForcingCache.clear();
+  for(const row of selected.values()){
+   const r=row.resistance,remaining=end-clockNow();if(remaining<=0)break;
+   const candidateEnd=Math.min(end,clockNow()+30);b[row.i]=p;
+   let block=null;
+   try{
+    if(r.kind==='forcing-four'){
+     // This actual compulsory reply spends the counter-four's tempo. Looking
+     // only at the position before it would mistake forced delay for a cut.
+     block=r.forcingEnds[0];b[block]=enemy;
+     const own=forcing(b,p,21,Math.max(0,Math.min(12,candidateEnd-clockNow())),resistanceForcingCache);
+     r.counterWin={complete:own.complete,proven:!!own.proof,pv:own.proof?[row.i,block,...own.proof.pv]:[],nodes:own.nodes};
+     if(own.proof)continue;
+    }
+    const budget=candidateEnd-clockNow();
+    if(budget<=0){r.vcf={...r.vcf,status:'incomplete',scope:block==null?'opponent-turn':'after-forced-block-pressure'};continue;}
+    const check=forcing(b,enemy,21,budget,resistanceForcingCache);
+    r.vcf={status:check.proof?'found':check.complete?'bounded-no-vcf':'incomplete',complete:check.complete,
+     scope:block==null?'opponent-turn':'after-forced-block-pressure',maxPlies:21,nodes:check.nodes,pv:check.proof?.pv||[],proofPlies:check.proof?.pv.length??null,proven:false};
+   }finally{if(block!=null)b[block]=0;b[row.i]=0;}
+  }
+  const checkedCut=r=>r.vcf.status==='bounded-no-vcf'?1:0,
+   finalPriority=r=>r.tier>=4?r.tier+4:r.forcingTerminal||r.counterWin?.proven?7:0;
+  return rows.sort((a,c)=>finalPriority(c.resistance)-finalPriority(a.resistance)||checkedCut(c.resistance)-checkedCut(a.resistance)||localOrder(a,c));
  }
  const coord=i=>String.fromCharCode(65+i%15)+(1+(i/15|0));
  function transformed(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++)[x,y]=[14-y,x];return y*15+x;}
@@ -2593,9 +2634,11 @@ function createEngine(options={}) {
     let candidates=(r.candidates||[]).filter(m=>m.i!=null&&inspect(board,m.i,p).legal&&
       (!bad.has(m.i)||r.lossProven)).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,
         comparisonComplete:m.comparisonComplete===true&&pv.length===(m.pv||[]).length&&pv[0]===m.i};});
-    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete,
-      distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
-      explicitFallback=r.fallback&&!complete&&!r.proven;
+    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete;
+    const expectedLoss=complete&&!recorded&&!r.proven&&!r.lossProven&&!r.urgent&&r.kind!=='terminal'&&
+      Number.isFinite(r.score)&&r.score<=-5000000&&r.depth>0;
+    const distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
+      explicitFallback=!r.proven&&(r.fallback&&!complete||expectedLoss);
     if(r.kind!=='terminal'&&(r.i==null||!inspect(board,r.i,p).legal||bad.has(r.i)||!r.proven&&(r.lossProven||distant||explicitFallback))){
       let chosen=!r.lossProven&&!explicitFallback?candidates.find(m=>comparisonFor(r,m.i,candidates).complete&&
         (!remoteGuard||near.has(m.i)||remoteChecked.has(m.i))):null,practical=null;
@@ -2611,11 +2654,13 @@ function createEngine(options={}) {
           kind:r.lossProven?'lost':!practical&&comparison.complete?'search':'incomplete',comparison:practical?{...comparison,complete:false,depth:0,rootsCompared:0}:comparison,
           comparisonSource:!practical&&comparison.complete?comparison.source:r.comparisonSource,
           resistance:chosen.resistance||null,resistanceFallback:localResistance?{boardKey:board.join(''),p,i:chosen.i,knownRefuted:true,scope:'local-resistance'}:null,
+          ...(expectedLoss?{resistanceTrigger:{kind:'losing-search',score:original.score,depth:original.depth,proven:false}}:{}),
           strategy:forest.strategicProfile?.(board,p)||{initiative:'unknown',evidence:{}},
           analysisIncomplete:!r.lossProven,
           reason:r.lossProven?(r.forbiddenDefense!=null?`${forest.coord(r.forbiddenDefense)} 5목 방어점은 3×3 금수 · 강제패배 확인, 합법 저항 수`:
-            '강제패배 확인 · 강제 4 또는 상대 위협 차단으로 저항'):localResistance?
-            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 위협 차단으로 저항':!practical&&comparison.complete?
+            '강제패배 확인 · 상대 연속 4 차단과 직접 방어를 우선해 저항'):localResistance?
+            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 상대 연속 4 차단을 우선한 방어':expectedLoss?
+            '패배 수순 평가 · 상대 연속 4 차단을 우선한 방어, 국면 전체 패배는 미확정':!practical&&comparison.complete?
               '반증된 추천 제외 · 마지막 완료 비교의 대안, 최종 방어 미검사':'비교 미완료 · 현재 위협 대응 후보, 승리·안전은 미증명'};
         if(practical)candidates=practical.rows.slice(0,3);
       }else r={...r,i:null,pv:[],depth:0,proven:false};
@@ -2659,7 +2704,7 @@ function createEngine(options={}) {
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
     r.metricsVersion=2;
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-defense-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
     if(request&&r.kind==='block'&&r.urgent&&!r.proven&&!r.lossProven){
       const actual=fast(board),state=actual.state(),own=actual.winningMoves(p),danger=actual.winningMoves(3-p);
       if(!state.full&&!state.winners.length&&!own.length&&danger.length===1&&danger[0]===r.i&&inspect(board,r.i,p).legal){
@@ -9911,8 +9956,12 @@ function createForestEngine(options={}){
  function value(s){return s.win.length?1e8:s.fours.length>=2?7e5:s.fork43?4e5:s.fours.length?5e4:s.threes.length?2500:0;}
  function ranked(b,p,rich=false,search=false){const pool=strategy?[...new Set([...candidates(b),...(search?strategy.searchPoints(b,p):strategy.points(b,p))])]:candidates(b);return pool.map(i=>{let a=inspect(b,i,p),o=inspect(b,i,3-p),feature=rich&&a.legal?strategy?.move(b,i,p,a,{lazyConnections:true}):null;const ownValue=feature&&a.threes.length&&!a.fours.length&&!feature.usableThreeAxes.length?0:value(a);return {i,a,o,score:ownValue+(o.legal?value(o)*1.1:0)+positional(b,i,p)+(strategy&&!o.legal?0:positional(b,i,3-p)*.9)+(feature?.score||0),...(feature?{strategy:feature}:{})};}).filter(m=>m.a.legal).sort((a,b)=>b.score-a.score||a.i-b.i);}
  function findWinning(b,p){let r=[];for(let i of candidates(b)){b[i]=p;if(win(b,i,p).length)r.push(i);b[i]=0;}return r;}
+ // Only completed forcing subpositions are memoized. A timed-out check is
+ // never remembered as an absence of attack or as a safe defense.
+ const resistanceForcingCache=new Map();
  // Practical ordering after a proved loss (also usable by a last-resort UI
- // fallback). These local threat counts are not a win or safety certificate.
+ // fallback). Prefer cutting the opponent's attack to spending a tempo on a
+ // counter-four. Neither local pressure nor a bounded VCF miss proves safety.
  function resistanceMoves(board,p,indices=null){
   if(![1,2].includes(p)||board.length!==225)return [];
   const b=board.slice(),enemy=3-p,near=new Set(candidates(b));
@@ -9944,9 +9993,46 @@ function createForestEngine(options={}){
    // does not displace a move directly occupying the enemy three's line.
    const improves=setups.has(i)&&(after.forks<before.forks||after.forks===before.forks&&(after.fours<before.fours||after.fours===before.fours&&after.endpoints<before.endpoints));
    const tier=ownWins.includes(i)?5:enemyWins.includes(i)?4:forcingEnds.length&&!counterWins.length?3:improves?2:1;
-   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false}});
+   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',directDefense:improves,forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false,
+    vcf:{status:'not-checked',complete:false,scope:'opponent-turn',maxPlies:21,nodes:0,pv:[],proofPlies:null,proven:false}}});
   }
-  return rows.sort((a,c)=>c.resistance.tier-a.resistance.tier||(a.resistance.tier===3?(Number(c.resistance.forcingTerminal)-Number(a.resistance.forcingTerminal)||c.resistance.forcingContinuations.length-a.resistance.forcingContinuations.length):0)||a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i);
+  const priority=r=>r.tier>=4?r.tier+2:r.forcingTerminal||r.counterWin?.proven?5:r.directDefense?3:r.kind==='forcing-four'?2:1,
+   pressureOrder=(a,c)=>a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints,
+   continuationCount=r=>!r.directDefense&&r.kind==='forcing-four'?r.forcingContinuations.length:0,
+   localOrder=(a,c)=>priority(c.resistance)-priority(a.resistance)||pressureOrder(a,c)||continuationCount(c.resistance)-continuationCount(a.resistance)||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i;
+  rows.sort(localOrder);
+  // Immediate five/block choices require no extra comparison. A real open
+  // four (or forbidden unique block) is already a forced winning counter.
+  if(rows[0]?.resistance.tier>=4||rows[0]?.resistance.forcingTerminal)return rows;
+  const selected=new Map();
+  for(const r of rows.filter(r=>r.resistance.directDefense).slice(0,12))selected.set(r.i,r);
+  for(const r of rows.filter(r=>r.resistance.kind==='forcing-four').slice(0,6))selected.set(r.i,r);
+  if(!selected.size)return rows;
+  const end=clockNow()+180;
+  if(resistanceForcingCache.size>4096)resistanceForcingCache.clear();
+  for(const row of selected.values()){
+   const r=row.resistance,remaining=end-clockNow();if(remaining<=0)break;
+   const candidateEnd=Math.min(end,clockNow()+30);b[row.i]=p;
+   let block=null;
+   try{
+    if(r.kind==='forcing-four'){
+     // This actual compulsory reply spends the counter-four's tempo. Looking
+     // only at the position before it would mistake forced delay for a cut.
+     block=r.forcingEnds[0];b[block]=enemy;
+     const own=forcing(b,p,21,Math.max(0,Math.min(12,candidateEnd-clockNow())),resistanceForcingCache);
+     r.counterWin={complete:own.complete,proven:!!own.proof,pv:own.proof?[row.i,block,...own.proof.pv]:[],nodes:own.nodes};
+     if(own.proof)continue;
+    }
+    const budget=candidateEnd-clockNow();
+    if(budget<=0){r.vcf={...r.vcf,status:'incomplete',scope:block==null?'opponent-turn':'after-forced-block-pressure'};continue;}
+    const check=forcing(b,enemy,21,budget,resistanceForcingCache);
+    r.vcf={status:check.proof?'found':check.complete?'bounded-no-vcf':'incomplete',complete:check.complete,
+     scope:block==null?'opponent-turn':'after-forced-block-pressure',maxPlies:21,nodes:check.nodes,pv:check.proof?.pv||[],proofPlies:check.proof?.pv.length??null,proven:false};
+   }finally{if(block!=null)b[block]=0;b[row.i]=0;}
+  }
+  const checkedCut=r=>r.vcf.status==='bounded-no-vcf'?1:0,
+   finalPriority=r=>r.tier>=4?r.tier+4:r.forcingTerminal||r.counterWin?.proven?7:0;
+  return rows.sort((a,c)=>finalPriority(c.resistance)-finalPriority(a.resistance)||checkedCut(c.resistance)-checkedCut(a.resistance)||localOrder(a,c));
  }
  const coord=i=>String.fromCharCode(65+i%15)+(1+(i/15|0));
  function transformed(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++)[x,y]=[14-y,x];return y*15+x;}
@@ -10598,9 +10684,11 @@ function createEngine(options={}) {
     let candidates=(r.candidates||[]).filter(m=>m.i!=null&&inspect(board,m.i,p).legal&&
       (!bad.has(m.i)||r.lossProven)).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,
         comparisonComplete:m.comparisonComplete===true&&pv.length===(m.pv||[]).length&&pv[0]===m.i};});
-    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete,
-      distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
-      explicitFallback=r.fallback&&!complete&&!r.proven;
+    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete;
+    const expectedLoss=complete&&!recorded&&!r.proven&&!r.lossProven&&!r.urgent&&r.kind!=='terminal'&&
+      Number.isFinite(r.score)&&r.score<=-5000000&&r.depth>0;
+    const distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
+      explicitFallback=!r.proven&&(r.fallback&&!complete||expectedLoss);
     if(r.kind!=='terminal'&&(r.i==null||!inspect(board,r.i,p).legal||bad.has(r.i)||!r.proven&&(r.lossProven||distant||explicitFallback))){
       let chosen=!r.lossProven&&!explicitFallback?candidates.find(m=>comparisonFor(r,m.i,candidates).complete&&
         (!remoteGuard||near.has(m.i)||remoteChecked.has(m.i))):null,practical=null;
@@ -10616,11 +10704,13 @@ function createEngine(options={}) {
           kind:r.lossProven?'lost':!practical&&comparison.complete?'search':'incomplete',comparison:practical?{...comparison,complete:false,depth:0,rootsCompared:0}:comparison,
           comparisonSource:!practical&&comparison.complete?comparison.source:r.comparisonSource,
           resistance:chosen.resistance||null,resistanceFallback:localResistance?{boardKey:board.join(''),p,i:chosen.i,knownRefuted:true,scope:'local-resistance'}:null,
+          ...(expectedLoss?{resistanceTrigger:{kind:'losing-search',score:original.score,depth:original.depth,proven:false}}:{}),
           strategy:forest.strategicProfile?.(board,p)||{initiative:'unknown',evidence:{}},
           analysisIncomplete:!r.lossProven,
           reason:r.lossProven?(r.forbiddenDefense!=null?`${forest.coord(r.forbiddenDefense)} 5목 방어점은 3×3 금수 · 강제패배 확인, 합법 저항 수`:
-            '강제패배 확인 · 강제 4 또는 상대 위협 차단으로 저항'):localResistance?
-            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 위협 차단으로 저항':!practical&&comparison.complete?
+            '강제패배 확인 · 상대 연속 4 차단과 직접 방어를 우선해 저항'):localResistance?
+            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 상대 연속 4 차단을 우선한 방어':expectedLoss?
+            '패배 수순 평가 · 상대 연속 4 차단을 우선한 방어, 국면 전체 패배는 미확정':!practical&&comparison.complete?
               '반증된 추천 제외 · 마지막 완료 비교의 대안, 최종 방어 미검사':'비교 미완료 · 현재 위협 대응 후보, 승리·안전은 미증명'};
         if(practical)candidates=practical.rows.slice(0,3);
       }else r={...r,i:null,pv:[],depth:0,proven:false};
@@ -10664,7 +10754,7 @@ function createEngine(options={}) {
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
     r.metricsVersion=2;
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-defense-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
     if(request&&r.kind==='block'&&r.urgent&&!r.proven&&!r.lossProven){
       const actual=fast(board),state=actual.state(),own=actual.winningMoves(p),danger=actual.winningMoves(3-p);
       if(!state.full&&!state.winners.length&&!own.length&&danger.length===1&&danger[0]===r.i&&inspect(board,r.i,p).legal){
@@ -11769,7 +11859,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.61';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.61');
+versionBadge.textContent='통합 v5.18.62';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.62');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -12482,8 +12572,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.61 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.61');
+versionBadge.textContent='통합 v5.18.62 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.62');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function selectComputeMode(reanalyze=false){

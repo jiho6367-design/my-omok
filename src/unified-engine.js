@@ -300,9 +300,11 @@ function createEngine(options={}) {
     let candidates=(r.candidates||[]).filter(m=>m.i!=null&&inspect(board,m.i,p).legal&&
       (!bad.has(m.i)||r.lossProven)).map(m=>{const pv=validPV(board,p,m.pv);return {...m,pv,depth:m.depth??r.depth??0,
         comparisonComplete:m.comparisonComplete===true&&pv.length===(m.pv||[]).length&&pv[0]===m.i};});
-    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete,
-      distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
-      explicitFallback=r.fallback&&!complete&&!r.proven;
+    const complete=validPV(board,p,r.pv).length===(r.pv||[]).length&&comparisonFor(r,r.i,candidates).complete;
+    const expectedLoss=complete&&!recorded&&!r.proven&&!r.lossProven&&!r.urgent&&r.kind!=='terminal'&&
+      Number.isFinite(r.score)&&r.score<=-5000000&&r.depth>0;
+    const distant=!recorded&&!r.proven&&!complete&&r.i!=null&&!near.has(r.i),
+      explicitFallback=!r.proven&&(r.fallback&&!complete||expectedLoss);
     if(r.kind!=='terminal'&&(r.i==null||!inspect(board,r.i,p).legal||bad.has(r.i)||!r.proven&&(r.lossProven||distant||explicitFallback))){
       let chosen=!r.lossProven&&!explicitFallback?candidates.find(m=>comparisonFor(r,m.i,candidates).complete&&
         (!remoteGuard||near.has(m.i)||remoteChecked.has(m.i))):null,practical=null;
@@ -318,11 +320,13 @@ function createEngine(options={}) {
           kind:r.lossProven?'lost':!practical&&comparison.complete?'search':'incomplete',comparison:practical?{...comparison,complete:false,depth:0,rootsCompared:0}:comparison,
           comparisonSource:!practical&&comparison.complete?comparison.source:r.comparisonSource,
           resistance:chosen.resistance||null,resistanceFallback:localResistance?{boardKey:board.join(''),p,i:chosen.i,knownRefuted:true,scope:'local-resistance'}:null,
+          ...(expectedLoss?{resistanceTrigger:{kind:'losing-search',score:original.score,depth:original.depth,proven:false}}:{}),
           strategy:forest.strategicProfile?.(board,p)||{initiative:'unknown',evidence:{}},
           analysisIncomplete:!r.lossProven,
           reason:r.lossProven?(r.forbiddenDefense!=null?`${forest.coord(r.forbiddenDefense)} 5목 방어점은 3×3 금수 · 강제패배 확인, 합법 저항 수`:
-            '강제패배 확인 · 강제 4 또는 상대 위협 차단으로 저항'):localResistance?
-            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 위협 차단으로 저항':!practical&&comparison.complete?
+            '강제패배 확인 · 상대 연속 4 차단과 직접 방어를 우선해 저항'):localResistance?
+            '주변 후보의 패배 확인 · 국면 전체 패배는 미확정, 상대 연속 4 차단을 우선한 방어':expectedLoss?
+            '패배 수순 평가 · 상대 연속 4 차단을 우선한 방어, 국면 전체 패배는 미확정':!practical&&comparison.complete?
               '반증된 추천 제외 · 마지막 완료 비교의 대안, 최종 방어 미검사':'비교 미완료 · 현재 위협 대응 후보, 승리·안전은 미증명'};
         if(practical)candidates=practical.rows.slice(0,3);
       }else r={...r,i:null,pv:[],depth:0,proven:false};
@@ -366,7 +370,7 @@ function createEngine(options={}) {
       r.kind==='block'||(!(r.depth>0)&&feature?.cut>0)?'BLOCKING_UNCHECKED':
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
     r.metricsVersion=2;
-    r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
+    r.engineVersion='unified-'+strategyVersion+'-resistance-defense-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
     if(request&&r.kind==='block'&&r.urgent&&!r.proven&&!r.lossProven){
       const actual=fast(board),state=actual.state(),own=actual.winningMoves(p),danger=actual.winningMoves(3-p);
       if(!state.full&&!state.winners.length&&!own.length&&danger.length===1&&danger[0]===r.i&&inspect(board,r.i,p).legal){

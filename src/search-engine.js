@@ -67,8 +67,12 @@ function createForestEngine(options={}){
  function value(s){return s.win.length?1e8:s.fours.length>=2?7e5:s.fork43?4e5:s.fours.length?5e4:s.threes.length?2500:0;}
  function ranked(b,p,rich=false,search=false){const pool=strategy?[...new Set([...candidates(b),...(search?strategy.searchPoints(b,p):strategy.points(b,p))])]:candidates(b);return pool.map(i=>{let a=inspect(b,i,p),o=inspect(b,i,3-p),feature=rich&&a.legal?strategy?.move(b,i,p,a,{lazyConnections:true}):null;const ownValue=feature&&a.threes.length&&!a.fours.length&&!feature.usableThreeAxes.length?0:value(a);return {i,a,o,score:ownValue+(o.legal?value(o)*1.1:0)+positional(b,i,p)+(strategy&&!o.legal?0:positional(b,i,3-p)*.9)+(feature?.score||0),...(feature?{strategy:feature}:{})};}).filter(m=>m.a.legal).sort((a,b)=>b.score-a.score||a.i-b.i);}
  function findWinning(b,p){let r=[];for(let i of candidates(b)){b[i]=p;if(win(b,i,p).length)r.push(i);b[i]=0;}return r;}
+ // Only completed forcing subpositions are memoized. A timed-out check is
+ // never remembered as an absence of attack or as a safe defense.
+ const resistanceForcingCache=new Map();
  // Practical ordering after a proved loss (also usable by a last-resort UI
- // fallback). These local threat counts are not a win or safety certificate.
+ // fallback). Prefer cutting the opponent's attack to spending a tempo on a
+ // counter-four. Neither local pressure nor a bounded VCF miss proves safety.
  function resistanceMoves(board,p,indices=null){
   if(![1,2].includes(p)||board.length!==225)return [];
   const b=board.slice(),enemy=3-p,near=new Set(candidates(b));
@@ -100,9 +104,46 @@ function createForestEngine(options={}){
    // does not displace a move directly occupying the enemy three's line.
    const improves=setups.has(i)&&(after.forks<before.forks||after.forks===before.forks&&(after.fours<before.fours||after.fours===before.fours&&after.endpoints<before.endpoints));
    const tier=ownWins.includes(i)?5:enemyWins.includes(i)?4:forcingEnds.length&&!counterWins.length?3:improves?2:1;
-   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false}});
+   rows.push({i,score,pv:[i],depth:0,comparisonComplete:false,resistance:{tier,kind:tier===5?'immediate-win':tier===4?'immediate-block':tier===3?'forcing-four':tier===2?'three-defense':'quiet',directDefense:improves,forcingEnds,forcingTerminal,forcingContinuations,enemyCounterWins:counterWins,remainingForks:after.forks,remainingFours:after.fours,remainingEndpoints:after.endpoints,blockedThreats:before.fours-after.fours,local:near.has(i),proven:false,
+    vcf:{status:'not-checked',complete:false,scope:'opponent-turn',maxPlies:21,nodes:0,pv:[],proofPlies:null,proven:false}}});
   }
-  return rows.sort((a,c)=>c.resistance.tier-a.resistance.tier||(a.resistance.tier===3?(Number(c.resistance.forcingTerminal)-Number(a.resistance.forcingTerminal)||c.resistance.forcingContinuations.length-a.resistance.forcingContinuations.length):0)||a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i);
+  const priority=r=>r.tier>=4?r.tier+2:r.forcingTerminal||r.counterWin?.proven?5:r.directDefense?3:r.kind==='forcing-four'?2:1,
+   pressureOrder=(a,c)=>a.resistance.enemyCounterWins.length-c.resistance.enemyCounterWins.length||a.resistance.remainingForks-c.resistance.remainingForks||a.resistance.remainingFours-c.resistance.remainingFours||a.resistance.remainingEndpoints-c.resistance.remainingEndpoints,
+   continuationCount=r=>!r.directDefense&&r.kind==='forcing-four'?r.forcingContinuations.length:0,
+   localOrder=(a,c)=>priority(c.resistance)-priority(a.resistance)||pressureOrder(a,c)||continuationCount(c.resistance)-continuationCount(a.resistance)||Number(c.resistance.local)-Number(a.resistance.local)||c.score-a.score||a.i-c.i;
+  rows.sort(localOrder);
+  // Immediate five/block choices require no extra comparison. A real open
+  // four (or forbidden unique block) is already a forced winning counter.
+  if(rows[0]?.resistance.tier>=4||rows[0]?.resistance.forcingTerminal)return rows;
+  const selected=new Map();
+  for(const r of rows.filter(r=>r.resistance.directDefense).slice(0,12))selected.set(r.i,r);
+  for(const r of rows.filter(r=>r.resistance.kind==='forcing-four').slice(0,6))selected.set(r.i,r);
+  if(!selected.size)return rows;
+  const end=clockNow()+180;
+  if(resistanceForcingCache.size>4096)resistanceForcingCache.clear();
+  for(const row of selected.values()){
+   const r=row.resistance,remaining=end-clockNow();if(remaining<=0)break;
+   const candidateEnd=Math.min(end,clockNow()+30);b[row.i]=p;
+   let block=null;
+   try{
+    if(r.kind==='forcing-four'){
+     // This actual compulsory reply spends the counter-four's tempo. Looking
+     // only at the position before it would mistake forced delay for a cut.
+     block=r.forcingEnds[0];b[block]=enemy;
+     const own=forcing(b,p,21,Math.max(0,Math.min(12,candidateEnd-clockNow())),resistanceForcingCache);
+     r.counterWin={complete:own.complete,proven:!!own.proof,pv:own.proof?[row.i,block,...own.proof.pv]:[],nodes:own.nodes};
+     if(own.proof)continue;
+    }
+    const budget=candidateEnd-clockNow();
+    if(budget<=0){r.vcf={...r.vcf,status:'incomplete',scope:block==null?'opponent-turn':'after-forced-block-pressure'};continue;}
+    const check=forcing(b,enemy,21,budget,resistanceForcingCache);
+    r.vcf={status:check.proof?'found':check.complete?'bounded-no-vcf':'incomplete',complete:check.complete,
+     scope:block==null?'opponent-turn':'after-forced-block-pressure',maxPlies:21,nodes:check.nodes,pv:check.proof?.pv||[],proofPlies:check.proof?.pv.length??null,proven:false};
+   }finally{if(block!=null)b[block]=0;b[row.i]=0;}
+  }
+  const checkedCut=r=>r.vcf.status==='bounded-no-vcf'?1:0,
+   finalPriority=r=>r.tier>=4?r.tier+4:r.forcingTerminal||r.counterWin?.proven?7:0;
+  return rows.sort((a,c)=>finalPriority(c.resistance)-finalPriority(a.resistance)||checkedCut(c.resistance)-checkedCut(a.resistance)||localOrder(a,c));
  }
  const coord=i=>String.fromCharCode(65+i%15)+(1+(i/15|0));
  function transformed(i,t){let x=i%15,y=i/15|0;if(t>=4)x=14-x;for(let k=0;k<t%4;k++)[x,y]=[14-y,x];return y*15+x;}

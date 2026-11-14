@@ -170,11 +170,14 @@ test('19-ply yellow loss is identified and ends with green exact five',()=>{
   const terminal=strict.analyze(b,1,'auto',[]);assert.equal(terminal.kind,'terminal');assert.equal(terminal.i,null);
   assert.equal(finish.win.map(i=>String.fromCharCode(65+i%15)+(1+(i/15|0))).sort().join(','),'F11,G10,H9,I8,J7');
 });
-test('deep safety guard rejects yellow H11, retains G5 resistance and keeps loss verdict',()=>{
+test('deep safety guard rejects H11, prefers direct defense to a delaying four and keeps loss verdict',()=>{
   const moves='H8 G7 I8 F8 H9 H6 E9 G6 H10 H7 F9 G9 G10 I5 J4'.split(' '),b=blank();
   moves.forEach((c,k)=>b[idx(c)]=k%2?1:2);
   const h11=strict.reviewMove(b,1,idx('H11'),1300,[]);assert(h11.actualLossProof);assert.equal(h11.actualLossProof.pv[0],idx('J7'));
-  const r=strict.analyze(b,1,{automatic:true,ms:15000},[]);assert.equal(r.i,idx('G5'));assert(r.lossProven);assert.equal(r.proofStatus,'PROVEN_LOSS');assert.equal(r.kind,'lost');
+  const r=strict.analyze(b,1,{automatic:true,ms:15000},[]);assert(r.resistance.directDefense);assert.notEqual(r.i,idx('G5'));assert(r.lossProven);assert.equal(r.proofStatus,'PROVEN_LOSS');assert.equal(r.kind,'lost');
+  const resistance=require('../src/search-engine.js')({strategy:false,model:null}).resistanceMoves(b,1,[r.i,idx('G5')]),delay=resistance.find(row=>row.i===idx('G5'));
+  assert.equal(resistance[0].i,r.i);assert.equal(delay.resistance.kind,'forcing-four');assert.equal(delay.resistance.counterWin.proven,false);assert.equal(delay.resistance.vcf.status,'found');
+  assert(r.resistance.remainingForks<delay.resistance.remainingForks);assert(r.resistance.remainingFours<delay.resistance.remainingFours);
   // Either engine may establish the refutation first; do not require a later
   // conflict between them when the Reader certificate already excludes H11.
   assert((r.rejected||[]).some(x=>x.i===idx('H11')&&(x.line?.length||x.pv?.length||x.replyTrap)));
