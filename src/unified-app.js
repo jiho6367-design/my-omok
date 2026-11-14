@@ -15,7 +15,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.63';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.63');
+versionBadge.textContent='통합 v5.18.64';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.64');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -403,13 +403,6 @@ const importTextButton=button($('copy').parentElement,'텍스트 기보 가져�
     db.games.unshift(game);loadGame(game);persist();$('modal').close();msg('기보를 불러왔습니다. 재개 후 다음 수를 입력하거나 복기하세요.');
   }catch(e){error.textContent=e.message;}});
 });importTextButton.id='importText';
-// Manual reference image: local object URL only, never uploaded or claimed OCR.
-const referenceDetails=document.createElement('details'),referenceSummary=document.createElement('summary');referenceSummary.textContent='오목판 사진 참고';referenceDetails.append(referenceSummary);
-paragraph(referenceDetails,'사진을 보며 양쪽 착수를 직접 입력하세요. 자동 돌 인식은 하지 않습니다.');
-const referenceInput=document.createElement('input');referenceInput.type='file';referenceInput.accept='image/*';referenceInput.setAttribute('aria-label','참고 오목판 사진');referenceDetails.append(referenceInput);
-const referenceImage=document.createElement('img');referenceImage.style.cssText='max-width:100%;height:auto;display:none';referenceImage.alt='사용자가 선택한 참고 오목판';referenceDetails.append(referenceImage);
-let referenceURL=null;referenceInput.onchange=()=>{if(referenceURL)URL.revokeObjectURL(referenceURL);const f=referenceInput.files[0];referenceURL=f?URL.createObjectURL(f):null;referenceImage.src=referenceURL||'';referenceImage.style.display=f?'block':'none';};
-$('board').closest('.card').append(referenceDetails);
 // Preserve the character-name copy handler and the original JSON storage key.
 const readerStudies=/*READER_STUDIES*/[];
 const readerDetails=document.createElement('details'),readerSummary=document.createElement('summary');readerSummary.textContent='기존 수읽기 기보 사례';readerDetails.append(readerSummary);learningCard.append(readerDetails);
