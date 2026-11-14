@@ -205,6 +205,11 @@ function createEngine(options={}) {
   // Scores from Reader and Forest are never mixed to rank a merged shortlist.
   function finalizeResult(board,p,result){
     if(!result)return result;
+    // Ordinary/urgent results cannot supply their own historical win marker.
+    // A matching current request may rebind it below after fresh rule checks.
+    if(!['opening','opening-analysis','opening-strategy'].includes(result.kind)){
+      result={...result};delete result.retainedStrategy;delete result.strategyEvidence;
+    }
     const request=openingRequest?.key===openingRequestKey(board,p)?openingRequest:null,
       retained=['opening','opening-analysis','opening-strategy'].includes(result.kind)?retainedOpeningSelection(board,p,request?.budget,request?.allowComputed!==false):{hit:null,blocked:false};
     if(retained.blocked||retained.hit&&retained.hit.i!==result.i)return fallbackResult(board,p,{reason:'현재 선택한 조건부 전략과 요청 설정에 맞춰 다시 분석해야 합니다.'});
@@ -360,6 +365,15 @@ function createEngine(options={}) {
       r.depth>0&&!r.fallback?'BOUNDED_FAVORABLE':'INCOMPLETE';
     r.metricsVersion=2;
     r.engineVersion='unified-'+strategyVersion+'-resistance-1-comparison-1-preparation-2-iterative-16-opening-15-legal-ray-1-closed-preparation-proof-3-open-three-proof-1-defense-horizon-1-closed-nomination-1-proof-metrics-1';
+    if(request&&r.kind==='block'&&r.urgent&&!r.proven&&!r.lossProven){
+      const actual=fast(board),state=actual.state(),own=actual.winningMoves(p),danger=actual.winningMoves(3-p);
+      if(!state.full&&!state.winners.length&&!own.length&&danger.length===1&&danger[0]===r.i&&inspect(board,r.i,p).legal){
+        const hit=retainedOpeningSelection(board,p,request.budget,request.allowComputed!==false).hit;
+        if(hit?.strategy.allLegalRepliesVerified===true&&hit.i===r.i&&!r.rejected.some(m=>m.i===r.i&&refutation(m))){
+          r.retainedStrategy=hit.strategy;r.strategyEvidence=hit;r.assessmentStatus='ENGINE_STRATEGY';
+        }
+      }
+    }
     return r;
   }
   function convert(board,p,r,started) {
