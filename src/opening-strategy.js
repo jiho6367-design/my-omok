@@ -5,9 +5,9 @@ const OmokOpeningStrategy=(()=>{
  // First public format:512 roots accommodates verified opening strategies and
  // preserved selected-certificate pins. Native continuation data retains its
  // separate32768-entry limit. A dataset explicitly selects the legacy40 or
- // bounded42/46 profiles: last own policy39/41/45, followed only by an urgent
- // exact-five finish41/43/47. Native S/C/search horizons are unchanged.
- const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,MAX_ROOTS=512,MAX_NODES=65536,MAX_EDGES=327680,MAX_BYTES=8*1024*1024,MAX_PLIES=46,MAX_TERMINAL_PLIES=47;
+ // bounded42/46/52 profiles: last own policy39/41/45/51, followed only by an
+ // urgent exact-five finish41/43/47/53. Native S/C/search horizons are unchanged.
+ const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,MAX_ROOTS=512,MAX_NODES=65536,MAX_EDGES=393216,MAX_BYTES=8*1024*1024,MAX_PLIES=52,MAX_TERMINAL_PLIES=53;
  const FAMILIES={D1:['한성',[112,127,142]],D2:['계월',[112,127,143]],D4:['화월',[112,127,128]],D5:['잔월',[112,127,129]],D6:['우월',[112,127,113]],D7:['금성',[112,127,114]],D8:['송월',[112,127,97]],D9:['구월',[112,127,98]],D10:['신월',[112,127,99]],D11:['서성',[112,127,82]],D12:['산월',[112,127,83]],I2:['협월',[112,128,129]],I3:['항성',[112,128,114]],I4:['수월',[112,128,99]],I6:['운월',[112,128,113]],I7:['포월',[112,128,98]],I8:['람월',[112,128,83]],I9:['은월',[112,128,97]],I10:['명성',[112,128,82]],I11:['사월',[112,128,96]],I12:['명월',[112,128,81]]};
  const index=i=>Number.isInteger(i)&&i>=0&&i<SIZE,player=p=>p===1||p===2,object=v=>v&&typeof v==='object'&&!Array.isArray(v),fail=message=>{throw Error(message);};
  function tr(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const old=x;x=N-1-y;y=old;}return y*N+x;}
@@ -20,7 +20,7 @@ const OmokOpeningStrategy=(()=>{
  function create({inspect,data=defaultData()}={}){
   if(typeof inspect!=='function')throw Error('Strategy inspection callback required');
   keys(data,['schemaVersion','rulesId','maxPlies','roots','nodes']);
-  if(data.schemaVersion!==1||data.rulesId!==RULES_ID||![40,42,MAX_PLIES].includes(data.maxPlies)||!Array.isArray(data.roots)||data.roots.length>MAX_ROOTS||!Array.isArray(data.nodes)||data.nodes.length>MAX_NODES||!!data.roots.length!==!!data.nodes.length)fail('Invalid strategy dataset');
+  if(data.schemaVersion!==1||data.rulesId!==RULES_ID||![40,42,46,MAX_PLIES].includes(data.maxPlies)||!Array.isArray(data.roots)||data.roots.length>MAX_ROOTS||!Array.isArray(data.nodes)||data.nodes.length>MAX_NODES||!!data.roots.length!==!!data.nodes.length)fail('Invalid strategy dataset');
   const maxPlies=data.maxPlies,maxTerminalPlies=maxPlies+1;
   let edgeCount=0;const nodes=data.nodes.map(row=>{
    if(!Array.isArray(row)||![0,1,2].includes(row[0]))fail('Invalid strategy node');
