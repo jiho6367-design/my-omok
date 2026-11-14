@@ -256,8 +256,8 @@ function createForestEngine(options={}){
   // Only certificates reverified under exact-five priority may exclude moves.
   // Evidence: five-priority-revalidation.json and five-priority-certificate-regression.log.
   const validatedUnderFivePriority=new Set(['I7','H5','F6','F10','C6','C8','G9','G11']);
-  const verifiedProofIds=new Set(['dc465d4366189b5cdd2536b25968382b289f296fd62279ad4cdacef1e3eac12b']);
-  const count=board.filter(Boolean).length;if(count!==5&&count!==9&&count!==11&&count!==15&&count!==17&&count!==19&&count!==22)return [];
+  const verifiedProofIds=new Set(['dc465d4366189b5cdd2536b25968382b289f296fd62279ad4cdacef1e3eac12b','8cd7bf2ff52dd47a2ee712f652e2521ff896b99dbfb9ab01094cdbf2d3e0b92d','0bb81ea5094cd203d15a771e48f4ad538aa6307251bb8ccc8126ec6895ad79bb']);
+  const count=board.filter(Boolean).length;if(count!==5&&count!==9&&count!==11&&count!==15&&count!==16&&count!==17&&count!==19&&count!==22)return [];
   // Entries must have independent all-defense certificates, not just a
   // principal variation or a timeout. F10 uses the verified D7 tree, not
   // the incomplete G10 tree retained as a negative verification fixture.
@@ -273,6 +273,9 @@ function createForestEngine(options={}){
    // The SHA-256 binds the exact position, turn, candidate and full reply DAG
    // in test/fixtures/verified-counter-refutation.json. No alternative is certified.
    {prefix:'H8 G9 H10 H9 I9 J8 J10 G7 I11 G10 G11 I8 F12 E13 F11 J11 G8 H7 E11 H11 K11 L12',sideToMove:1,bad:'J7',attack:'J9',proofId:'dc465d4366189b5cdd2536b25968382b289f296fd62279ad4cdacef1e3eac12b'}
+   ,// Exact photo-I5 continuation: full independent certificate in test/fixtures/porwol-photo7-refutation.json.
+   {prefix:'H8 G9 G7 F6 I8 F8 E7 F7 F9 F5 F4 E6 G6 D5 G8 C5',sideToMove:1,bad:'G4',attack:'G5',proofId:'8cd7bf2ff52dd47a2ee712f652e2521ff896b99dbfb9ab01094cdbf2d3e0b92d'}
+   ,{prefix:'H8 G9 G7 F6 I8 F8 E7 F7 F9 F5 F4 E6 G6 D5 G8 C5',sideToMove:1,bad:'E5',attack:'C4',proofId:'0bb81ea5094cd203d15a771e48f4ad538aa6307251bb8ccc8126ec6895ad79bb'}
   ],index=c=>(+c.slice(1)-1)*15+c.charCodeAt(0)-65,current=canonical(board,p),matches=[];
   for(const spec of specs){
    if(!validatedUnderFivePriority.has(spec.bad)&&!verifiedProofIds.has(spec.proofId))continue;
@@ -305,7 +308,7 @@ function createForestEngine(options={}){
   const verifiedBad=knownRefutations(b,p),verifiedBadSet=new Set(verifiedBad.map(m=>m.i));
   let roots=ranked(b,p,true).filter(m=>!verifiedBadSet.has(m.i)),can=canonical(b,p),memory=lessons.filter(l=>l.key===can.key),bad=memory.map(l=>untransform(l.bad,can.t)),good=memory.map(l=>untransform(l.good,can.t));
   let comparedRootCount=0,screenedRootCount=0;
-  const verifiedRejected=verifiedBad.map(m=>({i:m.i,reason:m.reason,verifiedRefutation:true}));
+  const verifiedRejected=verifiedBad.map(m=>({...m,verifiedRefutation:true}));
   function finish(m,reason,extra={}){const selectedDepth=extra.depth??depth,compared=lastComparison.find(row=>row.i===m?.i&&row.comparisonComplete&&row.depth===selectedDepth);return {i:m?.i??null,reason,depth,score:m?.score||0,pv:m?[m.i]:[],ms:clockNow()-start,nodes,rootWork:{generated:roots.length,compared:comparedRootCount,screened:screenedRootCount},proven:false,forcedLoss:false,threats:[],memory:memory.length,bad,shape:m?.a,limits,engineVersion:'3.0-cached-search',...(m?.resistance?{resistance:m.resistance}:{}),candidates:lastCandidates.length?lastCandidates:m?[{i:m.i,score:m.score,pv:[m.i],depth:0,strategy:m.strategy,comparisonComplete:false,...(m.resistance?{resistance:m.resistance}:{})}]:[],...(strategy?{strategy:{...(strategicSummary||strategy.profile(board,p)),work:strategy.statistics()}}:{}),...extra,comparison:{complete:!!compared&&selectedDepth>0,selected:m?.i??null,depth:selectedDepth,source:'forest',rootsCompared:comparedRootCount}};}
   if(!roots.length)return finish(null,'합법적인 후보 없음');
   let w=roots.find(m=>m.a.win.length);if(w)return finish(w,'정확한 5목으로 즉시 승리',{proven:true,depth:0,proofPlies:1,proofSearchDepth:0,proofSearchDepthScope:'immediate-inspection-no-recursive-proof-work',score:MATE});

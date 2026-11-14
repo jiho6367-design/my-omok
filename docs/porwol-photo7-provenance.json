@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "releaseVersion": "5.18.61",
+  "rulesId": "15x15-exact5-both33-v1",
+  "sourceReference": {
+    "id": "lj-i7-white6-j8-photo7",
+    "url": "https://www.ljrenju.com/croom/i07/i07bc.htm",
+    "corroboratingLibraryUrl": "https://587.renju.org.tw/program/1/I7-2.rar",
+    "librarySha256": "f0e64bb0c864c0dc02941730a25d41baa8f465149d21ed03a67e55ae0bb310ce",
+    "referenceOnly": true,
+    "wholeSeventhMoveWin": false
+  },
+  "preservedStrategyRoots": 503,
+  "preservedStrategyNodes": 3296,
+  "newStrategies": [
+    {
+      "rootId": "I7-photoF8-conditional9-c6d968b4b0409001",
+      "rulesId": "15x15-exact5-both33-v1",
+      "sourceProofSha256": "c6d968b4b040900128757bc289b263ca4ce5b4b0aac8693af7412f1f856613e3",
+      "sourceResultSha256": "bf56ddfd9e9ac20650343c0b8305d3f2b8c158fac056191dbbaacf9fe178e3ee",
+      "sourceCommit": "4f27e10021eb37fc26acc09df57a577c3886e298",
+      "rootOwnPly": 9,
+      "historicalModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+      "historicalModelRole": "source-application-context",
+      "sourceAppSha256": "e104f729be99c6712bdfa0753ba8b6115c9111a7041737c62902b4896333a3d6",
+      "sourceWorkerSha256": "377fe356caec5d590b922ffa1d41d8b10a40cc8d5a41239c1775042e169b30bd",
+      "productionReaderChanged": false,
+      "discovery": {
+        "kind": "fixed research attack plus unchanged published Reader all-response proof",
+        "actualDiscoveryModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+        "sourceLeafReaderModified": false
+      },
+      "allLegalRepliesVerified": true,
+      "firstReplyCount": 216,
+      "terminalUpperBound": 27,
+      "rawValidation": {
+        "executedFrames": 16,
+        "individualMetricsPersisted": true
+      },
+      "normalizedValidation": {
+        "freshFrames": 16,
+        "pinChecks": 3456
+      },
+      "wholeSeventhMoveWin": false
+    },
+    {
+      "rootId": "I7-photoF8-conditional13-48e8a382fc73765e",
+      "rulesId": "15x15-exact5-both33-v1",
+      "sourceProofSha256": "48e8a382fc73765e6c00b2174dcb346139379b472980652ba09f450699ef843d",
+      "sourceResultSha256": "dd1fd985d5b2aa2e702e7ba292fc657442631417726c3e1e6624f2b51cdf719c",
+      "sourceCommit": "4f27e10021eb37fc26acc09df57a577c3886e298",
+      "rootOwnPly": 13,
+      "historicalModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+      "historicalModelRole": "source-application-context",
+      "sourceAppSha256": "e104f729be99c6712bdfa0753ba8b6115c9111a7041737c62902b4896333a3d6",
+      "sourceWorkerSha256": "377fe356caec5d590b922ffa1d41d8b10a40cc8d5a41239c1775042e169b30bd",
+      "productionReaderChanged": false,
+      "discovery": {
+        "kind": "fixed research attack plus exact-board private OR nominations; all-response proof independently verified",
+        "actualDiscoveryModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+        "sourceLeafReaderModified": true,
+        "privateReaderSha256": "76300a223814fe9fde35194dcd2a721454d239d6dd9e906af4483e57f09feed2",
+        "privateComputationSha256": "649de6ba8eec3500d1eba055a2c12e0cf9d8d6a643232247be995b73b1b74a49",
+        "hintsSha256": "b4e4c942f861265932d373994b79f59ed981847a95d33d0a92ac967d36f7794d"
+      },
+      "allLegalRepliesVerified": true,
+      "firstReplyCount": 212,
+      "terminalUpperBound": 35,
+      "rawValidation": {
+        "executedFrames": 16,
+        "individualMetricsPersisted": true
+      },
+      "normalizedValidation": {
+        "freshFrames": 16,
+        "pinChecks": 3392
+      },
+      "wholeSeventhMoveWin": false
+    },
+    {
+      "rootId": "I7-photoF8-conditional19-0639e58d71e7ad09",
+      "rulesId": "15x15-exact5-both33-v1",
+      "sourceProofSha256": "0639e58d71e7ad098fbe0bb696d3ed16af9a940b72d3357fb7e4dfa8b1ad1dbe",
+      "sourceResultSha256": "9320781b1f740d4a868982dbbf3a20b7a258701f049147441ec0d8dd78f8e8d0",
+      "sourceCommit": "4f27e10021eb37fc26acc09df57a577c3886e298",
+      "rootOwnPly": 19,
+      "historicalModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+      "historicalModelRole": "source-application-context",
+      "sourceAppSha256": "e104f729be99c6712bdfa0753ba8b6115c9111a7041737c62902b4896333a3d6",
+      "sourceWorkerSha256": "377fe356caec5d590b922ffa1d41d8b10a40cc8d5a41239c1775042e169b30bd",
+      "productionReaderChanged": false,
+      "discovery": {
+        "kind": "Finite universal root with independent exact endpoint continuations and immediate open-four closures",
+        "rootConstructionModel": null,
+        "actualDiscoveryModelSha256": null,
+        "sourceLeafModelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+        "sourceLeafReaderModified": true,
+        "privateReaderSha256": "76300a223814fe9fde35194dcd2a721454d239d6dd9e906af4483e57f09feed2",
+        "privateComputationSha256": "649de6ba8eec3500d1eba055a2c12e0cf9d8d6a643232247be995b73b1b74a49",
+        "hintsSha256": "b4e4c942f861265932d373994b79f59ed981847a95d33d0a92ac967d36f7794d",
+        "rootConstructionEngineQueries": 0
+      },
+      "allLegalRepliesVerified": true,
+      "firstReplyCount": 206,
+      "terminalUpperBound": 53,
+      "rawValidation": {
+        "executedFrames": 16,
+        "individualMetricsPersisted": false,
+        "newReplayRuns": 0,
+        "evidence": "Original pipeline reached the runtime edge-cap check after every raw frame assertion. The original script, packet and capacity failure receipt are preserved locally."
+      },
+      "normalizedValidation": {
+        "freshFrames": 16,
+        "pinChecks": 3296
+      },
+      "wholeSeventhMoveWin": false
+    }
+  ],
+  "refutations": [
+    {
+      "fixture": "porwol-photo7-refutation.json",
+      "fixtureSha256": "53e80021b256dee836b744186c18baceb4384297d3263be52e1b5a67b652c284",
+      "proofId": "8cd7bf2ff52dd47a2ee712f652e2521ff896b99dbfb9ab01094cdbf2d3e0b92d",
+      "sourcePacketSha256": "79e1822d1da078a0b3561f04ba191907ebd9c37a55d4228d3b32589ae64b91d2",
+      "rulesId": "15x15-exact5-both33-v1",
+      "sourceCommit": "4f27e10021eb37fc26acc09df57a577c3886e298",
+      "positionStones": 16,
+      "candidate": "G4",
+      "opponentReply": "G5",
+      "actualProofConstructionModel": null,
+      "actualLeafDiscoveryModel": null,
+      "proofConstruction": "Finite symbolic completion of model-free guided partial proof trees; all legal defenses independently replayed.",
+      "relatedFceChecks": "Clean FCE probes were related independent checks, not grafted dependencies in these final proofs.",
+      "scope": "Only this exact losing candidate is excluded; no other alternative or earlier position is certified."
+    },
+    {
+      "fixture": "porwol-photo7-refutation-e5.json",
+      "fixtureSha256": "ab53e7917475fc3a0cc1f3e9268cd2840ae63a6b12917eb36244d1321eae093f",
+      "proofId": "0bb81ea5094cd203d15a771e48f4ad538aa6307251bb8ccc8126ec6895ad79bb",
+      "sourcePacketSha256": "808e61ff8b3b0b782dc52dbb205a776cd242793a2d7f5305df909a3219ab824b",
+      "rulesId": "15x15-exact5-both33-v1",
+      "sourceCommit": "4f27e10021eb37fc26acc09df57a577c3886e298",
+      "positionStones": 16,
+      "candidate": "E5",
+      "opponentReply": "C4",
+      "actualProofConstructionModel": null,
+      "actualLeafDiscoveryModel": null,
+      "proofConstruction": "Finite symbolic completion of model-free guided partial proof trees; all legal defenses independently replayed.",
+      "relatedFceChecks": "Clean FCE probes were related independent checks, not grafted dependencies in these final proofs.",
+      "scope": "Only this exact losing candidate is excluded; no other alternative or earlier position is certified."
+    }
+  ],
+  "modelAdoption": false,
+  "modelSha256": "fce1c849e6eb05a1ec839550a2dc29ca509b0c7ce0d7ea6150095eeee1a91932",
+  "productChanges": "Exact source seventh preference, three verified stored policies, two exact losing-candidate guards and one bounded stored-edge capacity increase. Ordinary Reader unchanged."
+}
