@@ -101,9 +101,11 @@ function createEngine(options={}) {
     const mode=budget&&typeof budget==='object'?budget.mode:typeof budget==='number'?'custom':null,
       requested=Number(budget&&typeof budget==='object'?budget.ms:budget),historicalBudget=hit.strategy.historicalBudgetMs;
     const custom=mode==='custom'||typeof budget==='number',invalid=custom&&(!Number.isFinite(requested)||requested<0),
-      completePolicy=hit.strategy.allLegalRepliesVerified===true,
+      completePolicy=hit.strategy.allLegalRepliesVerified===true||options.reuseVerifiedOpeningStrategies===true,
       blocked=invalid||!completePolicy&&(mode==='deep'||custom&&(!Number.isFinite(historicalBudget)||requested>historicalBudget));
-    return {hit:blocked?null:hit,blocked};
+    // The app explicitly reuses its publication-verified complete DAGs in
+    // every selected mode. Single offline comparisons keep their own gate.
+    return {hit:blocked?null:options.reuseVerifiedOpeningStrategies===true?{...hit,strategy:Object.freeze({...hit.strategy,allModeReuse:true})}:hit,blocked};
   }
   function getOpeningBook(board,p){
     // Ordinary analysis, inspection-only engines and opponent prediction need
@@ -160,7 +162,7 @@ function createEngine(options={}) {
     }
     if(Object.prototype.hasOwnProperty.call(next,'openingStrategyPin')||next.context&&Object.prototype.hasOwnProperty.call(next.context,'openingStrategyPin'))rules.openingStrategyPin=next.openingStrategyPin??next.context?.openingStrategyPin??null;
   }
-  const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion,...(rules.openingStrategyPin?{openingStrategyPin:{...rules.openingStrategyPin}}:{})});
+  const getContext=()=>({firstPlayer:rules.firstPlayer,strategyVersion,strategyEnabled:rules.strategy!==false,modelVersion:rules.modelVersion,...(options.reuseVerifiedOpeningStrategies===true?{reuseVerifiedOpeningStrategies:true}:{}),...(rules.openingStrategyPin?{openingStrategyPin:{...rules.openingStrategyPin}}:{})});
   function validPV(board,p,pv) {
     const copy=board.slice(),out=[];
     for(const i of pv||[]){const s=inspect(copy,i,p);if(!s.legal)break;out.push(i);copy[i]=p;if(s.win.length)break;p=3-p;}
@@ -369,7 +371,7 @@ function createEngine(options={}) {
       const actual=fast(board),state=actual.state(),own=actual.winningMoves(p),danger=actual.winningMoves(3-p);
       if(!state.full&&!state.winners.length&&!own.length&&danger.length===1&&danger[0]===r.i&&inspect(board,r.i,p).legal){
         const hit=retainedOpeningSelection(board,p,request.budget,request.allowComputed!==false).hit;
-        if(hit?.strategy.allLegalRepliesVerified===true&&hit.i===r.i&&!r.rejected.some(m=>m.i===r.i&&refutation(m))){
+        if(hit&&(hit.strategy.allLegalRepliesVerified===true||hit.strategy.allModeReuse===true)&&hit.i===r.i&&!r.rejected.some(m=>m.i===r.i&&refutation(m))){
           r.retainedStrategy=hit.strategy;r.strategyEvidence=hit;r.assessmentStatus='ENGINE_STRATEGY';
         }
       }

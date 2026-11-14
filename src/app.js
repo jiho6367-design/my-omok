@@ -1,6 +1,6 @@
 
 'use strict';
-const E=createEngine(),$=id=>document.getElementById(id),names=/*PIECE_NAMES*/["","흑돌","백돌"],SOURCE=/*PIECE_SOURCE*/null,STORAGE_KEY=/*STORAGE_KEY*/"my-omok-v1";
+const E=createEngine({reuseVerifiedOpeningStrategies:true}),$=id=>document.getElementById(id),names=/*PIECE_NAMES*/["","흑돌","백돌"],SOURCE=/*PIECE_SOURCE*/null,STORAGE_KEY=/*STORAGE_KEY*/"my-omok-v1";
 const sprite=p=>{let a=document.createElement('span');a.className='sprite s'+p;a.setAttribute('role','img');a.setAttribute('aria-label',names[p]);if(SOURCE){let im=new Image();im.src=SOURCE;im.alt=names[p];a.append(im);}return a;};
 let db={version:1,games:[],lessons:[]},g=null,b=Array(225).fill(0),turn=2,events=[],cursor=0,paused=true,remaining=40000,deadline=0,rec=null,worker=null,job=0,reviewing=false,autoplay=null,hints=true,winCells=[],resumeAfterModal=false,analysisBefore=null;
 try{const store=globalThis.omokGamePersistence,saved=store?store.initial:JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved)db=restoreSavedData(saved);}catch(e){$('message').textContent='저장 기록을 읽지 못했습니다. 원본을 유지합니다.';globalThis.omokGamePersistence?.reportError?.(e);}

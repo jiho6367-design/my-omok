@@ -124,7 +124,7 @@
    }
    $('metrics').textContent=title+' 검증 수순 이어두기 · 즉시 조회';
    $('sequence').textContent=`${b.filter(Boolean).length+1}수: ${E.coord(rec.i)}`;
-   analysisPlan.textContent=`${strategy.rootOwnPly}수에서 검증한 조건부 전략을 이어갑니다 · 심층 모드에서는 새로 분석`;
+   analysisPlan.textContent=`${strategy.rootOwnPly}수에서 검증한 조건부 전략을 이어갑니다 · `+(strategy.allModeReuse?'모든 분석 모드에서 즉시 조회':'심층 모드에서는 새로 분석');
    strategyNote.textContent='원 증명의 상대 응수별 전략 조회 · 현재 실시간 검색·승리 판정은 아님';
    return;
   }
