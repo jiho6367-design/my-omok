@@ -9,6 +9,26 @@
  const key=c=>JSON.stringify([c?.gameId,c?.firstPlayer,c?.p,c?.board,c?.events]);
  const snapshotModel=()=>{try{return copy(E.getModel?.()??null);}catch(error){storeError=String(error);return null;}};
  const digestModel=model=>{if(model===null)return Promise.resolve(null);try{return hash(codec.capture(model)).catch(()=>null);}catch(error){storeError=String(error);return Promise.resolve(null);}};
+ // An ordinary search has no retained proof capability. Do not keep its
+ // request, model and native-result captures for the lifetime of the page.
+ // Offers (including pending writes) keep their original evidence untouched.
+ function releaseUnusedJob(job,abandoned=false){
+  if(!job||job.released||job.operation||pendingOwn.has(job.id)||job.original&&!abandoned)return;
+  issuedJobs.delete(job.id);offers.delete(job.id);job.released=true;
+  job.original=null;job.originalCanonicalBytes=null;job.rawScopes=[];job.nativeRequestSnapshot=null;
+  job.metadata=null;job.rawCaptureFailure=null;job.scopeCaptureFailures=[];
+ }
+ function pruneUnusedJobs(){
+  const actual=context();
+  for(const job of issuedJobs.values())if(job.settled&&!job.operation){
+   const expected=job.request.events,current=actual?.events;
+   const possible=actual&&job.request.gameId===actual.gameId&&job.request.firstPlayer===actual.firstPlayer&&
+    current.length<=expected.length&&expected.length<=current.length+1&&same(current,expected.slice(0,current.length));
+   const bound=result=>result?.liveProofJobToken?.id===job.id||result?.liveProofCandidate?.id===job.id,
+    referenced=bound(rec)||[...ponderBranches.values()].some(task=>bound(task.result)||bound(task.partial));
+   releaseUnusedJob(job,!possible||!referenced||job.request.attacker!==g?.me);
+  }
+ }
  const baseSpawn=spawnAnalysis;
  function requestContext(board,p){
   const actual=context();if(!actual)return null;
@@ -25,14 +45,21 @@
   return{...result,liveProofCandidate:{id:job.id,rootEventIndex:job.request.events.length,attacker:job.request.attacker}};
  }
  spawnAnalysis=function(board,p,budget,onProgress,onDone,onError){
+  pruneUnusedJobs();
   const request=requestContext(board,p),modelAtStart=request?snapshotModel():null,declared=typeof budget==='object'?budget.ms:Number(budget),startedAt=new Date().toISOString(),sourceAtStart=$('engineSource').textContent,
    job=request?{id:crypto.randomUUID(),request,original:null,rawScopes:[],metadata:Promise.all([sourceAtStart===engineTextAtBoot?codeDigest:hash(new TextEncoder().encode(sourceAtStart)).catch(()=>null),digestModel(modelAtStart)]).then(([codeSha256,modelSha256])=>({sourceKind:'live-job-start-snapshot',codeSha256,modelSha256,modelDigestScope:'canonical-value-v1-of-exact-job-start-model',requestedBudgetMs:Number.isFinite(declared)&&declared>0?declared:null,firstPlayer:request.firstPlayer,attacker:p,startedAt,modelSnapshot:modelAtStart,codeDigestScope:'exact-engineSource-utf8',rulesId:request.rulesId}))}:null;
   if(job)issuedJobs.set(job.id,job);
-  const captureSelected=r=>{if(!job||job.original||!r?.proven||r.lossProven||!r.proof||r.i!==r.pv?.[0])return;try{job.originalCanonicalBytes=codec.capture(r);job.original=codec.decode(job.originalCanonicalBytes);job.rawCaptureScope='main-selected-final-output';}catch(error){storeError=String(error);if(!job.rawCaptureFailure)job.rawCaptureFailure={originalValue:r,reason:String(error),scope:'main-selected-final-output'};}};
-  const captureScope=(value,scope,sourceAPI,declaredWorkerBudgetMs,workerCode,phaseRequestSnapshot=null)=>{if(!job||job.rawScopes.some(r=>r.scope===scope))return;try{const canonicalBytes=codec.capture(value);const workerSourceHash=workerCode instanceof Blob?workerCode.arrayBuffer().then(hash).catch(()=>null):Promise.resolve(workerCode??null);const phaseRequest=phaseRequestSnapshot?copy(phaseRequestSnapshot):null,phaseModelHash=phaseRequest?digestModel(phaseRequest.model??null):Promise.resolve(null);job.rawScopes.push({scope,sourceAPI,workerSourceHash,phaseRequestSnapshot:phaseRequest,phaseModelHash,declaredWorkerBudgetMs:Number.isFinite(declaredWorkerBudgetMs)?declaredWorkerBudgetMs:null,canonicalBytes});}catch(error){storeError=String(error);(job.scopeCaptureFailures||(job.scopeCaptureFailures=[])).push({scope,originalValue:value,reason:String(error)});}};
+  const captureSelected=r=>{if(!job||job.released||job.original||!r?.proven||r.lossProven||!r.proof||r.i!==r.pv?.[0])return;try{job.originalCanonicalBytes=codec.capture(r);job.original=codec.decode(job.originalCanonicalBytes);job.rawCaptureScope='main-selected-final-output';}catch(error){storeError=String(error);if(!job.rawCaptureFailure)job.rawCaptureFailure={originalValue:r,reason:String(error),scope:'main-selected-final-output'};}};
+  const captureScope=(value,scope,sourceAPI,declaredWorkerBudgetMs,workerCode,phaseRequestSnapshot=null)=>{if(!job||job.released||job.rawScopes.some(r=>r.scope===scope))return;try{const canonicalBytes=codec.capture(value);const workerSourceHash=workerCode instanceof Blob?workerCode.arrayBuffer().then(hash).catch(()=>null):Promise.resolve(workerCode??null);const phaseRequest=phaseRequestSnapshot?copy(phaseRequestSnapshot):null,phaseModelHash=phaseRequest?digestModel(phaseRequest.model??null):Promise.resolve(null);job.rawScopes.push({scope,sourceAPI,workerSourceHash,phaseRequestSnapshot:phaseRequest,phaseModelHash,declaredWorkerBudgetMs:Number.isFinite(declaredWorkerBudgetMs)?declaredWorkerBudgetMs:null,canonicalBytes});}catch(error){storeError=String(error);(job.scopeCaptureFailures||(job.scopeCaptureFailures=[])).push({scope,originalValue:value,reason:String(error)});}};
   const priorObserver=spawnAnalysis.proofObserver;
   spawnAnalysis.proofObserver={jobStart:input=>{if(job)try{const{workerSourceBlob,engineSource,...request}=input;job.nativeRequestSnapshot=copy(request);job.nativeModelHash=digestModel(job.nativeRequestSnapshot.model);job.nativeEngineSourceHash=typeof engineSource==='string'?(engineSource===sourceAtStart?job.metadata.then(m=>m.codeSha256):hash(new TextEncoder().encode(engineSource)).catch(()=>null)):Promise.resolve(null);job.nativePhaseBindingValid=same(request.board,job.request.board)&&request.p===job.request.attacker&&request.firstPlayer===job.request.firstPlayer&&request.rules?.fivePriority===true;job.serialWorkerSourceHash=workerSourceBlob instanceof Blob?workerSourceBlob.arrayBuffer().then(hash).catch(()=>null):Promise.resolve(null);}catch(error){storeError=String(error);}},nativeResult:(r,flags)=>{const declared=job?.nativeRequestSnapshot?.ms,ms=typeof declared==='object'?declared.ms:Number(declared);captureScope(r,'serial-first-native-result','createEngine.analyze',ms,job?.serialWorkerSourceHash,job?.nativeRequestSnapshot??null);if(r?.proven&&!r.lossProven)captureScope(r,'serial-first-winning-native-result','createEngine.analyze',ms,job?.serialWorkerSourceHash,job?.nativeRequestSnapshot??null);},proofSource:source=>captureScope(source.result,source.source,source.messageType==='plan'?'createReaderEngine.analyze':'createEngine.verifyWinningMove',source.declaredWorkerBudgetMs,source.workerSourceBlob,source.requestSnapshot)};
-  let task;try{task=baseSpawn(board,p,budget,onProgress,result=>{captureSelected(result);if(job?.original&&result?.proven&&result.i===job.original.i)result=admitResult({...result,liveProofJobToken:{id:job.id}});onDone(result);},onError);}finally{spawnAnalysis.proofObserver=priorObserver;}
+  const settled=()=>{if(job)job.settled=true;releaseUnusedJob(job,job?.request.attacker!==g?.me);};
+  let task;try{task=baseSpawn(board,p,budget,onProgress,result=>{try{captureSelected(result);if(job?.original&&result?.proven&&result.i===job.original.i)result=admitResult({...result,liveProofJobToken:{id:job.id}});onDone(result);}finally{settled();}},error=>{try{onError(error);}finally{settled();}});}catch(error){settled();throw error;}finally{spawnAnalysis.proofObserver=priorObserver;}
+  if(task?.terminate){const terminate=task.terminate.bind(task);task.terminate=(...args)=>{try{return terminate(...args);}finally{
+   // The native coordinator also terminates immediately before its final
+   // callback. Let that callback capture/admit a winning proof first.
+   queueMicrotask(settled);
+  }};}
   return task;
  };
  const baseFinalizer=E.finalizeResult;
@@ -79,11 +106,14 @@
   const retentionRejected=error=>{pendingOwn.delete(candidate.id);if(verifiedAtRoot){event.rec={...event.rec,liveProofRetention:{state:'verified-memory-storage-failed',reason:String(error)}};storeError=String(error);persist();return;}if(event.rec){delete event.rec.liveProofCandidate;event.rec.liveProofRetention={state:'unavailable',reason:String(error)};}storeError=String(error);persist();if(g?.id===oldGame&&!g.result)analyze();};
   operation.then(async op=>{
    if(!op||op.result.i!==i||op.context.gameId!==oldGame){retentionRejected('No issued matching full-proof capture');return;}
+   const selectedProof=op.result.proof;
    const store=await storePromise;
    try{await store.followedOwn(op,after);}catch(error){retentionRejected(error);return;}
    verifiedAtRoot=true;pendingOwn.delete(candidate.id);event.rec={...event.rec,liveProofRetention:{state:'verified-memory',sourceTicket:op.sourceTicket}};persist();if(g?.id===oldGame&&!g.result)analyze();
    await op.done;const reference=await store.evidenceReference(op);
-   if(reference){const originalProofRef=await store.verifyDurableReference(op,event.rec?.proof);if(event.rec?.liveProofCandidate?.id===candidate.id&&event.rec.i===i&&event.i===i&&event.p===after.attacker&&new TextEncoder().encode(JSON.stringify(event.rec.proof)).byteLength>4096){const originalType=typeof event.rec.proof==='string'?event.rec.proof:event.rec.proof?.type||null;event.rec={...event.rec,proof:{...originalProofRef,originalType,independentlyVerifiable:false}};}event.rec={...event.rec,liveProofReference:{schemaVersion:1,sourceTicket:op.sourceTicket,evidenceDigest:reference.evidenceDigest,strategyDigest:reference.strategyDigest,rootEventIndex:op.context.events?.length??op.context.history.length},liveProofRetention:{state:'committed',sourceTicket:op.sourceTicket}};}
+   if(reference){const summarized=event.rec?.proof?.summaryReason==='record-size-limit'&&event.rec.proof.certificateRetained===false&&event.rec.proof.independentlyVerifiable===false,
+    originalProof=summarized?selectedProof:event.rec?.proof,originalProofRef=await store.verifyDurableReference(op,originalProof);
+    if(event.rec?.liveProofCandidate?.id===candidate.id&&event.rec.i===i&&event.i===i&&event.p===after.attacker&&(summarized||new TextEncoder().encode(JSON.stringify(event.rec.proof)).byteLength>4096)){const originalType=typeof originalProof==='string'?originalProof:originalProof?.type||null;event.rec={...event.rec,proof:{...originalProofRef,originalType,independentlyVerifiable:false}};}event.rec={...event.rec,liveProofReference:{schemaVersion:1,sourceTicket:op.sourceTicket,evidenceDigest:reference.evidenceDigest,strategyDigest:reference.strategyDigest,rootEventIndex:op.context.events?.length??op.context.history.length},liveProofRetention:{state:'committed',sourceTicket:op.sourceTicket}};}
    else event.rec={...event.rec,liveProofRetention:{state:'verified-memory-storage-failed',sourceTicket:op.sourceTicket,reason:store.coordinatorStatus(op).persistenceError||op.persistenceError||'Storage incomplete'}};
    persist();if(g?.id===oldGame&&!g.result)analyze();
   }).catch(retentionRejected);
@@ -96,7 +126,7 @@
  $('export').onclick=exportDB;
  const baseImport=$('file').onchange;
  $('file').onchange=async function(...args){const file=$('file').files[0];if(!file)return;let packs=[];try{if(file.size<=200*1024*1024){const x=JSON.parse(await file.text());packs=Array.isArray(x.liveProofArtifacts)?x.liveProofArtifacts:[];if(packs.length>32)throw Error('한 번에 검증 수순은 최대 32개입니다.');}}catch(error){msg('기록 확인 실패: '+error.message);return;}await baseImport.apply(this,args);if(!packs.length)return;try{const store=await storePromise;if(!store)throw Error('증명 저장소를 사용할 수 없습니다.');for(const pack of packs)await store.importArtifact(pack);unavailableSelections.clear();msg('기보와 검증 수순을 다시 검사해 가져왔습니다.');if(g&&!g.result)analyze();}catch(error){msg('기보는 유지했습니다. 검증 수순 가져오기 실패: '+error.message);}};
- const beforeKeeperRebuild=rebuild;rebuild=function(...args){const result=beforeKeeperRebuild(...args);storePromise.then(async store=>{if(!store)return;await store.activateGame(g?.id??null);for(const[id,job]of issuedJobs)if(job.request.gameId!==g?.id&&job.operation){const op=await job.operation;if(op?.released){issuedJobs.delete(id);offers.delete(id);job.original=null;job.originalCanonicalBytes=null;job.rawScopes=[];job.nativeRequestSnapshot=null;}}}).catch(error=>{storeError=String(error);});return result;};
+ const beforeKeeperRebuild=rebuild;rebuild=function(...args){const result=beforeKeeperRebuild(...args);pruneUnusedJobs();storePromise.then(async store=>{if(!store)return;await store.activateGame(g?.id??null);for(const[id,job]of issuedJobs)if(job.request.gameId!==g?.id&&job.operation){const op=await job.operation;if(op?.released){issuedJobs.delete(id);offers.delete(id);job.original=null;job.originalCanonicalBytes=null;job.rawScopes=[];job.nativeRequestSnapshot=null;}}}).catch(error=>{storeError=String(error);});return result;};
  // Test access exposes status and references, never grants an imported proof capability.
  globalThis.omokLiveProof={ready:storePromise,context,offers,issuedJobs,firstSelected:()=>g&&firstSelected(),status:()=>({error:storeError,offers:offers.size,pendingOwn:pendingOwn.size}),rethink:()=>analyze()};
 })();

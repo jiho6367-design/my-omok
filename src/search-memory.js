@@ -7,6 +7,22 @@ const OmokSearchMemory=(()=>{
   o.vcfPrefilter!==false,!!o.counterProofDetails,o.fixedWork===true?'fw1':'fw0',o.modelVersion||'baseline'].join('|');
  const toStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?ply:-ply):v;
  const fromStored=(v,ply,mate)=>Math.abs(v)>mate-1000?v+(v>0?-ply:ply):v;
+ function boundedJSON(value){
+  // A compact proof DAG can expand exponentially when serialized. Stop while
+  // visiting it, before JSON.stringify allocates the complete expanded text.
+  // These are lower-bound character costs; the exact encoded limit is checked
+  // afterward. A separate visit cap also bounds objects with omitted values.
+  let remaining=24000,visited=0,root=true;
+  return JSON.stringify(value,function(key,item){
+   const top=root;root=false;const kind=typeof item,array=Array.isArray(this),omitted=item===undefined||kind==='function'||kind==='symbol';
+   let cost=omitted?(array?4:0):kind==='string'?item.length+2:kind==='object'&&item!==null?2:1;
+   // Boxed strings are unwrapped internally without further replacer calls.
+   if(item&&kind==='object'&&Object.prototype.toString.call(item)==='[object String]')cost=String.prototype.valueOf.call(item).length+2;
+   if(!top&&!array&&!omitted)cost+=key.length+3;
+   if(++visited>24001||(remaining-=cost)<0)throw Error('Search memory value exceeds serialization budget');
+   return item;
+  });
+ }
  function create(options={}){
   const maxEntries=Math.max(1,Math.min(DEFAULT_ENTRIES,options.maxEntries||DEFAULT_ENTRIES));
   const maxBytes=Math.max(1024,Math.min(DEFAULT_BYTES,options.maxBytes||DEFAULT_BYTES));
@@ -28,7 +44,7 @@ const OmokSearchMemory=(()=>{
   }}
   function put(ns,key,value,priority=0,age=generation,imported=false){
    if(typeof ns!=='string'||typeof key!=='string'||ns.length>200||key.length>1200||value===undefined){counters.rejected++;return;}
-   let encoded;try{encoded=JSON.stringify(value);}catch{counters.rejected++;return;}
+   let encoded;try{encoded=boundedJSON(value);}catch{counters.rejected++;return;}
    if(encoded===undefined||encoded.length>24000){counters.rejected++;return;}
    const id=ns+'\n'+key,cost=(ns.length+key.length+encoded.length)*2+192;
    if(cost>maxBytes){counters.rejected++;return;}
@@ -55,12 +71,14 @@ const OmokSearchMemory=(()=>{
    merge,snapshot:()=>({version:VERSION,generation,rows:rows(records,maxEntries)}),
    delta:(limit=512)=>{const exported=rows(pending,Math.min(maxEntries,limit));for(const r of exported)pending.delete(r[0]+'\n'+r[1]);return {version:VERSION,generation,rows:exported};},
    stats:()=>({...counters,entries:records.size,estimatedBytes:bytes,maxEntries,maxBytes,generation}),
-   // Preserve the original request's complete memo graph. The bounded
-   // cross-turn table is a second layer, not a cap on the active proof search.
-   cache:ns=>{const local=new Map();const read=key=>{if(local.has(key))return local.get(key);
-     const value=get(ns,key);if(value!==undefined)local.set(key,value);return value;};
-    return {get:read,has:key=>read(key)!==undefined,set:(key,value)=>{local.set(key,value);put(ns,key,value,value?12:0);},
-     get size(){return local.size;},clear:()=>local.clear()};}};
+   // Active proof memos share the same entry/byte budget across namespaces.
+   // Eviction only loses an optimization: callers recompute a missing completed
+   // node. Keep no second Map that can retain every visited board until a long
+   // analysis ends, and serialize each stored value only once in put().
+   cache:ns=>({get:key=>get(ns,key),has:key=>get(ns,key)!==undefined,
+    set:(key,value)=>put(ns,key,value,value?12:0),
+    get size(){let count=0;for(const row of records.values())if(row.ns===ns)count++;return count;},
+    clear:()=>{for(const [key,row]of records)if(row.ns===ns)remove(key);}})};
   merge(options.snapshot);return api;
  }
  return {VERSION,create,scope,toStored,fromStored};

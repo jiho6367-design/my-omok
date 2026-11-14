@@ -3,27 +3,35 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.62 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.62');
+versionBadge.textContent='통합 v5.18.63 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.63');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
-let gpuPrepared=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
+let gpuPrepared=null,gpuPreparing=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
+async function prepareGPU(){
+ if(gpuPrepared)return gpuPrepared;
+ // A stalled driver must not leave the whole application waiting forever.
+ // Keep one underlying request so retries cannot accumulate GPU devices.
+ gpuPreparing ||= OmokGPU.prepare();let timer;
+ try{return gpuPrepared=await Promise.race([gpuPreparing,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('GPU 준비 응답 시간 초과')),5000);})]);}
+ finally{clearTimeout(timer);}
+}
 async function selectComputeMode(reanalyze=false){
  const request=++modeRequest,mode=$('computeMode').value;stopWorker();rec=null;currentAnalysisPolicy=null;globalThis.omokComputeReady=false;globalThis.omokAcceleration={mode:'cpu',table:null,optimized:false};
  try{settingsStorage?.setItem(settingsPolicy.COMPUTE_KEY,mode);}catch{}
  syncAnalysisSettingsUI();
  $('computeMode').disabled=true;$('gpuStatus').textContent=mode==='gpu'?'GPU 초기화와 패턴 전수 검증 중…':'CPU 모드 준비 중…';
  try{
-  if(mode==='gpu')gpuPrepared ||= await OmokGPU.prepare();
+  if(mode==='gpu')await prepareGPU();
   if(request!==modeRequest)return;
   if(mode==='optimized')cpuPatterns ||= OmokGPU.cpu();
   globalThis.omokAcceleration={mode,table:mode==='gpu'?gpuPrepared.table:mode==='optimized'?cpuPatterns:null,optimized:mode!=='cpu'};
   $('gpuStatus').textContent=mode==='gpu'?`GPU 정상 · ${gpuPrepared.adapter.description||[gpuPrepared.adapter.vendor,gpuPrepared.adapter.architecture].filter(Boolean).join(' ')} · ${gpuPrepared.verifiedPatterns.toLocaleString()}개 패턴 검증 완료 · 준비 ${Math.round(gpuPrepared.totalMs)}ms`:mode==='optimized'?'CPU 최적화 사용 중 · GPU 없이 같은 패턴 재사용':'기존 CPU 사용 중';
- }catch(error){if(request!==modeRequest)return;$('gpuStatus').textContent='GPU 사용 불가 · 현재 CPU 실행: '+error.message;}
+ }catch(error){if(request!==modeRequest)return;cpuPatterns ||= OmokGPU.cpu();globalThis.omokAcceleration={mode:'optimized',table:cpuPatterns,optimized:true};$('gpuStatus').textContent='GPU 사용 불가 · CPU 최적화로 계속 진행: '+error.message;}
  finally{if(request===modeRequest){globalThis.omokComputeReady=true;$('computeMode').disabled=false;syncAnalysisSettingsUI();if(reanalyze&&g&&!g.result)analyze();}}
 }
 $('computeMode').onchange=()=>selectComputeMode(true);
 function runBenchmark(table){return new Promise((resolve,reject)=>{
- const source=$('engineSource').textContent+`\nonmessage=e=>{try{const table=e.data.table,positions=e.data.positions,rows=[];
+ const source=($('analysisWorkerSource')?.textContent||$('engineSource').textContent)+`\nonmessage=e=>{try{const table=e.data.table,positions=e.data.positions,rows=[];
  const median=a=>a.slice().sort((x,y)=>x-y)[Math.floor(a.length/2)];
  for(const pos of positions){const samples={cpu:[],optimized:[],gpu:[]},checks={};
  for(let repeat=0;repeat<6;repeat++){const order=repeat%2?['gpu','optimized','cpu']:['cpu','optimized','gpu'];
@@ -43,7 +51,7 @@ function runBenchmark(table){return new Promise((resolve,reject)=>{
 });}
 async function benchmarkGPU(){
  stopWorker();$('gpuBenchmark').disabled=true;$('computeMode').disabled=true;$('gpuCancel').disabled=false;$('gpuResult').textContent='GPU 준비 및 동일 작업량 비교 중…';
- try{gpuPrepared ||= await OmokGPU.prepare();const data=await runBenchmark(gpuPrepared.table);const report={date:new Date().toISOString(),userAgent:navigator.userAgent,gpu:{...gpuPrepared,table:undefined},...data};globalThis.omokBenchmarkReport=report;
+ try{await prepareGPU();const data=await runBenchmark(gpuPrepared.table);const report={date:new Date().toISOString(),userAgent:navigator.userAgent,gpu:{...gpuPrepared,table:undefined},...data};globalThis.omokBenchmarkReport=report;
  $('gpuResult').textContent=data.rows.map(r=>`${r.position}: 기존 CPU ${r.cpuMs.toFixed(1)}ms / 최적화 CPU ${r.optimizedMs.toFixed(1)}ms / GPU 혼합 ${r.gpuMs.toFixed(1)}ms → ${r.speedup.toFixed(2)}배\n점수·수순·노드 동일 (${r.result.nodes}노드)`).join('\n\n')+'\n\nGPU 준비 '+gpuPrepared.totalMs.toFixed(1)+'ms (첫 회 별도)\nGPU 계산·읽기 '+gpuPrepared.dispatchReadbackMs.toFixed(1)+'ms\n전체 1초 예산 분석:\n'+data.full.map(r=>`${r.mode}: ${r.elapsedMs.toFixed(0)}ms, 깊이 ${r.depth}, ${r.nodes}노드`).join('\n')+'\n\n이 배수는 동일 깊이 수읽기 비교입니다. 시간 예산 모드는 종료 시간이 비슷할 수 있습니다. CPU 최적화도 빨라지면 그 부분은 알고리즘 개선 효과입니다.';
  if(location.search.includes('diagnostics'))await fetch('/benchmark-result',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(report)});
  }catch(e){$('gpuResult').textContent='비교 실패: '+e.message;if(location.search.includes('diagnostics'))await fetch('/benchmark-result',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({error:e.message})}).catch(()=>{});}

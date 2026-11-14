@@ -63,8 +63,9 @@ for(let i=0;i<11;i++)ranked.put('scope','old-leaf-'+i,null,0);
 const imported=Memory.create({maxEntries:12,snapshot:JSON.parse(JSON.stringify(ranked.snapshot()))});imported.begin();
 for(let i=0;i<30;i++)imported.put('scope','new-leaf-'+i,null,0);
 assert.equal(imported.get('scope','deep').score,1);
-// Keeping a bounded portable cache must never shrink the active proof graph.
+// Active proof memos share the portable entry/byte bound. Eviction makes a
+// completed node unavailable for reuse; it does not turn a miss into a verdict.
 const layered=Memory.create({maxEntries:2}),active=layered.cache('proof');
 for(let i=0;i<30;i++)active.set('node-'+i,null);
-assert.equal(active.size,30);assert.equal(active.get('node-0'),null);assert(layered.stats().entries<=2);
+assert.equal(active.size,2);assert.equal(active.get('node-0'),undefined);assert.equal(active.get('node-29'),null);assert(layered.stats().entries<=2);
 console.log(JSON.stringify({passed:true,rows,mate:{first:first.score,shifted:shifted.score,warmNodes:shifted.nodes},bounded:tiny.stats()}));

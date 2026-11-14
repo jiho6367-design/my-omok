@@ -41,15 +41,45 @@ function analyze(budget=+$('budget').value,onDone){stopWorker();if(!g||g.result)
 function move(i){if(!g||paused||reviewing||g.result)return;if(g.timer!==false&&Date.now()>=deadline){commit(null);return;}let s=E.inspect(b,i,turn);if(!s.legal){msg(s.reason+(s.threes?.length?' · '+s.threes.map(a=>['가로','세로','↘ 대각선','↗ 대각선'][a]).join(', '):''));let el=$('board').children[i];el.classList.add('illegal');setTimeout(()=>el.classList.remove('illegal'),1000);return;}commit(i,s);}
 function snapshotAnalysisForRecord(result){
  if(!result)return null;
- // Only new move records omit the large preparation certificate tree. Live
- // analysis and existing records keep their evidence; this summary cannot be
- // replayed as an independently verifiable certificate.
+ // JSON expands a shared proof DAG into a tree. Measure that expansion with
+ // memoized, saturating sizes before cloning new records; never traverse an
+ // exponentially expanded tree merely to decide whether it is too large.
+ const limit=4096,sizes=new WeakMap(),visiting=new WeakSet();let inspected=0;
+ function expandedSize(value,depth=0){
+  if(value===null)return 4;
+  if(typeof value!=='object'){
+   if(typeof value==='string'&&value.length>limit)return limit+1;
+   return JSON.stringify(value)?.length??0;
+  }
+  if(sizes.has(value))return sizes.get(value);
+  if(depth>128||++inspected>4096||visiting.has(value))return limit+1;
+  visiting.add(value);let size=2;
+  for(const key of Object.keys(value)){
+   const child=value[key];if(child===undefined||typeof child==='function')continue;
+   size+=expandedSize(child,depth+1)+1+(Array.isArray(value)?0:JSON.stringify(key).length+1);
+   if(size>limit){size=limit+1;break;}
+  }
+  visiting.delete(value);sizes.set(value,size);return size;
+ }
+ function proofSummary(proof){
+  const summary={certificateRetained:false,independentlyVerifiable:false,summaryReason:'record-size-limit'};
+  for(const key of ['type','move','i','checkedReplies','attacker','defender','entryBoardKey','replyBoardKey']){
+   const value=proof[key];if(typeof value==='number'&&Number.isFinite(value)||typeof value==='string'&&value.length<=225)summary[key]=value;
+  }
+  if(Array.isArray(proof.pv))summary.pv=proof.pv.slice(0,225).filter(Number.isInteger);
+  return summary;
+ }
+ // Existing records and the live certificate are unchanged. Full selected
+ // win evidence is retained separately by the live-proof keeper; a compact
+ // record summary never claims to be a replayable certificate.
  return JSON.parse(JSON.stringify(result,(key,value)=>{
-  if(key!=='preparationTrap'||!value?.proof||value.proof.certificateRetained===false)return value;
-  const proof=value.proof;
-  return {...value,proof:{type:proof.type,pv:proof.pv,checkedReplies:proof.checkedReplies,
-   scope:value.scope,entryBoardKey:value.entryBoardKey,attacker:value.attacker,defender:value.defender,
-   certificateRetained:false,independentlyVerifiable:false}};
+  if(key==='preparationTrap'&&value?.proof&&value.proof.certificateRetained!==false){
+   const proof=value.proof;
+   return {...value,proof:{type:proof.type,pv:proof.pv,checkedReplies:proof.checkedReplies,
+    scope:value.scope,entryBoardKey:value.entryBoardKey,attacker:value.attacker,defender:value.defender,
+    certificateRetained:false,independentlyVerifiable:false}};
+  }
+  return value&&typeof value==='object'&&/(?:proof|certificate)$/i.test(key)&&value.certificateRetained!==false&&expandedSize(value)>limit?proofSummary(value):value;
  }));
 }
 function commit(i,s){stopWorker();remaining=Math.max(0,deadline-Date.now());if(cursor<events.length)events=events.slice(0,cursor);let ev={type:i==null?'timeout':'move',p:turn,i,time:new Date().toISOString(),remaining,rec:snapshotAnalysisForRecord(rec),legal:true,shape:s?{threes:s.threes,fours:s.fours,fork43:s.fork43}:null};if(s?.fork43)ev.annotation='4-3 공격 생성';events.push(ev);cursor++;rec=null;rebuild();remaining=40000;deadline=Date.now()+40000;if(g.result)paused=true;persist();render();msg(i==null?'40초가 지나 상대에게 턴을 넘겼습니다.':g.result?'게임 종료. 패배 복기에서 중요한 수를 살펴보세요.':`${names[ev.p]} ${E.coord(i)} 착수`);if(!g.result)analyze();}

@@ -421,7 +421,7 @@ function createForestEngine(options={}){
    // 탐색 끝에서도 강제 방어를 연장한다. 일반 평가와 확정 승패는 구분한다.
    if(ply>=Math.max(19,limits.forcing))return {score:staticEval(q),pv:[]};if(!moves.length)return {score:0,pv:[]};
    let best={score:-Infinity,pv:[]};for(let m of moves){b[m.i]=q;let r;try{r=search(3-q,d-1,-beta,-alpha,ply+1,quiet?quietExtension-1:quietExtension);}finally{b[m.i]=0;}let score=-r.score;if(score>best.score)best={score,pv:[m.i,...r.pv]};alpha=Math.max(alpha,score);if(alpha>=beta)break;}
-   const bound=best.score<=a0?'upper':best.score>=b0?'lower':'exact';tt.set(key,{...best,bound});
+   const bound=best.score<=a0?'upper':best.score>=b0?'lower':'exact';if(tt.size<50000||tt.has(key))tt.set(key,{...best,bound});
    searchMemory?.put(memScope+'|search',memoryKey,{...best,score:OmokSearchMemory.toStored(best.score,ply,MATE),bound},Math.max(0,d)*2+(bound==='exact'?4:0));return best;
   }
   let best=options[0],pv=[best.i],score=best.score;
