@@ -115,6 +115,13 @@
   renderOpeningChoices();
   if(rec?.retainedStrategy||rec?.assessmentStatus==='ENGINE_STRATEGY'){
    const strategy=rec.retainedStrategy||rec.strategyEvidence.strategy,title=rec.strategyEvidence?.title||rec.analysisEvidence?.title||rec.openingEvidence?.title||'주형';
+   if(strategy.allLegalRepliesVerified===true){
+    $('metrics').textContent='엔진 검증 무적수 · '+title+' · 즉시 조회';
+    $('sequence').textContent=`${b.filter(Boolean).length+1}수: ${E.coord(rec.i)}`;
+    analysisPlan.textContent=`${strategy.rootOwnPly}수의 등록 국면부터 모든 합법 응수를 검증한 조건부 승리 전략`;
+    strategyNote.textContent='상대의 실제 응수에 맞춰 검증된 가지를 조회합니다 · 현재 실시간 검색 수치와 구분';
+    return;
+   }
    $('metrics').textContent=title+' 검증 수순 이어두기 · 즉시 조회';
    $('sequence').textContent=`${b.filter(Boolean).length+1}수: ${E.coord(rec.i)}`;
    analysisPlan.textContent=`${strategy.rootOwnPly}수에서 검증한 조건부 전략을 이어갑니다 · 심층 모드에서는 새로 분석`;

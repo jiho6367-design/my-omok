@@ -100,7 +100,9 @@ function createEngine(options={}) {
     if(!hit)return {hit:null,blocked:false};
     const mode=budget&&typeof budget==='object'?budget.mode:typeof budget==='number'?'custom':null,
       requested=Number(budget&&typeof budget==='object'?budget.ms:budget),historicalBudget=hit.strategy.historicalBudgetMs;
-    const blocked=mode==='deep'||(mode==='custom'||typeof budget==='number')&&(!Number.isFinite(requested)||requested<0||!Number.isFinite(historicalBudget)||requested>historicalBudget);
+    const custom=mode==='custom'||typeof budget==='number',invalid=custom&&(!Number.isFinite(requested)||requested<0),
+      completePolicy=hit.strategy.allLegalRepliesVerified===true,
+      blocked=invalid||!completePolicy&&(mode==='deep'||custom&&(!Number.isFinite(historicalBudget)||requested>historicalBudget));
     return {hit:blocked?null:hit,blocked};
   }
   function getOpeningBook(board,p){

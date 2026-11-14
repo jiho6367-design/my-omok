@@ -5,9 +5,9 @@ const OmokOpeningStrategy=(()=>{
  // First public format:512 roots accommodates verified opening strategies and
  // preserved selected-certificate pins. Native continuation data retains its
  // separate32768-entry limit. A dataset explicitly selects the legacy40 or
- // bounded42 profile: last own policy39/41, followed only by an urgent exact-
- // five finish41/43. Native S/C and timed-search horizons are unchanged.
- const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,MAX_ROOTS=512,MAX_NODES=65536,MAX_EDGES=262144,MAX_BYTES=8*1024*1024,MAX_PLIES=42,MAX_TERMINAL_PLIES=43;
+ // bounded42/46 profiles: last own policy39/41/45, followed only by an urgent
+ // exact-five finish41/43/47. Native S/C/search horizons are unchanged.
+ const RULES_ID='15x15-exact5-both33-v1',SIZE=225,N=15,MAX_ROOTS=512,MAX_NODES=65536,MAX_EDGES=262144,MAX_BYTES=8*1024*1024,MAX_PLIES=46,MAX_TERMINAL_PLIES=47;
  const FAMILIES={D1:['한성',[112,127,142]],D2:['계월',[112,127,143]],D4:['화월',[112,127,128]],D5:['잔월',[112,127,129]],D6:['우월',[112,127,113]],D7:['금성',[112,127,114]],D8:['송월',[112,127,97]],D9:['구월',[112,127,98]],D10:['신월',[112,127,99]],D11:['서성',[112,127,82]],D12:['산월',[112,127,83]],I2:['협월',[112,128,129]],I3:['항성',[112,128,114]],I4:['수월',[112,128,99]],I6:['운월',[112,128,113]],I7:['포월',[112,128,98]],I8:['람월',[112,128,83]],I9:['은월',[112,128,97]],I10:['명성',[112,128,82]],I11:['사월',[112,128,96]],I12:['명월',[112,128,81]]};
  const index=i=>Number.isInteger(i)&&i>=0&&i<SIZE,player=p=>p===1||p===2,object=v=>v&&typeof v==='object'&&!Array.isArray(v),fail=message=>{throw Error(message);};
  function tr(i,t){let x=i%N,y=i/N|0;if(t>=4)x=N-1-x;for(let k=0;k<t%4;k++){const old=x;x=N-1-y;y=old;}return y*N+x;}
@@ -20,7 +20,7 @@ const OmokOpeningStrategy=(()=>{
  function create({inspect,data=defaultData()}={}){
   if(typeof inspect!=='function')throw Error('Strategy inspection callback required');
   keys(data,['schemaVersion','rulesId','maxPlies','roots','nodes']);
-  if(data.schemaVersion!==1||data.rulesId!==RULES_ID||![40,MAX_PLIES].includes(data.maxPlies)||!Array.isArray(data.roots)||data.roots.length>MAX_ROOTS||!Array.isArray(data.nodes)||data.nodes.length>MAX_NODES||!!data.roots.length!==!!data.nodes.length)fail('Invalid strategy dataset');
+  if(data.schemaVersion!==1||data.rulesId!==RULES_ID||![40,42,MAX_PLIES].includes(data.maxPlies)||!Array.isArray(data.roots)||data.roots.length>MAX_ROOTS||!Array.isArray(data.nodes)||data.nodes.length>MAX_NODES||!!data.roots.length!==!!data.nodes.length)fail('Invalid strategy dataset');
   const maxPlies=data.maxPlies,maxTerminalPlies=maxPlies+1;
   let edgeCount=0;const nodes=data.nodes.map(row=>{
    if(!Array.isArray(row)||![0,1,2].includes(row[0]))fail('Invalid strategy node');
@@ -32,14 +32,17 @@ const OmokOpeningStrategy=(()=>{
    });if(row[2]===1&&replies.size!==1)fail('Forced strategy needs one reply');return Object.freeze([row[0],row[1],row[2],Object.freeze(groups)]);
   });
   const ids=new Set(),rootFields=['id','familyId','title','rootMoves','move','node','rulesId','sourceCommit','sourceProofSha256','sourceResultSha256','historicalModelSha256','originalRootOwnPly','actualToCanonicalTransform','canonicalFirstPlayer'];
-  const roots=data.roots.map((r,order)=>{keys(r,[...rootFields,'historicalBudgetMs'],rootFields);const id=text(r.id,120),family=FAMILIES[r.familyId];if(ids.has(id)||!family||r.title!==family[0]||r.rulesId!==RULES_ID||r.canonicalFirstPlayer!==1||!Number.isInteger(r.actualToCanonicalTransform)||r.actualToCanonicalTransform<0||r.actualToCanonicalTransform>7)fail('Invalid strategy root');ids.add(id);const historicalBudgetMs=Object.prototype.hasOwnProperty.call(r,'historicalBudgetMs')?r.historicalBudgetMs:null;if(historicalBudgetMs!==null&&(!Number.isFinite(historicalBudgetMs)||historicalBudgetMs<1||historicalBudgetMs>3600000))fail('Invalid historical strategy budget');if(Object.prototype.hasOwnProperty.call(r,'historicalBudgetMs')&&r.historicalBudgetMs===null)fail('An omitted historical budget must not be relabelled');
+  const roots=data.roots.map((r,order)=>{keys(r,[...rootFields,'historicalBudgetMs','allLegalRepliesVerified'],rootFields);const id=text(r.id,120),family=FAMILIES[r.familyId];if(ids.has(id)||!family||r.title!==family[0]||r.rulesId!==RULES_ID||r.canonicalFirstPlayer!==1||!Number.isInteger(r.actualToCanonicalTransform)||r.actualToCanonicalTransform<0||r.actualToCanonicalTransform>7)fail('Invalid strategy root');ids.add(id);const historicalBudgetMs=Object.prototype.hasOwnProperty.call(r,'historicalBudgetMs')?r.historicalBudgetMs:null;if(historicalBudgetMs!==null&&(!Number.isFinite(historicalBudgetMs)||historicalBudgetMs<1||historicalBudgetMs>3600000))fail('Invalid historical strategy budget');if(Object.prototype.hasOwnProperty.call(r,'historicalBudgetMs')&&r.historicalBudgetMs===null)fail('An omitted historical budget must not be relabelled');
+   // Publication replay grants this optional policy to explicit new roots.
+   // Runtime shape validation alone cannot establish full reply coverage.
+   if(Object.prototype.hasOwnProperty.call(r,'allLegalRepliesVerified')&&r.allLegalRepliesVerified!==true)fail('Invalid complete-reply policy');
    if(!Array.isArray(r.rootMoves)||r.rootMoves.length<4||r.rootMoves.length>=maxPlies||r.rootMoves.length%2||!r.rootMoves.every(index)||new Set(r.rootMoves).size!==r.rootMoves.length||!family[1].every((i,k)=>r.rootMoves[k]===i)||r.originalRootOwnPly!==r.rootMoves.length+1||!index(r.move)||!Number.isInteger(r.node)||!nodes[r.node]||nodes[r.node][0]!==2||nodes[r.node][1]!==r.move)fail('Invalid strategy root path');
    const board=Array(SIZE).fill(0);for(let k=0;k<r.rootMoves.length;k++){const i=r.rootMoves[k],p=k%2?2:1;if(inspect(board.slice(),i,p)?.legal!==true)fail('Illegal strategy root history');board[i]=p;if(exact(board,i,p))fail('Terminal strategy root history');}if(inspect(board.slice(),r.move,1)?.legal!==true)fail('Illegal strategy root move');board[r.move]=1;if(exact(board,r.move,1))fail('Already terminal strategy root move');
    return Object.freeze({...r,id,rootMoves:Object.freeze(r.rootMoves.slice()),sourceCommit:digest(r.sourceCommit,40),sourceProofSha256:digest(r.sourceProofSha256,64),sourceResultSha256:digest(r.sourceResultSha256,64),historicalModelSha256:digest(r.historicalModelSha256,64),historicalBudgetMs,order});
   });
   // The proof is replayed independently before publication. Runtime schema
   // checks still reject cycles, broken references, unused payload and a policy
-  // whose last explicit own policy exceeds the dataset's39/41 limit.
+  // whose last explicit own policy exceeds the dataset's39/41/45 limit.
   // VCF's extra two plies describe
   // an opponent response followed by an urgent exact-five finish, not an
   // additional policy lookup. Independent publication replay checks that tail.
@@ -63,7 +66,7 @@ const OmokOpeningStrategy=(()=>{
      else{const group=row[3].find(([,moves])=>moves.includes(reply));if(!group)return null;nodeId=group[0];offset=0;}
     }
     const row=nodes[nodeId],move=row[0]===0?row[1][offset]:row[1],i=tr(move,t);if(!index(i)||board[i])return null;try{if(inspect(Array.from(board),i,p)?.legal!==true)return null;}catch{return null;}
-    const strategy=Object.freeze({rootId:root.id,rootOwnPly:root.originalRootOwnPly,sourceCommit:root.sourceCommit,sourceProofSha256:root.sourceProofSha256,sourceResultSha256:root.sourceResultSha256,historicalModelSha256:root.historicalModelSha256,historicalBudgetMs:root.historicalBudgetMs,transform:t,node:nodeId,pvOffset:offset,replyPath:Object.freeze(replies),entryBoardKey:Array.from(board).join('')});
+    const strategy=Object.freeze({rootId:root.id,rootOwnPly:root.originalRootOwnPly,sourceCommit:root.sourceCommit,sourceProofSha256:root.sourceProofSha256,sourceResultSha256:root.sourceResultSha256,historicalModelSha256:root.historicalModelSha256,historicalBudgetMs:root.historicalBudgetMs,...(root.allLegalRepliesVerified===true?{allLegalRepliesVerified:true}:{}),transform:t,node:nodeId,pvOffset:offset,replyPath:Object.freeze(replies),entryBoardKey:Array.from(board).join('')});
     return Object.freeze({id:'strategy-'+root.id+'-'+nodeId+'-'+offset,i,ply:history.length+1,familyId:root.familyId,title:root.title,families:Object.freeze([Object.freeze({id:root.familyId,title:root.title})]),source:'engine-strategy',reference:false,proven:false,lossProven:false,proof:null,depth:0,nodes:0,score:0,strategy});
    }
    if(pin!==null&&pin!==undefined){
