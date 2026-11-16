@@ -25,16 +25,20 @@ const OmokParallel=(()=>{
    work('started');
    const direct=engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3)));
    work('forcing',direct.nodes||0);
-   const forbidden=direct.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
-   if(forbidden)work('forbidden',(direct.nodes||0)+(forbidden.nodes||0));
-   const preparation=direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
-    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),25,3);
-   if(preparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
+   const preparationProfile=engine.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},
+    priorityPreparation=!preparationProfile.priority||direct.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
+      engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),preparationProfile.maxPlies,preparationProfile.quiet);
+   if(priorityPreparation)work('preparation',(direct.nodes||0)+(priorityPreparation.nodes||0));
+   const forbidden=direct.proof||priorityPreparation?.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
+   if(forbidden)work('forbidden',(direct.nodes||0)+(priorityPreparation?.nodes||0)+(forbidden.nodes||0));
+   const preparation=priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
+    engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),25,3));
+   if(preparation&&!priorityPreparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
    const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||performance.now()>=end?null:engine.inspect(board,m.i,p).fours.length?
     engine.forcedReplyTrap(after,p,Math.max(1,end-performance.now()),null,25,true):engine.quietTrap(after,p,Math.max(1,end-performance.now()),14,25,true);
    const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof,check={i:m.i,started:true,finished:true,phase:'finished',startedAtEpochMs,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!engine.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:performance.now()-start,nodes:(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0),
     ...(forbidden?{forbiddenTrap:{complete:forbidden.complete,nominated:forbidden.nominated,checked:forbidden.checked}}:{}),
-    ...(preparation?{preparationTrap:{complete:preparation.complete,quiet:preparation.quiet,scope:preparation.scope}}:{}),
+    ...(preparation?{preparationTrap:{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope},...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})}:{}),
     ...(proof?{rejection:{i:m.i,pv:direct.proof?.pv||forbidden?.proof?.pv||preparation?.proof?.pv||[],replyTrap:trap?.proof||null,
      ...(forbidden?.proof?{forbiddenTrap:forbidden}:{}),...(preparation?.proof?{preparationTrap:preparation}:{}),verifiedRefutation:true,reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':forbidden?.proof?'3×3 금수 유도 수순 확인 · 함정 후보 제외':'병렬 후보 최종 응수 검사에서 상대 강제승 확인'}}:{})};
    checks.push(check);onCheck(check);

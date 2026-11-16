@@ -926,10 +926,13 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       for(let k=0;k<rows.length&&clockNow()<started+limit-20;k++){
         const m=rows[k];if(!inspect(board,m.i,p).legal)continue;const after=board.slice();after[m.i]=p;
         const checkStart=clockNow(),remaining=started+limit-checkStart-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=checkStart+slice;
-        const check=forest.forbiddenTrap(after,p,Math.max(1,Math.min(250,slice*.25)),19,1),preparation=check.proof||clockNow()>=end||!forest.preparationTrap?null:
-          forest.preparationTrap(after,p,Math.max(1,end-clockNow()),25,3),proof=check.proof||preparation?.proof;
-        guardNodes+=(check.nodes||0)+(preparation?.nodes||0);checks.push({i:m.i,complete:!!proof||check.complete&&(!forest.preparationTrap||!!preparation?.complete),refuted:!!proof,ms:clockNow()-checkStart,nodes:(check.nodes||0)+(preparation?.nodes||0),preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,scope:preparation.scope}:null});
-        if(proof){rejected.push({i:m.i,pv:proof.pv,...(check.proof?{forbiddenTrap:check}:{}),...(preparation?.proof?{preparationTrap:preparation}:{}),verifiedRefutation:true,reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':'3×3 금수 유도 수순 확인 · 함정 후보 제외'});
+        const preparationProfile=forest.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},priorityPreparation=!preparationProfile.priority||clockNow()>=end||!forest.preparationTrap?null:
+          forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.9),preparationProfile.maxPlies,preparationProfile.quiet),
+          check=priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(250,slice*.25,end-clockNow())),19,1),
+          preparation=priorityPreparation||(check?.proof||clockNow()>=end||!forest.preparationTrap?null:
+            forest.preparationTrap(after,p,Math.max(1,end-clockNow()),25,3)),proof=check?.proof||preparation?.proof;
+        guardNodes+=(check?.nodes||0)+(preparation?.nodes||0);checks.push({i:m.i,complete:!!proof||!!check?.complete&&(!forest.preparationTrap||!!preparation?.complete),refuted:!!proof,ms:clockNow()-checkStart,nodes:(check?.nodes||0)+(preparation?.nodes||0),preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
+        if(proof){rejected.push({i:m.i,pv:proof.pv,...(check?.proof?{forbiddenTrap:check}:{}),...(preparation?.proof?{preparationTrap:preparation}:{}),verifiedRefutation:true,reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':'3×3 금수 유도 수순 확인 · 함정 후보 제외'});
           result=finalizeResult(board,p,{...result,rejected});progress(describe({...result,nodes:baseNodes+guardNodes,forbiddenChecks:checks.slice()}));}
       }
       return describe({...result,rejected,nodes:baseNodes+guardNodes,forbiddenChecks:checks,analysisIncomplete:!!result.analysisIncomplete||!checks.some(c=>c.i===result.i&&c.complete)});
@@ -957,16 +960,18 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       const m=shortlist[k],after=board.slice();after[m.i]=p;
       const checkStarted=clockNow(),remaining=deadline-checkStarted-30,slice=k===0&&shortlist.length>1?remaining*.65:remaining/(shortlist.length-k),end=checkStarted+slice;
       const direct=forest.forcing(after,3-p,25,Math.max(1,Math.min(1000,slice*.25)));
-      const forbidden=direct.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(600,(end-clockNow())*.4)),19,1);
-      const preparation=direct.proof||forbidden?.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
-        forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),25,3);
+      const preparationProfile=forest.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},priorityPreparation=!preparationProfile.priority||direct.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
+        forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),preparationProfile.maxPlies,preparationProfile.quiet);
+      const forbidden=direct.proof||priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(600,(end-clockNow())*.4)),19,1);
+      const preparation=priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
+        forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),25,3));
       const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||clockNow()>=end?null:
         inspect(board,m.i,p).fours.length?
           forest.forcedReplyTrap(after,p,Math.max(1,Math.min(500,end-clockNow())),null,25,true):
           forest.quietTrap(after,p,Math.max(1,end-clockNow()),14,25,true);
       extraNodes+=(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0);
       const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof;
-      checks.push({i:m.i,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!forest.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:clockNow()-checkStarted,preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,scope:preparation.scope}:null});
+      checks.push({i:m.i,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!forest.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:clockNow()-checkStarted,preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
       if(proof){bad.add(m.i);rejected.push({i:m.i,pv:direct.proof?.pv||forbidden?.proof?.pv||preparation?.proof?.pv||[],replyTrap:trap?.proof||null,
         ...(forbidden?.proof?{forbiddenTrap:forbidden,verifiedRefutation:true}:{}),...(preparation?.proof?{preparationTrap:preparation,verifiedRefutation:true}:{}),reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':forbidden?.proof?'3×3 금수 유도 수순 확인 · 함정 후보 제외':'상위 후보 추가 검사에서 상대 강제승 확인'});
         progress(describe(finalizeResult(board,p,{...best,rejected})));}

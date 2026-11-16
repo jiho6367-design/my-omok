@@ -216,6 +216,20 @@ function createForestEngine(options={}){
   if(!factory)return {complete:false,proof:null,scope:'targeted-forbidden-preparations'};
   return factory(N,board,{strategy:false,optimized:true,counterProofDetails:options.counterProofDetails===true}).forbiddenTrap(3-p,budget,maxPlies,quiet);
  }
+ // Choose proof work only. A legal compulsory block can simultaneously build
+ // the opponent's three/four, so counter-fours may delay its eventual win.
+ // Geometry never refutes a candidate: only the later complete proof can.
+ function forcingReplyProfile(board,defender){
+  const ordinary={priority:false,maxPlies:25,quiet:3,block:null,replyThrees:[],replyFours:[],scope:'three-preparation-counterattack'};
+  if(![1,2].includes(defender)||board?.length!==N*N||board.some(v=>![0,1,2].includes(v)))return ordinary;
+  if(board.some((v,i)=>v&&win(board,i,v).length))return ordinary;
+  const attacker=3-defender,ends=winning(board,defender);
+  if(ends.length!==1||winning(board,attacker).length)return ordinary;
+  const block=ends[0],reply=inspect(board,block,attacker);
+  if(!reply.legal)return ordinary;
+  const details={...ordinary,block,replyThrees:reply.threes.slice(),replyFours:reply.fours.slice()};
+  return reply.threes.length||reply.fours.length?{...details,priority:true,maxPlies:39,scope:'forced-block-counterplay'}:details;
+ }
  // The opponent is to move after the defender's candidate. Mixed fours,
  // compulsory counter-four blocks and bounded quiet preparations share one
  // all-response proof search. Two preparations remain the default; finalist
@@ -489,6 +503,6 @@ function createForestEngine(options={}){
   let loss=s.win.length?{proof:null,complete:true}:forcing(after,3-p,11,Math.floor(budget*.3));
   return {...r,actual:i,actualLossProof:loss.proof,reviewLabel:r.lossProven?'이미 강제 패배 상태 · 이 수만의 실수 아님':loss.proof?'이 착수 뒤 상대 연속 4 강제승 확인':r.i!==i?'대안 후보 비교 (추정)':'추천 수와 일치'};
  }
- return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicPreparation,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
+ return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicPreparation,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,forcingReplyProfile,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
 }
 if(typeof module!=='undefined')module.exports=createForestEngine;
