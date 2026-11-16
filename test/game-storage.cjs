@@ -71,7 +71,7 @@ const load=(storage,key='records',onStatus)=>open({key,indexedDB:null,localStora
   const result=await staleDelete.save(archive()),saved=(await load(storage)).initial;assert(result.conflicts>0);assert.equal(saved.games[0].events.length,2,'A stale deletion preserves a remotely changed game and records the conflict');assert(saved.storageConflicts.length>0);
  }
  {
-  const games=Array.from({length:301},(_,k)=>game('generated-'+k,0)),storage=memory({records:JSON.stringify(archive(games))}),store=await load(storage);assert.equal(store.initial.games.length,301);await store.save(store.initial);assert.equal((await load(storage)).initial.games.length,301,'Internal restore does not impose an import-only game count cap');
+  const games=Array.from({length:301},(_,k)=>game('generated-'+k,0)),storage=memory({records:JSON.stringify(archive(games))}),store=await load(storage);assert.deepEqual(store.initial.games.map(g=>g.id),games.slice(0,10).map(g=>g.id));await store.save(store.initial);assert.equal((await load(storage)).initial.games.length,10,'Restoring an older library applies the same ten-game retention policy as saving');
  }
  {
   const big=game('unchanged-evidence');big.events[0].rec={proof:{payload:'generated-large-evidence-'.repeat(50000)}};
@@ -126,5 +126,5 @@ const load=(storage,key='records',onStatus)=>open({key,indexedDB:null,localStora
   const cold=[...storage.values];await Promise.all(writes);assert(intermediate);
   for(const captured of [cold,intermediate]){const restored=await load(memory(Object.fromEntries(captured.slice().reverse())));assert.equal(restored.initial.games[0].cursor,4,'Cumulative immutable journals skip accepted steps over large same-game intermediate writes');assert.equal(restored.initial.games[0].events.length,4);assert.equal(restored.initial.games[0].events[0].rec.proof.payload,large.events[0].rec.proof.payload);assert(!restored.status().recovery?.includes('unreplayed-pending'));}
  }
- console.log('PASS generated game storage: durability, synchronous delta journals, immediate recovery, undo/order, stale clients, immutable evidence, quota/raw protection, error races and 301-game restore');
+ console.log('PASS generated game storage: durability, synchronous delta journals, immediate recovery, undo/order, stale clients, immutable evidence, quota/raw protection, error races and 301-to-10-game retention');
 })().catch(error=>{console.error(error);process.exitCode=1;});

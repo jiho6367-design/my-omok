@@ -67,7 +67,7 @@ async function view(page){return page.evaluate(()=>({ids:db.games.filter(x=>x.id
  }
  {
   const games=Array.from({length:301},(_,i)=>({...oldGame('synthetic-count-'+i),events:[],cursor:0})),seed={version:1,games,lessons:[]},f=await boot(seed);await flush(f.page);await f.page.reload();await ready(f.page);
-  const result=await f.page.evaluate(()=>({retained:db.games.filter(x=>x.id.startsWith('synthetic-count-')).length,status:document.getElementById('recordSaveStatus').dataset.state,unreadable:db.unreadableGames?.length||0}));assert.equal(result.retained,301);assert.equal(result.unreadable,0);assert.equal(await f.page.evaluate(()=>localStorage.getItem(STORAGE_KEY)),JSON.stringify(seed));report.cases.push({kind:'301-valid-games-all-retained',result});save();assert.deepEqual(f.errors,[]);await f.context.close();
+  const result=await f.page.evaluate(()=>({retained:db.games.filter(x=>x.id.startsWith('synthetic-count-')).length,status:document.getElementById('recordSaveStatus').dataset.state,unreadable:db.unreadableGames?.length||0}));assert.equal(result.retained,10);assert.equal(result.unreadable,0);assert.equal(await f.page.evaluate(()=>localStorage.getItem(STORAGE_KEY)),JSON.stringify(seed));report.cases.push({kind:'301-valid-games-retained-latest10',result});save();assert.deepEqual(f.errors,[]);await f.context.close();
  }
  {
   const good=oldGame('synthetic-valid-old'),bad={...oldGame('synthetic-invalid-game'),events:[{type:'move',p:1,i:112,legal:true},{type:'move',p:1,i:113,legal:true}],cursor:2,unknownMetadata:{preserve:'raw invalid record'}},seed={version:1,games:[good,bad],lessons:[]},f=await boot(seed);await flush(f.page);await f.page.reload();await ready(f.page);

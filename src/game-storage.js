@@ -1,9 +1,23 @@
-// Durable, lossless game snapshots. The old localStorage value remains an
+// Durable game snapshots with a ten-game library. The old localStorage remains an
 // untouched migration source whenever IndexedDB is available.
 (function(root){
  'use strict';
  const own=(value,key)=>Object.prototype.hasOwnProperty.call(value,key);
  const empty=()=>({version:1,games:[],lessons:[]});
+ const MAX_GAMES=10;
+ function retainGames(data,activeId=data?.activeId){
+  if(!Array.isArray(data?.games)||data.games.length<=MAX_GAMES)return data;
+  const date=game=>typeof game?.date==='string'?(Date.parse(game.date)||0):0;
+  const ordered=data.games.map((game,index)=>({game,index,date:date(game)})).sort((a,b)=>b.date-a.date||a.index-b.index);
+  const kept=ordered.slice(0,MAX_GAMES),active=activeId===null?null:ordered.find(row=>row.game?.id===activeId)||ordered.find(row=>row.game?.id===data.activeId);
+  // Continuing an older game must not remove the game currently being played.
+  if(active&&!kept.includes(active)){kept[MAX_GAMES-1]=active;kept.sort((a,b)=>b.date-a.date||a.index-b.index);}
+  const result={...data,games:kept.map(row=>row.game)};
+  if(typeof data.activeId==='string'&&!kept.some(row=>row.game?.id===data.activeId)){
+   if(active)result.activeId=active.game.id;else delete result.activeId;
+  }
+  return result;
+ }
  const clone=value=>value==null?value:JSON.parse(JSON.stringify(value));
  const same=(a,b)=>a===b||JSON.stringify(a)===JSON.stringify(b);
  const message=error=>error?.message||String(error||'기록 저장 오류');
@@ -206,8 +220,9 @@
        current=next;text=JSON.stringify(current);nextRevision++;acknowledged[packet.clientId]=packet.sequence;lastWriterClientId=packet.clientId;lastWriterSequence=packet.sequence;recovered.push(row);
       }catch(error){archive(archives,'unreplayed-pending',row.text,{storageKey:row.key,error:message(error)});warnings.push('unreplayed-pending');}
      }
+     const retained=retainGames(current),trimmed=retained!==current;if(trimmed){current=retained;text=JSON.stringify(current);}
      const envelope={schemaVersion:1,text,revision:nextRevision,updatedAt:record?.updatedAt??now(),legacyMigrated:record?.legacyMigrated===true||!storageReadError,legacyFingerprint:fp??record?.legacyFingerprint??null,acknowledged,lastWriterClientId,lastWriterSequence};
-     if(!record||firstMigration||recovered.length||record.legacyFingerprint!==envelope.legacyFingerprint)values.put(envelope,'current');
+     if(!record||firstMigration||recovered.length||trimmed||record.legacyFingerprint!==envelope.legacyFingerprint)values.put(envelope,'current');
      done({initial:current,revision:envelope.revision,recovery:warnings,recovered});
     }catch(error){abort(error);}};
    });
@@ -227,9 +242,10 @@
      if(conflicts.length){const original={...previous};delete original.storageConflicts;next.storageConflicts=[...(next.storageConflicts||[]),{at:now(),clientId:packet.clientId,conflicts,previous:original,pendingPacket:row.text}];}
      current=next;acceptedByClient.set(packet.clientId,packet.sequence);recovered.push(row);
     }catch{recovery.push('unreplayed-pending');}
-    if(recovered.length)try{storage.setItem(key,JSON.stringify(current));initial=current;for(const row of recovered)clearJournal(row);}catch(error){initial=current;blocked=error;}
+    if(recovered.length)try{current=retainGames(current);storage.setItem(key,JSON.stringify(current));initial=current;for(const row of recovered)clearJournal(row);}catch(error){initial=retainGames(current);blocked=error;}
    }
   }
+  const retainedInitial=retainGames(initial);if(retainedInitial!==initial){if(!db&&!blocked)try{storage.setItem(key,JSON.stringify(retainedInitial));}catch(error){blocked=error;}initial=retainedInitial;}
   lastLocal=clone(initial)||empty();let scheduledSnapshot=lastLocal;
   const savedStatus=extra=>({state:'saved',backend,revision,...(recovery.length?{recovery:recovery.slice()}:{}),...extra});
   const errorStatus=error=>({state:'error',backend,error:message(error),pending,unprotected});
@@ -240,6 +256,7 @@
     const values=tx.objectStore('state'),archives=tx.objectStore('archive'),request=values.get('current');
     request.onsuccess=()=>{try{
      const record=request.result,latest=record?.text!=null?parse(record.text):empty(),merged=merge(latest,record?base:empty(),snapshot),next=(Number(record?.revision)||0)+1;
+     merged.data=retainGames(merged.data,snapshot.activeId);
      if(merged.conflicts.length){archive(archives,'concurrent-remote',record?.text??JSON.stringify(latest),{revision:Number(record?.revision)||0,conflicts:merged.conflicts});archive(archives,'concurrent-local',text,{conflicts:merged.conflicts});}
      values.put({...record,schemaVersion:1,text:JSON.stringify(merged.data),revision:next,updatedAt:now(),legacyMigrated:record?.legacyMigrated===true,legacyFingerprint:record?.legacyFingerprint??null,acknowledged:{...(record?.acknowledged||{}),[clientId]:sequence},lastWriterClientId:clientId,lastWriterSequence:sequence},'current');
      done({revision:next,conflicts:merged.conflicts.length});
@@ -260,6 +277,7 @@
      recoveries.push({at:now(),clientId,conflicts:merged.conflicts,previous,incoming});
      merged.data.storageConflicts=recoveries;
     }
+    merged.data=retainGames(merged.data,snapshot.activeId);
     storage.setItem(key,JSON.stringify(merged.data));lastLocal=snapshot;revision++;
     return{revision,conflicts:merged.conflicts.length};
    };
@@ -269,7 +287,7 @@
   const store={initial:clone(initial),
    save(data){
     const sequence=++journalSequence;latestFailure=null;
-    let text,snapshot;try{text=JSON.stringify(data);snapshot=parse(text);}catch(error){uncovered.add(sequence);unprotected=true;latestFailure={sequence,error};emit(errorStatus(error));const rejected=Promise.reject(error);rejected.catch(()=>{});return rejected;}
+    let text,snapshot;try{text=JSON.stringify(retainGames(data));snapshot=parse(text);}catch(error){uncovered.add(sequence);unprotected=true;latestFailure={sequence,error};emit(errorStatus(error));const rejected=Promise.reject(error);rejected.catch(()=>{});return rejected;}
     let journal=null;
     try{
      if(!storage||blocked)throw blocked||Error('즉시 복구 기록을 저장할 수 없습니다.');
@@ -299,5 +317,5 @@
   };
   return store;
  }
- const api={open};root.OmokGameStorage=api;if(typeof module!=='undefined')module.exports=api;
+ const api={open,retainGames,MAX_GAMES};root.OmokGameStorage=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

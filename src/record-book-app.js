@@ -32,7 +32,7 @@
  $('file').onchange=async()=>{
   try{
    const file=$('file').files[0];if(!file)return;if(file.size>200*1024*1024)throw Error('200MiB 이하 JSON만 지원합니다');
-   const incoming=validate(JSON.parse(await file.text())),imported=incoming.recordBook===undefined?[]:incoming.recordBook;
+   const incoming=validate(OmokGameStorage.retainGames(JSON.parse(await file.text()),null)),imported=incoming.recordBook===undefined?[]:incoming.recordBook;
    const checked=OmokRecordBook.create(imported,{inspect:E.inspect});if(checked.errors.length)throw Error('잘못된 승리 기보: '+checked.errors[0].message);
    const games=[...db.games],lessons=[...db.lessons],records=[...db.recordBook];
    for(const game of incoming.games)if(!games.some(g=>g.id===game.id))games.push(game);
@@ -41,7 +41,7 @@
    if(records.length>128)throw Error('합친 기록이 저장 한도를 넘습니다. 기존 기록은 유지했습니다.');
    db.games=games;db.lessons=lessons;db.recordBook=records;
    if(incoming.recordBookModeVersion===2&&typeof incoming.recordBookEnabled==='boolean')db.recordBookEnabled=incoming.recordBookEnabled;
-   toggle.checked=db.recordBookEnabled;saveAndAnalyze();msg('기보·학습 기록·후공 승리 수순을 가져왔습니다. 기존 기록은 유지했습니다.');
+   toggle.checked=db.recordBookEnabled;saveAndAnalyze();msg('기보·학습 기록·후공 승리 수순을 가져왔습니다. 저장된 게임은 최근 10개까지 유지합니다.');
   }catch(error){msg('가져오기 실패: '+error.message);}finally{$('file').value='';}
  };
  button(row,'이 기보 등록',()=>{
@@ -59,7 +59,7 @@
   if(!db.recordBook.length)paragraph(body,'등록한 기보가 없습니다. 후공이 5목으로 이긴 기보에서 「이 기보 등록」을 누르세요.');
   for(const record of db.recordBook){
    const item=document.createElement('div');item.className='entry';body.append(item);paragraph(item,record.title+' · '+record.moves.length+'수');
-   button(item,'기보 열기',()=>{const game=asGame(record);if(!db.games.some(g=>g.id===game.id)){db.games.push(game);}persist();$('modal').close();loadGame(db.games.find(g=>g.id===game.id));});
+   button(item,'기보 열기',()=>{const game=asGame(record);$('modal').close();loadGame(db.games.find(g=>g.id===game.id)||game);});
    button(item,'수순 삭제',()=>{db.recordBook=db.recordBook.filter(r=>r.id!==record.id);saveAndAnalyze();item.remove();});
   }
  }).id='showRecordBook';
