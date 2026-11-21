@@ -252,7 +252,7 @@ function createEngine(N, board, options={}) {
 
   // Expose a representative legal line for each completed AND root while
   // keeping the complete proof coverage and historical diagnostic categories.
-  function counterRejections(p,check){
+  function counterRejections(p,check,quiet=1,maxPlies=19){
     if(!Array.isArray(check?.branches))return [];
     return check.branches.map(root=>{let reason='forcing-line';set(root.i,p);try{
       const proof=root.proof;if(proof.type!=='vcf'){
@@ -260,7 +260,7 @@ function createEngine(N, board, options={}) {
         if(own.length===1&&proof.i===own[0])reason='forced-reply-trap';
         else{set(proof.i,3-p);try{reason=openThrees(proof.i,3-p)?'three-threat':'counter-threat';}finally{set(proof.i,0);}}
       }
-    }finally{set(root.i,0);}return {i:root.i,reason,line:[root.i,...root.proof.pv],verifiedRefutation:true,counterProof:{complete:true,forcing:19,quiet:1}};});
+    }finally{set(root.i,0);}return {i:root.i,reason,line:[root.i,...root.proof.pv],verifiedRefutation:true,counterProof:{complete:true,forcing:maxPlies,quiet}};});
   }
 
   function counterMove(i,p,ms=1000,left=19,quiet=2){if(!legal(i,p)||winMove(i,p))return {proof:null,complete:true,ownWin:winMove(i,p)};set(i,p);try{return counterCertificate(3-p,ms,left,quiet);}finally{set(i,0);}}
@@ -484,13 +484,23 @@ function createEngine(N, board, options={}) {
     // Counter fours can delay a quiet win without escaping it. This separate
     // proof checks every legal root and every quiet-setup defense. Its bounded
     // discovery failures remain unknown; it never labels a move safe.
+    function counterLossResult(check,quiet,maxPlies=19){
+      const rejectedMoves=counterRejections(p,check,quiet,maxPlies);
+      const certificate={attacker:3-p,defender:p,entryBoardKey:b.join(''),complete:true,checkedReplies:check.branches.length,branches:check.branches};
+      return output('lost',[],0,{
+        ...(options.proofDetails===true&&options.counterProofDetails===true?{completeLossCertificate:certificate}:{}),
+        lossReason:rejectedMoves.some(m=>m.reason==='counter-threat')?'counter-threat':'forcing-line',
+        counterProof:{complete:true,checkedRoots:check.branches.length,forcing:maxPlies,quiet,ms:check.ms,nodes:check.nodes,...proofMetrics({maxVisited:check.proofSearchDepth})},
+        ...proofMetrics({maxVisited:check.proofSearchDepth}),screened:rejectedMoves.length,rejectedMoves,screeningComplete:true,forcingChecksComplete:true
+      });
+    }
     let counterCheck=null;
     if(ms>=3000&&clockNow()<deadline-1000){
       const savedPhase=phaseDeadline;
       let virtual=null;try{phaseDeadline=Math.min(deadline,clockNow()+80);virtual=vcf(3-p,13);}catch(err){if(err.message!=='timeout')throw err;}finally{phaseDeadline=savedPhase;}
       if(virtual){
         counterCheck=counterLoss(p,Math.min(6500,ms*.82,deadline-clockNow()-600),19,1);
-        if(counterCheck.lossProven){const rejectedMoves=counterRejections(p,counterCheck);return output('lost',[],0,{...(options.proofDetails===true&&options.counterProofDetails===true?{completeLossCertificate:{attacker:3-p,defender:p,entryBoardKey:b.join(''),complete:true,checkedReplies:counterCheck.branches.length,branches:counterCheck.branches}}:{}),lossReason:rejectedMoves.some(m=>m.reason==='counter-threat')?'counter-threat':'forcing-line',counterProof:{complete:true,checkedRoots:counterCheck.branches.length,forcing:19,quiet:1,ms:counterCheck.ms,nodes:counterCheck.nodes,...proofMetrics({maxVisited:counterCheck.proofSearchDepth})},...proofMetrics({maxVisited:counterCheck.proofSearchDepth}),screened:rejectedMoves.length,rejectedMoves,screeningComplete:true,forcingChecksComplete:true});}
+        if(counterCheck.lossProven&&counterCheck.complete)return counterLossResult(counterCheck,1);
       }
     }
     const counterRejected=counterCheck?counterRejections(p,counterCheck):[],counterBad=new Set(counterRejected.map(m=>m.i));
@@ -519,6 +529,32 @@ function createEngine(N, board, options={}) {
     let safe=[...screened.filter(r=>r.status!=='loss'),...pending];if(!safe.length){
       if(screeningComplete)return output('lost',[],0,{lossReason:'forcing-line',screened:screened.length+counterRejected.length,rejectedMoves});
       return output('incomplete',[],0,{screened:screened.length+counterRejected.length,rejected:rejectedMoves.length,rejectedMoves,screeningComplete:false,forcingChecksComplete:false});
+    }
+    // An attack that begins with preparation can leave just a few apparent
+    // defenses even when the opponent has no VCF on the original board.
+    // Give that position a bounded all-root check before ranking resistance.
+    if(ms>=3000&&!danger.length&&rootCount>=40&&safe.length<=8&&rejectedMoves.length>=rootCount*.9){
+      const proofStarted=clockNow();
+      const end=Math.min(deadline-200,clockNow()+Math.min(1300,ms*.2));
+      let shortComplete=false;
+      for(const quiet of [1,2]){
+        const remaining=end-clockNow();
+        if(remaining<35)break;
+        const check=counterLoss(p,quiet===1?Math.min(240,remaining*.3):remaining,19,quiet);
+        if(check.complete&&check.lossProven)return counterLossResult(check,quiet);
+        if(quiet===2)shortComplete=check.complete;
+      }
+      // A completed short miss can still hide a third preparation. Spend
+      // more only in this already heavily screened position, leaving time
+      // for ordinary comparison if the wider proof remains unresolved.
+      if(shortComplete&&ms>=7000){
+        const widerEnd=Math.min(deadline-1500,proofStarted+Math.min(5200,ms*.64));
+        const remaining=widerEnd-clockNow();
+        if(remaining>=500){
+          const check=counterLoss(p,remaining,25,3);
+          if(check.complete&&check.lossProven)return counterLossResult(check,3,25);
+        }
+      }
     }
     let best=safe.slice(0,3),depth=0;const rejected=rejectedMoves.length;
     const kind=danger.length?'block':'search',extra={screeningComplete,forcingChecksComplete,screened:screened.length+counterRejected.length,rejected,rejectedMoves};

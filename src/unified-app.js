@@ -15,7 +15,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.67';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.67');
+versionBadge.textContent='통합 v5.18.68';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.68');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -36,7 +36,7 @@ function syncAnalysisSettingsUI(){
 }
 function updateAnalysisSettings(next,reanalyze=true){
   if(!settingsPolicy.valid(next)||JSON.stringify(next)===JSON.stringify(analysisSettings)){syncAnalysisSettingsUI();return;}
-  analysisSettings=next;settingsRevision++;stopWorker();rec=null;lastProgress=null;currentAnalysisPolicy=null;activePlan='선택 '+settingsPolicy.label(next)+' · 다음 요청에 적용';
+  analysisSettings=next;settingsRevision++;stopWorker();rec=null;lastProgress=null;currentAnalysisPolicy=null;
   if(!settingsPolicy.save(settingsStorage,next))msg('분석 설정을 저장하지 못했습니다. 이번 실행에만 적용됩니다.');
   syncAnalysisSettingsUI();render();if(reanalyze&&globalThis.omokComputeReady&&g&&!g.result)analyze();
 }
@@ -49,7 +49,7 @@ for(const child of [...$('learn').parentElement.children])if(!['postmortem','lea
 learningCard.append(studyDetails);
 const rulesText=learningCard.querySelector('details p');if(rulesText)rulesText.textContent='정확한 5목만 승리, 6목 이상은 승리가 아니며 4·4는 허용합니다. 양측 3·3 금지이며, 정확한 5목이 동시에 완성되면 승리를 우선합니다. 현재 고정 규칙으로 고정합니다. 흑돌과 백돌로 표시합니다.';
 
-let ponder=null,keepPonder=false,lastProgress=null,activePlan='';
+let ponder=null,keepPonder=false,lastProgress=null;
 function normalizeForestRules(){
   if(g)g.rules={...g.rules,fivePriority:true};
   for(const game of db.games)game.rules={...game.rules,fivePriority:true};
@@ -73,8 +73,8 @@ const positionKey=(board,p)=>[g?.id,g?.first??'unknown',p,g?.rules?.fivePriority
   E.getContext?.().strategyVersion||E.strategyVersion||'legacy',globalThis.omokAcceleration?.mode||'cpu',settingsRevision,analysisSettings.mode,analysisSettings.manualMs,board.join('')].join('|');
 function formatAnalysisPlan(policy,result){
   if(!policy)return '';
-  const role=policy.role==='prediction'?'상대 다음 수 예측 · 1초 고정 · ':policy.role==='ponder'?'내 예상 응수 · ':'';
-  const end=result?(result.timedOut?'시간 상한 도달':result.urgent||['win','block','terminal'].includes(result.kind)?'즉시 전술 판정으로 조기 완료':result.analysisIncomplete?'추가 탐색·검사 미완료 · 마지막 완료 비교 유지':result.autoReason||result.reason||'엔진 계산 완료'):policy.reason;
+  const role=policy.role==='prediction'?'상대 착수 전 · 1초 예측 · ':policy.role==='ponder'?'실제 착수 뒤 · 사전 계산 이어 읽기 · ':'';
+  const end=result?(result.timedOut?'시간 상한 도달':result.urgent||['win','block','terminal'].includes(result.kind)?'즉시 전술 판정으로 조기 완료':result.analysisIncomplete?(result.comparison?.complete?'추가 검사 미완료 · 완료한 비교 표시':'완료한 비교 없음'):result.autoReason||result.reason||'엔진 계산 완료'):policy.reason;
   const work=result?' · 실제 '+((result.ms||result.analysisWork?.elapsedMs||0)/1000).toFixed(2)+'초 · 완료 비교 깊이 '+(result.depth||0)+(Number.isInteger(result.proofSearchDepth)?' · 증명 탐색 실제 최대 '+result.proofSearchDepth+'수':'')+(Number.isInteger(result.proofPlies)?' · 표시 증명 수순 '+result.proofPlies+'수':''):'';
   return role+'선택 '+policy.selectedLabel+' · 적용 최대 '+(policy.externalMs/1000).toFixed(2)+'초 · 내부 탐색 '+(policy.internalMs/1000).toFixed(2)+'초'+(policy.clockLimited?' · 대국 시계로 예산 축소':'')+work+' · '+end;
 }
@@ -85,11 +85,11 @@ function configuredOwnBudget(board,p,available=40000){
 function selectedBudget(board,p){
   if(!reviewing&&g&&p!==g.me){
     currentAnalysisPolicy={mode:analysisSettings.mode,selectedLabel:settingsPolicy.label(analysisSettings),externalMs:1000,internalMs:940,role:'prediction',reason:'내 분석 모드와 별도의 짧은 예산'};
-    activePlan=formatAnalysisPlan(currentAnalysisPolicy);analysisPlan.textContent=activePlan;return 1000;
+    analysisPlan.textContent=formatAnalysisPlan(currentAnalysisPolicy);return 1000;
   }
   const available=reviewing||paused||g?.timer===false?40000:Math.max(0,deadline-Date.now());
   const own=configuredOwnBudget(board,p,available);currentAnalysisPolicy=own.policy;
-  activePlan=own.label;analysisPlan.textContent=activePlan;return own.budget;
+  analysisPlan.textContent=own.label;return own.budget;
 }
 function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   const proofObserver=spawnAnalysis.proofObserver;
@@ -311,6 +311,21 @@ function acceptResult(result,partial=false){
   else setAnalysisStatus('분석 완료','아래 1순위가 최종 추천입니다. 해당 좌표를 두세요.','complete');
   render();return true;
 }
+function limitedPreparedReply(result){
+  return !!result&&!result.proven&&!result.lossProven&&!result.urgent&&
+    !!(result.analysisIncomplete||result.timedOut||result.fallback||result.kind==='incomplete');
+}
+function publishPreparedReply(task,result,partial=false){
+  const previous=rec?.i??result.i;
+  if(!acceptResult(result,partial))return false;
+  const actual=rec?.i;
+  const description=actual==null?'추천 없음':previous!=null&&actual!==previous?
+    '응수 '+E.coord(previous)+' → '+E.coord(actual)+(actual!==result.i?' · 실제 국면 검사 반영':' · 이어서 비교한 결과'):
+    '응수 '+E.coord(actual)+(partial?' · 계산 중':limitedPreparedReply(rec)?' · 검사 미완료':' · 사전 계산 결과 사용');
+  predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 ${E.coord(task.opponent)} · ${description}`;
+  if(!partial)task.onDone?.(rec);
+  return true;
+}
 function prepareReply(){
   if(!g||g.result||reviewing||turn===g.me||rec?.i==null){cancelPonder();return;}
   const sourceKey=positionKey(b,turn),opponents=[...new Set([rec.i,...(rec.candidates||[]).slice(0,3).map(m=>m.i)])]
@@ -328,7 +343,9 @@ function prepareReply(){
     const current=()=>ponderBranches.get(opponent)===task&&g&&!g.result&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
     task.showState=showPonderStatus;
     const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;
-      if(task.promoted){acceptResult(r);predictionNote.textContent=`예측 일치 · ${task.rank}순위 사전 계산 결과 사용`;task.onDone?.(r);}else showPonderStatus();};
+      if(task.promoted){
+        if(!publishPreparedReply(task,r)){cancelPonder();analyze('fresh',task.onDone);}
+      }else showPonderStatus();};
     const failed=error=>{if(!current())return;task.worker=null;task.error=String(error||'계산 오류');
       if(task.promoted){cancelPonder();analyze();}else showPonderStatus();};
     task.resume=()=>{
@@ -338,7 +355,7 @@ function prepareReply(){
       // a predicted board or discard its work because of a UI heartbeat delay.
       try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){
         task.partial={...r,analysisPolicy:task.policy};
-        if(task.promoted){if(!task.liveProofGatePending)acceptResult(task.partial,true);}else showPonderStatus();
+        if(task.promoted){if(!task.liveProofGatePending)publishPreparedReply(task,task.partial,true);}else showPonderStatus();
       }},finish,failed);}catch(e){failed(e.message);}
     };
     const immediate=E.urgent(board,p);if(immediate)finish(immediate);else task.resume();
@@ -348,11 +365,12 @@ function prepareReply(){
 function showPonderStatus(){
   if(!g||g.result||reviewing||turn===g.me)return;
   const sourceKey=positionKey(b,turn),tasks=[...ponderBranches.values()].filter(t=>!t.promoted&&t.sourceKey===sourceKey).sort((a,b)=>a.rank-b.rank);if(!tasks.length)return;
-  const ready=tasks.filter(t=>t.result?.i!=null).length,done=tasks.every(t=>t.result||t.error),single=tasks.length===1;
-  predictionNote.textContent=tasks.map(t=>`${t.rank}순위 ${E.coord(t.opponent)}: ${t.error?'계산 중단':t.result?t.result.i==null?'계산 완료 · 추천 없음':'응수 '+E.coord(t.result.i)+' 준비 완료':'내 응수 사전 계산 중'+(t.partial?' · '+(t.partial.depth||0)+'반수':'')}`).join(' · ');
-  const label=done?(ready===tasks.length?'상대 차례 · 내 응수 준비 완료':'상대 차례 · 응수 계산 완료 · 일부 추천 없음'):'상대 차례 · 내 응수 사전 계산 중';
+  const ready=tasks.filter(t=>t.result?.i!=null&&!limitedPreparedReply(t.result)).length;
+  const done=tasks.every(t=>t.result||t.error),single=tasks.length===1,complete=done&&ready===tasks.length;
+  predictionNote.textContent=tasks.map(t=>`${t.rank}순위 ${E.coord(t.opponent)}: ${t.error?'계산 중단':t.result?t.result.i==null?'추천 없음':'응수 '+E.coord(t.result.i)+(limitedPreparedReply(t.result)?' · 검사 미완료':' 준비 완료'):'내 응수 사전 계산 중'+(t.partial?' · '+(t.partial.depth||0)+'반수':'')}`).join(' · ');
+  const label=complete?'상대 차례 · 내 응수 준비 완료':done?'상대 차례 · 일부 응수 미완료':'상대 차례 · 내 응수 사전 계산 중';
   setAnalysisStatus(label+(single?'':` · ${tasks.length}개 병렬 · ${ready}/${tasks.length} 준비`),
-    done?'상대가 표시된 예상 후보에 두면 해당 응수를 바로 사용합니다.':'표시된 상대 후보별로 내 다음 응수를 따로 미리 계산하고 있습니다.',done?(ready===tasks.length?'complete':'warning'):'thinking');
+    done?'상대가 예상 후보에 두면 그 배치의 응수를 확인합니다.':'상대가 각 후보에 뒀을 때 내 응수를 미리 계산합니다.',complete?'complete':done?'warning':'thinking');
 }
 analyze=function(explicit,onDone){
   // Historical study buttons now use the one selected analysis policy.
@@ -367,28 +385,53 @@ analyze=function(explicit,onDone){
       fresh=E.urgent(b,turn)||E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,available).budget});
     if(fresh){
       cancelPonder();stopWorker();lastProgress=null;rec=null;selectedBudget(b,turn);
-      acceptResult(fresh);onDone?.(fresh);return;
+      if(acceptResult(fresh)){
+        const previous=prepared.result?.i??prepared.partial?.i;
+        const response=rec.i==null?'추천 없음':E.coord(rec.i);
+        const changed=previous!=null&&previous!==rec.i?E.coord(previous)+' → ':'';
+        predictionNote.textContent=`예측 일치 · ${prepared.rank||1}순위 ${E.coord(prepared.opponent)} · ${fresh.urgent?'즉시 판정':'등록 수순'} ${changed}${response}`;
+        onDone?.(rec);return;
+      }
+    }else{
+      const task=ponder;task.promoted=true;task.onDone=onDone;currentAnalysisPolicy=task.policy;
+      analysisPlan.textContent=formatAnalysisPlan(task.policy);
+      predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 ${E.coord(task.opponent)} · 사전 계산 이어서 진행 중`;
+      if(task.result){
+        if(publishPreparedReply(task,task.result))return;
+        cancelPonder();
+      }else{
+        if(!task.partial||!publishPreparedReply(task,task.partial,true)){
+          setAnalysisStatus('분석 중','상대 예상 수가 일치했습니다. 앞서 시작한 계산을 이어서 완료합니다.','thinking');
+        }
+        task.resume?.();return;
+      }
     }
-    const task=ponder;task.promoted=true;task.onDone=onDone;currentAnalysisPolicy=task.policy;activePlan=formatAnalysisPlan(task.policy);
-    analysisPlan.textContent=activePlan+' · 사전 계산 이어받음';
-    predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 사전 계산 이어서 완료 중`;
-    if(task.result){acceptResult(task.result);predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 사전 계산 결과 사용`;onDone?.(task.result);}else if(task.partial)acceptResult(task.partial,true);
-    else setAnalysisStatus('분석 중','상대 예상 수가 일치했습니다. 앞서 시작한 계산을 이어서 완료합니다.','thinking');
-    task.resume?.();return;
   }
   stopWorker();lastProgress=null;rec=null;render();const token=job,board=b.slice(),p=turn,budget=selectedBudget(board,p);
-  const immediate=E.urgent(board,p);if(immediate){acceptResult(immediate);onDone?.(immediate);prepareReply();return;}
+  const immediate=E.urgent(board,p);if(immediate){if(acceptResult(immediate)){onDone?.(rec);prepareReply();}return;}
   setAnalysisStatus('분석 중','임시 후보를 먼저 찾고, 공격·방어를 계속 비교하고 있습니다.','thinking');
   const failed=error=>{if(token!==job)return;worker=null;if(lastProgress){setAnalysisStatus('분석 중단 · 후보 유지','완료된 비교 결과가 없어 현재의 합법 후보를 유지합니다.','stopped');}else{const fallback=p===g?.me?E:createEngine({firstPlayer:g?.first,openingBook:false,model:E.getModel?.()??null});const r=fallback.analyze(board,p,30);acceptResult(r);}msg('분석 오류: '+error+' · 다시 분석할 수 있습니다.');if(p!==g?.me&&rec?.i!=null)prepareReply();};
-  try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job&&acceptResult(r,true)&&p!==g?.me)prepareReply();},r=>{if(token!==job)return;worker=null;acceptResult(r);onDone?.(r);prepareReply();},failed);}catch(e){failed(e.message);}
+  try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job&&acceptResult(r,true)&&p!==g?.me)prepareReply();},r=>{if(token!==job)return;worker=null;if(acceptResult(r)){onDone?.(rec);prepareReply();}},failed);}catch(e){failed(e.message);}
 };
 const unifiedCommit=commit;
-commit=function(i,s){const task=i==null?null:ponderBranches.get(i)||(ponder?.opponent===i?ponder:null);keepPonder=!!(g&&task&&!task.error&&task.sourceKey===positionKey(b,turn));if(keepPonder)selectPonder(task);try{unifiedCommit(i,s);}finally{keepPonder=false;}};
+commit=function(i,s){
+  const task=i==null?null:ponderBranches.get(i)||(ponder?.opponent===i?ponder:null);
+  const hadPrediction=!!(g&&turn!==g.me&&rec?.i!=null);
+  keepPonder=!!(g&&task&&!task.error&&task.sourceKey===positionKey(b,turn));
+  if(keepPonder)selectPonder(task);
+  const actualUnprepared=hadPrediction&&i!=null&&!keepPonder;
+  currentAnalysisPolicy=null;
+  try{unifiedCommit(i,s);}finally{keepPonder=false;}
+  if(actualUnprepared&&g&&!g.result&&!predictionNote.textContent){
+    predictionNote.textContent='실제 상대 착수 '+E.coord(i)+' · '+(rec?.urgent?'즉시 판정':'현재 배치에서 새로 분석');
+  }
+};
+function reanalyzeCurrentPosition(){analyze('fresh');}
 $('budget').onchange=()=>updateAnalysisSettings({...analysisSettings,mode:$('budget').value});
 $('manualSeconds').onchange=()=>{const ms=Number($('manualSeconds').value)*1000;if(!Number.isFinite(ms)||ms<settingsPolicy.MIN_MS||ms>settingsPolicy.MAX_MS){msg('직접 설정은 0.9~25초 범위로 입력하세요.');syncAnalysisSettingsUI();return;}updateAnalysisSettings({...analysisSettings,manualMs:ms});};
-$('rethink').textContent='이 국면 다시 분석';$('rethink').onclick=()=>analyze();
+$('rethink').textContent='이 국면 다시 분석';$('rethink').onclick=reanalyzeCurrentPosition;
 const stopButton=button($('budget').closest('details'),'현재 후보로 계산 종료',()=>{stopWorker();setAnalysisStatus(rec?'현재 후보 유지':'계산 종료',rec?'현재 후보는 합법적입니다. 더 깊은 비교는 멈췄습니다.':'분석할 국면이 없습니다.','stopped');if(rec){if(rec.analysisDelivery?.phase!=='complete')rec={...rec,analysisDelivery:{phase:'stopped',receivedAt:new Date().toISOString()},reason:rec.reason+' · 사용자가 계산 종료'};render();}});stopButton.id='stopAnalysis';
-const recalc=button($('budget').closest('details'),'다시 분석',()=>analyze());recalc.id='analyzeAgain';
+const recalc=button($('budget').closest('details'),'다시 분석',reanalyzeCurrentPosition);recalc.id='analyzeAgain';
 const baseTickDisplay=tickDisplay;tickDisplay=function(){baseTickDisplay();if(g?.timer===false){$('timer').textContent='∞';$('timer').classList.remove('warn');$('timebar').style.width='100%';}};
 const unifiedRender=render;
 render=function(){unifiedRender();
@@ -403,7 +446,8 @@ render=function(){unifiedRender();
   for(const [k,m] of (rec?.candidates||[]).slice(0,3).entries()){
     const el=document.createElement('span'),score=m.comparisonComplete?OmokAssessment.formatScore(m.score,turn,g?.me):null;el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}${score===null?'':' · 평가 '+score}`;candidateList.append(el);
   }
-  analysisPlan.textContent=formatAnalysisPlan(rec?.analysisPolicy||currentAnalysisPolicy,rec)||activePlan;
+  const policy=rec?.analysisPolicy||currentAnalysisPolicy;
+  analysisPlan.textContent=g&&!g.result&&(rec||policy&&(policy.role==='prediction')===(turn!==g.me&&!reviewing))?formatAnalysisPlan(policy,rec):'';
   const assessment=OmokAssessment.describe(rec,turn,g?.me);assessmentNote.textContent=assessment.text;assessmentNote.dataset.assessment=assessment.kind;
   if(rec?.lossProven||rec?.proven)$('metrics').textContent=(rec.proven?'강제승 확인':'강제패배 확인 · 합법 후보 유지')+` · 완료 비교 ${rec.depth||0}반수 · ${Number.isInteger(rec.proofSearchDepth)?'증명 탐색 최대 '+rec.proofSearchDepth+'수':'증명 탐색 깊이 미계측'}${Number.isInteger(rec.proofPlies)?' · 표시 수순 '+rec.proofPlies+'수':''} · ${(rec.nodes||0).toLocaleString()}노드 · ${rec.ms||0}ms`;
   if(rec?.i!=null&&!rec.proven&&!rec.lossProven)$('metrics').textContent=`완료 비교 깊이 ${rec.depth||0}반수 · ${rec.ms||0}ms · ${(rec.nodes||0).toLocaleString()}노드 · 제한 탐색`;

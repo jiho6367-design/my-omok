@@ -17,26 +17,31 @@ const OmokParallel=(()=>{
  }
  function checkFinalists(engine,board,p,rows,ms,onCheck=()=>{},onWork=()=>{}){
   const deadline=performance.now()+Math.max(1,ms),checks=[];
+  const losingComparison=rows[0]?.score<=-5000000&&!!engine.shortPreparationTrap;
   for(let k=0;k<rows.length&&performance.now()<deadline-20;k++){
    const m=rows[k],after=board.slice();if(!engine.inspect(board,m.i,p).legal)continue;after[m.i]=p;
    // Check the actual recommendation first; incomplete checks never clear it.
-   const start=performance.now(),remaining=deadline-start-20,slice=k===0&&rows.length>1?remaining*.8:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
+   const start=performance.now(),remaining=deadline-start-20,slice=!losingComparison&&k===0&&rows.length>1?remaining*.8:remaining/(rows.length-k),end=start+slice,startedAtEpochMs=Date.now();
    const work=(phase,nodes=0)=>onWork({i:m.i,started:true,finished:false,complete:false,refuted:false,phase,startedAtEpochMs,ms:performance.now()-start,nodes});
    work('started');
-   const direct=engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3)));
+   const short=losingComparison?engine.shortPreparationTrap(after,p,Math.max(0,Math.min(750,slice*.85))):null;
+   if(short)work('short-preparation',short.nodes);
+   const direct=short?.proof||performance.now()>=end?{complete:false,proof:null,nodes:0}:
+    engine.forcing(after,3-p,25,Math.max(1,Math.min(500,slice*.3,end-performance.now())));
    work('forcing',direct.nodes||0);
    const preparationProfile=engine.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},
     priorityPreparation=!preparationProfile.priority||direct.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
       engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),preparationProfile.maxPlies,preparationProfile.quiet);
    if(priorityPreparation)work('preparation',(direct.nodes||0)+(priorityPreparation.nodes||0));
-   const forbidden=direct.proof||priorityPreparation?.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
+   const forbidden=short?.proof||direct.proof||priorityPreparation?.proof||performance.now()>=end||!engine.forbiddenTrap?null:engine.forbiddenTrap(after,p,Math.max(1,Math.min(300,(end-performance.now())*.5)),19,1);
    if(forbidden)work('forbidden',(direct.nodes||0)+(priorityPreparation?.nodes||0)+(forbidden.nodes||0));
-   const preparation=priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
+   const preparation=short?.proof?short:priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||performance.now()>=end||!engine.preparationTrap?null:
     engine.preparationTrap(after,p,Math.max(1,(end-performance.now())*.9),25,3));
-   if(preparation&&!priorityPreparation)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
+   if(preparation&&!priorityPreparation&&preparation!==short)work('preparation',(direct.nodes||0)+(forbidden?.nodes||0)+(preparation.nodes||0));
    const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||performance.now()>=end?null:engine.inspect(board,m.i,p).fours.length?
     engine.forcedReplyTrap(after,p,Math.max(1,end-performance.now()),null,25,true):engine.quietTrap(after,p,Math.max(1,end-performance.now()),14,25,true);
-   const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof,check={i:m.i,started:true,finished:true,phase:'finished',startedAtEpochMs,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!engine.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:performance.now()-start,nodes:(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0),
+   const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof,check={i:m.i,started:true,finished:true,phase:'finished',startedAtEpochMs,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!engine.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:performance.now()-start,nodes:(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0)+(preparation!==short?(short?.nodes||0):0),
+    ...(short?{shortPreparationStages:short.stages}:{}),
     ...(forbidden?{forbiddenTrap:{complete:forbidden.complete,nominated:forbidden.nominated,checked:forbidden.checked}}:{}),
     ...(preparation?{preparationTrap:{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope},...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})}:{}),
     ...(proof?{rejection:{i:m.i,pv:direct.proof?.pv||forbidden?.proof?.pv||preparation?.proof?.pv||[],replyTrap:trap?.proof||null,
@@ -90,7 +95,9 @@ const OmokParallel=(()=>{
   const settle=()=>{
    if(stopped||!guarding||guardBusy)return;
    const result=selected(),remaining=Math.min(guardReserve,guardDeadline-performance.now()-30);
-   const candidates=result&&!guardAttempted.has(result.i)?lastRows.filter(r=>!bad.has(r.i)&&!guardAttempted.has(r.i)).slice(0,3):[];
+   const pending=lastRows.filter(r=>!bad.has(r.i)&&!guardAttempted.has(r.i));
+   const losing=result?.score<=-5000000;
+   const candidates=result&&(losing||!guardAttempted.has(result.i))?pending.slice(0,losing?5:3):[];
    if(candidates.length&&remaining>20){
     for(const m of candidates)guardAttempted.add(m.i);guardBusy=true;guardId++;
     const dispatchedAtEpochMs=Date.now(),deadlineEpochMs=dispatchedAtEpochMs+remaining;guardWork={guardId,dispatchedAtEpochMs,deadlineEpochMs,reserveMs:guardReserve,requestedMs:remaining,scheduledCandidates:candidates.length};

@@ -1,10 +1,11 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const settingsPolicy=require('../src/analysis-settings.js'),assessment=require('../src/assessment-view.js');
 // The real application coordinator receives controlled asynchronous responses.
 // Generated positions exercise scheduling and result identity, not engine strength.
 const app=fs.readFileSync(path.join(__dirname,'../src/unified-app.js'),'utf8'),base=fs.readFileSync(path.join(__dirname,'../src/app.js'),'utf8');
 function section(source,start,end){const a=source.indexOf(start),z=source.indexOf(end,a);assert(a>=0&&z>a,'Application section exists: '+start);return source.slice(a,z);}
-const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function prepareReply(',"$('budget').onchange="),commitSource=section(base,'function commit(','function navigate(');
+const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function limitedPreparedReply(',"$('budget').onchange="),commitSource=section(base,'function commit(','function navigate(');
 function fixture(){
  let now=0,next=0;const timers=new Map(),jobs=[],accepted=[],elements=new Map();
  const node=id=>{if(!elements.has(id))elements.set(id,{textContent:''});return elements.get(id);};
@@ -13,11 +14,11 @@ function fixture(){
   setInterval:(fn,ms=0)=>{const id=++next;timers.set(id,{fn,at:now+ms,interval:ms});return id;},clearInterval:id=>timers.delete(id),
   g:{id:'branch-fixture',me:1,first:1,timer:false,rules:{fivePriority:true},result:null},b:Array(225).fill(0),turn:2,events:[{type:'move',p:1,i:112,legal:true}],cursor:1,
   paused:false,reviewing:false,rec:null,worker:null,ponder:null,keepPonder:false,lastProgress:null,job:0,currentAnalysisPolicy:null,activePlan:'',settingsRevision:0,
-  analysisSettings:{mode:'auto',manualMs:15000},remaining:40000,deadline:40000,winCells:[],names:['','black','white'],omokComputeReady:true,analysisPlan:node('analysisPlan'),predictionNote:node('predictionNote'),$:node,
-  E:{coord:i=>String(i),inspect:(board,i)=>({legal:Number.isInteger(i)&&i>=0&&i<225&&!board[i]}),urgent:()=>null,win:()=>[],openingReply:()=>null,getContext:()=>({strategyVersion:'fixture'})},
-  settingsPolicy:{label:()=> '자동 15초',resolve:settings=>({budget:{mode:settings.mode,automatic:true,ms:15000},mode:settings.mode,selectedLabel:'자동 15초',externalMs:15000,internalMs:14100,reason:'fixture'})},
+  analysisSettings:{version:1,mode:'auto',manualMs:15000},remaining:40000,deadline:40000,winCells:[],names:['','black','white'],omokComputeReady:true,analysisPlan:node('analysisPlan'),predictionNote:node('predictionNote'),$:node,
+  E:{coord:i=>String(i),inspect:(board,i)=>({legal:Number.isInteger(i)&&i>=0&&i<225&&!board[i]}),urgent:()=>null,win:()=>[],openingReply:()=>null,getContext:()=>({strategyVersion:'fixture'}),suggestBudget:()=>({ms:15000,reason:'fixture'})},
+  settingsPolicy,
   stopWorker(){c.job++;if(c.worker){c.worker.terminate();c.worker=null;}},
-  acceptResult(result,partial=false){if(!result||result.i!=null&&!c.E.inspect(c.b,result.i,c.turn).legal)return false;c.rec=result;c.lastProgress=result;accepted.push({result,partial});return true;},
+  acceptResult(result,partial=false){if(!result||result.i!=null&&!c.E.inspect(c.b,result.i,c.turn).legal)return false;c.rec={...result,analysisPolicy:result.analysisPolicy||c.currentAnalysisPolicy};c.lastProgress=c.rec;accepted.push({result:c.rec,partial});return true;},
   setAnalysisStatus:(state,detail)=>{node('analysisState').textContent=state;node('analysisDetail').textContent=detail;},snapshotAnalysisForRecord:r=>r&&{...r},persist(){},render(){},msg(){},
   rebuild(){c.b.fill(0);c.turn=c.g.first;for(const e of c.events.slice(0,c.cursor)){if(e.type==='move')c.b[e.i]=e.p;c.turn=3-e.p;}},
   spawnAnalysis(board,p,budget,onProgress,onDone,onError){const task={board:board.slice(),p,budget,onProgress,onDone,onError,stopped:false,terminate(){this.stopped=true;}};jobs.push(task);return task;}
@@ -75,6 +76,7 @@ for(const actual of [101,102])for(const completed of [false,true]){
  const f=fixture(),prediction=f.predict(),branches=[100,101,102].map(f.replyFor);f.deliver(prediction,f.ranked(),true);
  f.c.commit(105,f.c.E.inspect(f.c.b,105,f.c.turn));assert(branches.every(b=>b.stopped));assert.equal(f.ownJobs().length,4,'An unpredicted actual move receives one fresh analysis');
  const actual=f.ownJobs().at(-1);assert.equal(actual.board[105],2);assert.equal(actual.board[100],0);assert.equal(actual.board[101],0);assert.equal(actual.board[102],0);
+  assert.match(f.node('predictionNote').textContent,/105.*새로 분석/);
  for(const branch of branches)f.deliver(branch,f.result(150),true);assert.notEqual(f.c.rec?.i,150);f.deliver(actual,f.result(151),true);assert.equal(f.c.rec.i,151);
 }
 for(const actual of [101,102]){
@@ -99,4 +101,62 @@ for(const change of ['stop','new-game','settings','review']){
  assert.equal(f.accepted.length,accepts);assert.equal(f.c.rec,null);assert.equal(task.result.i,140,'A nonprimary promoted branch still honors the live-proof gate');
  task.liveProofGatePending=false;f.c.analyze();assert.equal(f.c.rec.i,140);assert.equal(f.jobs.length,4,'Gate release reuses the prepared nonprimary branch');
 }
-console.log('PASS three parallel predicted replies, displayed-candidate filtering, stable branch identities, any-rank promotion, sibling cancellation and stale/gated isolation');
+for(const [mode,ms] of [['custom',10000],['auto',15000],['deep',25000]]){
+ const f=fixture();f.c.analysisSettings={version:1,mode,manualMs:ms};
+ const prediction=f.predict(),prepared=f.replyFor(101);
+ assert.equal(prediction.budget,1000);
+ const forecast={...f.ranked(),score:250,comparisonSource:'reader',
+   comparison:{complete:true,selected:100,depth:2,source:'reader',rootsCompared:3}};
+ f.deliver(prediction,forecast,true);
+ const before=assessment.describe(f.c.rec,f.c.turn,f.c.g.me);
+ assert.match(before.text,/상대 착수 전.*평가 -250/);
+ f.deliver(prepared,{...f.result(140),score:-250,comparisonSource:'reader',
+   comparison:{complete:true,selected:140,depth:2,source:'reader',rootsCompared:3}},true);
+ const renders=[];f.c.render=()=>renders.push({p:f.c.turn,result:f.c.rec,policy:f.c.currentAnalysisPolicy});
+ f.c.commit(101,f.c.E.inspect(f.c.b,101,f.c.turn));
+ assert.equal(renders[0].p,1);assert.equal(renders[0].result,null);assert.equal(renders[0].policy,null,'A real turn change clears the preceding prediction policy and score before render');
+ assert.equal(f.c.rec.i,140);
+ assert.match(assessment.describe(f.c.rec,1,1).text,/실제 착수 뒤.*평가 -250/);
+ const count=f.jobs.length;
+ f.c.reanalyzeCurrentPosition();
+ assert.equal(f.jobs.length,count+1,'Manual reanalysis starts a foreground request even after a completed matching branch');
+ assert.equal(f.c.ponder,null);assert.equal(f.c.rec,null);
+ const actual=f.jobs.at(-1);assert.equal(actual.p,1);assert.equal(actual.budget.mode,mode);assert.equal(actual.budget.ms,ms);assert.equal(actual.budget.background,undefined);
+ f.deliver(prepared,f.result(141),true);assert.equal(f.c.rec,null);
+ f.deliver(actual,f.result(142),true);assert.equal(f.c.rec.i,142);
+}
+for(const route of ['urgent','openingReply']){
+ const f=fixture();f.predict();const prepared=f.replyFor(100);
+ f.deliver(prepared,f.result(140),true);
+ f.c.E[route]=()=>({...f.result(141),urgent:route==='urgent',kind:route==='urgent'?'block':'opening'});
+ f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
+ assert.equal(f.c.ponder,null);assert.equal(f.c.rec.i,141);
+ assert.match(f.node('predictionNote').textContent,route==='urgent'?/즉시 판정 140 → 141/:/등록 수순 140 → 141/);
+}
+{
+ const f=fixture();f.predict();const prepared=f.replyFor(100);
+ f.deliver(prepared,{...f.result(140),depth:0,analysisIncomplete:true,timedOut:true},true);
+ const note=f.node('predictionNote').textContent;
+ assert.match(note,/응수 140 · 검사 미완료/);assert.doesNotMatch(note,/응수 140 준비 완료/);
+ assert.match(f.node('analysisState').textContent,/0\/3 준비/,'Incomplete replies do not raise the ready count');
+ f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
+ assert.equal(f.c.rec.i,140);assert.match(f.node('predictionNote').textContent,/검사 미완료/);
+ let completed;
+ const accept=f.c.acceptResult;
+ f.c.acceptResult=(r,partial)=>accept({...r,i:141,pv:[141]},partial);
+ f.c.analyze(undefined,r=>{completed=r;});
+ assert.equal(completed.i,141,'Completion callers receive the accepted recommendation');
+ assert.match(f.node('predictionNote').textContent,/140 → 141.*실제 국면 검사/);
+}
+{
+ const f=fixture();f.predict();const prepared=f.replyFor(100);
+ f.deliver(prepared,f.result(140),true);
+ const accept=f.c.acceptResult;
+ f.c.acceptResult=(r,partial)=>r.analysisPolicy?.role==='ponder'?false:accept(r,partial);
+ f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
+ assert.equal(f.c.rec,null);assert.equal(f.c.ponder,null);
+ const actual=f.ownJobs().at(-1);assert.equal(actual.budget.background,undefined);
+ assert.doesNotMatch(f.node('predictionNote').textContent,/사전 계산 결과 사용/);
+ f.deliver(actual,f.result(142),true);assert.equal(f.c.rec.i,142);
+}
+console.log('PASS three predicted replies, same-board promotion, real-board overrides, perspective across turns, manual 10/15/25-second restart, incomplete status and stale/gated isolation');

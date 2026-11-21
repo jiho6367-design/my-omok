@@ -238,7 +238,8 @@ function createForestEngine(options={}){
   if(![1,2].includes(defender)||board.length!==N*N||board.some(v=>![0,1,2].includes(v)))throw Error('Invalid preparation-trap position');
   const start=clockNow(),end=start+Math.max(0,Number.isFinite(budget)?budget:0),attacker=3-defender;
   maxPlies=Number.isFinite(maxPlies)?Math.max(1,Math.floor(maxPlies)):25;
-  const quiet=quietLimit===3?3:2,scope=quiet===3?'three-preparation-counterattack':'two-preparation-counterattack';
+  const quiet=[1,2,3].includes(quietLimit)?quietLimit:2;
+  const scope=['','one-preparation-counterattack','two-preparation-counterattack','three-preparation-counterattack'][quiet];
   const result=(extra={})=>({scope,entryBoardKey:board.join(''),attacker,defender,quiet,maxPlies,complete:false,proof:null,nodes:0,...extra,ms:clockNow()-start});
   if(clockNow()>=end)return result({reason:'deadline'});
   const factory=typeof createReaderEngine==='function'?createReaderEngine:typeof require==='function'?require('./reader-engine.js').createEngine:null;
@@ -250,6 +251,24 @@ function createForestEngine(options={}){
   const remaining=end-clockNow();if(remaining<=0)return result({reason:'deadline'});
   const checked=checker.counterCertificate(attacker,remaining,maxPlies,quiet);
   return result({complete:checked.complete===true,proof:checked.complete===true?checked.proof:null,nodes:checked.nodes});
+ }
+ // A mate-like comparison can conceal a short preparation behind a large
+ // search tree. Prove the small cases first under one absolute deadline.
+ function shortPreparationTrap(board,defender,budget){
+  const start=clockNow(),end=start+Math.max(0,budget);
+  const stages=[];
+  let nodes=0;
+  for(const quiet of [1,2]){
+   const remaining=end-clockNow();
+   if(remaining<10)break;
+   const slice=quiet===1?Math.min(170,remaining*.3):remaining;
+   const check=preparationTrap(board,defender,slice,19,quiet);
+   nodes+=check.nodes;
+   stages.push({quiet,maxPlies:19,complete:check.complete,nodes:check.nodes,ms:check.ms});
+   if(check.complete&&check.proof)return {...check,nodes,ms:clockNow()-start,stages};
+   if(check.ownWin)break;
+  }
+  return {complete:false,proof:null,nodes,ms:clockNow()-start,stages};
  }
  function assessMove(board,p,i){
   const s=inspect(board,i,p);if(!s.legal||s.win.length)return {mustWarn:false};
@@ -503,6 +522,6 @@ function createForestEngine(options={}){
   let loss=s.win.length?{proof:null,complete:true}:forcing(after,3-p,11,Math.floor(budget*.3));
   return {...r,actual:i,actualLossProof:loss.proof,reviewLabel:r.lossProven?'이미 강제 패배 상태 · 이 수만의 실수 아님':loss.proof?'이 착수 뒤 상대 연속 4 강제승 확인':r.i!==i?'대안 후보 비교 (추정)':'추천 수와 일치'};
  }
- return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicPreparation,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,forcingReplyProfile,preparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
+ return {N,D,getPositionCacheStats,win,inspect,shapes,candidates,resistanceMoves,analyze,urgent,assessMove,limitsFor,suggestBudget,evaluate,strategicPreparation,strategicMove,strategicScore,strategicProfile,patternDefense,knownRefutations,certifiedLoss,forcing,forcedReplyTrap,quietTrap,forbiddenTrap,forcingReplyProfile,preparationTrap,shortPreparationTrap,reviewMove,canonical,transformed,untransform,coord,winning};
 }
 if(typeof module!=='undefined')module.exports=createForestEngine;

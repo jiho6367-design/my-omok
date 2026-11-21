@@ -452,6 +452,44 @@ function createEngine(options={}) {
     const can=forest.canonical(board,p),memory=lessons.filter(l=>l.key===can.key);
     best.memory=memory.length;
     best.patternHint=forest.patternDefense(board,p)?.i??null;
+    // In the hybrid route the initial Reader pass is deliberately short.
+    // Carry heavily screened positions into the same all-legal-root check
+    // before using the remaining move clock for a finite Forest comparison.
+    const roots=best.rootWork?.generated||0;
+    const refutedCount=new Set(best.rejected?.filter(refutation).map(m=>m.i)||[]).size;
+    if(deep&&!best.proven&&!best.lossProven&&roots>=40&&refutedCount>=roots*.9&&roots-refutedCount<=8){
+      const proofStart=clockNow();
+      const proofBudget=Math.min(limit*.68,limit>=12000?10500:5400);
+      const proofEnd=Math.min(started+limit-1500,proofStart+proofBudget);
+      const completedRefutations=new Map();
+      // This check needs rules and incremental windows only. Keep its memo
+      // local so a wide comparison cache cannot evict the proof's subtrees.
+      const checker=createReaderEngine(15,board,{...rules,model:null,strategy:false,searchMemory:null});
+      for(const [maxPlies,quiet,cap] of [[19,1,240],[19,2,1050],[25,3,proofBudget]]){
+        const remaining=proofEnd-clockNow();
+        if(remaining<(quiet===3?500:35))break;
+        const check=checker.counterLoss(p,Math.min(cap,remaining),maxPlies,quiet);
+        if(check.complete&&check.lossProven){
+          const checkedRoots=check.branches.length;
+          return ensureLegalCandidate({...best,proven:false,proof:null,lossProven:true,forcedLoss:true,kind:'lost',score:-1e8,
+            ms:clockNow()-started,reason:'모든 합법 응수에서 상대 강제승 확인',analysisIncomplete:false,
+            rejected:checker.counterRejections(p,check,quiet,maxPlies),
+            counterProof:{complete:true,checkedRoots,forcing:maxPlies,quiet,ms:check.ms,nodes:check.nodes},
+            lossCoverage:{scope:'all-legal-roots',complete:true,legalRoots:checkedRoots,explicitlyRefutedRoots:checkedRoots,implicitImmediateRoots:0}});
+        }
+        // Every returned branch has its own finished proof, even when the
+        // position-wide check did not have time to finish the other moves.
+        for(const refutation of checker.counterRejections(p,check,quiet,maxPlies))
+          completedRefutations.set(refutation.i,refutation);
+        if(!check.complete)break;
+      }
+      if(completedRefutations.size){
+        const rejected=[...new Map([...(best.rejected||[]).map(row=>[row.i,row]),...completedRefutations]).values()];
+        best=ensureLegalCandidate({...best,rejected,analysisIncomplete:true});
+        progress(best);
+        if(best.lossProven)return best;
+      }
+    }
     // Wide quiet-counter proofs have their own reserve only in the early/middle
     // game. Dense positions retain Forest's established final-guard time.
     const counterContextEligible=deep&&limit>=12000&&board.filter(Boolean).length>=16&&board.filter(Boolean).length<=40;
@@ -923,15 +961,18 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       let result=analyzeCore(board,p,request,lessons,r=>progress(describe(r)));
       if(limit<3000||result.proven||result.lossProven||result.urgent||result.kind==='terminal'||result.i==null)return describe(result);
       const checks=[],rejected=[...(result.rejected||[])],seen=new Set(),baseNodes=result.nodes||0,rows=[{i:result.i},...(result.candidates||[])].filter(m=>!seen.has(m.i)&&seen.add(m.i)).slice(0,3);let guardNodes=0;
+      const losingComparison=(result.resistanceTrigger?.score??result.score)<=-5000000;
       for(let k=0;k<rows.length&&clockNow()<started+limit-20;k++){
         const m=rows[k];if(!inspect(board,m.i,p).legal)continue;const after=board.slice();after[m.i]=p;
-        const checkStart=clockNow(),remaining=started+limit-checkStart-20,slice=k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=checkStart+slice;
-        const preparationProfile=forest.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},priorityPreparation=!preparationProfile.priority||clockNow()>=end||!forest.preparationTrap?null:
+        const checkStart=clockNow(),remaining=started+limit-checkStart-20,slice=!losingComparison&&k===0&&rows.length>1?remaining*.65:remaining/(rows.length-k),end=checkStart+slice;
+        const short=losingComparison?forest.shortPreparationTrap(after,p,Math.max(0,Math.min(750,slice*.85))):null;
+        const preparationProfile=forest.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},priorityPreparation=short?.proof||!preparationProfile.priority||clockNow()>=end||!forest.preparationTrap?null:
           forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.9),preparationProfile.maxPlies,preparationProfile.quiet),
-          check=priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(250,slice*.25,end-clockNow())),19,1),
-          preparation=priorityPreparation||(check?.proof||clockNow()>=end||!forest.preparationTrap?null:
+          check=short?.proof||priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(250,slice*.25,end-clockNow())),19,1),
+          preparation=short?.proof?short:priorityPreparation||(check?.proof||clockNow()>=end||!forest.preparationTrap?null:
             forest.preparationTrap(after,p,Math.max(1,end-clockNow()),25,3)),proof=check?.proof||preparation?.proof;
-        guardNodes+=(check?.nodes||0)+(preparation?.nodes||0);checks.push({i:m.i,complete:!!proof||!!check?.complete&&(!forest.preparationTrap||!!preparation?.complete),refuted:!!proof,ms:clockNow()-checkStart,nodes:(check?.nodes||0)+(preparation?.nodes||0),preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
+        const nodes=(check?.nodes||0)+(preparation?.nodes||0)+(preparation!==short?(short?.nodes||0):0);
+        guardNodes+=nodes;checks.push({i:m.i,complete:!!proof||!!check?.complete&&(!forest.preparationTrap||!!preparation?.complete),refuted:!!proof,ms:clockNow()-checkStart,nodes,preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(short?{shortPreparationStages:short.stages}:{}),...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
         if(proof){rejected.push({i:m.i,pv:proof.pv,...(check?.proof?{forbiddenTrap:check}:{}),...(preparation?.proof?{preparationTrap:preparation}:{}),verifiedRefutation:true,reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':'3×3 금수 유도 수순 확인 · 함정 후보 제외'});
           result=finalizeResult(board,p,{...result,rejected});progress(describe({...result,nodes:baseNodes+guardNodes,forbiddenChecks:checks.slice()}));}
       }
@@ -955,23 +996,26 @@ function nominateLegalThrees(board,p,inspect,deadline=Infinity,now=()=>performan
       if(seen.has(m.i)||bad.has(m.i)||!inspect(board,m.i,p).legal)return false;
       seen.add(m.i);return true;
     }).slice(0,3),checks=[];
+    const losingComparison=(best.resistanceTrigger?.score??best.score)<=-5000000;
     let extraNodes=0;
     for(let k=0;k<shortlist.length&&clockNow()<deadline-30;k++){
       const m=shortlist[k],after=board.slice();after[m.i]=p;
-      const checkStarted=clockNow(),remaining=deadline-checkStarted-30,slice=k===0&&shortlist.length>1?remaining*.65:remaining/(shortlist.length-k),end=checkStarted+slice;
-      const direct=forest.forcing(after,3-p,25,Math.max(1,Math.min(1000,slice*.25)));
+      const checkStarted=clockNow(),remaining=deadline-checkStarted-30,slice=!losingComparison&&k===0&&shortlist.length>1?remaining*.65:remaining/(shortlist.length-k),end=checkStarted+slice;
+      const short=losingComparison?forest.shortPreparationTrap(after,p,Math.max(0,Math.min(750,slice*.85))):null;
+      const direct=short?.proof||clockNow()>=end?{complete:false,proof:null,nodes:0}:
+        forest.forcing(after,3-p,25,Math.max(1,Math.min(1000,slice*.25,end-clockNow())));
       const preparationProfile=forest.forcingReplyProfile?.(after,p)||{priority:false,maxPlies:25,quiet:3},priorityPreparation=!preparationProfile.priority||direct.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
         forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),preparationProfile.maxPlies,preparationProfile.quiet);
-      const forbidden=direct.proof||priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(600,(end-clockNow())*.4)),19,1);
-      const preparation=priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
+      const forbidden=short?.proof||direct.proof||priorityPreparation?.proof||clockNow()>=end?null:forest.forbiddenTrap(after,p,Math.max(1,Math.min(600,(end-clockNow())*.4)),19,1);
+      const preparation=short?.proof?short:priorityPreparation||(direct.proof||forbidden?.proof||!direct.complete||clockNow()>=end||!forest.preparationTrap?null:
         forest.preparationTrap(after,p,Math.max(1,(end-clockNow())*.8),25,3));
       const trap=direct.proof||forbidden?.proof||preparation?.proof||!direct.complete||clockNow()>=end?null:
         inspect(board,m.i,p).fours.length?
           forest.forcedReplyTrap(after,p,Math.max(1,Math.min(500,end-clockNow())),null,25,true):
           forest.quietTrap(after,p,Math.max(1,end-clockNow()),14,25,true);
-      extraNodes+=(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0);
+      extraNodes+=(direct.nodes||0)+(forbidden?.nodes||0)+(preparation?.nodes||0)+(trap?.nodes||0)+(preparation!==short?(short?.nodes||0):0);
       const proof=direct.proof||forbidden?.proof||preparation?.proof||trap?.proof;
-      checks.push({i:m.i,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!forest.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:clockNow()-checkStarted,preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
+      checks.push({i:m.i,complete:!!proof||!!direct.complete&&(!forbidden||forbidden.complete)&&(!forest.preparationTrap||!!preparation?.complete)&&!!trap?.complete,refuted:!!proof,ms:clockNow()-checkStarted,preparationTrap:preparation?{complete:preparation.complete,quiet:preparation.quiet,maxPlies:preparation.maxPlies,scope:preparation.scope}:null,...(short?{shortPreparationStages:short.stages}:{}),...(preparationProfile.priority?{forcingReplyProfile:preparationProfile}:{})});
       if(proof){bad.add(m.i);rejected.push({i:m.i,pv:direct.proof?.pv||forbidden?.proof?.pv||preparation?.proof?.pv||[],replyTrap:trap?.proof||null,
         ...(forbidden?.proof?{forbiddenTrap:forbidden,verifiedRefutation:true}:{}),...(preparation?.proof?{preparationTrap:preparation,verifiedRefutation:true}:{}),reason:preparation?.proof?'상대의 준비 공격을 포함한 강제승 확인 · 후보 제외':forbidden?.proof?'3×3 금수 유도 수순 확인 · 함정 후보 제외':'상위 후보 추가 검사에서 상대 강제승 확인'});
         progress(describe(finalizeResult(board,p,{...best,rejected})));}

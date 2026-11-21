@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.67",
+  "version": "5.18.68",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {
@@ -26,7 +26,7 @@
     "verify:strategy": "node tools/strategy/compare.cjs",
     "arena:strategy": "node tools/strategy/arena.cjs",
     "test:strategy-ui": "node tools/strategy-ui-check.cjs",
-    "test:initiative": "node test/reader-initiative.cjs && node test/strategy-known-state.cjs && node test/reader-pressure.cjs && node test/strategy-raw-points.cjs && node test/initiative-screen-scope.cjs && node test/initiative-proof-cache.cjs && node test/certificate-shortcut.cjs && node test/initiative-comparison-retention.cjs && node test/counterblock-tempo.cjs && node test/search-initiative-horizon.cjs",
+    "test:initiative": "node test/reader-initiative.cjs && node test/strategy-known-state.cjs && node test/reader-pressure.cjs && node test/strategy-raw-points.cjs && node test/initiative-screen-scope.cjs && node test/initiative-proof-cache.cjs && node test/certificate-shortcut.cjs && node test/initiative-comparison-retention.cjs && node test/counterblock-tempo.cjs && node test/settled-four-pressure.cjs && node test/short-preparation-loss.cjs && node test/search-initiative-horizon.cjs",
     "test:g13-counter": "node test/counter-threat.cjs && node test/counter-worker.cjs && node test/reader-window-index.cjs",
     "test:learning:cpu": "python tools/learning/test_train.py",
     "test:learning:ui": "node test/learning-dashboard-ui.cjs && node test/learning-dashboard-resume-budget-ui.cjs && node test/learning-dashboard-recovery.cjs --ui && node test/learning-dashboard-monitor.cjs --ui && node test/learning-model-ui.cjs",

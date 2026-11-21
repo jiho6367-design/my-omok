@@ -392,13 +392,31 @@ function createStrategyEngine(N,rules,options={}){
          // A second forcing four can die on its mandatory quiet block. Read
          // that actual block and our next move before awarding continuation.
          if(!s.win?.length&&!enemyWins.length&&wins.length===1&&rules.legal(copy,wins[0],3-p)){
-          const block=wins[0];copy[block]=3-p;extensionPlies=2;
-          try{const next=ordered(copy,p,6,end);if(!next.complete)done=false;let extended=-Infinity,chosen=null,keeps=false;
+          const block=wins[0];copy[block]=3-p;extensionPlies=Math.max(extensionPlies,2);
+          try{const next=ordered(copy,p,6,end);if(!next.complete)done=false;let extended=-Infinity,chosen=null,chosenBlock=null,keeps=false;
            for(const m of next.slice(0,6)){if(!done||now()>=end){done=false;break;}const shape=rules.inspect(copy,m.i,p);copy[m.i]=p;
-            try{const danger=rules.winning(copy,3-p),ends=rules.winning(copy,p),v=shape.win?.length?1000000:danger.length?-1000000:evaluate(copy,p)+(ends.length?1200:0);
-             if(v>extended){extended=v;chosen=m.i;keeps=!!shape.win?.length||!danger.length&&!!ends.length;}
+            try{
+             const danger=rules.winning(copy,3-p),ends=rules.winning(copy,p);
+             const reply=!shape.win?.length&&!danger.length&&ends.length===1&&rules.legal(copy,ends[0],3-p)?ends[0]:null;
+             let value,retains;
+             if(reply===null){
+              value=shape.win?.length?1000000:danger.length?-1000000:evaluate(copy,p)+(ends.length?1200:0);
+              retains=!!shape.win?.length||!danger.length&&!!ends.length;
+             }else{
+              // Settle the second compulsory block before valuing the line.
+              // Another closed four is a forced exchange, not retained pressure.
+              if(now()>=end){done=false;break;}
+              extensionPlies=Math.max(extensionPlies,3);
+              copy[reply]=3-p;
+              try{value=evaluate(copy,p);}finally{copy[reply]=0;}
+              if(now()>=end){done=false;break;}
+              retains=false;
+             }
+             if(value>extended){extended=value;chosen=m.i;chosenBlock=reply;keeps=retains;}
             }finally{copy[m.i]=0;}
-           }value=Number.isFinite(extended)?extended:-1000000;retains=keeps;suffix=chosen==null?[block]:[block,chosen];
+           }
+           value=Number.isFinite(extended)?extended:-1000000;retains=keeps;
+           suffix=chosen==null?[block]:chosenBlock===null?[block,chosen]:[block,chosen,chosenBlock];
           }finally{copy[block]=0;}
          }
          if(value>best){best=value;bestI=follow.i;bestSuffix=suffix;continuation=retains;bestShape=s;bestSafe=!enemyWins.length;}

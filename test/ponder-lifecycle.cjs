@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 // The engine is replaced only to make callback order and pending work observable.
 const app=fs.readFileSync(path.join(__dirname,'../src/unified-app.js'),'utf8'),base=fs.readFileSync(path.join(__dirname,'../src/app.js'),'utf8');
 const section=(source,start,end)=>{const a=source.indexOf(start),z=source.indexOf(end,a);assert(a>=0&&z>a,'Application section exists: '+start);return source.slice(a,z);};
-const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function prepareReply(',"$('budget').onchange=");
+const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function limitedPreparedReply(',"$('budget').onchange=");
 const commitSource=section(base,'function commit(','function navigate(');
 function fixture(){
  let now=0,nextTimer=0;const timers=new Map(),jobs=[],accepted=[],elements=new Map();
