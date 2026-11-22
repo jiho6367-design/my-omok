@@ -8,7 +8,7 @@
  function describe(){const info=E.getModelInfo();$('learningModelStatus').textContent=info.active?(manual?'수동 선택 · ':'자동 적용 · ')+'CPU 학습 평가 사용 중':manual?'수동 설정 · 학습 모델 보정을 꺼둔 상태입니다.':'자동 적용 대기 · 아직 채택된 학습 모델이 없습니다.';$('learningModelExplanation').textContent=manual?'수읽기와 규칙 검사는 그대로 사용합니다. 자동 적용으로 돌아가려면 고급 설정에서 「자동 적용 설정으로 돌아가기」를 누르세요.':info.active?'검증을 통과한 학습 모델이 적용되어 있습니다. 일반 대국에서는 설정을 바꾸지 않아도 됩니다.':'현재는 기존 수읽기와 패턴 평가로 대국합니다. 검증을 통과한 모델이 HTML에 반영되면 오목 파일을 다시 열어 적용하세요.';$('defaultLearningModel').disabled=!manual;$('disableLearningModel').disabled=!info.active;}
  function notify(text){$('learningModelNotice').textContent=text;msg(text);}
  function apply(model,persist=true,rethink=true){
-  if(model){OmokNeural.validate(model);if(model.adoption?.accepted!==true)throw Error('채택되지 않은 후보 모델은 실제 대국에 적용할 수 없습니다.');}stopWorker();cancelPonder();E.configure({model});spawnAnalysis.memory?.store.clear();rec=null;lastProgress=null;
+  if(model){OmokNeural.validate(model);if(model.adoption?.accepted!==true)throw Error('채택되지 않은 후보 모델은 실제 대국에 적용할 수 없습니다.');}stopWorker();cancelPonder();clearSettledReplies();E.configure({model});spawnAnalysis.memory?.store.clear();rec=null;lastProgress=null;
   if(persist){manual=true;try{localStorage.setItem(KEY,JSON.stringify({model}));}catch{}}
   describe();if(rethink&&g&&!g.result&&!reviewing&&globalThis.omokComputeReady)analyze();
  }

@@ -12287,7 +12287,7 @@ const setupOptions=document.createElement('div');
 setupOptions.innerHTML='<label>5목과 3·3이 동시에 생기면<select id="fivePriority" disabled><option value="priority">정확한 5목 우선 (현재 고정 규칙)</option></select></label><label>좌표 표시<select id="axisChoice"><option value="descending">위 15 → 아래 1 (수읽기 방식)</option><option value="ascending">위 1 → 아래 15 (아래로 증가)</option></select></label><label><input type="checkbox" id="useTimer"> 40초 시계 사용 · 초과 시 PASS</label><p class="muted">흑돌 = 흑 · 백돌 = 백. 선후공은 별도로 선택합니다.</p>';
 $('setup').querySelector('.modal-actions').before(setupOptions);
 $('my').options[0].textContent=names[2]+' (백)';$('my').options[1].textContent=names[1]+' (흑)';
-versionBadge.textContent='통합 v5.18.68';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.68');
+versionBadge.textContent='통합 v5.18.69';versionBadge.title='대국 경험 누적 학습 · 턴 사이 탐색 기록 재사용';versionBadge.setAttribute('aria-label','통합 버전 5.18.69');
 document.title='my오목 · 통합 수읽기';document.querySelector('h1').textContent='my오목 · 통합 수읽기';
 wideHelp.textContent='상대 다음 수는 1초로 빠르게 예측합니다. 내 수와 예상 응수는 추천 카드의 분석 시간 설정으로 계산합니다. 자동 모드에서는 국면에 따라 시간을 정합니다. 추천은 무패 보장이 아닙니다.';
 const settingsPolicy=OmokAnalysisSettings;
@@ -12308,7 +12308,7 @@ function syncAnalysisSettingsUI(){
 }
 function updateAnalysisSettings(next,reanalyze=true){
   if(!settingsPolicy.valid(next)||JSON.stringify(next)===JSON.stringify(analysisSettings)){syncAnalysisSettingsUI();return;}
-  analysisSettings=next;settingsRevision++;stopWorker();rec=null;lastProgress=null;currentAnalysisPolicy=null;
+  analysisSettings=next;settingsRevision++;stopWorker();clearSettledReplies();rec=null;lastProgress=null;currentAnalysisPolicy=null;
   if(!settingsPolicy.save(settingsStorage,next))msg('분석 설정을 저장하지 못했습니다. 이번 실행에만 적용됩니다.');
   syncAnalysisSettingsUI();render();if(reanalyze&&globalThis.omokComputeReady&&g&&!g.result)analyze();
 }
@@ -12337,12 +12337,29 @@ persist=function(){
 };
 const baseStopWorker=stopWorker;
 const ponderBranches=new Map();
+const settledReplies=new Map();
+let restoringSettledReply=null;
+function clearSettledReplies(){settledReplies.clear();}
 function cancelPonder(){const tasks=new Set([...ponderBranches.values(),ponder].filter(Boolean));ponderBranches.clear();ponder=null;for(const task of tasks){clearTimeout(task.timer);task.worker?.terminate();}predictionNote.textContent='';}
-function matchingPonder(board=b,p=turn){const key=positionKey(board,p);return ponder?.key===key&&!ponder.error?ponder:[...ponderBranches.values()].find(task=>task.key===key&&!task.error)||null;}
+function matchingPonder(board=b,p=turn){
+  if(!ponderBranches.size||!g)return null;
+  const key=replyKey(board,p,configuredOwnBudget(board,p,availableAnalysisTime()).budget);
+  return [...ponderBranches.values()].find(task=>task.key===key&&!task.error)||null;
+}
 function selectPonder(task){const others=new Set([...ponderBranches.values(),ponder].filter(other=>other&&other!==task));ponderBranches.clear();ponderBranches.set(task.opponent,task);ponder=task;for(const other of others){clearTimeout(other.timer);other.worker?.terminate();}return task;}
 stopWorker=function(){if(!keepPonder)cancelPonder();baseStopWorker();};
-const positionKey=(board,p)=>[g?.id,g?.first??'unknown',p,g?.rules?.fivePriority!==false,
-  E.getContext?.().strategyVersion||E.strategyVersion||'legacy',globalThis.omokAcceleration?.mode||'cpu',settingsRevision,analysisSettings.mode,analysisSettings.manualMs,board.join('')].join('|');
+let replyLessons=null,replyLessonCount=0,replyLessonRevision=0;
+function positionKey(board,p,opponent=null){
+  const lessons=db.lessons;
+  if(lessons!==replyLessons||lessons.length!==replyLessonCount){clearSettledReplies();replyLessons=lessons;replyLessonCount=lessons.length;replyLessonRevision++;}
+  const history=events.slice(0,cursor).map(e=>[e.type,e.p,e.i??null]);
+  if(opponent!==null)history.push(['move',turn,opponent]);
+  const context=E.getContext?.();
+  return JSON.stringify([g?.id,g?.first,g?.me,p,g?.rules,context?.strategyVersion||E.strategyVersion||'legacy',context?.modelVersion,
+    globalThis.omokAcceleration?.mode||'cpu',settingsRevision,analysisSettings.mode,analysisSettings.manualMs,replyLessonRevision,board.join(''),history]);
+}
+function replyKey(board,p,budget,opponent=null){return JSON.stringify([positionKey(board,p,opponent),budget.mode,budget.automatic,budget.ms]);}
+function availableAnalysisTime(){return reviewing||paused||g?.timer===false?40000:Math.max(0,deadline-Date.now());}
 function formatAnalysisPlan(policy,result){
   if(!policy)return '';
   const role=policy.role==='prediction'?'상대 착수 전 · 1초 예측 · ':policy.role==='ponder'?'실제 착수 뒤 · 사전 계산 이어 읽기 · ':'';
@@ -12359,8 +12376,7 @@ function selectedBudget(board,p){
     currentAnalysisPolicy={mode:analysisSettings.mode,selectedLabel:settingsPolicy.label(analysisSettings),externalMs:1000,internalMs:940,role:'prediction',reason:'내 분석 모드와 별도의 짧은 예산'};
     analysisPlan.textContent=formatAnalysisPlan(currentAnalysisPolicy);return 1000;
   }
-  const available=reviewing||paused||g?.timer===false?40000:Math.max(0,deadline-Date.now());
-  const own=configuredOwnBudget(board,p,available);currentAnalysisPolicy=own.policy;
+  const own=configuredOwnBudget(board,p,availableAnalysisTime());currentAnalysisPolicy=own.policy;
   analysisPlan.textContent=own.label;return own.budget;
 }
 function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
@@ -12390,7 +12406,7 @@ function spawnAnalysis(board,p,budget,onProgress,onDone,onError){
   const heartbeat=setInterval(()=>{
     const now=performance.now(),lag=Math.max(0,now-tickAt-100);tickAt=now;health.lastLag=lag;
     if(lag>120){health.blockedUntil=now+10000;health.healthySince=0;
-      if(!budget?.background&&typeof ponder!=='undefined'&&ponder?.worker===w&&!ponder.promoted){if(ponder.suspend)ponder.suspend();else cancelPonder();}
+      if(!budget?.background&&typeof ponder!=='undefined'&&ponder?.worker===w&&!ponder.promoted&&!ponder.foregroundEquivalent){if(ponder.suspend)ponder.suspend();else cancelPonder();}
     }else if(lag<30){if(!health.healthySince)health.healthySince=now;}else health.healthySince=0;
   },100);
   const terminate=w.terminate.bind(w);
@@ -12543,7 +12559,7 @@ function reuseFinalizedDelivery(board,p,result){
 }
 function deliverFinalizedAnalysis(board,p,result,onDone){
   const output=E.finalizeResult?E.finalizeResult(board,p,result):result,previous=finalizedAnalysisDelivery;
-  finalizedAnalysisDelivery={values:{...output},keys:Object.getOwnPropertyNames(output||{}),snapshot:boundedDeliverySnapshot(output),pv:Array.isArray(output?.pv)?output.pv.slice():[],boardKey:board.join(''),p,game:g,policy:typeof currentAnalysisPolicy==='undefined'?null:currentAnalysisPolicy,finalizer:E.finalizeResult,context:JSON.stringify(E.getContext?.()??null)};
+  finalizedAnalysisDelivery={output,values:{...output},keys:Object.getOwnPropertyNames(output||{}),snapshot:boundedDeliverySnapshot(output),pv:Array.isArray(output?.pv)?output.pv.slice():[],boardKey:board.join(''),p,game:g,policy:typeof currentAnalysisPolicy==='undefined'?null:currentAnalysisPolicy,finalizer:E.finalizeResult,context:JSON.stringify(E.getContext?.()??null)};
   try{return onDone(output);}finally{finalizedAnalysisDelivery=previous;}
 }
 function acceptResult(result,partial=false){
@@ -12558,7 +12574,8 @@ function acceptResult(result,partial=false){
     if(certified?.kind==='block'&&certified.urgent&&!certified.proven&&!certified.lossProven&&
       certified.i===result.i&&(certified.retainedStrategy?.allLegalRepliesVerified===true||certified.retainedStrategy?.allModeReuse===true))result=certified;
   }
-  if(result&&E.finalizeResult&&!(typeof reuseFinalizedDelivery==='function'&&reuseFinalizedDelivery(b,turn,result)))result=E.finalizeResult(b,turn,result);
+  const restoring=typeof restoringSettledReply!=='undefined'&&result===restoringSettledReply;
+  if(result&&!restoring&&E.finalizeResult&&!(typeof reuseFinalizedDelivery==='function'&&reuseFinalizedDelivery(b,turn,result)))result=E.finalizeResult(b,turn,result);
   if(!result||(result.i!=null&&!E.inspect(b,result.i,turn).legal))return false;
   result={...result,analysisPolicy:result.analysisPolicy||currentAnalysisPolicy,
     analysisDelivery:{phase:partial?'interim':'complete',receivedAt:new Date().toISOString()}};rec=result;lastProgress=result;
@@ -12585,17 +12602,39 @@ function acceptResult(result,partial=false){
 }
 function limitedPreparedReply(result){
   return !!result&&!result.proven&&!result.lossProven&&!result.urgent&&
-    !!(result.analysisIncomplete||result.timedOut||result.fallback||result.kind==='incomplete');
+    !!(result.analysisIncomplete||result.timedOut||result.fallback||result.workerError||result.kind==='incomplete');
 }
+function requiresActualPosition(result){return !!(result?.openingEvidence||result?.analysisEvidence||result?.strategyEvidence||
+  result?.retainedStrategy||result?.retainedLiveStrategy||result?.recordedLine||result?.recordEvidence);}
+function usablePreparedResult(result){return !!result&&(!result.workerError||result.workerError==='시간 상한 도달')&&!requiresActualPosition(result);}
+function ordinaryReply(result){
+  return usablePreparedResult(result)&&['search','incomplete'].includes(result.kind)&&!result.proven&&!result.lossProven&&!result.urgent&&
+    !result.proof&&!result.liveProofCandidate&&!result.liveProofJobToken&&Number.isInteger(result.i)&&result.pv?.[0]===result.i&&
+    Number.isFinite(result.score)&&Number.isInteger(result.depth)&&result.depth>=0;
+}
+function rememberSettledReply(key,result){
+  if(!key||!ordinaryReply(result))return;
+  // Keep only recent accepted results in this page. This preserves the
+  // incomplete flags of a delivered timebox without copying search evidence.
+  settledReplies.delete(key);settledReplies.set(key,result);
+  if(settledReplies.size>12)settledReplies.delete(settledReplies.keys().next().value);
+}
+function acceptAuthenticatedReply(result){
+  const previous=restoringSettledReply;
+  restoringSettledReply=result;
+  try{return acceptResult(result);}finally{restoringSettledReply=previous;}
+}
+function restoreSettledReply(result,policy){return acceptAuthenticatedReply({...result,analysisPolicy:policy});}
 function publishPreparedReply(task,result,partial=false){
   const previous=rec?.i??result.i;
-  if(!acceptResult(result,partial))return false;
+  const alreadyChecked=!partial&&result===task.authenticatedResult&&replyKey(b,turn,task.policy.budget)===task.key;
+  if(!(alreadyChecked?acceptAuthenticatedReply(result):acceptResult(result,partial)))return false;
   const actual=rec?.i;
   const description=actual==null?'추천 없음':previous!=null&&actual!==previous?
     '응수 '+E.coord(previous)+' → '+E.coord(actual)+(actual!==result.i?' · 실제 국면 검사 반영':' · 이어서 비교한 결과'):
     '응수 '+E.coord(actual)+(partial?' · 계산 중':limitedPreparedReply(rec)?' · 검사 미완료':' · 사전 계산 결과 사용');
   predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 ${E.coord(task.opponent)} · ${description}`;
-  if(!partial)task.onDone?.(rec);
+  if(!partial){rememberSettledReply(task.key,rec);task.onDone?.(rec);}
   return true;
 }
 function forecastOptions(result){
@@ -12609,6 +12648,12 @@ function forecastOptions(result){
   }
   return ranked;
 }
+function startNextPreparedReply(){
+  if(!g||g.result||reviewing||turn===g.me)return;
+  const tasks=[...ponderBranches.values()];
+  if(tasks.some(task=>task.worker))return;
+  tasks.sort((a,b)=>a.rank-b.rank).find(task=>!task.result&&!task.error)?.resume();
+}
 function prepareReply(){
   if(!g||g.result||reviewing||turn===g.me||rec?.i==null){cancelPonder();return;}
   const sourceKey=positionKey(b,turn),opponents=forecastOptions(rec).map(row=>row.i),wanted=new Set(opponents);
@@ -12619,30 +12664,39 @@ function prepareReply(){
   for(const [index,opponent] of opponents.entries()){
     const existing=ponderBranches.get(opponent);if(existing){existing.rank=index+1;continue;}
     const board=b.slice(),p=3-turn;board[opponent]=turn;if(E.win(board,opponent,turn).length)continue;
-    const own=configuredOwnBudget(board,p,40000),budget={...own.budget,background:true};
-    const task={opponent,rank:index+1,key:positionKey(board,p),sourceKey,started:Date.now(),worker:null,result:null,partial:null,promoted:false,error:null,policy:{...own.policy,role:'ponder'}};
+    // The next actual turn starts with 40 seconds. Use the same Worker and
+    // parallel comparison budget as that turn, one predicted board at a time.
+    const own=configuredOwnBudget(board,p,40000),budget=own.budget;
+    const key=replyKey(board,p,budget,opponent);
+    const task={opponent,rank:index+1,key,sourceKey,worker:null,started:null,result:null,partial:null,promoted:false,error:null,
+      foregroundEquivalent:true,policy:{...own.policy,role:'ponder'}};
     ponderBranches.set(opponent,task);
-    const current=()=>ponderBranches.get(opponent)===task&&g&&!g.result&&!reviewing&&positionKey(b,turn)===(task.promoted?task.key:task.sourceKey);
+    const current=()=>ponderBranches.get(opponent)===task&&g&&!g.result&&!reviewing&&
+      (task.promoted?replyKey(b,turn,budget)===task.key:positionKey(b,turn)===task.sourceKey);
     task.showState=showPonderStatus;
-    const finish=r=>{if(!current())return;task.worker=null;r={...r,analysisPolicy:task.policy};task.result=r;if(task.promoted&&task.liveProofGatePending)return;
+    const finish=r=>{if(!current())return;task.worker=null;
+      const delivery=typeof finalizedAnalysisDelivery==='undefined'?null:finalizedAnalysisDelivery;
+      const alreadyChecked=delivery?.output===r&&delivery.boardKey===board.join('')&&delivery.p===p&&ordinaryReply(r);
+      r={...r,analysisPolicy:task.policy};task.result=r;if(alreadyChecked)task.authenticatedResult=r;
+      if(task.promoted&&task.liveProofGatePending)return;
       if(task.promoted){
-        if(!publishPreparedReply(task,r)){cancelPonder();analyze('fresh',task.onDone);}
-      }else showPonderStatus();};
+        if(!usablePreparedResult(r)||!publishPreparedReply(task,r)){cancelPonder();analyze(undefined,task.onDone);}
+      }else{showPonderStatus();startNextPreparedReply();}};
     const failed=error=>{if(!current())return;task.worker=null;task.error=String(error||'계산 오류');
-      if(task.promoted){cancelPonder();analyze();}else showPonderStatus();};
+      if(task.promoted){cancelPonder();analyze(undefined,task.onDone);}else{showPonderStatus();startNextPreparedReply();}};
     task.resume=()=>{
       if(!current()||task.result||task.worker||task.error)return;
+      task.started=Date.now();
       if(task.promoted)predictionNote.textContent=`예측 일치 · ${task.rank}순위 사전 계산 이어서 완료 중`;
-      // At most three independent serial Workers; never nest a root pool in
-      // a predicted board or discard its work because of a UI heartbeat delay.
       try{task.worker=spawnAnalysis(board,p,budget,r=>{if(current()){
         task.partial={...r,analysisPolicy:task.policy};
         if(task.promoted){if(!task.liveProofGatePending)publishPreparedReply(task,task.partial,true);}else showPonderStatus();
       }},finish,failed);}catch(e){failed(e.message);}
     };
-    const immediate=E.urgent(board,p);if(immediate)finish(immediate);else task.resume();
+    const ready=E.urgent(board,p)||settledReplies.get(key);
+    if(ready)task.result={...ready,analysisPolicy:task.policy};
   }
-  ponder=ponderBranches.get(opponents[0])||[...ponderBranches.values()][0]||null;showPonderStatus();
+  ponder=ponderBranches.get(opponents[0])||[...ponderBranches.values()][0]||null;showPonderStatus();startNextPreparedReply();
 }
 function showPonderStatus(){
   if(!g||g.result||reviewing||turn===g.me)return;
@@ -12655,7 +12709,7 @@ function showPonderStatus(){
     return `${t.rank}순위 ${E.coord(t.opponent)}: ${reply}`;
   }).join(' · ');
   const label=complete?'상대 차례 · 내 응수 준비 완료':done?'상대 차례 · 일부 응수 미완료':'상대 차례 · 내 응수 사전 계산 중';
-  setAnalysisStatus(label+(single?'':` · ${tasks.length}개 병렬 · ${ready}/${tasks.length} 준비`),
+  setAnalysisStatus(label+(single?'':` · ${ready}/${tasks.length} 준비`),
     done?'상대가 예상 후보에 두면 그 배치의 응수를 확인합니다.':'상대가 각 후보에 뒀을 때 내 응수를 미리 계산합니다.',complete?'complete':done?'warning':'thinking');
 }
 analyze=function(explicit,onDone){
@@ -12668,27 +12722,40 @@ analyze=function(explicit,onDone){
     if(retained){showPonderStatus();return;}
   }
   const prepared=explicit==null&&!reviewing&&turn===g.me?matchingPonder():null;
-  if(prepared){
-    selectPonder(prepared);
+  const own=!reviewing&&turn===g.me?configuredOwnBudget(b,turn,availableAnalysisTime()):null;
+  const key=own?replyKey(b,turn,own.budget):null;
+  if(explicit==='fresh'&&key)settledReplies.delete(key);
+  const cached=explicit==null&&key?settledReplies.get(key):null;
+  if(prepared||cached){
+    if(prepared)selectPonder(prepared);
     // Resolve actual-history source references and exact actual-board offline
     // responses before promoting a generic result for the predicted reply.
-    const available=paused||g?.timer===false?40000:Math.max(0,deadline-Date.now()),
-      fresh=E.urgent(b,turn)||E.openingReply?.(b,turn,{budget:configuredOwnBudget(b,turn,available).budget});
+    const fresh=E.urgent(b,turn)||E.openingReply?.(b,turn,{budget:own.budget})||E.recordedReply?.(b,turn);
     if(fresh){
       cancelPonder();stopWorker();lastProgress=null;rec=null;selectedBudget(b,turn);
       if(acceptResult(fresh)){
-        const previous=prepared.result?.i??prepared.partial?.i;
-        const response=rec.i==null?'추천 없음':E.coord(rec.i);
-        const changed=previous!=null&&previous!==rec.i?E.coord(previous)+' → ':'';
-        predictionNote.textContent=`예측 일치 · ${prepared.rank||1}순위 ${E.coord(prepared.opponent)} · ${fresh.urgent?'즉시 판정':'등록 수순'} ${changed}${response}`;
+        if(prepared){
+          const previous=prepared.result?.i??prepared.partial?.i;
+          const response=rec.i==null?'추천 없음':E.coord(rec.i);
+          const changed=previous!=null&&previous!==rec.i?E.coord(previous)+' → ':'';
+          predictionNote.textContent=`예측 일치 · ${prepared.rank||1}순위 ${E.coord(prepared.opponent)} · ${fresh.urgent?'즉시 판정':'등록 수순'} ${changed}${response}`;
+        }
         onDone?.(rec);return;
       }
-    }else{
+    }else if(cached){
+      stopWorker();lastProgress=null;rec=null;currentAnalysisPolicy=own.policy;
+      if(restoreSettledReply(cached,own.policy)){
+        predictionNote.textContent=(prepared?`예측 일치 · ${prepared.rank}순위 ${E.coord(prepared.opponent)} · `:'')+
+          '같은 국면의 완료 응수 복원 · '+E.coord(rec.i)+(limitedPreparedReply(rec)?' · 검사 미완료':'');
+        onDone?.(rec);return;
+      }
+      settledReplies.delete(key);
+    }else if(prepared){
       const task=ponder;task.promoted=true;task.onDone=onDone;currentAnalysisPolicy=task.policy;
       analysisPlan.textContent=formatAnalysisPlan(task.policy);
       predictionNote.textContent=`예측 일치 · ${task.rank||1}순위 ${E.coord(task.opponent)} · 사전 계산 이어서 진행 중`;
       if(task.result){
-        if(publishPreparedReply(task,task.result))return;
+        if(usablePreparedResult(task.result)&&publishPreparedReply(task,task.result))return;
         cancelPonder();
       }else{
         if(!task.partial||!publishPreparedReply(task,task.partial,true)){
@@ -12702,7 +12769,7 @@ analyze=function(explicit,onDone){
   const immediate=E.urgent(board,p);if(immediate){if(acceptResult(immediate)){onDone?.(rec);prepareReply();}return;}
   setAnalysisStatus('분석 중','임시 후보를 먼저 찾고, 공격·방어를 계속 비교하고 있습니다.','thinking');
   const failed=error=>{if(token!==job)return;worker=null;if(lastProgress){setAnalysisStatus('분석 중단 · 후보 유지','완료된 비교 결과가 없어 현재의 합법 후보를 유지합니다.','stopped');}else{const fallback=p===g?.me?E:createEngine({firstPlayer:g?.first,openingBook:false,model:E.getModel?.()??null});const r=fallback.analyze(board,p,30);acceptResult(r);}msg('분석 오류: '+error+' · 다시 분석할 수 있습니다.');if(p!==g?.me&&rec?.i!=null)prepareReply();};
-  try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job&&acceptResult(r,true)&&p!==g?.me)prepareReply();},r=>{if(token!==job)return;worker=null;if(acceptResult(r)){onDone?.(rec);prepareReply();}},failed);}catch(e){failed(e.message);}
+  try{worker=spawnAnalysis(board,p,budget,r=>{if(token===job&&acceptResult(r,true)&&p!==g?.me)prepareReply();},r=>{if(token!==job)return;worker=null;if(acceptResult(r)){rememberSettledReply(key,rec);onDone?.(rec);prepareReply();}},failed);}catch(e){failed(e.message);}
 };
 const unifiedCommit=commit;
 commit=function(i,s){
@@ -13099,8 +13166,8 @@ const gpuPanel=document.createElement('div');gpuPanel.className='card';gpuPanel.
 $('nextMovePanel').after(gpuPanel);
 $('computeMode').value=initialCompute;
 const gpuAnalysisMode=document.createElement('p');gpuAnalysisMode.id='gpuAnalysisMode';gpuAnalysisMode.className='muted';$('computeMode').parentElement.after(gpuAnalysisMode);syncAnalysisSettingsUI();
-versionBadge.textContent='통합 v5.18.68 · GPU';
-versionBadge.setAttribute('aria-label','통합 버전 5.18.68');
+versionBadge.textContent='통합 v5.18.69 · GPU';
+versionBadge.setAttribute('aria-label','통합 버전 5.18.69');
 versionBadge.title='기존 엔진 보완 학습 · GPU 혼합 · 정확한 5목 우선';
 let gpuPrepared=null,gpuPreparing=null,cpuPatterns=null,modeRequest=0,benchmarkWorker=null,cancelBenchmark=null;
 async function prepareGPU(){
@@ -13168,7 +13235,7 @@ queueMicrotask(()=>{selectComputeMode(true).then(()=>{if(location.search.include
  function describe(){const info=E.getModelInfo();$('learningModelStatus').textContent=info.active?(manual?'수동 선택 · ':'자동 적용 · ')+'CPU 학습 평가 사용 중':manual?'수동 설정 · 학습 모델 보정을 꺼둔 상태입니다.':'자동 적용 대기 · 아직 채택된 학습 모델이 없습니다.';$('learningModelExplanation').textContent=manual?'수읽기와 규칙 검사는 그대로 사용합니다. 자동 적용으로 돌아가려면 고급 설정에서 「자동 적용 설정으로 돌아가기」를 누르세요.':info.active?'검증을 통과한 학습 모델이 적용되어 있습니다. 일반 대국에서는 설정을 바꾸지 않아도 됩니다.':'현재는 기존 수읽기와 패턴 평가로 대국합니다. 검증을 통과한 모델이 HTML에 반영되면 오목 파일을 다시 열어 적용하세요.';$('defaultLearningModel').disabled=!manual;$('disableLearningModel').disabled=!info.active;}
  function notify(text){$('learningModelNotice').textContent=text;msg(text);}
  function apply(model,persist=true,rethink=true){
-  if(model){OmokNeural.validate(model);if(model.adoption?.accepted!==true)throw Error('채택되지 않은 후보 모델은 실제 대국에 적용할 수 없습니다.');}stopWorker();cancelPonder();E.configure({model});spawnAnalysis.memory?.store.clear();rec=null;lastProgress=null;
+  if(model){OmokNeural.validate(model);if(model.adoption?.accepted!==true)throw Error('채택되지 않은 후보 모델은 실제 대국에 적용할 수 없습니다.');}stopWorker();cancelPonder();clearSettledReplies();E.configure({model});spawnAnalysis.memory?.store.clear();rec=null;lastProgress=null;
   if(persist){manual=true;try{localStorage.setItem(KEY,JSON.stringify({model}));}catch{}}
   describe();if(rethink&&g&&!g.result&&!reviewing&&globalThis.omokComputeReady)analyze();
  }

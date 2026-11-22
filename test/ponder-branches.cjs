@@ -1,179 +1,162 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const settingsPolicy=require('../src/analysis-settings.js'),assessment=require('../src/assessment-view.js');
-// The real application coordinator receives controlled asynchronous responses.
-// Generated positions exercise scheduling and result identity, not engine strength.
+// Keep the real coordinator and history navigation, delivering deterministic Worker outputs.
 const app=fs.readFileSync(path.join(__dirname,'../src/unified-app.js'),'utf8'),base=fs.readFileSync(path.join(__dirname,'../src/app.js'),'utf8');
-function section(source,start,end){const a=source.indexOf(start),z=source.indexOf(end,a);assert(a>=0&&z>a,'Application section exists: '+start);return source.slice(a,z);}
-const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function limitedPreparedReply(',"$('budget').onchange="),commitSource=section(base,'function commit(','function navigate(');
+function section(source,start,end){const a=source.indexOf(start),z=source.indexOf(end,a);assert(a>=0&&z>a,start);return source.slice(a,z);}
+const coordinator=section(app,'const baseStopWorker=stopWorker;','function spawnAnalysis(')+section(app,'function limitedPreparedReply(',"$('budget').onchange=");
+const game=section(base,'function commit(','function enterReview(');
 function fixture(){
- let now=0,next=0;const timers=new Map(),jobs=[],accepted=[],elements=new Map();
+ const jobs=[],accepted=[],elements=new Map();
  const node=id=>{if(!elements.has(id))elements.set(id,{textContent:''});return elements.get(id);};
- const c={performance:{now:()=>now},Date:class extends Date{static now(){return now;}},navigator:{hardwareConcurrency:16},
-  setTimeout:(fn,ms=0)=>{const id=++next;timers.set(id,{fn,at:now+ms});return id;},clearTimeout:id=>timers.delete(id),
-  setInterval:(fn,ms=0)=>{const id=++next;timers.set(id,{fn,at:now+ms,interval:ms});return id;},clearInterval:id=>timers.delete(id),
+ const c={performance:{now:()=>0},Date:class extends Date{static now(){return 0;}},clearTimeout(){},
   g:{id:'branch-fixture',me:1,first:1,timer:false,rules:{fivePriority:true},result:null},b:Array(225).fill(0),turn:2,events:[{type:'move',p:1,i:112,legal:true}],cursor:1,
-  paused:false,reviewing:false,rec:null,worker:null,ponder:null,keepPonder:false,lastProgress:null,job:0,currentAnalysisPolicy:null,activePlan:'',settingsRevision:0,
-  analysisSettings:{version:1,mode:'auto',manualMs:15000},remaining:40000,deadline:40000,winCells:[],names:['','black','white'],omokComputeReady:true,analysisPlan:node('analysisPlan'),predictionNote:node('predictionNote'),$:node,
-  E:{coord:i=>String(i),inspect:(board,i)=>({legal:Number.isInteger(i)&&i>=0&&i<225&&!board[i]}),urgent:()=>null,win:()=>[],openingReply:()=>null,getContext:()=>({strategyVersion:'fixture'}),suggestBudget:()=>({ms:15000,reason:'fixture'})},
-  settingsPolicy,
+  paused:false,reviewing:false,rec:null,worker:null,ponder:null,keepPonder:false,lastProgress:null,job:0,currentAnalysisPolicy:null,settingsRevision:0,
+  analysisSettings:{version:1,mode:'auto',manualMs:15000},db:{lessons:[]},remaining:40000,deadline:40000,winCells:[],names:['','black','white'],
+  omokComputeReady:true,analysisPlan:node('analysisPlan'),predictionNote:node('predictionNote'),$:node,modelVersion:'fixture-model',
+  E:{coord:i=>String(i),inspect:(board,i)=>({legal:Number.isInteger(i)&&i>=0&&i<225&&!board[i]}),urgent:()=>null,win:()=>[],openingReply:()=>null,
+   getContext:()=>({strategyVersion:'fixture',modelVersion:c.modelVersion}),suggestBudget:()=>({ms:15000,reason:'fixture'})},settingsPolicy,
   stopWorker(){c.job++;if(c.worker){c.worker.terminate();c.worker=null;}},
   acceptResult(result,partial=false){if(!result||result.i!=null&&!c.E.inspect(c.b,result.i,c.turn).legal)return false;c.rec={...result,analysisPolicy:result.analysisPolicy||c.currentAnalysisPolicy};c.lastProgress=c.rec;accepted.push({result:c.rec,partial});return true;},
   setAnalysisStatus:(state,detail)=>{node('analysisState').textContent=state;node('analysisDetail').textContent=detail;},snapshotAnalysisForRecord:r=>r&&{...r},persist(){},render(){},msg(){},
   rebuild(){c.b.fill(0);c.turn=c.g.first;for(const e of c.events.slice(0,c.cursor)){if(e.type==='move')c.b[e.i]=e.p;c.turn=3-e.p;}},
-  spawnAnalysis(board,p,budget,onProgress,onDone,onError){const task={board:board.slice(),p,budget,onProgress,onDone,onError,stopped:false,terminate(){this.stopped=true;}};jobs.push(task);return task;}
+  spawnAnalysis(board,p,budget,onProgress,onDone,onError){const t={board:board.slice(),p,budget,onProgress,onDone,onError,stopped:false,done:false,terminate(){this.stopped=true;}};jobs.push(t);return t;}
  };
- c.b[112]=1;vm.createContext(c);vm.runInContext(commitSource+coordinator,c);
- const result=i=>({i,pv:[i],depth:2,score:0,kind:'search',nodes:40,ms:20});
- const ranked=(moves=[100,101,102])=>({...result(moves[0]),candidates:moves.map(i=>({i,pv:[i],depth:2,score:0,comparisonComplete:true}))});
- const deliver=(task,r,final=false)=>{assert(task);(final?task.onDone:task.onProgress)(r);};
- function predict(moves=[100,101,102]){c.analyze();const prediction=jobs.at(-1);assert.equal(prediction.p,2);deliver(prediction,ranked(moves));return prediction;}
- const ownJobs=()=>jobs.filter(j=>j.p===1),replyFor=i=>ownJobs().find(j=>j.board[i]===2);
- function advance(ms){const target=now+ms;let steps=0;for(;;){const due=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;assert(++steps<1000);const[id,t]=due;now=t.at;if(t.interval)timers.set(id,{...t,at:now+t.interval});else timers.delete(id);t.fn();}now=target;}
- return{c,jobs,accepted,timers,node,result,ranked,deliver,predict,ownJobs,replyFor,advance};
+ c.rebuild();vm.createContext(c);vm.runInContext(game+coordinator,c);
+ const tasks=()=>vm.runInContext('[...ponderBranches.values()]',c);
+ const own=()=>jobs.filter(j=>j.p===c.g.me),active=()=>own().filter(j=>!j.done&&!j.stopped);
+ const result=(i,score=0)=>({i,pv:[i],depth:2,score,kind:'search',nodes:40,ms:20,comparisonSource:'reader',comparison:{complete:true,selected:i,depth:2,source:'reader',rootsCompared:3}});
+ const ranked=(moves=[100,101,102])=>({...result(moves[0],250),candidates:moves.map(i=>({i,pv:[i],depth:2,score:250,comparisonComplete:true}))});
+ function deliver(t,r,done=false){assert(t);if(done)t.done=true;(done?t.onDone:t.onProgress)(r);assert(active().length<=1,'Full own-side searches do not overlap');}
+ function predict(moves){c.analyze();const job=jobs.at(-1);assert.equal(job.p,3-c.g.me);deliver(job,ranked(moves));return job;}
+ function activeReply(i){const j=active().find(t=>t.board[i]===3-c.g.me);assert(j,`active ${i}`);return j;}
+ function play(i){return c.commit(i,c.E.inspect(c.b,i,c.turn));}
+ return {c,node,jobs,own,active,tasks,result,ranked,deliver,predict,activeReply,play,accepted};
 }
 {
- const f=fixture(),prediction=f.predict(),branches=[100,101,102].map(f.replyFor);
- assert.equal(f.ownJobs().length,3,'Each of the three displayed opponent candidates starts an independent reply');
- for(const[i,branch]of branches.entries()){
-  assert(branch);assert.equal(branch.budget.background,true);assert.equal(branch.budget.mode,'auto');assert.equal(branch.budget.ms,15000);
-  assert.deepEqual(branch.board.map((v,k)=>v!==f.c.b[k]?k:-1).filter(k=>k>=0),[100+i],'A branch contains only its own hypothetical opponent stone');
+ const f=fixture(),prediction=f.predict();
+ const tasks=f.tasks();assert.deepEqual(Array.from(tasks,t=>t.opponent),[100,101,102]);assert.equal(f.own().length,1);
+ f.deliver(prediction,f.ranked(),true);
+ for(const [k,i] of [100,101,102].entries()){
+  const reply=f.activeReply(i);
+  assert.equal(reply.budget.mode,'auto');assert.equal(reply.budget.ms,15000);assert.equal(reply.budget.background,undefined);
+  assert.deepEqual(reply.board.flatMap((p,j)=>p!==f.c.b[j]?[j]:[]),[i]);
+  f.deliver(reply,f.result(140+k),true);assert.equal(f.c.rec.i,100);
+  assert.match(f.node('analysisState').textContent,new RegExp((k+1)+'/3 준비'));
  }
- assert.deepEqual(f.c.b.map((v,i)=>v?i:-1).filter(i=>i>=0),[112],'All speculative boards leave the live position unchanged');
- f.deliver(prediction,f.ranked());f.deliver(prediction,f.ranked(),true);
- assert.equal(f.ownJobs().length,3,'Repeated progress and final reporting keep all three ongoing calculations');assert(branches.every(b=>!b.stopped));
- f.deliver(branches[1],f.result(140),true);assert.equal(f.c.rec.i,100,'A completed second-choice reply stays off the actual opponent board');
- assert.match(f.node('analysisState').textContent,/1\/3/,'Aggregate readiness counts a completed nonprimary branch');
- assert.match(f.node('predictionNote').textContent,/2순위 101:.*140.*준비 완료/,'Each completed response stays associated with its displayed opponent rank');
- f.deliver(branches[0],f.result(141),true);f.deliver(branches[2],f.result(142),true);
- assert.match(f.node('analysisState').textContent,/준비 완료.*3\/3/,'All prepared branches are reported as ready');assert.equal(f.c.rec.i,100,'Even all completed replies leave the opponent prediction visible until actual placement');
-}
-for(const[rows,count]of [[[100,100,101],2],[[100,112,230],1],[[100,101,102,103],3]]){
- const f=fixture();f.predict(rows);assert.equal(f.ownJobs().length,count,'Only distinct legal displayed candidates are prepared, with a maximum of three');
+ assert.equal(f.active().length,0);assert.equal(f.own().length,3);
+ assert.match(f.node('predictionNote').textContent,/2순위 101: 응수 141 준비 완료/);
 }
 {
- const f=fixture();f.c.analyze();const prediction=f.jobs.at(-1);f.deliver(prediction,{...f.result(100),kind:'block',urgent:true,candidates:[{i:100}]});
- assert.equal(f.ownJobs().length,1,'A single mandatory candidate does not manufacture extra branches');assert(f.replyFor(100));
+ const f=fixture(),prediction=f.predict([100,100,101,112,240,102,103]),first=f.activeReply(100),before=f.tasks();
+ assert.deepEqual(Array.from(before,x=>x.opponent),[100,101,102]);
+ f.deliver(prediction,f.ranked([102,100,101]));
+ assert(f.tasks().every(t=>before.includes(t)));assert.equal(f.activeReply(100),first);
+ f.deliver(prediction,f.ranked([102,101,103]),true);
+ assert(first.stopped);assert.equal(f.activeReply(102).board[102],2);
+ assert.deepEqual(Array.from(f.tasks(),x=>[x.opponent,x.rank]),[[101,2],[102,1],[103,3]]);
+ f.deliver(first,f.result(150),true);assert.equal(f.c.rec.i,102);
+}
+for(const target of [100,101,102])for(const completed of [false,true]){
+ const f=fixture(),prediction=f.predict(),siblings=[];f.deliver(prediction,f.ranked(),true);
+ for(let i=100;i<target;i++){const j=f.activeReply(i);f.deliver(j,f.result(i+45),true);siblings.push(j);}
+ const prepared=f.activeReply(target);f.deliver(prepared,f.result(140),completed);
+ const others=f.tasks().filter(t=>t.opponent!==target).map(t=>t.worker).filter(Boolean),before=f.own().length;
+ f.play(target);assert.equal(f.c.ponder.opponent,target);assert.equal(f.c.cursor,2);assert.equal(f.own().length,before);
+ assert(others.every(j=>j.stopped));assert.equal(f.c.rec.i,140);
+ if(!completed){assert.equal(f.c.ponder.worker,prepared);f.deliver(prepared,f.result(141),true);assert.equal(f.c.rec.i,141);}
+ const kept=f.c.rec.i;
+ for(const j of [...siblings,...others])f.deliver(j,f.result(150),true);
+ assert.equal(f.c.rec.i,kept);
+}
+for(const target of [102,105]){
+ const f=fixture(),prediction=f.predict(),first=f.activeReply(100);f.deliver(prediction,f.ranked(),true);
+ const queued=f.tasks().find(t=>t.opponent===target);
+ f.play(target);assert(first.stopped);assert.equal(f.own().length,2);
+ const actual=f.activeReply(target);assert.equal(actual.budget.background,undefined);
+ if(queued){assert.equal(f.c.ponder,queued);assert(queued.promoted);}
+ else{assert.equal(f.c.ponder,null);assert.match(f.node('predictionNote').textContent,/105.*새로 분석/);}
+ f.deliver(first,f.result(150),true);assert.notEqual(f.c.rec?.i,150);
+ f.deliver(actual,f.result(151),true);assert.equal(f.c.rec.i,151);
 }
 {
- const f=fixture(),prediction=f.predict(),initial=[100,101,102].map(f.replyFor);
- f.deliver(prediction,f.ranked([102,100,101]));assert.equal(f.ownJobs().length,3,'Rank reordering preserves calculations for the same opponent stones');assert(initial.every(b=>!b.stopped));
- f.deliver(prediction,f.ranked([102,100,103]));assert.equal(f.ownJobs().length,4,'Only a newly displayed alternative starts a new calculation');
- assert(initial[1].stopped,'A removed candidate is cancelled');assert(!initial[0].stopped&&!initial[2].stopped);assert(f.replyFor(103));
- const accepts=f.accepted.length;f.deliver(initial[1],f.result(150),true);assert.equal(f.accepted.length,accepts,'Late removed-branch output stays isolated');assert.equal(f.c.rec.i,102);
+ const f=fixture();f.predict();const failed=f.activeReply(100);failed.terminate();failed.onError('controlled error');
+ assert.match(f.node('predictionNote').textContent,/계산 중단/);assert.equal(f.activeReply(101).board[101],2);
+ f.play(100);assert(f.own().find(j=>j.board[101]===2).stopped);assert.equal(f.activeReply(100).board[100],2);
+ f.deliver(failed,f.result(150),true);assert.notEqual(f.c.rec?.i,150);
 }
-for(const actual of [101,102])for(const completed of [false,true]){
- const f=fixture(),prediction=f.predict(),selected=f.replyFor(actual),siblings=[100,101,102].filter(i=>i!==actual).map(f.replyFor);
- f.deliver(selected,f.result(140),completed);f.deliver(prediction,f.ranked(),true);const before=f.jobs.length;
- f.c.commit(actual,f.c.E.inspect(f.c.b,actual,f.c.turn));
- assert.equal(f.jobs.length,before,'Second/third-choice placement does not restart its prepared reply');assert(siblings.every(b=>b.stopped),'Unchosen branch Workers stop immediately');
- assert.equal(f.c.rec.i,140,'The matching branch result is selected before any own placement');assert.equal(f.c.ponder.opponent,actual);assert(f.c.ponder.promoted);assert.equal(f.c.cursor,2);
- assert.match(f.node('predictionNote').textContent,/예측 일치/,'Selection immediately replaces the obsolete multi-branch status');
- if(!completed){assert.equal(f.c.ponder.worker,selected);assert(!selected.stopped);f.deliver(selected,f.result(141),true);assert.equal(f.c.rec.i,141);}
- const kept=f.c.rec.i;for(const sibling of siblings)f.deliver(sibling,f.result(151),true);assert.equal(f.c.rec.i,kept,'Unchosen late results cannot overwrite the selected reply');
-}
-{
- const f=fixture(),prediction=f.predict(),branches=[100,101,102].map(f.replyFor);f.deliver(prediction,f.ranked(),true);
- f.c.commit(105,f.c.E.inspect(f.c.b,105,f.c.turn));assert(branches.every(b=>b.stopped));assert.equal(f.ownJobs().length,4,'An unpredicted actual move receives one fresh analysis');
- const actual=f.ownJobs().at(-1);assert.equal(actual.board[105],2);assert.equal(actual.board[100],0);assert.equal(actual.board[101],0);assert.equal(actual.board[102],0);
-  assert.match(f.node('predictionNote').textContent,/105.*새로 분석/);
- for(const branch of branches)f.deliver(branch,f.result(150),true);assert.notEqual(f.c.rec?.i,150);f.deliver(actual,f.result(151),true);assert.equal(f.c.rec.i,151);
-}
-for(const actual of [101,102]){
- const f=fixture(),prediction=f.predict(),failed=f.replyFor(101),survivor=f.replyFor(102),first=f.replyFor(100);
- failed.terminate();failed.onError('controlled branch failure');
- assert(!first.stopped&&!survivor.stopped,'One failed branch does not cancel the other predictions');assert.equal(f.ownJobs().length,3);assert.equal(f.c.rec.i,100);
- assert.match(f.node('predictionNote').textContent,/실패|오류|중단/,'The failed branch is reported without inventing a prepared response');
- f.deliver(survivor,f.result(140));f.deliver(prediction,f.ranked(),true);f.c.commit(actual,f.c.E.inspect(f.c.b,actual,f.c.turn));
- if(actual===102){assert.equal(f.ownJobs().length,3);assert.equal(f.c.rec.i,140,'A successful alternative remains reusable after a sibling error');}
- else{assert.equal(f.ownJobs().length,4,'Playing the failed branch starts fresh analysis for the actual board');assert.equal(f.ownJobs().at(-1).board[101],2);assert(first.stopped&&survivor.stopped,'Fresh analysis for a failed prediction also cancels its siblings');}
- const accepts=f.accepted.length;f.deliver(failed,f.result(151),true);assert.equal(f.accepted.length,accepts,'Late output from a failed branch cannot become the selected response');
-}
-for(const change of ['stop','new-game','settings','review']){
- const f=fixture();f.predict();const branches=f.ownJobs().slice();
- if(change==='new-game')f.c.g={...f.c.g,id:'different-game'};else if(change==='settings')f.c.settingsRevision++;else if(change==='review')f.c.reviewing=true;
- f.c.stopWorker();const accepts=f.accepted.length;for(const branch of branches)f.deliver(branch,f.result(150),true);f.advance(30000);
- assert(branches.every(b=>b.stopped),change+': every speculative Worker is stopped');assert.equal(f.accepted.length,accepts);assert.equal(f.c.ponder,null);assert.equal(f.jobs.length,4);assert.equal(f.timers.size,0);
-}
-{
- const f=fixture(),prediction=f.predict(),selected=f.replyFor(101);f.deliver(prediction,f.ranked(),true);f.c.commit(101,f.c.E.inspect(f.c.b,101,f.c.turn));
- const task=f.c.ponder;task.liveProofGatePending=true;const accepts=f.accepted.length;f.deliver(selected,f.result(140),true);
- assert.equal(f.accepted.length,accepts);assert.equal(f.c.rec,null);assert.equal(task.result.i,140,'A nonprimary promoted branch still honors the live-proof gate');
- task.liveProofGatePending=false;f.c.analyze();assert.equal(f.c.rec.i,140);assert.equal(f.jobs.length,4,'Gate release reuses the prepared nonprimary branch');
-}
-for(const [mode,ms] of [['custom',10000],['auto',15000],['deep',25000]]){
- const f=fixture();f.c.analysisSettings={version:1,mode,manualMs:ms};
- const prediction=f.predict(),prepared=f.replyFor(101);
- assert.equal(prediction.budget,1000);
- const forecast={...f.ranked(),score:250,comparisonSource:'reader',
-   comparison:{complete:true,selected:100,depth:2,source:'reader',rootsCompared:3}};
- f.deliver(prediction,forecast,true);
- const before=assessment.describe(f.c.rec,f.c.turn,f.c.g.me);
- assert.match(before.text,/상대 착수 전.*평가 -250/);
- f.deliver(prepared,{...f.result(140),score:-250,comparisonSource:'reader',
-   comparison:{complete:true,selected:140,depth:2,source:'reader',rootsCompared:3}},true);
- const renders=[];f.c.render=()=>renders.push({p:f.c.turn,result:f.c.rec,policy:f.c.currentAnalysisPolicy});
- f.c.commit(101,f.c.E.inspect(f.c.b,101,f.c.turn));
- assert.equal(renders[0].p,1);assert.equal(renders[0].result,null);assert.equal(renders[0].policy,null,'A real turn change clears the preceding prediction policy and score before render');
- assert.equal(f.c.rec.i,140);
- assert.match(assessment.describe(f.c.rec,1,1).text,/실제 착수 뒤.*평가 -250/);
- const count=f.jobs.length;
- f.c.reanalyzeCurrentPosition();
- assert.equal(f.jobs.length,count+1,'Manual reanalysis starts a foreground request even after a completed matching branch');
- assert.equal(f.c.ponder,null);assert.equal(f.c.rec,null);
- const actual=f.jobs.at(-1);assert.equal(actual.p,1);assert.equal(actual.budget.mode,mode);assert.equal(actual.budget.ms,ms);assert.equal(actual.budget.background,undefined);
- f.deliver(prepared,f.result(141),true);assert.equal(f.c.rec,null);
- f.deliver(actual,f.result(142),true);assert.equal(f.c.rec.i,142);
-}
-for(const route of ['urgent','openingReply']){
- const f=fixture();f.predict();const prepared=f.replyFor(100);
- f.deliver(prepared,f.result(140),true);
+for(const route of ['urgent','openingReply','recordedReply']){
+ const f=fixture();f.predict();f.deliver(f.activeReply(100),f.result(140),true);
  f.c.E[route]=()=>({...f.result(141),urgent:route==='urgent',kind:route==='urgent'?'block':'opening'});
- f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
- assert.equal(f.c.ponder,null);assert.equal(f.c.rec.i,141);
+ f.play(100);assert.equal(f.c.ponder,null);assert.equal(f.c.rec.i,141);
  assert.match(f.node('predictionNote').textContent,route==='urgent'?/즉시 판정 140 → 141/:/등록 수순 140 → 141/);
 }
 {
- const f=fixture();f.predict();const prepared=f.replyFor(100);
- f.deliver(prepared,{...f.result(140),depth:0,analysisIncomplete:true,timedOut:true},true);
- const note=f.node('predictionNote').textContent;
- assert.match(note,/응수 140 · 검사 미완료/);assert.doesNotMatch(note,/응수 140 준비 완료/);
- assert.match(f.node('analysisState').textContent,/0\/3 준비/,'Incomplete replies do not raise the ready count');
- f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
- assert.equal(f.c.rec.i,140);assert.match(f.node('predictionNote').textContent,/검사 미완료/);
- let completed;
- const accept=f.c.acceptResult;
- f.c.acceptResult=(r,partial)=>accept({...r,i:141,pv:[141]},partial);
- f.c.analyze(undefined,r=>{completed=r;});
- assert.equal(completed.i,141,'Completion callers receive the accepted recommendation');
- assert.match(f.node('predictionNote').textContent,/140 → 141.*실제 국면 검사/);
+ const f=fixture();f.predict();const branch=f.activeReply(100);
+ f.deliver(branch,{...f.result(140),kind:'incomplete',depth:0,analysisIncomplete:true,timedOut:true,workerError:'시간 상한 도달'},true);
+ assert.match(f.node('predictionNote').textContent,/응수 140 · 검사 미완료/);assert.match(f.node('analysisState').textContent,/0\/3 준비/);
+ const jobs=f.own().length;f.play(100);assert.equal(f.own().length,jobs);
+ assert.equal(f.c.rec.i,140);assert(f.c.rec.analysisIncomplete&&f.c.rec.timedOut);
+ f.c.navigate(1);f.play(100);assert.equal(f.own().length,jobs);assert.equal(f.c.rec.i,140);assert(f.c.rec.analysisIncomplete);
+ assert.match(f.node('predictionNote').textContent,/완료 응수 복원.*검사 미완료/);
 }
 {
- const f=fixture();f.predict();const prepared=f.replyFor(100);
- f.deliver(prepared,f.result(140),true);
- const accept=f.c.acceptResult;
- f.c.acceptResult=(r,partial)=>r.analysisPolicy?.role==='ponder'?false:accept(r,partial);
- f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));
- assert.equal(f.c.rec,null);assert.equal(f.c.ponder,null);
- const actual=f.ownJobs().at(-1);assert.equal(actual.budget.background,undefined);
- assert.doesNotMatch(f.node('predictionNote').textContent,/사전 계산 결과 사용/);
- f.deliver(actual,f.result(142),true);assert.equal(f.c.rec.i,142);
+ const f=fixture();f.predict();const branch=f.activeReply(100);
+ f.deliver(branch,{...f.result(140),analysisIncomplete:true,workerError:'generated Worker crash'},true);
+ f.play(100);assert.equal(f.c.rec,null,'A failed precomputation triggers the actual analysis');
+ const actual=f.activeReply(100);assert.notEqual(actual,branch);
+ f.deliver(actual,{...f.result(142),analysisIncomplete:true,workerError:'generated Worker crash'},true);assert.equal(f.c.rec.i,142);
+ f.c.navigate(1);f.play(100);assert.equal(f.c.rec,null,'The failed actual fallback is not restored');
+ assert.notEqual(f.activeReply(100),actual);
 }
 {
- const f=fixture();f.c.analyze();const prediction=f.jobs.at(-1);
- const candidates=[112,101,101,100,103,104].map(i=>({i}));
- f.deliver(prediction,{...f.result(103),candidates},true);
- const expected=[103,101,100],branches=expected.map(f.replyFor);
- assert.deepEqual(Array.from(f.c.forecastOptions(f.c.rec),row=>row.i),expected);
- assert(branches.every(Boolean));
- f.deliver(branches[1],f.result(140));
- assert.match(f.node('predictionNote').textContent,/2순위 101: 응수 후보 140 · 계산 중/);
- const count=f.jobs.length,recommendation=f.c.rec;
- f.c.analyze();
- assert.equal(f.jobs.length,count,'Passive reanalysis of the same board keeps the existing reply workers');
- assert.equal(f.c.rec,recommendation);
- assert(branches.every(branch=>!branch.stopped));
- f.c.commit(101,f.c.E.inspect(f.c.b,101,f.c.turn));
- assert.equal(f.c.rec.i,140,'Matching placement uses the provisional reply for that exact branch');
+ const f=fixture();f.predict();f.play(101);const running=f.activeReply(101),task=f.c.ponder;
+ task.liveProofGatePending=true;f.deliver(running,f.result(141),true);assert.equal(f.c.rec,null);
+ assert.equal(task.result.i,141);task.liveProofGatePending=false;f.c.analyze();assert.equal(f.c.rec.i,141);
+ assert.equal(f.own().length,2,'A live proof gate does not launch duplicate ordinary work');
 }
-console.log('PASS three predicted replies, same-board promotion and retention, real-board overrides, perspective across turns, manual 10/15/25-second restart, incomplete status and stale/gated isolation');
+for(const [mode,ms] of [['custom',10000],['auto',15000],['deep',25000]]){
+ const f=fixture();f.c.analysisSettings={version:1,mode,manualMs:ms};const forecast=f.predict();
+ assert.equal(forecast.budget,1000);
+ assert.match(assessment.describe(f.c.rec,f.c.turn,f.c.g.me).text,/상대 착수 전.*평가 -250/);
+ const prepared=f.activeReply(100);assert.equal(prepared.budget.mode,mode);assert.equal(prepared.budget.ms,ms);
+ f.deliver(prepared,f.result(140,-250),true);f.play(100);
+ assert.equal(f.c.rec.i,140);assert.match(assessment.describe(f.c.rec,1,1).text,/실제 착수 뒤.*평가 -250/);
+ f.c.navigate(1);const before=f.own().length;f.play(100);
+ assert.equal(f.own().length,before,'Undo and the same opponent move use the settled result');
+ assert.equal(f.c.rec.i,140);assert.equal(f.c.rec.score,-250);assert.equal(f.c.rec.depth,2);
+ assert.match(f.node('predictionNote').textContent,/완료 응수 복원/);
+ f.c.reanalyzeCurrentPosition();const actual=f.activeReply(100);assert.equal(f.c.rec,null);
+ assert.equal(actual.budget.mode,prepared.budget.mode);assert.equal(actual.budget.ms,prepared.budget.ms);assert.equal(actual.budget.background,undefined);
+ f.deliver(prepared,f.result(141),true);assert.equal(f.c.rec,null);
+ f.deliver(actual,f.result(142),true);f.c.navigate(1);f.play(100);assert.equal(f.c.rec.i,142);
+}
+for(const change of ['opponent','mode','model','lessons','rules','history','clock','game','uncacheable-proof']){
+ const f=fixture();
+ if(change==='history'){
+  f.c.events=[{type:'move',p:1,i:112},{type:'move',p:2,i:82},{type:'move',p:1,i:96}];f.c.cursor=3;f.c.rebuild();
+ }
+ f.predict();const prepared=f.activeReply(100),r=f.result(140);
+ if(change==='uncacheable-proof')r.liveProofCandidate={id:'already delivered proof reference'};
+ f.deliver(prepared,r,true);f.play(100);assert.equal(f.c.rec.i,140);
+ const ownCursor=f.c.cursor;f.c.navigate(ownCursor-1);
+ if(change==='mode'){f.c.settingsRevision++;f.c.analysisSettings={version:1,mode:'deep',manualMs:15000};}
+ if(change==='model')f.c.modelVersion='another-model';
+ if(change==='lessons')f.c.db.lessons.push({key:'changed'});
+ if(change==='rules')f.c.g.rules={...f.c.g.rules,extraRule:true};
+ if(change==='history'){const e=f.c.events;const saved=e[0];e[0]=e[2];e[2]=saved;f.c.rebuild();}
+ if(change==='clock'){
+  f.c.g.timer=true;const baseAnalyze=f.c.analyze;
+  f.c.analyze=(...args)=>{if(f.c.turn===f.c.g.me)f.c.deadline=9000;return baseAnalyze(...args);};
+ }
+ if(change==='game')f.c.g={...f.c.g,id:'different-fixture'};
+ const actual=change==='opponent'?105:100;f.play(actual);
+ assert.equal(f.c.rec,null,change);assert(f.activeReply(actual),change);
+}
+{
+ const f=fixture();f.predict();const reply=f.activeReply(100),count=f.jobs.length;
+ f.c.analyze();assert.equal(f.jobs.length,count);assert.equal(f.activeReply(100),reply);
+ const accepted=f.accepted.length;f.c.stopWorker();
+ f.deliver(reply,f.result(140),true);assert.equal(f.accepted.length,accepted);assert.equal(f.c.ponder,null);
+}
+console.log('PASS bounded foreground-equivalent prediction queue, all ranks, exact-context undo, manual refresh, urgent/registry precedence, incomplete and stale isolation');

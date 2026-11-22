@@ -1,6 +1,6 @@
 {
   "name": "my-omok",
-  "version": "5.18.68",
+  "version": "5.18.69",
   "private": true,
   "description": "Offline Gomoku with black and white stones",
   "scripts": {

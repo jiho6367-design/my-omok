@@ -15,7 +15,7 @@ function fixture(){
   setInterval:(fn,ms=0)=>{const id=++nextTimer;timers.set(id,{fn,at:now+ms,interval:ms});return id;},clearInterval:id=>timers.delete(id),
   g:{id:'ponder-fixture',me:1,first:1,timer:false,rules:{fivePriority:true},result:null},
   b:Array(225).fill(0),turn:2,events:[{type:'move',p:1,i:112,legal:true}],cursor:1,
-  paused:false,reviewing:false,rec:null,worker:null,ponder:null,keepPonder:false,lastProgress:null,job:0,
+  paused:false,reviewing:false,rec:null,worker:null,ponder:null,keepPonder:false,lastProgress:null,job:0,db:{lessons:[]},
   currentAnalysisPolicy:null,activePlan:'',settingsRevision:0,analysisSettings:{mode:'custom',manualMs:6000},
   remaining:40000,deadline:40000,winCells:[],names:['','black','white'],omokComputeReady:true,
   analysisPlan:node('analysisPlan'),predictionNote:node('predictionNote'),$:node,
@@ -83,7 +83,7 @@ for(const change of ['stop','new-game','settings']){
 for(const change of ['stop','new-game','settings']){
  const f=fixture();f.c.spawnAnalysis.health={blockedUntil:1000,healthySince:0,lastLag:200};f.predict();
  const reply=f.jobs.at(-1);assert.equal(f.jobs.length,2,'A prior UI delay does not defer the single background calculation');
- assert.equal(reply.budget.background,true);assert.equal(f.timers.size,0,'No separate cooldown timer is scheduled');
+ assert.equal(reply.budget.background,undefined);assert.equal(f.timers.size,0,'No separate cooldown timer is scheduled');
  if(change==='new-game')f.c.g={...f.c.g,id:'new-game'};
  else if(change==='settings')f.c.settingsRevision++;
  f.c.stopWorker();const accepted=f.accepted.length;f.deliver(reply,f.result(101),true);f.advance(30000);
@@ -95,9 +95,9 @@ for(const promoteBeforeCompletion of [false,true]){
  const f=fixture();f.c.analysisSettings={mode:'auto',manualMs:15000};
  f.c.spawnAnalysis.health={blockedUntil:10000,healthySince:0,lastLag:700};const prediction=f.predict(),reply=f.jobs.at(-1),task=f.c.ponder;
  assert.equal(f.jobs.length,2,'Automatic reply analysis starts before any click despite an existing lag marker');
- assert.equal(reply.p,1);assert.equal(reply.board[100],2);assert.equal(reply.budget.background,true);
+ assert.equal(reply.p,1);assert.equal(reply.board[100],2);assert.equal(reply.budget.background,undefined);
  assert.equal(reply.budget.mode,'auto');assert.equal(reply.budget.ms,15000,'The selected automatic ceiling is preserved');
- assert.equal(f.timers.size,0,'Single-Worker background work needs no deferred restart');
+ assert.equal(f.timers.size,0,'The prepared reply needs no deferred restart');
  f.deliver(reply,f.result(101));assert.equal(task.partial.i,101);assert.equal(f.c.rec.i,100,'Background progress stays separate from the visible opponent prediction');
  f.deliver(prediction,f.result(100),true);assert.equal(f.c.ponder,task);assert(!reply.stopped);
  if(promoteBeforeCompletion){f.c.commit(100,f.c.E.inspect(f.c.b,100,f.c.turn));assert.equal(f.c.rec.i,101,'The existing partial result is usable on the real turn');}
