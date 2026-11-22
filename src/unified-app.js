@@ -326,10 +326,20 @@ function publishPreparedReply(task,result,partial=false){
   if(!partial)task.onDone?.(rec);
   return true;
 }
+function forecastOptions(result){
+  if(result?.i==null)return [];
+  const rows=result.candidates||[],selected=rows.find(row=>row.i===result.i)||{i:result.i};
+  const ranked=[];
+  for(const row of [selected,...rows]){
+    if(!Number.isInteger(row.i)||row.i<0||row.i>=b.length||ranked.some(candidate=>candidate.i===row.i)||!E.inspect(b,row.i,turn).legal)continue;
+    ranked.push(row);
+    if(ranked.length===3)break;
+  }
+  return ranked;
+}
 function prepareReply(){
   if(!g||g.result||reviewing||turn===g.me||rec?.i==null){cancelPonder();return;}
-  const sourceKey=positionKey(b,turn),opponents=[...new Set([rec.i,...(rec.candidates||[]).slice(0,3).map(m=>m.i)])]
-    .filter(i=>Number.isInteger(i)&&i>=0&&i<b.length&&E.inspect(b,i,turn).legal).slice(0,3),wanted=new Set(opponents);
+  const sourceKey=positionKey(b,turn),opponents=forecastOptions(rec).map(row=>row.i),wanted=new Set(opponents);
   // Preserve work by coordinate when rankings change; remove only predictions
   // that disappeared or belong to a different board/settings context.
   if(ponder&&!ponderBranches.has(ponder.opponent)){ponder.worker?.terminate();ponder=null;}
@@ -367,7 +377,11 @@ function showPonderStatus(){
   const sourceKey=positionKey(b,turn),tasks=[...ponderBranches.values()].filter(t=>!t.promoted&&t.sourceKey===sourceKey).sort((a,b)=>a.rank-b.rank);if(!tasks.length)return;
   const ready=tasks.filter(t=>t.result?.i!=null&&!limitedPreparedReply(t.result)).length;
   const done=tasks.every(t=>t.result||t.error),single=tasks.length===1,complete=done&&ready===tasks.length;
-  predictionNote.textContent=tasks.map(t=>`${t.rank}순위 ${E.coord(t.opponent)}: ${t.error?'계산 중단':t.result?t.result.i==null?'추천 없음':'응수 '+E.coord(t.result.i)+(limitedPreparedReply(t.result)?' · 검사 미완료':' 준비 완료'):'내 응수 사전 계산 중'+(t.partial?' · '+(t.partial.depth||0)+'반수':'')}`).join(' · ');
+  predictionNote.textContent=tasks.map(t=>{
+    const reply=t.error?'계산 중단':t.result?t.result.i==null?'추천 없음':'응수 '+E.coord(t.result.i)+(limitedPreparedReply(t.result)?' · 검사 미완료':' 준비 완료')
+      :t.partial?.i!=null?'응수 후보 '+E.coord(t.partial.i)+' · 계산 중':'내 응수 사전 계산 중';
+    return `${t.rank}순위 ${E.coord(t.opponent)}: ${reply}`;
+  }).join(' · ');
   const label=complete?'상대 차례 · 내 응수 준비 완료':done?'상대 차례 · 일부 응수 미완료':'상대 차례 · 내 응수 사전 계산 중';
   setAnalysisStatus(label+(single?'':` · ${tasks.length}개 병렬 · ${ready}/${tasks.length} 준비`),
     done?'상대가 예상 후보에 두면 그 배치의 응수를 확인합니다.':'상대가 각 후보에 뒀을 때 내 응수를 미리 계산합니다.',complete?'complete':done?'warning':'thinking');
@@ -376,6 +390,11 @@ analyze=function(explicit,onDone){
   // Historical study buttons now use the one selected analysis policy.
   if(g&&!g.result&&!globalThis.omokComputeReady){stopWorker();setAnalysisStatus('연산 준비 중','선택한 분석 모드를 유지하고 연산 준비 완료 후 시작합니다.','ready');return;}
   if(!g||g.result){stopWorker();rec=null;render();const winner=g?.result?.winner,outcome=winner?(winner===g.me?'내 승리':'내 패배'):'';setAnalysisStatus(winner?`대국 종료 · ${names[winner]} 승리 · ${outcome}`:g?.result?'대국 종료 · 무승부':'분석 준비',winner?`정확한 5목 완성: ${winCells.map(E.coord).join(' → ')}`:g?.result?'빈칸 없이 종료되었습니다.':'착수 후 자동으로 추천을 계산합니다.',winner?'complete':g?.result?'stopped':'ready');return;}
+  if(explicit==null&&!onDone&&!reviewing&&turn!==g.me&&rec?.analysisPolicy?.role==='prediction'){
+    const sourceKey=positionKey(b,turn);
+    const retained=[...ponderBranches.values()].some(task=>task.sourceKey===sourceKey&&!task.promoted&&!task.error);
+    if(retained){showPonderStatus();return;}
+  }
   const prepared=explicit==null&&!reviewing&&turn===g.me?matchingPonder():null;
   if(prepared){
     selectPonder(prepared);
@@ -443,7 +462,8 @@ render=function(){unifiedRender();
   if(rec?.i!=null&&rec.analysisDelivery?.phase==='interim')$('recommend').textContent=E.coord(rec.i)+' · 계산 중';
   if(rec?.i!=null&&rec.analysisDelivery?.phase==='stopped')$('recommend').textContent=E.coord(rec.i)+' · 중단 후보';
   candidateList.replaceChildren();
-  for(const [k,m] of (rec?.candidates||[]).slice(0,3).entries()){
+  const visibleCandidates=g&&!g.result&&!reviewing&&turn!==g.me?forecastOptions(rec):(rec?.candidates||[]).slice(0,3);
+  for(const [k,m] of visibleCandidates.entries()){
     const el=document.createElement('span'),score=m.comparisonComplete?OmokAssessment.formatScore(m.score,turn,g?.me):null;el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}${score===null?'':' · 평가 '+score}`;candidateList.append(el);
   }
   const policy=rec?.analysisPolicy||currentAnalysisPolicy;

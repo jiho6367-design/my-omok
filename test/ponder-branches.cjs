@@ -159,4 +159,21 @@ for(const route of ['urgent','openingReply']){
  assert.doesNotMatch(f.node('predictionNote').textContent,/사전 계산 결과 사용/);
  f.deliver(actual,f.result(142),true);assert.equal(f.c.rec.i,142);
 }
-console.log('PASS three predicted replies, same-board promotion, real-board overrides, perspective across turns, manual 10/15/25-second restart, incomplete status and stale/gated isolation');
+{
+ const f=fixture();f.c.analyze();const prediction=f.jobs.at(-1);
+ const candidates=[112,101,101,100,103,104].map(i=>({i}));
+ f.deliver(prediction,{...f.result(103),candidates},true);
+ const expected=[103,101,100],branches=expected.map(f.replyFor);
+ assert.deepEqual(Array.from(f.c.forecastOptions(f.c.rec),row=>row.i),expected);
+ assert(branches.every(Boolean));
+ f.deliver(branches[1],f.result(140));
+ assert.match(f.node('predictionNote').textContent,/2순위 101: 응수 후보 140 · 계산 중/);
+ const count=f.jobs.length,recommendation=f.c.rec;
+ f.c.analyze();
+ assert.equal(f.jobs.length,count,'Passive reanalysis of the same board keeps the existing reply workers');
+ assert.equal(f.c.rec,recommendation);
+ assert(branches.every(branch=>!branch.stopped));
+ f.c.commit(101,f.c.E.inspect(f.c.b,101,f.c.turn));
+ assert.equal(f.c.rec.i,140,'Matching placement uses the provisional reply for that exact branch');
+}
+console.log('PASS three predicted replies, same-board promotion and retention, real-board overrides, perspective across turns, manual 10/15/25-second restart, incomplete status and stale/gated isolation');

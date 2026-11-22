@@ -12102,7 +12102,11 @@ function commit(i,s){stopWorker();remaining=Math.max(0,deadline-Date.now());if(c
 function navigate(n){stopWorker();cursor=Math.max(0,Math.min(events.length,n));rec=null;rebuild();remaining=40000;render();if(reviewing){let e=events[cursor];rec=e?.rec||null;render();}else{paused=!!g.result;deadline=Date.now()+40000;persist();analyze();}}
 function enterReview(n=cursor){if(!g)return;freeze();stopWorker();if(!reviewing)analysisBefore={cursor,remaining,result:g.result};reviewing=true;navigate(n);render();}
 function leaveReview(){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';reviewing=false;cursor=analysisBefore?.cursor??events.length;remaining=analysisBefore?.remaining??40000;rebuild();rec=null;paused=true;render();analyze();msg('복기를 마쳤습니다. 재개를 누르면 남은 시간으로 계속합니다.');}
-function openModal(title){freeze();stopWorker();$('modalTitle').textContent=title;$('modalBody').replaceChildren();$('modal').showModal();render();return $('modalBody');}
+function openModal(title,{keepOpponentAnalysis=false}={}){
+ freeze();
+ if(!keepOpponentAnalysis||!g||g.result||reviewing||turn===g.me)stopWorker();
+ $('modalTitle').textContent=title;$('modalBody').replaceChildren();$('modal').showModal();render();return $('modalBody');
+}
 function paragraph(parent,t){let p=document.createElement('p');p.textContent=t;parent.append(p);return p;}
 function button(parent,t,fn){let z=document.createElement('button');z.textContent=t;z.onclick=fn;parent.append(z);return z;}
 function loadGame(x){stopWorker();clearInterval(autoplay);autoplay=null;g=JSON.parse(JSON.stringify(x));events=g.events;cursor=g.cursor;remaining=Number.isFinite(g.remaining)?Math.max(0,Math.min(40000,g.remaining)):40000;paused=true;reviewing=false;rec=null;rebuild();render();persist();analyze();}
@@ -12139,7 +12143,7 @@ async function postmortem(){
 for(let i=0;i<225;i++){let el=document.createElement('button');el.className='cell';if([48,56,112,168,176].includes(i))el.dataset.star='true';el.onclick=()=>move(i);$('board').append(el);}for(let i=0;i<15;i++){let x=document.createElement('span');x.textContent=String.fromCharCode(65+i);$('axisx').append(x);let y=document.createElement('span');y.textContent=i+1;$('axisy').append(y);}
 $('new').onclick=()=>{freeze();stopWorker();$('setup').showModal();render();};$('cancelSetup').onclick=()=>$('setup').close();$('setup').addEventListener('close',()=>{render();if(g&&!g.result)analyze();});$('start').onclick=()=>{persist();clearInterval(autoplay);reviewing=false;let me=+$('my').value,first=$('starter').value==='me'?me:3-me;g={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:new Date().toISOString(),me,first,rules:{fivePriority:true},timer:$('useTimer').checked,axis:$('axisChoice').value,events:[],cursor:0,result:null};events=[];cursor=0;remaining=40000;rec=null;rebuild();paused=false;deadline=Date.now()+40000;$('setup').close();persist();render();msg('두 돌 모두 직접 놓으세요. 나의 다음 수를 추천합니다.');};
 $('pause').onclick=()=>{if(reviewing||g?.result)return;paused?resume():freeze();render();persist();};$('undo').onclick=()=>navigate(cursor-1);$('redo').onclick=()=>navigate(cursor+1);$('hint').onclick=()=>{hints=!hints;render();};$('review').onclick=()=>enterReview();$('leaveReview').onclick=leaveReview;$('first').onclick=()=>navigate(0);$('prev').onclick=()=>navigate(cursor-1);$('next').onclick=()=>navigate(cursor+1);$('last').onclick=()=>navigate(events.length);$('rethink').onclick=()=>analyze(7000);$('budget').onchange=()=>analyze();$('play').onclick=()=>{if(autoplay){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';return;}if(cursor===events.length)navigate(0);$('play').textContent='■ 정지';autoplay=setInterval(()=>{if(cursor>=events.length){clearInterval(autoplay);autoplay=null;$('play').textContent='▶ 재생';}else navigate(cursor+1);},+$('speed').value);};
-$('closeModal').onclick=()=>$('modal').close();$('modal').addEventListener('close',()=>{render();if(g&&!g.result&&!reviewing&&!worker)analyze();});$('history').onclick=()=>{persist();let body=openModal('저장된 게임');paragraph(body,'최근 게임을 최대 10개 보관하며 오래된 게임은 자동 삭제됩니다.');if(!db.games.length)paragraph(body,'저장된 게임이 없습니다.');for(let x of db.games){let item=document.createElement('div');item.className='entry';paragraph(item,new Date(x.date).toLocaleString()+' · '+x.events.length+'턴');button(item,'불러오기',()=>{loadGame(x);$('modal').close();});button(item,'삭제',()=>{if(confirm('이 게임 기록을 삭제할까요? JSON 백업이 없다면 복구할 수 없습니다.')){db.games=db.games.filter(a=>a.id!==x.id);if(g?.id===x.id){g=null;events=[];cursor=0;b.fill(0);paused=true;rec=null;}persist();item.remove();render();}});body.append(item);}};
+$('closeModal').onclick=()=>$('modal').close();$('modal').addEventListener('close',()=>{render();if(g&&!g.result&&!reviewing&&!worker)analyze();});$('history').onclick=()=>{persist();let body=openModal('저장된 게임',{keepOpponentAnalysis:true});paragraph(body,'최근 게임을 최대 10개 보관하며 오래된 게임은 자동 삭제됩니다.');if(!db.games.length)paragraph(body,'저장된 게임이 없습니다.');for(let x of db.games){let item=document.createElement('div');item.className='entry';paragraph(item,new Date(x.date).toLocaleString()+' · '+x.events.length+'턴');button(item,'불러오기',()=>{loadGame(x);$('modal').close();});button(item,'삭제',()=>{if(confirm('이 게임 기록을 삭제할까요? JSON 백업이 없다면 복구할 수 없습니다.')){db.games=db.games.filter(a=>a.id!==x.id);if(g?.id===x.id){stopWorker();g=null;events=[];cursor=0;b.fill(0);paused=true;rec=null;}persist();item.remove();render();}});body.append(item);}};
 $('lessons').onclick=()=>{let body=openModal('패배 방지 기록');paragraph(body,db.lessons.length+'개 · 대칭/회전 포함 전체 판 일치 방식');for(let l of db.lessons){let item=document.createElement('div');item.className='entry';paragraph(item,`${l.turn}턴 · ${l.type} · ${new Date(l.date).toLocaleDateString()}`);button(item,'원본 기보',()=>{let x=db.games.find(a=>a.id===l.game);if(x){loadGame(x);$('modal').close();enterReview(l.turn);}else paragraph(item,'원본 기보가 삭제되었습니다.');});button(item,'삭제',()=>{if(confirm('이 학습 기록을 삭제할까요?')){db.lessons=db.lessons.filter(a=>a!==l);persist();item.remove();}});body.append(item);}};
 $('export').onclick=exportDB;$('import').onclick=()=>{freeze();render();$('file').click();};$('file').onchange=async()=>{try{let f=$('file').files[0];if(!f)return;if(f.size>200*1024*1024)throw Error('200MiB 이하 JSON만 지원합니다');let x=validate(OmokGameStorage.retainGames(JSON.parse(await f.text()),null));for(let a of x.games)if(!db.games.some(v=>v.id===a.id))db.games.push(a);for(let a of x.lessons)if(!db.lessons.some(v=>v.key===a.key&&v.bad===a.bad&&v.good===a.good))db.lessons.push(a);persist();msg('기록을 가져왔습니다. 저장된 게임은 최근 10개까지 유지합니다.');}catch(e){msg('가져오기 실패: '+e.message);}finally{$('file').value='';}};
 $('copy').onclick=()=>{let body=openModal('기보 텍스트 · 선택하여 복사'),area=document.createElement('textarea');area.readOnly=true;area.value=events.map((e,k)=>`${k+1}. ${names[e.p]} ${e.type==='timeout'?'PASS(40초 초과)':E.coord(e.i)}`).join('\n');body.append(area);area.select();};$('learn').onclick=learn;$('postmortem').onclick=postmortem;
@@ -12594,10 +12598,20 @@ function publishPreparedReply(task,result,partial=false){
   if(!partial)task.onDone?.(rec);
   return true;
 }
+function forecastOptions(result){
+  if(result?.i==null)return [];
+  const rows=result.candidates||[],selected=rows.find(row=>row.i===result.i)||{i:result.i};
+  const ranked=[];
+  for(const row of [selected,...rows]){
+    if(!Number.isInteger(row.i)||row.i<0||row.i>=b.length||ranked.some(candidate=>candidate.i===row.i)||!E.inspect(b,row.i,turn).legal)continue;
+    ranked.push(row);
+    if(ranked.length===3)break;
+  }
+  return ranked;
+}
 function prepareReply(){
   if(!g||g.result||reviewing||turn===g.me||rec?.i==null){cancelPonder();return;}
-  const sourceKey=positionKey(b,turn),opponents=[...new Set([rec.i,...(rec.candidates||[]).slice(0,3).map(m=>m.i)])]
-    .filter(i=>Number.isInteger(i)&&i>=0&&i<b.length&&E.inspect(b,i,turn).legal).slice(0,3),wanted=new Set(opponents);
+  const sourceKey=positionKey(b,turn),opponents=forecastOptions(rec).map(row=>row.i),wanted=new Set(opponents);
   // Preserve work by coordinate when rankings change; remove only predictions
   // that disappeared or belong to a different board/settings context.
   if(ponder&&!ponderBranches.has(ponder.opponent)){ponder.worker?.terminate();ponder=null;}
@@ -12635,7 +12649,11 @@ function showPonderStatus(){
   const sourceKey=positionKey(b,turn),tasks=[...ponderBranches.values()].filter(t=>!t.promoted&&t.sourceKey===sourceKey).sort((a,b)=>a.rank-b.rank);if(!tasks.length)return;
   const ready=tasks.filter(t=>t.result?.i!=null&&!limitedPreparedReply(t.result)).length;
   const done=tasks.every(t=>t.result||t.error),single=tasks.length===1,complete=done&&ready===tasks.length;
-  predictionNote.textContent=tasks.map(t=>`${t.rank}순위 ${E.coord(t.opponent)}: ${t.error?'계산 중단':t.result?t.result.i==null?'추천 없음':'응수 '+E.coord(t.result.i)+(limitedPreparedReply(t.result)?' · 검사 미완료':' 준비 완료'):'내 응수 사전 계산 중'+(t.partial?' · '+(t.partial.depth||0)+'반수':'')}`).join(' · ');
+  predictionNote.textContent=tasks.map(t=>{
+    const reply=t.error?'계산 중단':t.result?t.result.i==null?'추천 없음':'응수 '+E.coord(t.result.i)+(limitedPreparedReply(t.result)?' · 검사 미완료':' 준비 완료')
+      :t.partial?.i!=null?'응수 후보 '+E.coord(t.partial.i)+' · 계산 중':'내 응수 사전 계산 중';
+    return `${t.rank}순위 ${E.coord(t.opponent)}: ${reply}`;
+  }).join(' · ');
   const label=complete?'상대 차례 · 내 응수 준비 완료':done?'상대 차례 · 일부 응수 미완료':'상대 차례 · 내 응수 사전 계산 중';
   setAnalysisStatus(label+(single?'':` · ${tasks.length}개 병렬 · ${ready}/${tasks.length} 준비`),
     done?'상대가 예상 후보에 두면 그 배치의 응수를 확인합니다.':'상대가 각 후보에 뒀을 때 내 응수를 미리 계산합니다.',complete?'complete':done?'warning':'thinking');
@@ -12644,6 +12662,11 @@ analyze=function(explicit,onDone){
   // Historical study buttons now use the one selected analysis policy.
   if(g&&!g.result&&!globalThis.omokComputeReady){stopWorker();setAnalysisStatus('연산 준비 중','선택한 분석 모드를 유지하고 연산 준비 완료 후 시작합니다.','ready');return;}
   if(!g||g.result){stopWorker();rec=null;render();const winner=g?.result?.winner,outcome=winner?(winner===g.me?'내 승리':'내 패배'):'';setAnalysisStatus(winner?`대국 종료 · ${names[winner]} 승리 · ${outcome}`:g?.result?'대국 종료 · 무승부':'분석 준비',winner?`정확한 5목 완성: ${winCells.map(E.coord).join(' → ')}`:g?.result?'빈칸 없이 종료되었습니다.':'착수 후 자동으로 추천을 계산합니다.',winner?'complete':g?.result?'stopped':'ready');return;}
+  if(explicit==null&&!onDone&&!reviewing&&turn!==g.me&&rec?.analysisPolicy?.role==='prediction'){
+    const sourceKey=positionKey(b,turn);
+    const retained=[...ponderBranches.values()].some(task=>task.sourceKey===sourceKey&&!task.promoted&&!task.error);
+    if(retained){showPonderStatus();return;}
+  }
   const prepared=explicit==null&&!reviewing&&turn===g.me?matchingPonder():null;
   if(prepared){
     selectPonder(prepared);
@@ -12711,7 +12734,8 @@ render=function(){unifiedRender();
   if(rec?.i!=null&&rec.analysisDelivery?.phase==='interim')$('recommend').textContent=E.coord(rec.i)+' · 계산 중';
   if(rec?.i!=null&&rec.analysisDelivery?.phase==='stopped')$('recommend').textContent=E.coord(rec.i)+' · 중단 후보';
   candidateList.replaceChildren();
-  for(const [k,m] of (rec?.candidates||[]).slice(0,3).entries()){
+  const visibleCandidates=g&&!g.result&&!reviewing&&turn!==g.me?forecastOptions(rec):(rec?.candidates||[]).slice(0,3);
+  for(const [k,m] of visibleCandidates.entries()){
     const el=document.createElement('span'),score=m.comparisonComplete?OmokAssessment.formatScore(m.score,turn,g?.me):null;el.className='badge';el.textContent=`${k+1}순위 ${E.coord(m.i)}${m.comparisonComplete?' · '+m.depth+'반수':''}${score===null?'':' · 평가 '+score}`;candidateList.append(el);
   }
   const policy=rec?.analysisPolicy||currentAnalysisPolicy;
